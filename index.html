@@ -1542,6 +1542,8 @@
                 document.getElementById('parentInstructions').style.display = 'none';
                 document.getElementById('childInstructions').style.display = 'block';
             } else {
+                // Відновлюємо всі вкладки для батьків
+                document.querySelectorAll('.tab').forEach(t => t.style.display = '');
                 document.getElementById('parentInstructions').style.display = 'block';
                 document.getElementById('childInstructions').style.display = 'none';
                 document.getElementById('currentPin').textContent = data.pin;
