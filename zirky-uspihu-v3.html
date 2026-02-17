@@ -1,0 +1,1625 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>⭐ Зірки Успіху</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;900&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        :root {
+            --primary: #FFD700;
+            --secondary: #0057B7;
+            --accent: #FF6B6B;
+            --success: #4CAF50;
+            --bg: #FFF9E6;
+            --card: #FFFFFF;
+            --text: #2C3E50;
+            --shadow: 0 8px 24px rgba(0, 87, 183, 0.15);
+            --radius: 24px;
+        }
+        
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(135deg, var(--secondary) 0%, #4A90E2 50%, var(--primary) 100%);
+            min-height: 100vh;
+            color: var(--text);
+            overflow-x: hidden;
+        }
+        
+        body::before {
+            content: '⭐';
+            position: fixed;
+            font-size: 200px;
+            opacity: 0.05;
+            top: 10%;
+            left: -50px;
+            animation: float 6s ease-in-out infinite;
+            pointer-events: none;
+        }
+        
+        body::after {
+            content: '✨';
+            position: fixed;
+            font-size: 150px;
+            opacity: 0.05;
+            bottom: 10%;
+            right: -50px;
+            animation: float 8s ease-in-out infinite reverse;
+            pointer-events: none;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-30px) rotate(10deg); }
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            animation: slideDown 0.6s ease-out;
+        }
+        
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, var(--primary) 0%, transparent 70%);
+            opacity: 0.1;
+            animation: rotate 20s linear infinite;
+        }
+        
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .logo {
+            font-family: 'Caveat', cursive;
+            font-size: 42px;
+            color: var(--secondary);
+            margin-bottom: 15px;
+            text-shadow: 3px 3px 0 var(--primary);
+            position: relative;
+            z-index: 1;
+        }
+        
+        .balance-container {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .balance {
+            font-size: 72px;
+            font-weight: 900;
+            color: var(--secondary);
+            margin: 15px 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .balance-label {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #666;
+            font-weight: 700;
+        }
+        
+        .stats-row {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .stat-mini {
+            background: var(--bg);
+            padding: 10px 20px;
+            border-radius: 15px;
+            font-size: 14px;
+        }
+        
+        .stat-mini strong {
+            color: var(--secondary);
+            font-weight: 900;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 5px;
+        }
+        
+        .tabs::-webkit-scrollbar {
+            height: 4px;
+        }
+        
+        .tabs::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 4px;
+        }
+        
+        .tab {
+            flex: 1;
+            min-width: 140px;
+            padding: 15px 20px;
+            background: var(--card);
+            border: none;
+            border-radius: 18px;
+            font-family: 'Nunito', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .tab:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        }
+        
+        .tab.active {
+            background: linear-gradient(135deg, var(--primary), #FFA500);
+            color: var(--secondary);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(255, 215, 0, 0.4);
+        }
+        
+        .content {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 30px;
+            box-shadow: var(--shadow);
+            min-height: 400px;
+            animation: fadeIn 0.4s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .section {
+            display: none;
+        }
+        
+        .section.active {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text);
+            font-weight: 700;
+            font-size: 15px;
+        }
+        
+        select, input[type="number"], input[type="text"], input[type="password"], input[type="date"] {
+            width: 100%;
+            padding: 15px;
+            border: 3px solid #E0E0E0;
+            border-radius: 15px;
+            font-family: 'Nunito', sans-serif;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+            background: var(--bg);
+        }
+        
+        select:focus, input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(255, 215, 0, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 18px;
+            border: none;
+            border-radius: 18px;
+            font-family: 'Nunito', sans-serif;
+            font-size: 18px;
+            font-weight: 900;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 10px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, #FFA500 100%);
+            color: var(--secondary);
+            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 28px rgba(255, 215, 0, 0.5);
+        }
+        
+        .btn-secondary {
+            background: var(--bg);
+            color: var(--text);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, var(--accent) 0%, #E74C3C 100%);
+            color: white;
+        }
+        
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .history-item {
+            background: var(--bg);
+            padding: 20px;
+            border-radius: 18px;
+            border-left: 6px solid var(--secondary);
+            transition: all 0.3s;
+            animation: slideIn 0.4s ease-out;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        .history-item:hover {
+            transform: translateX(8px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        }
+        
+        .history-item.expense {
+            border-left-color: var(--accent);
+        }
+        
+        .history-info {
+            flex: 1;
+        }
+        
+        .history-date {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+        
+        .history-desc {
+            font-weight: 700;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+        
+        .history-stars {
+            font-size: 28px;
+            font-weight: 900;
+            margin-right: 15px;
+        }
+        
+        .history-stars.positive {
+            color: var(--success);
+        }
+        
+        .history-stars.negative {
+            color: var(--accent);
+        }
+        
+        .delete-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 10px 15px;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .delete-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        .rewards-grid {
+            display: grid;
+            gap: 15px;
+        }
+        
+        .reward-item {
+            background: var(--bg);
+            padding: 20px;
+            border-radius: 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s;
+        }
+        
+        .reward-item:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        }
+        
+        .reward-name {
+            font-weight: 700;
+            font-size: 16px;
+        }
+        
+        .reward-cost {
+            color: var(--secondary);
+            font-size: 24px;
+            font-weight: 900;
+        }
+        
+        .reward-btn {
+            padding: 10px 20px;
+            background: var(--primary);
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .reward-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
+        }
+        
+        .reward-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .chart-container {
+            background: var(--bg);
+            padding: 20px;
+            border-radius: 18px;
+            margin-top: 20px;
+            height: 300px;
+            position: relative;
+        }
+        
+        .chart {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            gap: 5px;
+        }
+        
+        .chart-bar {
+            flex: 1;
+            background: linear-gradient(to top, var(--secondary), var(--primary));
+            border-radius: 8px 8px 0 0;
+            position: relative;
+            transition: all 0.3s;
+            min-height: 5px;
+        }
+        
+        .chart-bar:hover {
+            transform: scaleY(1.05);
+            opacity: 0.8;
+        }
+        
+        .chart-label {
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 11px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+        
+        .chart-value {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px;
+            font-weight: 900;
+            color: var(--secondary);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+        
+        .empty-icon {
+            font-size: 72px;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+        
+        .login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            animation: fadeIn 0.3s;
+        }
+        
+        .login-box {
+            background: var(--card);
+            padding: 40px;
+            border-radius: var(--radius);
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            animation: scaleIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        @keyframes scaleIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        .login-box h2 {
+            font-family: 'Caveat', cursive;
+            font-size: 36px;
+            color: var(--secondary);
+            margin-bottom: 30px;
+        }
+        
+        .login-buttons {
+            display: grid;
+            gap: 15px;
+        }
+        
+        .login-btn {
+            padding: 25px;
+            font-size: 20px;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--primary), #FFA500);
+            color: var(--secondary);
+            border: none;
+            border-radius: 18px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .login-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 24px rgba(255, 215, 0, 0.4);
+        }
+        
+        .login-btn.child {
+            background: linear-gradient(135deg, var(--secondary), #4A90E2);
+            color: white;
+        }
+        
+        .pin-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1001;
+        }
+        
+        .pin-box {
+            background: var(--card);
+            padding: 40px;
+            border-radius: var(--radius);
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+        }
+        
+        .pin-box h2 {
+            font-family: 'Caveat', cursive;
+            font-size: 36px;
+            color: var(--secondary);
+            margin-bottom: 20px;
+        }
+        
+        .pin-input {
+            font-size: 32px;
+            text-align: center;
+            letter-spacing: 20px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .pin-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .pin-btn {
+            padding: 20px;
+            font-size: 24px;
+            font-weight: 900;
+            background: var(--bg);
+            border: 3px solid var(--primary);
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .pin-btn:hover {
+            background: var(--primary);
+            transform: scale(1.05);
+        }
+        
+        .pin-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .instructions {
+            line-height: 1.8;
+        }
+        
+        .instructions h3 {
+            color: var(--secondary);
+            margin: 25px 0 15px 0;
+            font-size: 20px;
+        }
+        
+        .instructions ul {
+            margin-left: 20px;
+        }
+        
+        .instructions li {
+            margin-bottom: 10px;
+        }
+        
+        .month-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+        
+        .month-btn {
+            padding: 10px 20px;
+            background: var(--bg);
+            border: 2px solid var(--secondary);
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .month-btn:hover {
+            background: var(--primary);
+        }
+        
+        .month-display {
+            flex: 1;
+            text-align: center;
+            font-size: 18px;
+            font-weight: 900;
+            color: var(--secondary);
+        }
+        
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .quick-action-btn {
+            padding: 20px;
+            background: var(--bg);
+            border: 3px solid var(--secondary);
+            border-radius: 18px;
+            font-weight: 900;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: var(--secondary);
+        }
+        
+        .quick-action-btn:hover {
+            background: var(--primary);
+            transform: scale(1.05);
+        }
+        
+        .quick-action-btn.active {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .logo {
+                font-size: 32px;
+            }
+            
+            .balance {
+                font-size: 56px;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .tabs {
+                gap: 8px;
+            }
+            
+            .tab {
+                min-width: 100px;
+                padding: 12px 15px;
+                font-size: 14px;
+            }
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Початковий екран входу -->
+    <div class="login-overlay" id="loginOverlay">
+        <div class="login-box">
+            <h2>⭐ Зірки Успіху ⭐</h2>
+            <p style="margin-bottom: 30px; color: #666;">Виберіть хто ви:</p>
+            <div class="login-buttons">
+                <button class="login-btn" onclick="showPinInput()">
+                    👨‍👩‍👧 Батьки
+                </button>
+                <button class="login-btn child" onclick="enterAsChild()">
+                    👧 Дитина
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PIN входу -->
+    <div class="pin-overlay" id="pinOverlay">
+        <div class="pin-box">
+            <h2>🔐 Введіть PIN</h2>
+            <input type="password" class="pin-input" id="pinInput" maxlength="4" readonly>
+            <div class="pin-buttons">
+                <button class="pin-btn" onclick="addPin('1')">1</button>
+                <button class="pin-btn" onclick="addPin('2')">2</button>
+                <button class="pin-btn" onclick="addPin('3')">3</button>
+                <button class="pin-btn" onclick="addPin('4')">4</button>
+                <button class="pin-btn" onclick="addPin('5')">5</button>
+                <button class="pin-btn" onclick="addPin('6')">6</button>
+                <button class="pin-btn" onclick="addPin('7')">7</button>
+                <button class="pin-btn" onclick="addPin('8')">8</button>
+                <button class="pin-btn" onclick="addPin('9')">9</button>
+                <button class="pin-btn" onclick="clearPin()">←</button>
+                <button class="pin-btn" onclick="addPin('0')">0</button>
+                <button class="pin-btn" onclick="cancelPin()">✖</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Індикатор завантаження -->
+    <div id="loadingOverlay" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);display:flex;flex-direction:column;justify-content:center;align-items:center;z-index:2000;">
+        <div style="font-size:64px;animation:pulse 1s ease-in-out infinite;">⭐</div>
+        <div style="color:white;font-family:'Nunito',sans-serif;font-size:20px;font-weight:700;margin-top:20px;">Завантаження...</div>
+    </div>
+
+    <!-- PIN підтвердження для дитини при обміні -->
+    <div class="pin-overlay" id="rewardPinOverlay" style="display: none;">
+        <div class="pin-box">
+            <h2>🔐 Підтвердіть PIN</h2>
+            <p style="color: #666; margin-bottom: 10px;">Попросіть батьків підтвердити обмін</p>
+            <input type="password" class="pin-input" id="rewardPinInput" maxlength="4" readonly>
+            <div class="pin-buttons">
+                <button class="pin-btn" onclick="addRewardPin('1')">1</button>
+                <button class="pin-btn" onclick="addRewardPin('2')">2</button>
+                <button class="pin-btn" onclick="addRewardPin('3')">3</button>
+                <button class="pin-btn" onclick="addRewardPin('4')">4</button>
+                <button class="pin-btn" onclick="addRewardPin('5')">5</button>
+                <button class="pin-btn" onclick="addRewardPin('6')">6</button>
+                <button class="pin-btn" onclick="addRewardPin('7')">7</button>
+                <button class="pin-btn" onclick="addRewardPin('8')">8</button>
+                <button class="pin-btn" onclick="addRewardPin('9')">9</button>
+                <button class="pin-btn" onclick="clearRewardPin()">←</button>
+                <button class="pin-btn" onclick="addRewardPin('0')">0</button>
+                <button class="pin-btn" onclick="cancelRewardPin()">✖</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container" id="mainApp" style="display: none;">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">⭐ Зірки Успіху ⭐</div>
+            <div class="balance-container">
+                <div class="balance-label">Поточний баланс</div>
+                <div class="balance" id="balance">0⭐</div>
+                <div class="stats-row">
+                    <div class="stat-mini">
+                        Зараховано: <strong id="earnedMonth">0⭐</strong>
+                    </div>
+                    <div class="stat-mini">
+                        Використано: <strong id="spentMonth">0⭐</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('add')">➕ Додати</button>
+            <button class="tab" onclick="switchTab('history')">📜 Історія</button>
+            <button class="tab" onclick="switchTab('rewards')">🎁 Витрати</button>
+            <button class="tab" onclick="switchTab('stats')">📊 Статистика</button>
+            <button class="tab" onclick="switchTab('instructions')">❓ Інструкції</button>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <!-- Add section -->
+            <div class="section active" id="addSection">
+                <div class="quick-actions">
+                    <button class="quick-action-btn active" onclick="showForm('grade')">
+                        📚 Додати оцінку
+                    </button>
+                    <button class="quick-action-btn" onclick="showForm('bonus')">
+                        🌟 Додати бонус
+                    </button>
+                    <button class="quick-action-btn" onclick="showForm('special')">
+                        ✨ Особливе нарахування
+                    </button>
+                </div>
+
+                <!-- Форма оцінки -->
+                <div id="gradeForm">
+                    <h2 style="margin-bottom: 20px; color: var(--secondary);">Додати оцінку</h2>
+                    
+                    <div class="form-group">
+                        <label>📅 Дата</label>
+                        <input type="date" id="gradeDate">
+                    </div>
+
+                    <div class="form-group">
+                        <label>📚 Предмет</label>
+                        <select id="subject">
+                            <option value="">Оберіть предмет</option>
+                            <option value="Я пізнаю світ">Я пізнаю світ</option>
+                            <option value="Математика">Математика (x2 зірки)</option>
+                            <option value="Українська мова">Українська мова</option>
+                            <option value="Читання">Читання</option>
+                            <option value="Англійська мова">Англійська мова</option>
+                            <option value="Інформатика">Інформатика</option>
+                            <option value="Мистецтво">Мистецтво</option>
+                            <option value="Вірш">Вірш</option>
+                            <option value="Фізкультура">Фізкультура</option>
+                            <option value="Діагностувальна робота">Діагностувальна робота (x3 зірки)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>🎯 Оцінка</label>
+                        <select id="grade">
+                            <option value="">Оберіть оцінку</option>
+                            <option value="12">12 балів (5⭐)</option>
+                            <option value="11">11 балів (4⭐)</option>
+                            <option value="10">10 балів (3⭐)</option>
+                            <option value="9">9 балів (2⭐)</option>
+                            <option value="8">8 балів (1⭐)</option>
+                        </select>
+                    </div>
+
+                    <button class="btn btn-primary" onclick="addGradeRecord()">✨ Додати оцінку</button>
+                </div>
+
+                <!-- Форма бонусу -->
+                <div id="bonusForm" style="display: none;">
+                    <h2 style="margin-bottom: 20px; color: var(--secondary);">Додати бонус</h2>
+                    
+                    <div class="form-group">
+                        <label>📅 Дата</label>
+                        <input type="date" id="bonusDate">
+                    </div>
+
+                    <div class="form-group">
+                        <label>🌟 Бонус</label>
+                        <select id="bonusType">
+                            <option value="">Оберіть бонус</option>
+                            <option value="Виконано Д/З|2">Виконано Д/З (+2⭐)</option>
+                            <option value="Важке завдання|5">Важке завдання (+5⭐)</option>
+                            <option value="Прочитав книгу|10">Прочитав книгу (+10⭐)</option>
+                            <option value="Допомога батькам: проста|3">Допомога батькам: проста (+3⭐)</option>
+                            <option value="Допомога батькам: важка|5">Допомога батькам: важка (+5⭐)</option>
+                            <option value="Причесати волосся|5">Причесати волосся (+5⭐)</option>
+                            <option value="Почистити зуби|2">Почистити зуби (+2⭐)</option>
+                        </select>
+                    </div>
+
+                    <button class="btn btn-primary" onclick="addBonusRecord()">✨ Додати бонус</button>
+                </div>
+
+                <!-- Форма особливого нарахування -->
+                <div id="specialForm" style="display: none;">
+                    <h2 style="margin-bottom: 20px; color: var(--secondary);">Особливе нарахування</h2>
+                    
+                    <div class="form-group">
+                        <label>📅 Дата</label>
+                        <input type="date" id="specialDate">
+                    </div>
+
+                    <div class="form-group">
+                        <label>📝 Опис</label>
+                        <input type="text" id="specialDesc" placeholder="За що нараховуються зірки?">
+                    </div>
+
+                    <div class="form-group">
+                        <label>⭐ Кількість зірок</label>
+                        <input type="number" id="specialStars" min="1" placeholder="Скільки зірок?">
+                    </div>
+
+                    <button class="btn btn-primary" onclick="addSpecialRecord()">✨ Додати</button>
+                </div>
+            </div>
+
+            <!-- History section -->
+            <div class="section" id="historySection">
+                <div class="month-selector">
+                    <button class="month-btn" onclick="changeMonth(-1)">◀</button>
+                    <div class="month-display" id="currentMonth"></div>
+                    <button class="month-btn" onclick="changeMonth(1)">▶</button>
+                </div>
+                <div class="history-list" id="historyList"></div>
+            </div>
+
+            <!-- Rewards section -->
+            <div class="section" id="rewardsSection">
+                <h2 style="margin-bottom: 20px; color: var(--secondary);">Обміняти зірки</h2>
+                
+                <div class="rewards-grid" id="rewardsList"></div>
+                
+                <div style="margin-top: 30px; padding: 20px; background: var(--bg); border-radius: 18px;">
+                    <h3 style="color: var(--secondary); margin-bottom: 15px;">✨ Особливе списання</h3>
+                    <div class="form-group">
+                        <label>📝 Опис</label>
+                        <input type="text" id="customRewardDesc" placeholder="На що витрачаються зірки?">
+                    </div>
+                    <div class="form-group">
+                        <label>⭐ Кількість зірок</label>
+                        <input type="number" id="customRewardStars" min="1" placeholder="Скільки зірок?">
+                    </div>
+                    <button class="btn btn-secondary" onclick="buyCustomReward()">💫 Списати</button>
+                </div>
+            </div>
+
+            <!-- Stats section -->
+            <div class="section" id="statsSection">
+                <h2 style="margin-bottom: 20px; color: var(--secondary);">Статистика</h2>
+                <div style="background: var(--bg); padding: 20px; border-radius: 18px;">
+                    <h3 style="color: var(--secondary);">Останні 7 днів</h3>
+                    <div class="chart-container">
+                        <div class="chart" id="chart"></div>
+                    </div>
+                </div>
+                
+                <div style="background: var(--bg); padding: 20px; border-radius: 18px; margin-top: 20px;">
+                    <h3 style="color: var(--secondary); margin-bottom: 15px;">Загальна статистика</h3>
+                    <div style="display: grid; gap: 15px;">
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>Всього заробленно:</span>
+                            <strong id="totalEarned">0⭐</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>Всього витрачено:</span>
+                            <strong id="totalSpent">0⭐</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>Записів цього місяця:</span>
+                            <strong id="recordsCount">0</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Instructions section -->
+            <div class="section" id="instructionsSection">
+
+                <!-- Батьківська інструкція -->
+                <div class="instructions" id="parentInstructions">
+                    <h2 style="color: var(--secondary); margin-bottom: 20px;">📖 Інструкції для батьків</h2>
+
+                    <h3>🎯 Як користуватися:</h3>
+                    <ul>
+                        <li><strong>Батьки:</strong> Натискаєте "Батьки" і вводите PIN</li>
+                        <li><strong>Дитина:</strong> Натискає "Дитина" для перегляду</li>
+                        <li>При невірному PIN автоматично входить як Дитина</li>
+                    </ul>
+
+                    <h3>➕ Додавання записів:</h3>
+                    <ul>
+                        <li><strong>Додати оцінку:</strong> Предмет + оцінка (математика x2, діагностувальна x3)</li>
+                        <li><strong>Додати бонус:</strong> Окремий запис за досягнення</li>
+                        <li><strong>Особливе нарахування:</strong> Свій опис + кількість зірок</li>
+                        <li>Всі записи можна видалити (кнопка 🗑️)</li>
+                    </ul>
+
+                    <h3>⭐ Конвертація оцінок:</h3>
+                    <ul>
+                        <li>12 балів = 5⭐</li>
+                        <li>11 балів = 4⭐</li>
+                        <li>10 балів = 3⭐</li>
+                        <li>9 балів = 2⭐</li>
+                        <li>8 балів = 1⭐</li>
+                    </ul>
+
+                    <h3>🎁 Винагороди:</h3>
+                    <ul>
+                        <li>10⭐ = +30 хвилин смартфону</li>
+                        <li>50⭐ = Вихідний без обов'язків</li>
+                        <li>50⭐ = 50 грн</li>
+                        <li>Можна додати особливе списання з довільним описом</li>
+                    </ul>
+
+                    <h3>💡 Важливо:</h3>
+                    <ul>
+                        <li>Дані зберігаються в пам'яті планшета</li>
+                        <li>Не очищайте кеш браузера!</li>
+                        <li>Щонеділі обговорюйте успіхи разом</li>
+                    </ul>
+
+                    <h3>🔧 Налаштування PIN:</h3>
+                    <ul>
+                        <li>Поточний PIN: <strong id="currentPin">1234</strong></li>
+                        <li>Щоб змінити PIN, введіть новий:</li>
+                    </ul>
+                    <div style="display: flex; gap: 10px; margin-top: 15px;">
+                        <input type="password" id="newPin" placeholder="Новий PIN (4 цифри)" maxlength="4" style="flex: 1;">
+                        <button class="btn-secondary" style="width: auto; padding: 15px 25px;" onclick="changePin()">Змінити</button>
+                    </div>
+                </div>
+
+                <!-- Дитяча інструкція -->
+                <div class="instructions" id="childInstructions" style="display: none;">
+                    <h2 style="color: var(--secondary); margin-bottom: 20px;">⭐ Як це працює?</h2>
+
+                    <h3>🏆 Ти зароблюєш зірки!</h3>
+                    <ul>
+                        <li>Кожна гарна оцінка в школі = зірки на твій рахунок</li>
+                        <li>Допомагаєш вдома або читаєш книгу = ще більше зірок!</li>
+                        <li>Зірки накопичуються і ніколи не зникають самі</li>
+                    </ul>
+
+                    <h3>⭐ Скільки зірок за оцінку?</h3>
+                    <ul>
+                        <li>12 балів = 5⭐ — відмінно, так тримати!</li>
+                        <li>11 балів = 4⭐ — дуже добре!</li>
+                        <li>10 балів = 3⭐ — молодець!</li>
+                        <li>9 балів = 2⭐ — непогано!</li>
+                        <li>8 балів = 1⭐ — вже щось!</li>
+                    </ul>
+
+                    <h3>🚀 Як заробити більше зірок?</h3>
+                    <ul>
+                        <li>📐 <strong>Математика</strong> — подвійні зірки! (x2)</li>
+                        <li>📝 <strong>Діагностувальна робота</strong> — потрійні зірки! (x3)</li>
+                        <li>📚 Виконано Д/З = +2⭐</li>
+                        <li>🤔 Спробував важке завдання = +5⭐</li>
+                        <li>📖 Прочитав книгу = +10⭐</li>
+                        <li>🏠 Допоміг вдома (легко) = +3⭐</li>
+                        <li>💪 Допоміг вдома (серйозно) = +5⭐</li>
+                        <li>💇 Причесати волосся = +5⭐</li>
+                        <li>🦷 Почистити зуби = +2⭐</li>
+                    </ul>
+
+                    <h3>🎁 На що можна витратити зірки?</h3>
+                    <ul>
+                        <li>10⭐ = +30 хвилин смартфону</li>
+                        <li>50⭐ = Вихідний без домашніх обов'язків</li>
+                        <li>50⭐ = 50 грн на що захочеш</li>
+                    </ul>
+
+                    <h3>💡 Декілька важливих речей:</h3>
+                    <ul>
+                        <li>Зірки <strong>ніколи не забирають</strong> за погані оцінки — тільки додають!</li>
+                        <li>Чим більше стараєшся — тим швидше накопичуєш на мрію</li>
+                        <li>Можна заощаджувати зірки і збирати на щось велике</li>
+                        <li>Щонеділі разом з батьками дивіться на свій прогрес 📊</li>
+                    </ul>
+
+                    <div style="margin-top: 30px; padding: 20px; background: var(--bg); border-radius: 18px; text-align: center; font-size: 18px; font-weight: 700; color: var(--secondary);">
+                        🌟 Кожна зірка — це твій справжній результат!<br>
+                        <span style="font-size: 14px; font-weight: 400; color: #666; display: block; margin-top: 10px;">Ти сам(а) вирішуєш, як швидко досягнеш своєї мети.</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getDatabase, ref, set, get, onValue } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBv_Lm_p-laB5cq1FiJ59q5IcTKVuGE0H0",
+            authDomain: "zirky-uspihu.firebaseapp.com",
+            databaseURL: "https://zirky-uspihu-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "zirky-uspihu",
+            storageBucket: "zirky-uspihu.firebasestorage.app",
+            messagingSenderId: "1034534533154",
+            appId: "1:1034534533154:web:7bfefc2f6fbd1e782f727b"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // Показуємо індикатор завантаження
+        function showLoading(show) {
+            document.getElementById('loadingOverlay').style.display = show ? 'flex' : 'none';
+        }
+
+        let data = {
+            records: [],
+            balance: 0,
+            pin: '1234',
+            isParent: false
+        };
+
+        const rewards = [
+            { name: '+30 хв смартфону', cost: 10 },
+            { name: "Вихідний без обов'язків", cost: 50 },
+            { name: '50 грн', cost: 50 }
+        ];
+
+        const gradeToStars = {
+            '12': 5,
+            '11': 4,
+            '10': 3,
+            '9': 2,
+            '8': 1
+        };
+
+        let currentViewMonth = new Date();
+        let pinValue = '';
+
+        // Firebase: читаємо дані і слухаємо зміни в реальному часі
+        function initFirebase() {
+            showLoading(true);
+            const dataRef = ref(db, 'zirky');
+            onValue(dataRef, (snapshot) => {
+                const saved = snapshot.val();
+                if (saved) {
+                    const wasParent = data.isParent;
+                    data = saved;
+                    data.isParent = wasParent;
+                    if (data.balance === undefined) data.balance = 0;
+                    if (!data.records) data.records = [];
+                }
+                showLoading(false);
+                updateUI();
+                // Якщо відкрита історія чи статистика — оновлюємо
+                const activeSection = document.querySelector('.section.active');
+                if (activeSection) {
+                    if (activeSection.id === 'historySection') renderHistory();
+                    if (activeSection.id === 'statsSection') renderStats();
+                    if (activeSection.id === 'rewardsSection') renderRewards();
+                }
+            });
+        }
+
+        // Firebase: зберігаємо дані
+        function saveData() {
+            const toSave = {
+                records: data.records || [],
+                balance: data.balance || 0,
+                pin: data.pin || '1234'
+            };
+            set(ref(db, 'zirky'), toSave);
+        }
+
+        function getTodayDate() {
+            const today = new Date();
+            return today.toISOString().split('T')[0];
+        }
+
+        function setTodayDates() {
+            const today = getTodayDate();
+            document.getElementById('gradeDate').value = today;
+            document.getElementById('bonusDate').value = today;
+            document.getElementById('specialDate').value = today;
+        }
+
+        // Вхід
+        function showPinInput() {
+            document.getElementById('loginOverlay').style.display = 'none';
+            document.getElementById('pinOverlay').style.display = 'flex';
+        }
+
+        function enterAsChild() {
+            data.isParent = false;
+            document.getElementById('loginOverlay').style.display = 'none';
+            document.getElementById('mainApp').style.display = 'block';
+            updateUI();
+            document.querySelectorAll('.tab')[3].click(); // stats tab
+        }
+
+        function addPin(digit) {
+            if (pinValue.length < 4) {
+                pinValue += digit;
+                document.getElementById('pinInput').value = '•'.repeat(pinValue.length);
+                if (pinValue.length === 4) setTimeout(checkPin, 300);
+            }
+        }
+
+        function clearPin() {
+            pinValue = pinValue.slice(0, -1);
+            document.getElementById('pinInput').value = '•'.repeat(pinValue.length);
+        }
+
+        function cancelPin() {
+            pinValue = '';
+            document.getElementById('pinInput').value = '';
+            document.getElementById('pinOverlay').style.display = 'none';
+            document.getElementById('loginOverlay').style.display = 'flex';
+        }
+
+        function checkPin() {
+            if (pinValue === data.pin) {
+                data.isParent = true;
+                document.getElementById('pinOverlay').style.display = 'none';
+                document.getElementById('mainApp').style.display = 'block';
+                updateUI();
+            } else {
+                alert('❌ Невірний PIN! Вхід як Дитина.');
+                pinValue = '';
+                document.getElementById('pinInput').value = '';
+                enterAsChild();
+            }
+        }
+
+        function changePin() {
+            const newPin = document.getElementById('newPin').value;
+            if (newPin.length === 4 && /^\d+$/.test(newPin)) {
+                data.pin = newPin;
+                saveData();
+                document.getElementById('currentPin').textContent = newPin;
+                document.getElementById('newPin').value = '';
+                alert('✅ PIN змінено!');
+            } else {
+                alert('❌ PIN має містити 4 цифри!');
+            }
+        }
+
+        // Вкладки
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.getElementById(tab + 'Section').classList.add('active');
+
+            if (tab === 'history') renderHistory();
+            else if (tab === 'rewards') renderRewards();
+            else if (tab === 'stats') renderStats();
+
+            if (!data.isParent && tab === 'add') {
+                document.querySelectorAll('.tab')[3].click();
+            }
+        }
+
+        function showForm(type) {
+            document.querySelectorAll('.quick-action-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById('gradeForm').style.display = 'none';
+            document.getElementById('bonusForm').style.display = 'none';
+            document.getElementById('specialForm').style.display = 'none';
+            document.getElementById(type + 'Form').style.display = 'block';
+        }
+
+        // Додавання записів
+        function addGradeRecord() {
+            const date = document.getElementById('gradeDate').value;
+            const subject = document.getElementById('subject').value;
+            const grade = document.getElementById('grade').value;
+
+            if (!date || !subject || !grade) { alert('❌ Заповніть всі поля!'); return; }
+
+            let stars = gradeToStars[grade];
+            if (subject === 'Математика') stars *= 2;
+            if (subject === 'Діагностувальна робота') stars *= 3;
+
+            data.records.push({
+                id: Date.now(),
+                date: date + 'T12:00:00',
+                subject, grade, stars,
+                type: 'earn',
+                category: 'grade'
+            });
+            data.balance = Number(data.balance) + stars;
+            saveData();
+
+            document.getElementById('subject').value = '';
+            document.getElementById('grade').value = '';
+            alert(`✅ Додано ${stars}⭐!`);
+        }
+
+        function addBonusRecord() {
+            const date = document.getElementById('bonusDate').value;
+            const bonusType = document.getElementById('bonusType').value;
+
+            if (!date || !bonusType) { alert('❌ Заповніть всі поля!'); return; }
+
+            const [name, stars] = bonusType.split('|');
+            data.records.push({
+                id: Date.now(),
+                date: date + 'T12:00:00',
+                description: name,
+                stars: parseInt(stars),
+                type: 'earn',
+                category: 'bonus'
+            });
+            data.balance = Number(data.balance) + parseInt(stars);
+            saveData();
+
+            document.getElementById('bonusType').value = '';
+            alert(`✅ Додано ${stars}⭐!`);
+        }
+
+        function addSpecialRecord() {
+            const date = document.getElementById('specialDate').value;
+            const desc = document.getElementById('specialDesc').value;
+            const stars = parseInt(document.getElementById('specialStars').value);
+
+            if (!date || !desc || !stars || stars < 1) { alert('❌ Заповніть всі поля!'); return; }
+
+            data.records.push({
+                id: Date.now(),
+                date: date + 'T12:00:00',
+                description: desc, stars,
+                type: 'earn',
+                category: 'special'
+            });
+            data.balance = Number(data.balance) + stars;
+            saveData();
+
+            document.getElementById('specialDesc').value = '';
+            document.getElementById('specialStars').value = '';
+            alert(`✅ Додано ${stars}⭐!`);
+        }
+
+        function deleteRecord(id) {
+            if (!confirm('Видалити цей запис?')) return;
+            const record = data.records.find(r => r.id === id);
+            if (!record) return;
+
+            if (record.type === 'earn') data.balance = Number(data.balance) - record.stars;
+            else data.balance = Number(data.balance) + record.stars;
+
+            data.records = data.records.filter(r => r.id !== id);
+            saveData();
+        }
+
+        // Відображення
+        function renderHistory() {
+            const list = document.getElementById('historyList');
+            const monthNames = ['Січень','Лютий','Березень','Квітень','Травень','Червень','Липень','Серпень','Вересень','Жовтень','Листопад','Грудень'];
+            document.getElementById('currentMonth').textContent = `${monthNames[currentViewMonth.getMonth()]} ${currentViewMonth.getFullYear()}`;
+
+            const filtered = (data.records || []).filter(r => {
+                const d = new Date(r.date);
+                return d.getMonth() === currentViewMonth.getMonth() &&
+                       d.getFullYear() === currentViewMonth.getFullYear();
+            }).sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            if (filtered.length === 0) {
+                list.innerHTML = `<div class="empty-state"><div class="empty-icon">📝</div><p>Ще немає записів за цей місяць</p></div>`;
+                return;
+            }
+
+            list.innerHTML = filtered.map(r => {
+                const date = new Date(r.date);
+                const dateStr = `${date.getDate()}.${(date.getMonth()+1).toString().padStart(2,'0')}.${date.getFullYear()}`;
+                let desc = r.category === 'grade' ? `${r.subject} — ${r.grade} балів`
+                         : r.type === 'spend' ? (r.reward || r.description)
+                         : r.description;
+                const starClass = r.type === 'earn' ? 'positive' : 'negative';
+                const deleteBtn = data.isParent ? `<button class="delete-btn" onclick="deleteRecord(${r.id})">🗑️</button>` : '';
+                return `
+                    <div class="history-item ${r.type === 'spend' ? 'expense' : ''}">
+                        <div class="history-info">
+                            <div class="history-date">${dateStr}</div>
+                            <div class="history-desc">${desc}</div>
+                        </div>
+                        <div class="history-stars ${starClass}">${r.type === 'earn' ? '+' : '-'}${r.stars}⭐</div>
+                        ${deleteBtn}
+                    </div>`;
+            }).join('');
+        }
+
+        function changeMonth(delta) {
+            currentViewMonth.setMonth(currentViewMonth.getMonth() + delta);
+            renderHistory();
+        }
+
+        function renderRewards() {
+            const list = document.getElementById('rewardsList');
+            list.innerHTML = rewards.map((r, i) => {
+                const canAfford = Number(data.balance) >= r.cost;
+                return `
+                    <div class="reward-item">
+                        <div>
+                            <div class="reward-name">${r.name}</div>
+                            <div class="reward-cost">${r.cost}⭐</div>
+                        </div>
+                        <button class="reward-btn" onclick="${canAfford ? (data.isParent ? 'buyReward('+i+')' : 'buyRewardWithPin('+i+')') : ''}" ${!canAfford ? 'disabled' : ''}>
+                            ${canAfford ? '✅ Обміняти' : '🔒'}
+                        </button>
+                    </div>`;
+            }).join('');
+        }
+
+        function buyReward(index) {
+            const reward = rewards[index];
+            if (Number(data.balance) >= reward.cost) {
+                if (confirm(`Обміняти ${reward.cost}⭐ на "${reward.name}"?`)) {
+                    data.balance = Number(data.balance) - reward.cost;
+                    data.records.push({
+                        id: Date.now(),
+                        date: new Date().toISOString(),
+                        reward: reward.name,
+                        stars: reward.cost,
+                        type: 'spend'
+                    });
+                    saveData();
+                    alert(`🎁 Вітаємо! Отримано: ${reward.name}`);
+                }
+            }
+        }
+
+        function buyCustomReward() {
+            const desc = document.getElementById('customRewardDesc').value;
+            const stars = parseInt(document.getElementById('customRewardStars').value);
+            const balance = Number(data.balance);
+
+            if (!desc || !stars || stars < 1) { alert('❌ Заповніть всі поля!'); return; }
+
+            if (balance < stars) {
+                const missing = stars - balance;
+                const msgs = [
+                    `⭐ Ще ${missing} зірок — і мрія твоя! Продовжуй старатися!`,
+                    `💪 Зовсім трохи залишилось! Ще ${missing}⭐ — і готово!`,
+                    `🚀 До мрії ${missing} кроків-зірок. Ти впораєшся!`,
+                    `🌟 Не вистачає ${missing}⭐. Кожна гарна оцінка наближає тебе!`
+                ];
+                alert(msgs[Math.floor(Math.random() * msgs.length)]);
+                return;
+            }
+
+            if (data.isParent) {
+                doCustomReward(desc, stars);
+            } else {
+                pendingCustomReward = { desc, stars };
+                showRewardPin();
+            }
+        }
+
+        function doCustomReward(desc, stars) {
+            if (confirm(`Списати ${stars}⭐ на "${desc}"?`)) {
+                data.balance = Number(data.balance) - stars;
+                data.records.push({
+                    id: Date.now(),
+                    date: new Date().toISOString(),
+                    description: desc, stars,
+                    type: 'spend'
+                });
+                saveData();
+                document.getElementById('customRewardDesc').value = '';
+                document.getElementById('customRewardStars').value = '';
+                alert(`🎁 Списано ${stars}⭐!`);
+            }
+        }
+
+        function renderStats() {
+            const chart = document.getElementById('chart');
+            const now = new Date();
+            const last7Days = [];
+
+            for (let i = 6; i >= 0; i--) {
+                const d = new Date();
+                d.setDate(now.getDate() - i);
+                const dayStars = (data.records || [])
+                    .filter(r => new Date(r.date).toDateString() === d.toDateString() && r.type === 'earn')
+                    .reduce((sum, r) => sum + r.stars, 0);
+                last7Days.push({ date: d, stars: dayStars });
+            }
+
+            const maxStars = Math.max(...last7Days.map(d => d.stars), 1);
+            chart.innerHTML = last7Days.map(d => `
+                <div class="chart-bar" style="height: ${(d.stars/maxStars)*100}%">
+                    <div class="chart-value">${d.stars}⭐</div>
+                    <div class="chart-label">${d.date.getDate()}</div>
+                </div>`).join('');
+
+            const totalEarned = (data.records||[]).filter(r=>r.type==='earn').reduce((s,r)=>s+r.stars,0);
+            const totalSpent = (data.records||[]).filter(r=>r.type==='spend').reduce((s,r)=>s+r.stars,0);
+            const thisMonth = new Date().getMonth();
+            const recordsCount = (data.records||[]).filter(r=>new Date(r.date).getMonth()===thisMonth).length;
+
+            document.getElementById('totalEarned').textContent = totalEarned + '⭐';
+            document.getElementById('totalSpent').textContent = totalSpent + '⭐';
+            document.getElementById('recordsCount').textContent = recordsCount;
+        }
+
+        function updateUI() {
+            document.getElementById('balance').textContent = Number(data.balance) + '⭐';
+
+            const thisMonth = new Date().getMonth();
+            const monthRecords = (data.records||[]).filter(r => new Date(r.date).getMonth() === thisMonth);
+            const earned = monthRecords.filter(r=>r.type==='earn').reduce((s,r)=>s+r.stars,0);
+            const spent = monthRecords.filter(r=>r.type==='spend').reduce((s,r)=>s+r.stars,0);
+
+            document.getElementById('earnedMonth').textContent = earned + '⭐';
+            document.getElementById('spentMonth').textContent = spent + '⭐';
+
+            if (!data.isParent) {
+                document.querySelectorAll('.tab').forEach(t => {
+                    if (t.textContent.includes('Додати')) t.style.display = 'none';
+                });
+                document.getElementById('parentInstructions').style.display = 'none';
+                document.getElementById('childInstructions').style.display = 'block';
+            } else {
+                document.getElementById('parentInstructions').style.display = 'block';
+                document.getElementById('childInstructions').style.display = 'none';
+                document.getElementById('currentPin').textContent = data.pin;
+            }
+        }
+
+        // PIN підтвердження для дитини при обміні
+        let pendingRewardIndex = null;
+        let pendingCustomReward = null;
+        let rewardPinValue = '';
+
+        function buyRewardWithPin(index) {
+            pendingRewardIndex = index;
+            pendingCustomReward = null;
+            showRewardPin();
+        }
+
+        function showRewardPin() {
+            rewardPinValue = '';
+            document.getElementById('rewardPinInput').value = '';
+            document.getElementById('rewardPinOverlay').style.display = 'flex';
+        }
+
+        function addRewardPin(digit) {
+            if (rewardPinValue.length < 4) {
+                rewardPinValue += digit;
+                document.getElementById('rewardPinInput').value = '•'.repeat(rewardPinValue.length);
+                if (rewardPinValue.length === 4) setTimeout(checkRewardPin, 300);
+            }
+        }
+
+        function clearRewardPin() {
+            rewardPinValue = rewardPinValue.slice(0, -1);
+            document.getElementById('rewardPinInput').value = '•'.repeat(rewardPinValue.length);
+        }
+
+        function cancelRewardPin() {
+            document.getElementById('rewardPinOverlay').style.display = 'none';
+            pendingRewardIndex = null;
+            pendingCustomReward = null;
+        }
+
+        function checkRewardPin() {
+            if (rewardPinValue === data.pin) {
+                document.getElementById('rewardPinOverlay').style.display = 'none';
+                if (pendingRewardIndex !== null) {
+                    buyReward(pendingRewardIndex);
+                    pendingRewardIndex = null;
+                } else if (pendingCustomReward) {
+                    doCustomReward(pendingCustomReward.desc, pendingCustomReward.stars);
+                    pendingCustomReward = null;
+                }
+            } else {
+                alert('❌ Невірний PIN!');
+                rewardPinValue = '';
+                document.getElementById('rewardPinInput').value = '';
+            }
+        }
+
+        // Робимо функції глобальними для onclick в HTML
+        window.showPinInput = showPinInput;
+        window.enterAsChild = enterAsChild;
+        window.addPin = addPin;
+        window.clearPin = clearPin;
+        window.cancelPin = cancelPin;
+        window.changePin = changePin;
+        window.switchTab = switchTab;
+        window.showForm = showForm;
+        window.addGradeRecord = addGradeRecord;
+        window.addBonusRecord = addBonusRecord;
+        window.addSpecialRecord = addSpecialRecord;
+        window.deleteRecord = deleteRecord;
+        window.renderHistory = renderHistory;
+        window.changeMonth = changeMonth;
+        window.renderRewards = renderRewards;
+        window.buyReward = buyReward;
+        window.buyCustomReward = buyCustomReward;
+        window.renderStats = renderStats;
+        window.buyRewardWithPin = buyRewardWithPin;
+        window.showRewardPin = showRewardPin;
+        window.addRewardPin = addRewardPin;
+        window.clearRewardPin = clearRewardPin;
+        window.cancelRewardPin = cancelRewardPin;
+        window.checkRewardPin = checkRewardPin;
+
+        // Ініціалізація
+        setTodayDates();
+        initFirebase();
+    </script>
+</body>
+</html>
