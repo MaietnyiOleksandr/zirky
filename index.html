@@ -813,11 +813,11 @@
 
         <!-- Tabs -->
         <div class="tabs">
-            <button class="tab active" onclick="switchTab('add')">➕ Додати</button>
-            <button class="tab" onclick="switchTab('history')">📜 Історія</button>
-            <button class="tab" onclick="switchTab('rewards')">🎁 Витрати</button>
-            <button class="tab" onclick="switchTab('stats')">📊 Статистика</button>
-            <button class="tab" onclick="switchTab('instructions')">❓ Інструкції</button>
+            <button class="tab active" onclick="switchTab('add', true)">➕ Додати</button>
+            <button class="tab" onclick="switchTab('history', true)">📜 Історія</button>
+            <button class="tab" onclick="switchTab('rewards', true)">🎁 Витрати</button>
+            <button class="tab" onclick="switchTab('stats', true)">📊 Статистика</button>
+            <button class="tab" onclick="switchTab('instructions', true)">❓ Інструкції</button>
         </div>
 
         <!-- Content -->
@@ -1026,8 +1026,8 @@
 
                     <h3>💡 Важливо:</h3>
                     <ul>
-                        <li>Дані зберігаються в пам'яті планшета</li>
-                        <li>Не очищайте кеш браузера!</li>
+                        <li>Дані зберігаються в хмарі Firebase — не зникнуть!</li>
+                        <li>Працює на всіх пристроях одночасно</li>
                         <li>Щонеділі обговорюйте успіхи разом</li>
                     </ul>
 
@@ -1205,7 +1205,7 @@
             document.getElementById('loginOverlay').style.display = 'none';
             document.getElementById('mainApp').style.display = 'block';
             updateUI();
-            document.querySelectorAll('.tab')[3].click(); // stats tab
+            switchTab('instructions');
         }
 
         function addPin(digit) {
@@ -1256,9 +1256,19 @@
         }
 
         // Вкладки
-        function switchTab(tab) {
+        function switchTab(tab, fromClick) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            event.target.classList.add('active');
+            // Якщо виклик від кліку — підсвічуємо натиснуту вкладку
+            if (fromClick && event && event.target) {
+                event.target.classList.add('active');
+            } else {
+                // Програмний виклик — підсвічуємо вкладку по імені
+                document.querySelectorAll('.tab').forEach(t => {
+                    if (t.getAttribute('onclick') && t.getAttribute('onclick').includes("'" + tab + "'")) {
+                        t.classList.add('active');
+                    }
+                });
+            }
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             document.getElementById(tab + 'Section').classList.add('active');
 
@@ -1267,7 +1277,7 @@
             else if (tab === 'stats') renderStats();
 
             if (!data.isParent && tab === 'add') {
-                document.querySelectorAll('.tab')[3].click();
+                switchTab('instructions');
             }
         }
 
