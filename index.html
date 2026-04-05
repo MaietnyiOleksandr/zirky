@@ -158,6 +158,37 @@
             font-weight: 900;
         }
         
+        .period-toggle {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+        
+        .period-btn {
+            padding: 8px 18px;
+            background: var(--bg);
+            border: 2px solid #E0E0E0;
+            border-radius: 12px;
+            font-family: 'Nunito', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: var(--text);
+        }
+        
+        .period-btn:hover {
+            transform: translateY(-2px);
+            border-color: var(--primary);
+        }
+        
+        .period-btn.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: var(--secondary);
+        }
+        
         .tabs {
             display: flex;
             gap: 10px;
@@ -800,12 +831,16 @@
             <div class="balance-container">
                 <div class="balance-label">Поточний баланс</div>
                 <div class="balance" id="balance">0⭐</div>
+                <div class="period-toggle">
+                    <button class="period-btn active" onclick="togglePeriod('month')">За місяць</button>
+                    <button class="period-btn" onclick="togglePeriod('all')">За весь час</button>
+                </div>
                 <div class="stats-row">
                     <div class="stat-mini">
-                        Зараховано: <strong id="earnedMonth">0⭐</strong>
+                        Зараховано: <strong id="earnedStats">0⭐</strong>
                     </div>
                     <div class="stat-mini">
-                        Використано: <strong id="spentMonth">0⭐</strong>
+                        Використано: <strong id="spentStats">0⭐</strong>
                     </div>
                 </div>
             </div>
@@ -1146,6 +1181,7 @@
 
         let currentViewMonth = new Date();
         let pinValue = '';
+        let showPeriod = 'month'; // 'month' або 'all'
 
         // Firebase: читаємо дані і слухаємо зміни в реальному часі
         function initFirebase() {
@@ -1527,13 +1563,20 @@
         function updateUI() {
             document.getElementById('balance').textContent = Number(data.balance) + '⭐';
 
-            const thisMonth = new Date().getMonth();
-            const monthRecords = (data.records||[]).filter(r => new Date(r.date).getMonth() === thisMonth);
-            const earned = monthRecords.filter(r=>r.type==='earn').reduce((s,r)=>s+r.stars,0);
-            const spent = monthRecords.filter(r=>r.type==='spend').reduce((s,r)=>s+r.stars,0);
+            let records = data.records || [];
+            if (showPeriod === 'month') {
+                const thisMonth = new Date().getMonth();
+                const thisYear = new Date().getFullYear();
+                records = records.filter(r => {
+                    const d = new Date(r.date);
+                    return d.getMonth() === thisMonth && d.getFullYear() === thisYear;
+                });
+            }
+            const earned = records.filter(r=>r.type==='earn').reduce((s,r)=>s+r.stars,0);
+            const spent = records.filter(r=>r.type==='spend').reduce((s,r)=>s+r.stars,0);
 
-            document.getElementById('earnedMonth').textContent = earned + '⭐';
-            document.getElementById('spentMonth').textContent = spent + '⭐';
+            document.getElementById('earnedStats').textContent = earned + '⭐';
+            document.getElementById('spentStats').textContent = spent + '⭐';
 
             if (!data.isParent) {
                 document.querySelectorAll('.tab').forEach(t => {
@@ -1603,7 +1646,16 @@
             }
         }
 
+        // Функція перемикання періоду
+        function togglePeriod(period) {
+            showPeriod = period;
+            document.querySelectorAll('.period-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            updateUI();
+        }
+
         // Робимо функції глобальними для onclick в HTML
+        window.togglePeriod = togglePeriod;
         window.showPinInput = showPinInput;
         window.enterAsChild = enterAsChild;
         window.addPin = addPin;
