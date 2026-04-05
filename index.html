@@ -189,6 +189,49 @@
             color: var(--secondary);
         }
         
+        .stats-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .chart-toggles {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .chart-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            user-select: none;
+        }
+        
+        .chart-toggle input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+        
+        .chart-toggle label {
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            margin: 0;
+        }
+        
+        .chart-toggle.earned label {
+            color: var(--secondary);
+        }
+        
+        .chart-toggle.spent label {
+            color: var(--accent);
+        }
+        
         .tabs {
             display: flex;
             gap: 10px;
@@ -470,13 +513,28 @@
             gap: 5px;
         }
         
+        .chart-bar-group {
+            flex: 1;
+            display: flex;
+            gap: 4px;
+            align-items: flex-end;
+            position: relative;
+        }
+        
         .chart-bar {
             flex: 1;
-            background: linear-gradient(to top, var(--secondary), var(--primary));
             border-radius: 8px 8px 0 0;
             position: relative;
             transition: all 0.3s;
             min-height: 5px;
+        }
+        
+        .chart-bar.earned {
+            background: linear-gradient(to top, var(--secondary), var(--primary));
+        }
+        
+        .chart-bar.spent {
+            background: linear-gradient(to top, #E74C3C, var(--accent));
         }
         
         .chart-bar:hover {
@@ -995,7 +1053,23 @@
             <div class="section" id="statsSection">
                 <h2 style="margin-bottom: 20px; color: var(--secondary);">Статистика</h2>
                 <div style="background: var(--bg); padding: 20px; border-radius: 18px;">
-                    <h3 style="color: var(--secondary);">Останні 7 днів</h3>
+                    <div class="stats-controls">
+                        <div class="period-toggle">
+                            <button class="period-btn active" onclick="changeChartPeriod('week')">Тиждень</button>
+                            <button class="period-btn" onclick="changeChartPeriod('month')">Місяць</button>
+                            <button class="period-btn" onclick="changeChartPeriod('year')">Рік</button>
+                        </div>
+                        <div class="chart-toggles">
+                            <div class="chart-toggle earned">
+                                <input type="checkbox" id="showEarned" checked onchange="updateChart()">
+                                <label for="showEarned">Доходи</label>
+                            </div>
+                            <div class="chart-toggle spent">
+                                <input type="checkbox" id="showSpent" checked onchange="updateChart()">
+                                <label for="showSpent">Витрати</label>
+                            </div>
+                        </div>
+                    </div>
                     <div class="chart-container">
                         <div class="chart" id="chart"></div>
                     </div>
@@ -1182,6 +1256,7 @@
         let currentViewMonth = new Date();
         let pinValue = '';
         let showPeriod = 'month'; // 'month' або 'all'
+        let chartPeriod = 'week'; // 'week', 'month', 'year'
 
         // Firebase: читаємо дані і слухаємо зміни в реальному часі
         function initFirebase() {
@@ -1530,26 +1605,8 @@
         }
 
         function renderStats() {
-            const chart = document.getElementById('chart');
-            const now = new Date();
-            const last7Days = [];
-
-            for (let i = 6; i >= 0; i--) {
-                const d = new Date();
-                d.setDate(now.getDate() - i);
-                const dayStars = (data.records || [])
-                    .filter(r => new Date(r.date).toDateString() === d.toDateString() && r.type === 'earn')
-                    .reduce((sum, r) => sum + r.stars, 0);
-                last7Days.push({ date: d, stars: dayStars });
-            }
-
-            const maxStars = Math.max(...last7Days.map(d => d.stars), 1);
-            chart.innerHTML = last7Days.map(d => `
-                <div class="chart-bar" style="height: ${(d.stars/maxStars)*100}%">
-                    <div class="chart-value">${d.stars}⭐</div>
-                    <div class="chart-label">${d.date.getDate()}</div>
-                </div>`).join('');
-
+            updateChart();
+            
             const totalEarned = (data.records||[]).filter(r=>r.type==='earn').reduce((s,r)=>s+r.stars,0);
             const totalSpent = (data.records||[]).filter(r=>r.type==='spend').reduce((s,r)=>s+r.stars,0);
             const thisMonth = new Date().getMonth();
@@ -1559,6 +1616,93 @@
             document.getElementById('totalSpent').textContent = totalSpent + '⭐';
             document.getElementById('recordsCount').textContent = recordsCount;
         }
+
+        function updateChart() {
+            const chart = document.getElementById('chart');
+            const now = new Date();
+            const showEarned = document.getElementById('showEarned').checked;
+            const showSpent = document.getElementById('showSpent').checked;
+            
+            let periods = [];
+            let labelFormat;
+            
+            // Визначаємо періоди залежно від вибору
+            if (chartPeriod === 'week') {
+                for (let i = 6; i >= 0; i--) {
+                    const d = new Date();
+                    d.setDate(now.getDate() - i);
+                    periods.push(d);
+                }
+                labelFormat = d => d.getDate();
+            } else if (chartPeriod === 'month') {
+                for (let i = 29; i >= 0; i--) {
+                    const d = new Date();
+                    d.setDate(now.getDate() - i);
+                    periods.push(d);
+                }
+                labelFormat = d => d.getDate();
+            } else if (chartPeriod === 'year') {
+                for (let i = 11; i >= 0; i--) {
+                    const d = new Date();
+                    d.setMonth(now.getMonth() - i);
+                    periods.push(d);
+                }
+                labelFormat = d => ['Сі','Лю','Бе','Кв','Тр','Че','Ли','Се','Ве','Жо','Ли','Гр'][d.getMonth()];
+            }
+            
+            // Рахуємо дані для кожного періоду
+            const chartData = periods.map(d => {
+                const records = (data.records || []).filter(r => {
+                    const rd = new Date(r.date);
+                    if (chartPeriod === 'year') {
+                        return rd.getMonth() === d.getMonth() && rd.getFullYear() === d.getFullYear();
+                    } else {
+                        return rd.toDateString() === d.toDateString();
+                    }
+                });
+                
+                const earned = records.filter(r => r.type === 'earn').reduce((s, r) => s + r.stars, 0);
+                const spent = records.filter(r => r.type === 'spend').reduce((s, r) => s + r.stars, 0);
+                
+                return { date: d, earned, spent };
+            });
+            
+            // Знаходимо максимум для масштабування
+            const maxValue = Math.max(
+                ...chartData.map(d => Math.max(d.earned, d.spent)),
+                1
+            );
+            
+            // Рендеримо діаграму
+            chart.innerHTML = chartData.map(d => {
+                const earnedHeight = showEarned ? (d.earned / maxValue) * 100 : 0;
+                const spentHeight = showSpent ? (d.spent / maxValue) * 100 : 0;
+                
+                return `
+                    <div class="chart-bar-group">
+                        ${showEarned ? `
+                            <div class="chart-bar earned" style="height: ${earnedHeight}%">
+                                ${d.earned > 0 ? `<div class="chart-value">+${d.earned}⭐</div>` : ''}
+                            </div>
+                        ` : ''}
+                        ${showSpent ? `
+                            <div class="chart-bar spent" style="height: ${spentHeight}%">
+                                ${d.spent > 0 ? `<div class="chart-value">-${d.spent}⭐</div>` : ''}
+                            </div>
+                        ` : ''}
+                        <div class="chart-label">${labelFormat(d.date)}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function changeChartPeriod(period) {
+            chartPeriod = period;
+            document.querySelectorAll('.stats-controls .period-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            updateChart();
+        }
+
 
         function updateUI() {
             document.getElementById('balance').textContent = Number(data.balance) + '⭐';
@@ -1656,6 +1800,8 @@
 
         // Робимо функції глобальними для onclick в HTML
         window.togglePeriod = togglePeriod;
+        window.updateChart = updateChart;
+        window.changeChartPeriod = changeChartPeriod;
         window.showPinInput = showPinInput;
         window.enterAsChild = enterAsChild;
         window.addPin = addPin;
