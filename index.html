@@ -70,7 +70,7 @@
         .header {
             background: var(--card);
             border-radius: var(--radius);
-            padding: 30px;
+            padding: 20px;
             margin-bottom: 20px;
             box-shadow: var(--shadow);
             text-align: center;
@@ -103,10 +103,10 @@
         
         .logo {
             font-family: 'Caveat', cursive;
-            font-size: 42px;
+            font-size: 32px;
             color: var(--secondary);
-            margin-bottom: 15px;
-            text-shadow: 3px 3px 0 var(--primary);
+            margin-bottom: 8px;
+            text-shadow: 2px 2px 0 var(--primary);
             position: relative;
             z-index: 1;
         }
@@ -117,10 +117,10 @@
         }
         
         .balance {
-            font-size: 72px;
+            font-size: 52px;
             font-weight: 900;
             color: var(--secondary);
-            margin: 15px 0;
+            margin: 8px 0;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
             animation: pulse 2s ease-in-out infinite;
         }
@@ -131,26 +131,26 @@
         }
         
         .balance-label {
-            font-size: 14px;
+            font-size: 12px;
             text-transform: uppercase;
-            letter-spacing: 2px;
+            letter-spacing: 1.5px;
             color: #666;
             font-weight: 700;
         }
         
         .stats-row {
             display: flex;
-            gap: 15px;
-            margin-top: 20px;
+            gap: 10px;
+            margin-top: 12px;
             justify-content: center;
             flex-wrap: wrap;
         }
         
         .stat-mini {
             background: var(--bg);
-            padding: 10px 20px;
-            border-radius: 15px;
-            font-size: 14px;
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-size: 13px;
         }
         
         .stat-mini strong {
@@ -160,18 +160,18 @@
         
         .period-toggle {
             display: flex;
-            gap: 8px;
+            gap: 6px;
             justify-content: center;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
         }
         
         .period-btn {
-            padding: 8px 18px;
+            padding: 6px 14px;
             background: var(--bg);
             border: 2px solid #E0E0E0;
-            border-radius: 12px;
+            border-radius: 10px;
             font-family: 'Nunito', sans-serif;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 700;
             cursor: pointer;
             transition: all 0.3s;
@@ -187,6 +187,136 @@
             background: var(--primary);
             border-color: var(--primary);
             color: var(--secondary);
+        }
+        
+        .goal-container {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            padding: 18px;
+            border-radius: 18px;
+            margin-top: 15px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 16px rgba(255, 215, 0, 0.3);
+        }
+        
+        .goal-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%);
+            animation: rotate 15s linear infinite;
+        }
+        
+        .goal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .goal-title {
+            font-size: 18px;
+            font-weight: 900;
+            color: var(--secondary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .goal-emoji {
+            font-size: 24px;
+        }
+        
+        .goal-edit-btn {
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid var(--secondary);
+            border-radius: 10px;
+            padding: 6px 12px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: var(--secondary);
+        }
+        
+        .goal-edit-btn:hover {
+            transform: scale(1.05);
+            background: white;
+        }
+        
+        .progress-bar-container {
+            background: rgba(0, 87, 183, 0.15);
+            border-radius: 12px;
+            height: 32px;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 10px;
+            z-index: 1;
+        }
+        
+        .progress-bar {
+            background: linear-gradient(90deg, var(--secondary) 0%, #4A90E2 100%);
+            height: 100%;
+            border-radius: 12px;
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        .progress-text {
+            color: white;
+            font-size: 14px;
+            font-weight: 900;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+            position: relative;
+            z-index: 1;
+        }
+        
+        .goal-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--secondary);
+            position: relative;
+            z-index: 1;
+        }
+        
+        .goal-forecast {
+            color: #666;
+            font-size: 12px;
+        }
+        
+        .no-goal {
+            text-align: center;
+            padding: 20px;
+            color: var(--secondary);
+            font-weight: 700;
         }
         
         .stats-controls {
@@ -756,11 +886,11 @@
             }
             
             .logo {
-                font-size: 32px;
+                font-size: 28px;
             }
             
             .balance {
-                font-size: 56px;
+                font-size: 44px;
             }
             
             .content {
@@ -851,6 +981,35 @@
         </div>
     </div>
 
+    <!-- Модальне вікно мети -->
+    <div class="pin-overlay" id="goalModal" style="display: none;">
+        <div class="pin-box" style="max-width: 450px;">
+            <h2 style="margin-bottom: 20px;">🎯 Встановити мету</h2>
+            
+            <div class="form-group">
+                <label>📝 Назва мети</label>
+                <input type="text" id="goalName" placeholder="Наприклад: Новий велосипед" maxlength="40">
+            </div>
+            
+            <div class="form-group">
+                <label>⭐ Скільки зірок потрібно</label>
+                <input type="number" id="goalTarget" min="1" placeholder="200">
+            </div>
+            
+            <div class="form-group">
+                <label>😀 Емодзі (опційно)</label>
+                <input type="text" id="goalEmoji" placeholder="🚲" maxlength="2" style="font-size: 32px; text-align: center;">
+            </div>
+            
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button class="btn btn-secondary" style="flex: 1;" onclick="cancelGoal()">Скасувати</button>
+                <button class="btn btn-primary" style="flex: 1;" onclick="saveGoal()">Зберегти</button>
+            </div>
+            
+            <button class="btn btn-danger" style="margin-top: 10px;" onclick="deleteGoal()" id="deleteGoalBtn">Видалити мету</button>
+        </div>
+    </div>
+
     <div class="container" id="mainApp" style="display: none;">
         <!-- Header -->
         <div class="header">
@@ -870,6 +1029,9 @@
                         Використано: <strong id="spentStats">0⭐</strong>
                     </div>
                 </div>
+                
+                <!-- Блок мети -->
+                <div id="goalContainer"></div>
             </div>
         </div>
 
@@ -1205,7 +1367,8 @@
             records: [],
             balance: 0,
             pin: '1234',
-            isParent: false
+            isParent: false,
+            goal: null  // { name: string, target: number, emoji: string }
         };
 
         const rewards = [
@@ -1227,6 +1390,116 @@
         let showPeriod = 'month'; // 'month' або 'all'
         let chartPeriod = 'week'; // 'week', 'month', 'year'
 
+        // Функції роботи з метою
+        function renderGoal() {
+            const container = document.getElementById('goalContainer');
+            
+            if (!data.goal || !data.goal.name || !data.goal.target) {
+                if (data.isParent) {
+                    container.innerHTML = `
+                        <div class="goal-container">
+                            <div class="no-goal">
+                                <div style="font-size: 32px; margin-bottom: 10px;">🎯</div>
+                                <button class="goal-edit-btn" onclick="showGoalModal()">+ Встановити мету</button>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    container.innerHTML = ''; // Дитина не бачить пустий блок
+                }
+                return;
+            }
+            
+            const current = Number(data.balance);
+            const target = Number(data.goal.target);
+            const percent = Math.min((current / target) * 100, 100);
+            const emoji = data.goal.emoji || '🎯';
+            
+            // Прогноз (на основі середнього за останні 7 днів)
+            const now = new Date();
+            const last7Days = (data.records || []).filter(r => {
+                const d = new Date(r.date);
+                const diff = (now - d) / (1000 * 60 * 60 * 24);
+                return diff <= 7 && r.type === 'earn';
+            });
+            const avgPerDay = last7Days.reduce((s, r) => s + r.stars, 0) / 7;
+            const remaining = Math.max(target - current, 0);
+            const daysLeft = avgPerDay > 0 ? Math.ceil(remaining / avgPerDay) : '?';
+            
+            const editBtn = data.isParent ? `<button class="goal-edit-btn" onclick="showGoalModal()">✏️ Змінити</button>` : '';
+            
+            container.innerHTML = `
+                <div class="goal-container">
+                    <div class="goal-header">
+                        <div class="goal-title">
+                            <span class="goal-emoji">${emoji}</span>
+                            <span>${data.goal.name}</span>
+                        </div>
+                        ${editBtn}
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" style="width: ${percent}%">
+                            ${percent >= 20 ? `<span class="progress-text">${Math.round(percent)}%</span>` : ''}
+                        </div>
+                    </div>
+                    <div class="goal-stats">
+                        <span>${current} / ${target}⭐</span>
+                        ${remaining > 0 ? `<span class="goal-forecast">Ще ${daysLeft} ${daysLeft === 1 ? 'день' : daysLeft < 5 ? 'дні' : 'днів'}</span>` : `<span style="color: var(--success);">🎉 Мета досягнута!</span>`}
+                    </div>
+                </div>
+            `;
+        }
+        
+        function showGoalModal() {
+            if (data.goal) {
+                document.getElementById('goalName').value = data.goal.name || '';
+                document.getElementById('goalTarget').value = data.goal.target || '';
+                document.getElementById('goalEmoji').value = data.goal.emoji || '';
+                document.getElementById('deleteGoalBtn').style.display = 'block';
+            } else {
+                document.getElementById('goalName').value = '';
+                document.getElementById('goalTarget').value = '';
+                document.getElementById('goalEmoji').value = '';
+                document.getElementById('deleteGoalBtn').style.display = 'none';
+            }
+            document.getElementById('goalModal').style.display = 'flex';
+        }
+        
+        function cancelGoal() {
+            document.getElementById('goalModal').style.display = 'none';
+        }
+        
+        function saveGoal() {
+            const name = document.getElementById('goalName').value.trim();
+            const target = parseInt(document.getElementById('goalTarget').value);
+            const emoji = document.getElementById('goalEmoji').value.trim() || '🎯';
+            
+            if (!name) {
+                alert('❌ Введіть назву мети!');
+                return;
+            }
+            
+            if (!target || target < 1) {
+                alert('❌ Введіть кількість зірок (мінімум 1)!');
+                return;
+            }
+            
+            data.goal = { name, target, emoji };
+            saveData();
+            document.getElementById('goalModal').style.display = 'none';
+            renderGoal();
+            alert('✅ Мета встановлена!');
+        }
+        
+        function deleteGoal() {
+            if (confirm('Видалити мету? Прогрес не втратиться.')) {
+                data.goal = null;
+                saveData();
+                document.getElementById('goalModal').style.display = 'none';
+                renderGoal();
+            }
+        }
+
         // Firebase: читаємо дані і слухаємо зміни в реальному часі
         function initFirebase() {
             showLoading(true);
@@ -1242,6 +1515,7 @@
                 }
                 showLoading(false);
                 updateUI();
+                renderGoal();
                 // Якщо відкрита історія чи статистика — оновлюємо
                 const activeSection = document.querySelector('.section.active');
                 if (activeSection) {
@@ -1766,6 +2040,8 @@
                 document.getElementById('childInstructions').style.display = 'none';
                 document.getElementById('currentPin').textContent = data.pin;
             }
+            
+            renderGoal();
         }
 
         // PIN підтвердження для дитини при обміні
@@ -1833,6 +2109,10 @@
         window.togglePeriod = togglePeriod;
         window.updateChart = updateChart;
         window.changeChartPeriod = changeChartPeriod;
+        window.showGoalModal = showGoalModal;
+        window.cancelGoal = cancelGoal;
+        window.saveGoal = saveGoal;
+        window.deleteGoal = deleteGoal;
         window.showPinInput = showPinInput;
         window.enterAsChild = enterAsChild;
         window.addPin = addPin;
