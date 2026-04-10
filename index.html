@@ -1002,11 +1002,11 @@
             </div>
             
             <div style="display: flex; gap: 10px; margin-top: 20px;">
-                <button class="btn btn-secondary" style="flex: 1;" onclick="cancelGoal()">Скасувати</button>
-                <button class="btn btn-primary" style="flex: 1;" onclick="saveGoal()">Зберегти</button>
+                <button class="btn btn-secondary" style="flex: 1;" id="cancelGoalBtn">Скасувати</button>
+                <button class="btn btn-primary" style="flex: 1;" id="saveGoalBtn">Зберегти</button>
             </div>
             
-            <button class="btn btn-danger" style="margin-top: 10px;" onclick="deleteGoal()" id="deleteGoalBtn">Видалити мету</button>
+            <button class="btn btn-danger" style="margin-top: 10px;" id="deleteGoalBtn">Видалити мету</button>
         </div>
     </div>
 
@@ -1400,10 +1400,13 @@
                         <div class="goal-container">
                             <div class="no-goal">
                                 <div style="font-size: 32px; margin-bottom: 10px;">🎯</div>
-                                <button class="goal-edit-btn" onclick="showGoalModal()">+ Встановити мету</button>
+                                <button class="goal-edit-btn" id="setGoalBtn">+ Встановити мету</button>
                             </div>
                         </div>
                     `;
+                    setTimeout(() => {
+                        document.getElementById('setGoalBtn')?.addEventListener('click', showGoalModal);
+                    }, 0);
                 } else {
                     container.innerHTML = ''; // Дитина не бачить пустий блок
                 }
@@ -1426,7 +1429,7 @@
             const remaining = Math.max(target - current, 0);
             const daysLeft = avgPerDay > 0 ? Math.ceil(remaining / avgPerDay) : '?';
             
-            const editBtn = data.isParent ? `<button class="goal-edit-btn" onclick="showGoalModal()">✏️ Змінити</button>` : '';
+            const editBtn = data.isParent ? `<button class="goal-edit-btn" id="editGoalBtn">✏️ Змінити</button>` : '';
             
             container.innerHTML = `
                 <div class="goal-container">
@@ -1448,6 +1451,10 @@
                     </div>
                 </div>
             `;
+            
+            setTimeout(() => {
+                document.getElementById('editGoalBtn')?.addEventListener('click', showGoalModal);
+            }, 0);
         }
         
         function showGoalModal() {
@@ -1463,6 +1470,13 @@
                 document.getElementById('deleteGoalBtn').style.display = 'none';
             }
             document.getElementById('goalModal').style.display = 'flex';
+            
+            // Додаємо event listeners
+            setTimeout(() => {
+                document.getElementById('cancelGoalBtn').onclick = cancelGoal;
+                document.getElementById('saveGoalBtn').onclick = saveGoal;
+                document.getElementById('deleteGoalBtn').onclick = deleteGoal;
+            }, 0);
         }
         
         function cancelGoal() {
