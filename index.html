@@ -1445,7 +1445,7 @@
                     </div>
                     <div class="goal-stats">
                         <span>${current} / ${target}⭐</span>
-                        ${remaining > 0 ? `<span class="goal-forecast">Ще ${daysLeft} ${daysLeft === 1 ? 'день' : daysLeft < 5 ? 'дні' : 'днів'}</span>` : `<span style="color: var(--success);">🎉 Мета досягнута!</span>`}
+                        ${remaining > 0 ? (daysLeft !== '?' ? `<span class="goal-forecast">Ще приблизно ${daysLeft} ${daysLeft === 1 ? 'день' : daysLeft < 5 ? 'дні' : 'днів'} до мети<br><small style="font-size: 10px; opacity: 0.8;">(на основі твоїх досягнень за попередній тиждень)</small></span>` : `<span class="goal-forecast">Продовжуй заробляти зірки!</span>`) : `<span style="color: var(--success);">🎉 Мета досягнута!</span>`}
                     </div>
                 </div>
             `;
@@ -1538,7 +1538,8 @@
             const toSave = {
                 records: data.records || [],
                 balance: data.balance || 0,
-                pin: data.pin || '1234'
+                pin: data.pin || '1234',
+                goal: data.goal || null
             };
             set(ref(db, 'zirky'), toSave);
         }
