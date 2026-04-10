@@ -1404,9 +1404,6 @@
                             </div>
                         </div>
                     `;
-                    setTimeout(() => {
-                        document.getElementById('setGoalBtn')?.addEventListener('click', showGoalModal);
-                    }, 0);
                 } else {
                     container.innerHTML = ''; // Дитина не бачить пустий блок
                 }
@@ -1451,10 +1448,6 @@
                     </div>
                 </div>
             `;
-            
-            setTimeout(() => {
-                document.getElementById('editGoalBtn')?.addEventListener('click', showGoalModal);
-            }, 0);
         }
         
         function showGoalModal() {
@@ -1529,7 +1522,6 @@
                 }
                 showLoading(false);
                 updateUI();
-                renderGoal();
                 // Якщо відкрита історія чи статистика — оновлюємо
                 const activeSection = document.querySelector('.section.active');
                 if (activeSection) {
@@ -2151,6 +2143,13 @@
         window.clearRewardPin = clearRewardPin;
         window.cancelRewardPin = cancelRewardPin;
         window.checkRewardPin = checkRewardPin;
+
+        // Event delegation для кнопок мети (працює для динамічно створених кнопок)
+        document.addEventListener('click', (e) => {
+            if (e.target.id === 'setGoalBtn' || e.target.id === 'editGoalBtn') {
+                showGoalModal();
+            }
+        });
 
         // Ініціалізація
         setTodayDates();
