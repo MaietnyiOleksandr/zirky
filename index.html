@@ -1187,7 +1187,7 @@
 
             <!-- Stats section -->
             <div class="section" id="statsSection">
-                <h2 style="margin-bottom: 20px; color: var(--secondary);">Статистика</h2>
+                <h2 style="margin-bottom: 15px; color: var(--secondary); font-size: 20px;">Статистика</h2>
                 <div style="background: var(--bg); padding: 20px; border-radius: 18px;">
                     <div class="stats-controls">
                         <div class="period-toggle">
@@ -1208,7 +1208,7 @@
                     </div>
                     <div class="month-selector" style="margin-top: 15px;">
                         <button class="month-btn" onclick="changeChartOffset(-1)">◀</button>
-                        <div class="month-display" id="chartPeriodDisplay" style="font-size: 15px;"></div>
+                        <div class="month-display" id="chartPeriodDisplay" style="font-size: 13px; font-weight: 700;"></div>
                         <button class="month-btn" onclick="changeChartOffset(1)" id="chartNextBtn">▶</button>
                     </div>
                     <div class="chart-container">
@@ -1217,7 +1217,7 @@
                 </div>
                 
                 <div style="background: var(--bg); padding: 20px; border-radius: 18px; margin-top: 20px;">
-                    <h3 style="color: var(--secondary); margin-bottom: 15px;">Загальна статистика</h3>
+                    <h3 style="color: var(--secondary); margin-bottom: 15px; font-size: 16px;">Загальна статистика</h3>
                     <div style="display: grid; gap: 15px;">
                         <div style="display: flex; justify-content: space-between;">
                             <span>Всього заробленно:</span>
@@ -1915,7 +1915,7 @@
                 const weekEnd = new Date(periods[6]);
                 periodName = `${periods[0].getDate()} ${['січ','лют','бер','кві','тра','чер','лип','сер','вер','жов','лис','гру'][periods[0].getMonth()]} — ${weekEnd.getDate()} ${['січ','лют','бер','кві','тра','чер','лип','сер','вер','жов','лис','гру'][weekEnd.getMonth()]} ${weekEnd.getFullYear()}`;
                 labelFormat = d => d.getDate();
-                pointWidth = 80;
+                pointWidth = 60;
             } else if (chartPeriod === 'month') {
                 const targetMonth = new Date(now.getFullYear(), now.getMonth() + chartOffset, 1);
                 const daysInMonth = new Date(targetMonth.getFullYear(), targetMonth.getMonth() + 1, 0).getDate();
@@ -1926,7 +1926,7 @@
                 
                 periodName = `${['Січень','Лютий','Березень','Квітень','Травень','Червень','Липень','Серпень','Вересень','Жовтень','Листопад','Грудень'][targetMonth.getMonth()]} ${targetMonth.getFullYear()}`;
                 labelFormat = d => d.getDate();
-                pointWidth = 50;
+                pointWidth = 35;
             } else if (chartPeriod === 'year') {
                 const targetYear = now.getFullYear() + chartOffset;
                 
@@ -1936,7 +1936,7 @@
                 
                 periodName = `${targetYear} рік`;
                 labelFormat = d => ['Сі','Лю','Бе','Кв','Тр','Че','Ли','Се','Ве','Жо','Ли','Гр'][d.getMonth()];
-                pointWidth = 70;
+                pointWidth = 55;
             }
             
             // Оновлюємо назву періоду
@@ -1989,7 +1989,7 @@
                 const y = padding.top + (chartHeight / 5) * i;
                 const value = Math.round(maxValue * (1 - i / 5));
                 svg += `<line x1="${padding.left}" y1="${y}" x2="${width - padding.right}" y2="${y}" stroke="#E0E0E0" stroke-width="1"/>`;
-                svg += `<text x="${padding.left - 10}" y="${y + 5}" fill="#999" font-size="11" text-anchor="end">${value}⭐</text>`;
+                svg += `<text x="${padding.left - 10}" y="${y + 5}" fill="#999" font-size="10" text-anchor="end">${value}⭐</text>`;
             }
             
             // Лінія доходів
@@ -2008,7 +2008,7 @@
                         const x = scaleX(i);
                         const y = scaleY(d.earned);
                         svg += `<circle cx="${x}" cy="${y}" r="5" fill="#FFD700" stroke="#0057B7" stroke-width="2"/>`;
-                        svg += `<text x="${x}" y="${y - 12}" fill="#0057B7" font-size="12" font-weight="bold" text-anchor="middle">+${d.earned}</text>`;
+                        svg += `<text x="${x}" y="${y - 10}" fill="#0057B7" font-size="11" font-weight="bold" text-anchor="middle">+${d.earned}</text>`;
                     }
                 });
             }
@@ -2029,7 +2029,7 @@
                         const x = scaleX(i);
                         const y = scaleY(d.spent);
                         svg += `<circle cx="${x}" cy="${y}" r="5" fill="#FF6B6B" stroke="#E74C3C" stroke-width="2"/>`;
-                        svg += `<text x="${x}" y="${y - 12}" fill="#E74C3C" font-size="12" font-weight="bold" text-anchor="middle">-${d.spent}</text>`;
+                        svg += `<text x="${x}" y="${y - 10}" fill="#E74C3C" font-size="11" font-weight="bold" text-anchor="middle">-${d.spent}</text>`;
                     }
                 });
             }
@@ -2037,7 +2037,7 @@
             // Підписи осі X
             chartData.forEach((d, i) => {
                 const x = scaleX(i);
-                svg += `<text x="${x}" y="${height - 10}" fill="#666" font-size="12" font-weight="bold" text-anchor="middle">${d.label}</text>`;
+                svg += `<text x="${x}" y="${height - 10}" fill="#666" font-size="10" font-weight="bold" text-anchor="middle">${d.label}</text>`;
             });
             
             svg += '</svg>';
