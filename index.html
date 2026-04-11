@@ -299,18 +299,12 @@
         }
         
         .goal-stats {
-            display: flex;
-            justify-content: space-between;
             font-size: 13px;
             font-weight: 700;
             color: var(--secondary);
             position: relative;
             z-index: 1;
-        }
-        
-        .goal-forecast {
-            color: #666;
-            font-size: 12px;
+            padding: 0 5px;
         }
         
         .no-goal {
@@ -840,6 +834,16 @@
             background: var(--primary);
         }
         
+        .month-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            border-color: #ccc;
+        }
+        
+        .month-btn:disabled:hover {
+            background: var(--bg);
+        }
+        
         .month-display {
             flex: 1;
             text-align: center;
@@ -1202,6 +1206,11 @@
                             </div>
                         </div>
                     </div>
+                    <div class="month-selector" style="margin-top: 15px;">
+                        <button class="month-btn" onclick="changeChartOffset(-1)">◀</button>
+                        <div class="month-display" id="chartPeriodDisplay" style="font-size: 15px;"></div>
+                        <button class="month-btn" onclick="changeChartOffset(1)" id="chartNextBtn">▶</button>
+                    </div>
                     <div class="chart-container">
                         <div class="chart" id="chart"></div>
                     </div>
@@ -1390,6 +1399,7 @@
         let pinValue = '';
         let showPeriod = 'month'; // 'month' або 'all'
         let chartPeriod = 'week'; // 'week', 'month', 'year'
+        let chartOffset = 0; // 0 = поточний період, -1 = попередній, і т.д.
 
         // Функції роботи з метою
         function renderGoal() {
@@ -1429,6 +1439,16 @@
             
             const editBtn = data.isParent ? `<button class="goal-edit-btn" id="editGoalBtn">✏️ Змінити</button>` : '';
             
+            let statusText = '';
+            if (remaining <= 0) {
+                statusText = '🎉 Мета досягнута!';
+            } else if (daysLeft !== '?') {
+                const daysWord = daysLeft === 1 ? 'день' : daysLeft < 5 ? 'дні' : 'днів';
+                statusText = `Зібрано ${current} із ${target}⭐ — залишається ще приблизно ${daysLeft} ${daysWord} до мети (на основі твоїх досягнень за попередній тиждень)`;
+            } else {
+                statusText = `Зібрано ${current} із ${target}⭐ — продовжуй заробляти зірки!`;
+            }
+            
             container.innerHTML = `
                 <div class="goal-container">
                     <div class="goal-header">
@@ -1443,9 +1463,8 @@
                             ${percent >= 20 ? `<span class="progress-text">${Math.round(percent)}%</span>` : ''}
                         </div>
                     </div>
-                    <div class="goal-stats">
-                        <span>${current} / ${target}⭐</span>
-                        ${remaining > 0 ? (daysLeft !== '?' ? `<span class="goal-forecast">Ще приблизно ${daysLeft} ${daysLeft === 1 ? 'день' : daysLeft < 5 ? 'дні' : 'днів'} до мети<br><small style="font-size: 10px; opacity: 0.8;">(на основі твоїх досягнень за попередній тиждень)</small></span>` : `<span class="goal-forecast">Продовжуй заробляти зірки!</span>`) : `<span style="color: var(--success);">🎉 Мета досягнута!</span>`}
+                    <div class="goal-stats" style="text-align: center;">
+                        <span style="display: block; line-height: 1.4;">${statusText}</span>
                     </div>
                 </div>
             `;
@@ -1876,36 +1895,53 @@
             
             let periods = [];
             let labelFormat;
-            let pointWidth = 60; // ширина між точками
+            let pointWidth = 60;
+            let periodName = '';
             
-            // Визначаємо періоди
+            // Вимикаємо кнопку "вперед" якщо дивимось поточний період
+            document.getElementById('chartNextBtn').disabled = chartOffset === 0;
+            
+            // Визначаємо періоди з урахуванням offset
             if (chartPeriod === 'week') {
-                for (let i = 6; i >= 0; i--) {
-                    const d = new Date();
-                    d.setDate(now.getDate() - i);
+                const weekStart = new Date(now);
+                weekStart.setDate(now.getDate() - now.getDay() + (chartOffset * 7)); // Неділя поточного тижня + offset
+                
+                for (let i = 0; i < 7; i++) {
+                    const d = new Date(weekStart);
+                    d.setDate(weekStart.getDate() + i);
                     periods.push(d);
                 }
+                
+                const weekEnd = new Date(periods[6]);
+                periodName = `${periods[0].getDate()} ${['січ','лют','бер','кві','тра','чер','лип','сер','вер','жов','лис','гру'][periods[0].getMonth()]} — ${weekEnd.getDate()} ${['січ','лют','бер','кві','тра','чер','лип','сер','вер','жов','лис','гру'][weekEnd.getMonth()]} ${weekEnd.getFullYear()}`;
                 labelFormat = d => d.getDate();
                 pointWidth = 80;
             } else if (chartPeriod === 'month') {
-                for (let i = 29; i >= 0; i--) {
-                    const d = new Date();
-                    d.setDate(now.getDate() - i);
-                    periods.push(d);
+                const targetMonth = new Date(now.getFullYear(), now.getMonth() + chartOffset, 1);
+                const daysInMonth = new Date(targetMonth.getFullYear(), targetMonth.getMonth() + 1, 0).getDate();
+                
+                for (let i = 1; i <= daysInMonth; i++) {
+                    periods.push(new Date(targetMonth.getFullYear(), targetMonth.getMonth(), i));
                 }
+                
+                periodName = `${['Січень','Лютий','Березень','Квітень','Травень','Червень','Липень','Серпень','Вересень','Жовтень','Листопад','Грудень'][targetMonth.getMonth()]} ${targetMonth.getFullYear()}`;
                 labelFormat = d => d.getDate();
                 pointWidth = 50;
             } else if (chartPeriod === 'year') {
-                for (let i = 11; i >= 0; i--) {
-                    const d = new Date();
-                    d.setMonth(now.getMonth() - i);
-                    periods.push(d);
+                const targetYear = now.getFullYear() + chartOffset;
+                
+                for (let i = 0; i < 12; i++) {
+                    periods.push(new Date(targetYear, i, 1));
                 }
+                
+                periodName = `${targetYear} рік`;
                 labelFormat = d => ['Сі','Лю','Бе','Кв','Тр','Че','Ли','Се','Ве','Жо','Ли','Гр'][d.getMonth()];
                 pointWidth = 70;
             }
             
-            // Збираємо дані
+            // Оновлюємо назву періоду
+            document.getElementById('chartPeriodDisplay').textContent = periodName;
+                        // Збираємо дані
             const chartData = periods.map(d => {
                 const records = (data.records || []).filter(r => {
                     const rd = new Date(r.date);
@@ -2011,8 +2047,14 @@
 
         function changeChartPeriod(period) {
             chartPeriod = period;
+            chartOffset = 0; // Скидаємо на поточний період
             document.querySelectorAll('.stats-controls .period-btn').forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');
+            updateChart();
+        }
+        
+        function changeChartOffset(delta) {
+            chartOffset += delta;
             updateChart();
         }
 
@@ -2117,6 +2159,7 @@
         window.togglePeriod = togglePeriod;
         window.updateChart = updateChart;
         window.changeChartPeriod = changeChartPeriod;
+        window.changeChartOffset = changeChartOffset;
         window.showGoalModal = showGoalModal;
         window.cancelGoal = cancelGoal;
         window.saveGoal = saveGoal;
