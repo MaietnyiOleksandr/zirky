@@ -307,6 +307,222 @@
             padding: 0 5px;
         }
         
+        .achievements-grid {
+            display: grid;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .achievement-card {
+            background: var(--bg);
+            padding: 18px;
+            border-radius: 18px;
+            border-left: 6px solid #ccc;
+            transition: all 0.3s;
+            position: relative;
+        }
+        
+        .achievement-card.bronze {
+            border-left-color: #CD7F32;
+            box-shadow: 0 2px 8px rgba(205, 127, 50, 0.2);
+        }
+        
+        .achievement-card.silver {
+            border-left-color: #C0C0C0;
+            box-shadow: 0 2px 8px rgba(192, 192, 192, 0.3);
+        }
+        
+        .achievement-card.gold {
+            border-left-color: #FFD700;
+            box-shadow: 0 2px 8px rgba(255, 215, 0, 0.4);
+        }
+        
+        .achievement-card.unlocked {
+            background: linear-gradient(135deg, #FFF9E6 0%, #FFFEF0 100%);
+            border-left-width: 8px;
+        }
+        
+        .achievement-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+        
+        .achievement-title {
+            font-size: 17px;
+            font-weight: 900;
+            color: var(--secondary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .achievement-reward {
+            font-size: 16px;
+            font-weight: 900;
+            color: var(--success);
+        }
+        
+        .achievement-desc {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+        
+        .achievement-progress-bar {
+            background: #E0E0E0;
+            border-radius: 10px;
+            height: 20px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+        
+        .achievement-progress-fill {
+            height: 100%;
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 900;
+            color: white;
+        }
+        
+        .achievement-progress-fill.bronze {
+            background: linear-gradient(90deg, #CD7F32, #E89968);
+        }
+        
+        .achievement-progress-fill.silver {
+            background: linear-gradient(90deg, #C0C0C0, #E8E8E8);
+        }
+        
+        .achievement-progress-fill.gold {
+            background: linear-gradient(90deg, #FFD700, #FFA500);
+        }
+        
+        .achievement-stats {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--secondary);
+        }
+        
+        .achievement-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 36px;
+            opacity: 0.15;
+        }
+        
+        .achievement-card.unlocked .achievement-badge {
+            opacity: 1;
+            animation: bounceIn 0.6s;
+        }
+        
+        @keyframes bounceIn {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        
+        .achievements-section-title {
+            font-size: 14px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #999;
+            margin: 25px 0 15px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .achievements-section-title::after {
+            content: '';
+            flex: 1;
+            height: 2px;
+            background: linear-gradient(to right, #ccc, transparent);
+        }
+        
+        .achievement-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: white;
+            padding: 30px;
+            border-radius: 24px;
+            box-shadow: 0 12px 48px rgba(0,0,0,0.3);
+            z-index: 2000;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+        
+        .achievement-popup.show {
+            animation: popupShow 0.5s forwards;
+        }
+        
+        @keyframes popupShow {
+            0% { transform: translate(-50%, -50%) scale(0); }
+            50% { transform: translate(-50%, -50%) scale(1.1); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+        
+        .achievement-popup-emoji {
+            font-size: 72px;
+            margin-bottom: 15px;
+        }
+        
+        .achievement-popup-title {
+            font-size: 24px;
+            font-weight: 900;
+            color: var(--secondary);
+            margin-bottom: 10px;
+        }
+        
+        .achievement-popup-reward {
+            font-size: 32px;
+            font-weight: 900;
+            color: var(--success);
+            margin: 15px 0;
+        }
+        
+        .achievements-mini {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .achievement-mini-badge {
+            font-size: 28px;
+            padding: 6px;
+            background: var(--bg);
+            border-radius: 12px;
+            border: 2px solid;
+            transition: all 0.3s;
+        }
+        
+        .achievement-mini-badge.bronze {
+            border-color: #CD7F32;
+        }
+        
+        .achievement-mini-badge.silver {
+            border-color: #C0C0C0;
+        }
+        
+        .achievement-mini-badge.gold {
+            border-color: #FFD700;
+        }
+        
+        .achievement-mini-badge:hover {
+            transform: scale(1.15);
+        }
+        
         .no-goal {
             text-align: center;
             padding: 20px;
@@ -618,6 +834,138 @@
         .reward-btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
+        }
+        
+        .achievement-card {
+            background: var(--bg);
+            padding: 18px;
+            border-radius: 18px;
+            margin-bottom: 15px;
+            border: 4px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .achievement-card.bronze {
+            border-color: #CD7F32;
+            box-shadow: 0 4px 12px rgba(205, 127, 50, 0.2);
+        }
+        
+        .achievement-card.silver {
+            border-color: #C0C0C0;
+            box-shadow: 0 4px 12px rgba(192, 192, 192, 0.2);
+        }
+        
+        .achievement-card.gold {
+            border-color: #FFD700;
+            box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+        }
+        
+        .achievement-card.unlocked {
+            background: linear-gradient(135deg, #FFF9E6 0%, #FFE5B4 100%);
+            border-width: 3px;
+            opacity: 0.9;
+        }
+        
+        .achievement-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .achievement-name {
+            font-size: 17px;
+            font-weight: 900;
+            color: var(--secondary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .achievement-reward {
+            font-size: 15px;
+            font-weight: 900;
+            color: var(--success);
+        }
+        
+        .achievement-desc {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+        
+        .achievement-progress-bar {
+            background: #E0E0E0;
+            height: 24px;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+            margin-bottom: 8px;
+        }
+        
+        .achievement-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--secondary), var(--primary));
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .achievement-progress-text {
+            color: white;
+            font-size: 12px;
+            font-weight: 900;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
+        
+        .achievement-status {
+            font-size: 11px;
+            color: #999;
+            text-align: right;
+        }
+        
+        .achievement-status.completed {
+            color: var(--success);
+            font-weight: 700;
+        }
+        
+        .achievements-section-title {
+            font-size: 16px;
+            font-weight: 900;
+            color: var(--secondary);
+            margin: 20px 0 15px 0;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--primary);
+        }
+        
+        .badge-container {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        
+        .badge {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            background: var(--bg);
+            border: 3px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .badge.bronze { border-color: #CD7F32; }
+        .badge.silver { border-color: #C0C0C0; }
+        .badge.gold { border-color: #FFD700; }
+        
+        .badge:hover {
+            transform: scale(1.1);
         }
         
         .chart-container {
@@ -1045,6 +1393,7 @@
             <button class="tab active" onclick="switchTab('add', true)">➕ Додати</button>
             <button class="tab" onclick="switchTab('history', true)">📜 Історія</button>
             <button class="tab" onclick="switchTab('rewards', true)">🎁 Витрати</button>
+            <button class="tab" onclick="switchTab('achievements', true)">🏆 Досягнення</button>
             <button class="tab" onclick="switchTab('stats', true)">📊 Статистика</button>
             <button class="tab" onclick="switchTab('instructions', true)">❓ Інструкції</button>
         </div>
@@ -1183,6 +1532,25 @@
                     </div>
                     <button class="btn btn-secondary" onclick="buyCustomReward()">💫 Списати</button>
                 </div>
+            </div>
+
+            <!-- Achievements section -->
+            <div class="section" id="achievementsSection">
+                <h2 style="margin-bottom: 15px; color: var(--secondary); font-size: 20px;">🏆 Досягнення</h2>
+                
+                <div id="achievementsInProgress"></div>
+                <div id="achievementsUnlocked"></div>
+            </div>
+
+            <!-- Achievements section -->
+            <div class="section" id="achievementsSection">
+                <h2 style="margin-bottom: 15px; color: var(--secondary); font-size: 20px;">🏆 Досягнення</h2>
+                
+                <div class="achievements-section-title">📈 В ПРОГРЕСІ</div>
+                <div id="achievementsInProgress"></div>
+                
+                <div class="achievements-section-title">✅ ОТРИМАНІ</div>
+                <div id="achievementsUnlocked"></div>
             </div>
 
             <!-- Stats section -->
@@ -1378,7 +1746,12 @@
             balance: 0,
             pin: '1234',
             isParent: false,
-            goal: null  // { name: string, target: number, emoji: string }
+            goal: null,  // { name: string, target: number, emoji: string }
+            achievements: {
+                counters: {},  // grades_12: 5, books: 2
+                streaks: {},   // earning: {current: 7, best: 12, lastDate: "2026-04-11"}
+                unlocked: []   // ["відмінник_1", "книголюб_1"]
+            }
         };
 
         const rewards = [
@@ -1386,6 +1759,96 @@
             { name: "Вихідний без обов'язків", cost: 50 },
             { name: '50 грн', cost: 50 }
         ];
+        
+        // Визначення всіх досягнень
+        const ACHIEVEMENTS = {
+            // Відмінник
+            "відмінник_1": {
+                name: "🥉 Відмінник I",
+                desc: "Отримай 5 оцінок «12» з будь-яких предметів",
+                reward: 50,
+                tier: "bronze",
+                type: "cumulative",
+                counter: "grades_12",
+                target: 5
+            },
+            "відмінник_2": {
+                name: "🥈 Відмінник II",
+                desc: "Отримай 20 оцінок «12» з будь-яких предметів",
+                reward: 200,
+                tier: "silver",
+                type: "cumulative",
+                counter: "grades_12",
+                target: 20
+            },
+            "відмінник_3": {
+                name: "🥇 Відмінник III",
+                desc: "Отримай 100 оцінок «12» з будь-яких предметів",
+                reward: 1000,
+                tier: "gold",
+                type: "cumulative",
+                counter: "grades_12",
+                target: 100
+            },
+            
+            // Книголюб
+            "книголюб_1": {
+                name: "🥉 Книголюб I",
+                desc: "Прочитай 5 книг",
+                reward: 20,
+                tier: "bronze",
+                type: "cumulative",
+                counter: "books",
+                target: 5
+            },
+            "книголюб_2": {
+                name: "🥈 Книголюб II",
+                desc: "Прочитай 10 книг",
+                reward: 40,
+                tier: "silver",
+                type: "cumulative",
+                counter: "books",
+                target: 10
+            },
+            "книголюб_3": {
+                name: "🥇 Книголюб III",
+                desc: "Прочитай 20 книг",
+                reward: 100,
+                tier: "gold",
+                type: "cumulative",
+                counter: "books",
+                target: 20
+            },
+            
+            // Fire Streak
+            "fire_streak_1": {
+                name: "🥉 Fire Streak I",
+                desc: "Заробляй зірки 7 днів поспіль",
+                reward: 50,
+                tier: "bronze",
+                type: "streak",
+                streak: "earning",
+                target: 7
+            },
+            "fire_streak_2": {
+                name: "🥈 Fire Streak II",
+                desc: "Заробляй зірки 14 днів поспіль",
+                reward: 100,
+                tier: "silver",
+                type: "streak",
+                streak: "earning",
+                target: 14
+            },
+            "fire_streak_3": {
+                name: "🥇 Fire Streak III",
+                desc: "Заробляй зірки 30 днів поспіль",
+                reward: 300,
+                tier: "gold",
+                type: "streak",
+                streak: "earning",
+                target: 30
+            }
+        };
 
         const gradeToStars = {
             '12': 5,
@@ -1527,6 +1990,166 @@
             }
         }
 
+        // ═══════════════ СИСТЕМА ДОСЯГНЕНЬ ═══════════════
+        
+        // Ініціалізація лічильників при завантаженні
+        function initAchievements() {
+            if (!data.achievements) {
+                data.achievements = { counters: {}, streaks: {}, unlocked: [] };
+            }
+            if (!data.achievements.counters) data.achievements.counters = {};
+            if (!data.achievements.streaks) data.achievements.streaks = {};
+            if (!data.achievements.unlocked) data.achievements.unlocked = [];
+        }
+        
+        // Оновлення лічильників після додавання запису
+        function updateAchievementCounters(record) {
+            initAchievements();
+            
+            // Оцінка 12
+            if (record.category === 'grade' && record.grade === '12') {
+                data.achievements.counters.grades_12 = (data.achievements.counters.grades_12 || 0) + 1;
+            }
+            
+            // Книги
+            if (record.description === 'Прочитав книгу') {
+                data.achievements.counters.books = (data.achievements.counters.books || 0) + 1;
+            }
+            
+            // Earning streak - оновлюємо при кожному заробленні зірок
+            if (record.type === 'earn' && record.category !== 'achievement') {
+                const today = new Date(record.date).toDateString();
+                const streak = data.achievements.streaks.earning || { current: 0, best: 0, lastDate: null };
+                
+                if (streak.lastDate === today) {
+                    // Сьогодні вже заробляв - нічого не робимо
+                } else {
+                    const yesterday = new Date(record.date);
+                    yesterday.setDate(yesterday.getDate() - 1);
+                    const yesterdayStr = yesterday.toDateString();
+                    
+                    if (streak.lastDate === yesterdayStr || streak.current === 0) {
+                        // Продовжуємо серію
+                        streak.current += 1;
+                        streak.best = Math.max(streak.best, streak.current);
+                    } else {
+                        // Перерва - починаємо заново
+                        streak.current = 1;
+                    }
+                    streak.lastDate = today;
+                }
+                
+                data.achievements.streaks.earning = streak;
+            }
+        }
+        
+        // Перевірка та видача досягнень
+        function checkAndUnlockAchievements(record) {
+            initAchievements();
+            const newUnlocks = [];
+            
+            Object.keys(ACHIEVEMENTS).forEach(id => {
+                // Якщо вже отримано - пропускаємо
+                if (data.achievements.unlocked.includes(id)) return;
+                
+                const ach = ACHIEVEMENTS[id];
+                let unlocked = false;
+                
+                if (ach.type === 'cumulative') {
+                    const current = data.achievements.counters[ach.counter] || 0;
+                    if (current >= ach.target) unlocked = true;
+                }
+                
+                if (ach.type === 'streak') {
+                    const streak = data.achievements.streaks[ach.streak] || { current: 0 };
+                    if (streak.current >= ach.target) unlocked = true;
+                }
+                
+                if (unlocked) {
+                    data.achievements.unlocked.push(id);
+                    newUnlocks.push({ id, ach });
+                }
+            });
+            
+            // Видаємо бонуси за нові досягнення
+            newUnlocks.forEach(({ id, ach }) => {
+                data.balance = Number(data.balance) + ach.reward;
+                data.records.push({
+                    id: Date.now() + Math.random(),
+                    date: new Date().toISOString(),
+                    description: `${ach.name}`,
+                    stars: ach.reward,
+                    type: 'earn',
+                    category: 'achievement'
+                });
+                
+                // Показуємо popup
+                setTimeout(() => {
+                    alert(`🎉 Нове досягнення!
+
+${ach.name}
+${ach.desc}
+
++${ach.reward}⭐ нараховано!`);
+                }, 500);
+            });
+            
+            return newUnlocks.length > 0;
+        }
+        
+        // Рендеринг досягнень
+        function renderAchievements() {
+            initAchievements();
+            
+            const inProgressHTML = [];
+            const unlockedHTML = [];
+            
+            Object.keys(ACHIEVEMENTS).forEach(id => {
+                const ach = ACHIEVEMENTS[id];
+                const isUnlocked = data.achievements.unlocked.includes(id);
+                
+                let current = 0;
+                if (ach.type === 'cumulative') {
+                    current = data.achievements.counters[ach.counter] || 0;
+                } else if (ach.type === 'streak') {
+                    const streak = data.achievements.streaks[ach.streak] || { current: 0 };
+                    current = streak.current;
+                }
+                
+                const percent = Math.min((current / ach.target) * 100, 100);
+                const statusText = isUnlocked ? '✅ Отримано' : `${current} / ${ach.target}`;
+                const statusClass = isUnlocked ? 'completed' : '';
+                
+                const cardHTML = `
+                    <div class="achievement-card ${ach.tier} ${isUnlocked ? 'unlocked' : ''}">
+                        <div class="achievement-header">
+                            <div class="achievement-name">${ach.name}</div>
+                            <div class="achievement-reward">+${ach.reward}⭐</div>
+                        </div>
+                        <div class="achievement-desc">${ach.desc}</div>
+                        <div class="achievement-progress-bar">
+                            <div class="achievement-progress-fill" style="width: ${percent}%">
+                                ${percent >= 20 ? `<span class="achievement-progress-text">${Math.round(percent)}%</span>` : ''}
+                            </div>
+                        </div>
+                        <div class="achievement-status ${statusClass}">${statusText}</div>
+                    </div>
+                `;
+                
+                if (isUnlocked) {
+                    unlockedHTML.push(cardHTML);
+                } else {
+                    inProgressHTML.push(cardHTML);
+                }
+            });
+            
+            document.getElementById('achievementsInProgress').innerHTML = 
+                inProgressHTML.length > 0 ? inProgressHTML.join('') : '<div class="empty-state"><div class="empty-icon">🎯</div><p>Всі базові досягнення отримані!</p></div>';
+            
+            document.getElementById('achievementsUnlocked').innerHTML = 
+                unlockedHTML.length > 0 ? unlockedHTML.join('') : '<div class="empty-state"><div class="empty-icon">🏆</div><p>Поки що жодного досягнення не отримано</p></div>';
+        }
+        
         // Firebase: читаємо дані і слухаємо зміни в реальному часі
         function initFirebase() {
             showLoading(true);
@@ -1539,6 +2162,7 @@
                     data.isParent = wasParent;
                     if (data.balance === undefined) data.balance = 0;
                     if (!data.records) data.records = [];
+                    if (!data.achievements) data.achievements = { counters: {}, streaks: {}, unlocked: [] };
                 }
                 showLoading(false);
                 updateUI();
@@ -1558,7 +2182,8 @@
                 records: data.records || [],
                 balance: data.balance || 0,
                 pin: data.pin || '1234',
-                goal: data.goal || null
+                goal: data.goal || null,
+                achievements: data.achievements || { counters: {}, streaks: {}, unlocked: [] }
             };
             set(ref(db, 'zirky'), toSave);
         }
