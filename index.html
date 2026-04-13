@@ -2317,6 +2317,10 @@ ${ach.desc}
                 category: 'grade'
             });
             data.balance = Number(data.balance) + stars;
+            
+            const newRecord = data.records[data.records.length - 1];
+            updateAchievementCounters(newRecord);
+            checkAndUnlockAchievements(newRecord);
             saveData();
 
             document.getElementById('subject').value = '';
@@ -2340,6 +2344,10 @@ ${ach.desc}
                 category: 'bonus'
             });
             data.balance = Number(data.balance) + parseInt(stars);
+            
+            const newRecord = data.records[data.records.length - 1];
+            updateAchievementCounters(newRecord);
+            checkAndUnlockAchievements(newRecord);
             saveData();
 
             document.getElementById('bonusType').value = '';
@@ -2361,6 +2369,10 @@ ${ach.desc}
                 category: 'special'
             });
             data.balance = Number(data.balance) + stars;
+            
+            const newRecord = data.records[data.records.length - 1];
+            updateAchievementCounters(newRecord);
+            checkAndUnlockAchievements(newRecord);
             saveData();
 
             document.getElementById('specialDesc').value = '';
