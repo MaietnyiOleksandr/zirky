@@ -2002,6 +2002,83 @@
             if (!data.achievements.unlocked) data.achievements.unlocked = [];
         }
         
+        // ПОВНЕ перерахунок всіх досягнень з нуля
+        function recalculateAchievements() {
+            initAchievements();
+            
+            // Скидаємо всі лічильники
+            data.achievements.counters = {};
+            data.achievements.streaks = {};
+            
+            // Проходимо ВСІ записи в хронологічному порядку
+            const sortedRecords = [...(data.records || [])].sort((a, b) => 
+                new Date(a.date) - new Date(b.date)
+            );
+            
+            sortedRecords.forEach(record => {
+                // Оцінка 12
+                if (record.category === 'grade' && record.grade === '12') {
+                    data.achievements.counters.grades_12 = (data.achievements.counters.grades_12 || 0) + 1;
+                }
+                
+                // Книги
+                if (record.description === 'Прочитав книгу') {
+                    data.achievements.counters.books = (data.achievements.counters.books || 0) + 1;
+                }
+                
+                // Earning streak
+                if (record.type === 'earn' && record.category !== 'achievement') {
+                    const today = new Date(record.date).toDateString();
+                    const streak = data.achievements.streaks.earning || { current: 0, best: 0, lastDate: null };
+                    
+                    if (streak.lastDate === today) {
+                        // Сьогодні вже заробляв - нічого не робимо
+                    } else {
+                        const yesterday = new Date(record.date);
+                        yesterday.setDate(yesterday.getDate() - 1);
+                        const yesterdayStr = yesterday.toDateString();
+                        
+                        if (streak.lastDate === yesterdayStr || streak.current === 0) {
+                            // Продовжуємо серію
+                            streak.current += 1;
+                            streak.best = Math.max(streak.best, streak.current);
+                        } else {
+                            // Перерва - починаємо заново
+                            streak.current = 1;
+                        }
+                        streak.lastDate = today;
+                    }
+                    
+                    data.achievements.streaks.earning = streak;
+                }
+            });
+            
+            // Перевіряємо які досягнення треба розблокувати/заблокувати
+            const shouldBeUnlocked = [];
+            
+            Object.keys(ACHIEVEMENTS).forEach(id => {
+                const ach = ACHIEVEMENTS[id];
+                let qualifies = false;
+                
+                if (ach.type === 'cumulative') {
+                    const current = data.achievements.counters[ach.counter] || 0;
+                    if (current >= ach.target) qualifies = true;
+                }
+                
+                if (ach.type === 'streak') {
+                    const streak = data.achievements.streaks[ach.streak] || { current: 0 };
+                    if (streak.current >= ach.target) qualifies = true;
+                }
+                
+                if (qualifies) {
+                    shouldBeUnlocked.push(id);
+                }
+            });
+            
+            // Оновлюємо unlocked список
+            data.achievements.unlocked = shouldBeUnlocked;
+        }
+        
         // Оновлення лічильників після додавання запису
         function updateAchievementCounters(record) {
             initAchievements();
@@ -2165,6 +2242,7 @@ ${ach.desc}
                     if (!data.achievements) data.achievements = { counters: {}, streaks: {}, unlocked: [] };
                 }
                 showLoading(false);
+                recalculateAchievements();  // Перераховуємо досягнення з усіх записів
                 updateUI();
                 // Якщо відкрита історія чи статистика — оновлюємо
                 const activeSection = document.querySelector('.section.active');
@@ -2389,6 +2467,7 @@ ${ach.desc}
             else data.balance = Number(data.balance) + record.stars;
 
             data.records = data.records.filter(r => r.id !== id);
+            recalculateAchievements();  // Перераховуємо після видалення
             saveData();
         }
 
