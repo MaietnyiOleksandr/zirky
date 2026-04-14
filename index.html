@@ -2028,25 +2028,53 @@
                 
                 // Earning streak
                 if (record.type === 'earn' && record.category !== 'achievement') {
-                    const today = new Date(record.date).toDateString();
+                    const recordDate = new Date(record.date);
+                    const recordDay = recordDate.toDateString();
                     const streak = data.achievements.streaks.earning || { current: 0, best: 0, lastDate: null };
                     
-                    if (streak.lastDate === today) {
+                    if (streak.lastDate === recordDay) {
                         // Сьогодні вже заробляв - нічого не робимо
+                    } else if (streak.current === 0) {
+                        // Перший запис - починаємо streak
+                        streak.current = 1;
+                        streak.lastDate = recordDay;
                     } else {
-                        const yesterday = new Date(record.date);
-                        yesterday.setDate(yesterday.getDate() - 1);
-                        const yesterdayStr = yesterday.toDateString();
+                        // Перевіряємо скільки днів пройшло
+                        const lastDate = new Date(streak.lastDate);
+                        const daysDiff = Math.floor((recordDate - lastDate) / (1000 * 60 * 60 * 24));
                         
-                        if (streak.lastDate === yesterdayStr || streak.current === 0) {
-                            // Продовжуємо серію
+                        if (daysDiff === 1) {
+                            // Наступний день - продовжуємо
                             streak.current += 1;
                             streak.best = Math.max(streak.best, streak.current);
+                            streak.lastDate = recordDay;
+                        } else if (daysDiff > 1 && daysDiff <= 3) {
+                            // Пропуск 2-3 дні - перевіряємо чи це вихідні
+                            let allWeekends = true;
+                            for (let i = 1; i < daysDiff; i++) {
+                                const checkDate = new Date(lastDate);
+                                checkDate.setDate(lastDate.getDate() + i);
+                                const dayOfWeek = checkDate.getDay();
+                                if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+                                    allWeekends = false;
+                                    break;
+                                }
+                            }
+                            
+                            if (allWeekends) {
+                                // Всі пропущені дні були вихідними - продовжуємо
+                                streak.current += 1;
+                                streak.best = Math.max(streak.best, streak.current);
+                            } else {
+                                // Був будній день без запису - скидаємо
+                                streak.current = 1;
+                            }
+                            streak.lastDate = recordDay;
                         } else {
-                            // Перерва - починаємо заново
+                            // Занадто довгий пропуск - скидаємо
                             streak.current = 1;
+                            streak.lastDate = recordDay;
                         }
-                        streak.lastDate = today;
                     }
                     
                     data.achievements.streaks.earning = streak;
@@ -2397,7 +2425,9 @@ ${ach.desc}
             data.balance = Number(data.balance) + stars;
             
             const newRecord = data.records[data.records.length - 1];
-            updateAchievementCounters(newRecord);
+            
+            // Перераховуємо ВСЕ (бо могли додати заднім числом)
+            recalculateAchievements();
             checkAndUnlockAchievements(newRecord);
             saveData();
 
@@ -2424,7 +2454,9 @@ ${ach.desc}
             data.balance = Number(data.balance) + parseInt(stars);
             
             const newRecord = data.records[data.records.length - 1];
-            updateAchievementCounters(newRecord);
+            
+            // Перераховуємо ВСЕ (бо могли додати заднім числом)
+            recalculateAchievements();
             checkAndUnlockAchievements(newRecord);
             saveData();
 
@@ -2449,7 +2481,9 @@ ${ach.desc}
             data.balance = Number(data.balance) + stars;
             
             const newRecord = data.records[data.records.length - 1];
-            updateAchievementCounters(newRecord);
+            
+            // Перераховуємо ВСЕ (бо могли додати заднім числом)
+            recalculateAchievements();
             checkAndUnlockAchievements(newRecord);
             saveData();
 
@@ -2621,7 +2655,9 @@ ${ach.desc}
             // Визначаємо періоди з урахуванням offset
             if (chartPeriod === 'week') {
                 const weekStart = new Date(now);
-                weekStart.setDate(now.getDate() - now.getDay() + (chartOffset * 7)); // Неділя поточного тижня + offset
+                const dayOfWeek = now.getDay();
+                const daysFromMonday = (dayOfWeek === 0 ? 6 : dayOfWeek - 1); // Неділя = 6 днів від понеділка
+                weekStart.setDate(now.getDate() - daysFromMonday + (chartOffset * 7)); // Понеділок поточного тижня + offset
                 
                 for (let i = 0; i < 7; i++) {
                     const d = new Date(weekStart);
