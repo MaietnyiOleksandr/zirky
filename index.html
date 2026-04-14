@@ -2107,6 +2107,45 @@
             data.achievements.unlocked = shouldBeUnlocked;
         }
         
+        // Нараховуємо бонуси за нові досягнення
+        function giveRewardsForNewAchievements(unlockedBefore) {
+            const unlockedAfter = data.achievements.unlocked || [];
+            
+            // Знаходимо які досягнення НОВІ
+            const newAchievements = unlockedAfter.filter(id => !unlockedBefore.includes(id));
+            
+            if (newAchievements.length === 0) return;
+            
+            // Даємо бонуси за кожне нове досягнення
+            newAchievements.forEach(id => {
+                const ach = ACHIEVEMENTS[id];
+                if (!ach) return;
+                
+                // Додаємо зірки на баланс
+                data.balance = Number(data.balance) + ach.reward;
+                
+                // Створюємо запис про досягнення
+                data.records.push({
+                    id: Date.now() + Math.random(),
+                    date: new Date().toISOString(),
+                    description: `${ach.name}`,
+                    stars: ach.reward,
+                    type: 'earn',
+                    category: 'achievement'
+                });
+                
+                // Показуємо popup
+                setTimeout(() => {
+                    alert(`🎉 Нове досягнення!
+
+${ach.name}
+${ach.desc}
+
++${ach.reward}⭐ нараховано!`);
+                }, 300);
+            });
+        }
+        
         // Оновлення лічильників після додавання запису
         function updateAchievementCounters(record) {
             initAchievements();
@@ -2426,9 +2465,15 @@ ${ach.desc}
             
             const newRecord = data.records[data.records.length - 1];
             
+            // Запам'ятовуємо які досягнення були ДО додавання
+            const unlockedBefore = [...(data.achievements.unlocked || [])];
+            
             // Перераховуємо ВСЕ (бо могли додати заднім числом)
             recalculateAchievements();
-            checkAndUnlockAchievements(newRecord);
+            
+            // Даємо бонуси тільки за НОВІ досягнення
+            giveRewardsForNewAchievements(unlockedBefore);
+            
             saveData();
 
             document.getElementById('subject').value = '';
@@ -2455,9 +2500,15 @@ ${ach.desc}
             
             const newRecord = data.records[data.records.length - 1];
             
+            // Запам'ятовуємо які досягнення були ДО додавання
+            const unlockedBefore = [...(data.achievements.unlocked || [])];
+            
             // Перераховуємо ВСЕ (бо могли додати заднім числом)
             recalculateAchievements();
-            checkAndUnlockAchievements(newRecord);
+            
+            // Даємо бонуси тільки за НОВІ досягнення
+            giveRewardsForNewAchievements(unlockedBefore);
+            
             saveData();
 
             document.getElementById('bonusType').value = '';
@@ -2482,9 +2533,15 @@ ${ach.desc}
             
             const newRecord = data.records[data.records.length - 1];
             
+            // Запам'ятовуємо які досягнення були ДО додавання
+            const unlockedBefore = [...(data.achievements.unlocked || [])];
+            
             // Перераховуємо ВСЕ (бо могли додати заднім числом)
             recalculateAchievements();
-            checkAndUnlockAchievements(newRecord);
+            
+            // Даємо бонуси тільки за НОВІ досягнення
+            giveRewardsForNewAchievements(unlockedBefore);
+            
             saveData();
 
             document.getElementById('specialDesc').value = '';
