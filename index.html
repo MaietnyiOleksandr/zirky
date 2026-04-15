@@ -1287,7 +1287,7 @@
     <div class="pin-overlay" id="pinOverlay">
         <div class="pin-box">
             <h2>🔐 Введіть PIN</h2>
-            <input type="password" class="pin-input" id="pinInput" maxlength="4" readonly>
+            <input type="password" class="pin-input" id="pinInput" maxlength="4">
             <div class="pin-buttons">
                 <button class="pin-btn" onclick="addPin('1')">1</button>
                 <button class="pin-btn" onclick="addPin('2')">2</button>
@@ -1316,7 +1316,7 @@
         <div class="pin-box">
             <h2>🔐 Підтвердіть PIN</h2>
             <p style="color: #666; margin-bottom: 10px;">Попросіть батьків підтвердити обмін</p>
-            <input type="password" class="pin-input" id="rewardPinInput" maxlength="4" readonly>
+            <input type="password" class="pin-input" id="rewardPinInput" maxlength="4">
             <div class="pin-buttons">
                 <button class="pin-btn" onclick="addRewardPin('1')">1</button>
                 <button class="pin-btn" onclick="addRewardPin('2')">2</button>
@@ -2763,7 +2763,7 @@ ${ach.desc}
                 const weekEnd = new Date(periods[6]);
                 periodName = `${periods[0].getDate()} ${['січ','лют','бер','кві','тра','чер','лип','сер','вер','жов','лис','гру'][periods[0].getMonth()]} — ${weekEnd.getDate()} ${['січ','лют','бер','кві','тра','чер','лип','сер','вер','жов','лис','гру'][weekEnd.getMonth()]} ${weekEnd.getFullYear()}`;
                 labelFormat = d => d.getDate();
-                pointWidth = 60;
+                pointWidth = 50;
             } else if (chartPeriod === 'month') {
                 const targetMonth = new Date(now.getFullYear(), now.getMonth() + chartOffset, 1);
                 const daysInMonth = new Date(targetMonth.getFullYear(), targetMonth.getMonth() + 1, 0).getDate();
