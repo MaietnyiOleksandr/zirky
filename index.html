@@ -2107,6 +2107,37 @@
             data.achievements.unlocked = shouldBeUnlocked;
         }
         
+        // Видаляємо бонуси за втрачені досягнення
+        function removeRewardsForLostAchievements(unlockedBefore) {
+            const unlockedAfter = data.achievements.unlocked || [];
+            
+            // Знаходимо які досягнення ВТРАЧЕНІ
+            const lostAchievements = unlockedBefore.filter(id => !unlockedAfter.includes(id));
+            
+            if (lostAchievements.length === 0) return;
+            
+            // Видаляємо бонусні записи за кожне втрачене досягнення
+            lostAchievements.forEach(id => {
+                const ach = ACHIEVEMENTS[id];
+                if (!ach) return;
+                
+                // Знаходимо всі записи про це досягнення
+                const recordsToRemove = data.records.filter(r => 
+                    r.category === 'achievement' && 
+                    r.description === ach.name
+                );
+                
+                // Видаляємо записи та віднімаємо зірки
+                recordsToRemove.forEach(record => {
+                    const index = data.records.indexOf(record);
+                    if (index > -1) {
+                        data.records.splice(index, 1);
+                        data.balance = Number(data.balance) - record.stars;
+                    }
+                });
+            });
+        }
+        
         // Нараховуємо бонуси за нові досягнення
         function giveRewardsForNewAchievements(unlockedBefore) {
             const unlockedAfter = data.achievements.unlocked || [];
@@ -2557,8 +2588,15 @@ ${ach.desc}
             if (record.type === 'earn') data.balance = Number(data.balance) - record.stars;
             else data.balance = Number(data.balance) + record.stars;
 
+            // Запам'ятовуємо які досягнення були ДО видалення
+            const unlockedBefore = [...(data.achievements.unlocked || [])];
+
             data.records = data.records.filter(r => r.id !== id);
             recalculateAchievements();  // Перераховуємо після видалення
+            
+            // Видаляємо бонуси за втрачені досягнення
+            removeRewardsForLostAchievements(unlockedBefore);
+            
             saveData();
         }
 
