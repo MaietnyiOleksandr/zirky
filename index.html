@@ -968,6 +968,64 @@
             transform: scale(1.1);
         }
         
+        .achievements-home {
+            background: var(--bg);
+            padding: 12px 15px;
+            border-radius: 15px;
+            margin-top: 12px;
+        }
+        
+        .streak-display {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 15px;
+            font-weight: 900;
+            color: var(--secondary);
+            margin-bottom: 10px;
+        }
+        
+        .streak-fire {
+            font-size: 24px;
+            animation: flicker 1.5s infinite;
+        }
+        
+        @keyframes flicker {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.1); }
+        }
+        
+        .badges-home {
+            display: flex;
+            gap: 6px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .badge-home {
+            width: 45px;
+            height: 45px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            background: linear-gradient(135deg, #FFF9E6 0%, #FFE5B4 100%);
+            border: 2px solid transparent;
+            transition: all 0.3s;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+        
+        .badge-home.bronze { border-color: #CD7F32; }
+        .badge-home.silver { border-color: #C0C0C0; }
+        .badge-home.gold { border-color: #FFD700; }
+        
+        .badge-home:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
         .chart-container {
             background: var(--bg);
             padding: 20px;
@@ -1385,6 +1443,9 @@
                 
                 <!-- Блок мети -->
                 <div id="goalContainer"></div>
+                
+                <!-- Досягнення на головній -->
+                <div id="achievementsHome"></div>
             </div>
         </div>
 
@@ -1864,6 +1925,56 @@
         let chartPeriod = 'week'; // 'week', 'month', 'year'
         let chartOffset = 0; // 0 = поточний період, -1 = попередній, і т.д.
 
+        // Рендеринг досягнень на головній сторінці
+        function renderAchievementsHome() {
+            const container = document.getElementById('achievementsHome');
+            if (!container) return;
+            
+            initAchievements();
+            
+            // Fire Streak
+            const streak = data.achievements.streaks?.earning || { current: 0, best: 0 };
+            const showStreak = streak.current > 0;
+            
+            // Останні отримані досягнення (максимум 5)
+            const unlockedIds = data.achievements.unlocked || [];
+            const lastUnlocked = unlockedIds.slice(-5).reverse(); // останні 5, новіші спочатку
+            
+            if (!showStreak && lastUnlocked.length === 0) {
+                container.innerHTML = ''; // Нічого не показуємо
+                return;
+            }
+            
+            let html = '<div class="achievements-home">';
+            
+            // Fire Streak
+            if (showStreak) {
+                const daysWord = streak.current === 1 ? 'день' : streak.current < 5 ? 'дні' : 'днів';
+                html += `
+                    <div class="streak-display">
+                        <span class="streak-fire">🔥</span>
+                        <span>Серія: ${streak.current} ${daysWord}</span>
+                    </div>
+                `;
+            }
+            
+            // Бейджі досягнень
+            if (lastUnlocked.length > 0) {
+                html += '<div class="badges-home">';
+                lastUnlocked.forEach(id => {
+                    const ach = ACHIEVEMENTS[id];
+                    if (ach) {
+                        const emoji = ach.name.match(/[🥉🥈🥇📚🔥⭐]/)?.[0] || '🏆';
+                        html += `<div class="badge-home ${ach.tier}" title="${ach.name}">${emoji}</div>`;
+                    }
+                });
+                html += '</div>';
+            }
+            
+            html += '</div>';
+            container.innerHTML = html;
+        }
+        
         // Функції роботи з метою
         function renderGoal() {
             const container = document.getElementById('goalContainer');
@@ -2136,6 +2247,9 @@
                     }
                 });
             });
+            
+            // Оновлюємо показ досягнень на головній
+            renderAchievementsHome();
         }
         
         // Нараховуємо бонуси за нові досягнення
@@ -2175,6 +2289,9 @@ ${ach.desc}
 +${ach.reward}⭐ нараховано!`);
                 }, 300);
             });
+            
+            // Оновлюємо показ досягнень на головній
+            renderAchievementsHome();
         }
         
         // Оновлення лічильників після додавання запису
@@ -2947,6 +3064,7 @@ ${ach.desc}
             }
             
             renderGoal();
+            renderAchievementsHome();
         }
 
         // PIN підтвердження для дитини при обміні
