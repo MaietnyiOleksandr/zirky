@@ -973,6 +973,27 @@
             padding: 12px 15px;
             border-radius: 15px;
             margin-top: 12px;
+            position: relative;
+        }
+        
+        .achievement-tooltip {
+            position: fixed;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 700;
+            z-index: 10000;
+            max-width: 250px;
+            text-align: center;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+            animation: fadeIn 0.2s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
         }
         
         .streak-display {
@@ -1011,6 +1032,7 @@
             align-items: center;
             justify-content: center;
             font-size: 24px;
+            font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
             background: linear-gradient(135deg, #FFF9E6 0%, #FFE5B4 100%);
             border: 2px solid transparent;
             transition: all 0.3s;
@@ -1964,8 +1986,11 @@
                 lastUnlocked.forEach(id => {
                     const ach = ACHIEVEMENTS[id];
                     if (ach) {
-                        const emoji = ach.name.match(/[🥉🥈🥇📚🔥⭐]/)?.[0] || '🏆';
-                        html += `<div class="badge-home ${ach.tier}" title="${ach.name}">${emoji}</div>`;
+                        // Витягуємо емодзі (перші 1-2 символи до пробілу)
+                        let emoji = ach.name.split(' ')[0];
+                        // Fallback якщо не витягнулося
+                        if (!emoji || emoji.length > 3) emoji = '🏆';
+                        html += `<div class="badge-home ${ach.tier}" data-ach-id="${id}">${emoji}</div>`;
                     }
                 });
                 html += '</div>';
@@ -1973,6 +1998,46 @@
             
             html += '</div>';
             container.innerHTML = html;
+            
+            // Додаємо event listeners для бейджів (для мобільних)
+            setTimeout(() => {
+                document.querySelectorAll('.badge-home').forEach(badge => {
+                    badge.addEventListener('click', function(e) {
+                        const achId = this.getAttribute('data-ach-id');
+                        const ach = ACHIEVEMENTS[achId];
+                        if (!ach) return;
+                        
+                        // Видаляємо старий tooltip якщо є
+                        const oldTooltip = document.querySelector('.achievement-tooltip');
+                        if (oldTooltip) oldTooltip.remove();
+                        
+                        // Створюємо tooltip
+                        const tooltip = document.createElement('div');
+                        tooltip.className = 'achievement-tooltip';
+                        tooltip.innerHTML = `${ach.name}<br><small style="font-size: 11px; opacity: 0.9;">${ach.desc}</small>`;
+                        document.body.appendChild(tooltip);
+                        
+                        // Позиціонуємо по центру екрану
+                        const rect = this.getBoundingClientRect();
+                        tooltip.style.left = '50%';
+                        tooltip.style.top = (rect.top - tooltip.offsetHeight - 10) + 'px';
+                        tooltip.style.transform = 'translateX(-50%)';
+                        
+                        // Автоматично прибираємо через 3 секунди
+                        setTimeout(() => tooltip.remove(), 3000);
+                        
+                        // Або по кліку поза tooltip
+                        setTimeout(() => {
+                            document.addEventListener('click', function removeTooltip(e) {
+                                if (!tooltip.contains(e.target) && e.target !== badge) {
+                                    tooltip.remove();
+                                    document.removeEventListener('click', removeTooltip);
+                                }
+                            });
+                        }, 100);
+                    });
+                });
+            }, 100);
         }
         
         // Функції роботи з метою
