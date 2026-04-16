@@ -2813,7 +2813,14 @@ ${ach.desc}
             );
             
             // Розміри SVG
-            const width = Math.max(periods.length * pointWidth, chartContainer.clientWidth);
+            let width;
+            if (chartPeriod === 'week') {
+                // Для тижня - завжди 100% контейнера (без скролу)
+                width = chartContainer.clientWidth - 20;
+            } else {
+                // Для місяця/року - може бути ширше (зі скролом)
+                width = Math.max(periods.length * pointWidth, chartContainer.clientWidth);
+            }
             const height = 250;
             const padding = { top: 30, right: 20, bottom: 40, left: 40 };
             const chartWidth = width - padding.left - padding.right;
@@ -2837,7 +2844,7 @@ ${ach.desc}
                 const y = padding.top + (chartHeight / 5) * i;
                 const value = Math.round(maxValue * (1 - i / 5));
                 svg += `<line x1="${padding.left}" y1="${y}" x2="${width - padding.right}" y2="${y}" stroke="#E0E0E0" stroke-width="1"/>`;
-                svg += `<text x="${padding.left - 10}" y="${y + 5}" fill="#999" font-size="10" text-anchor="end">${value}⭐</text>`;
+                svg += `<text x="${padding.left - 10}" y="${y + 5}" fill="#999" font-size="9" text-anchor="end">${value}⭐</text>`;
             }
             
             // Лінія доходів
@@ -2856,7 +2863,7 @@ ${ach.desc}
                         const x = scaleX(i);
                         const y = scaleY(d.earned);
                         svg += `<circle cx="${x}" cy="${y}" r="5" fill="#FFD700" stroke="#0057B7" stroke-width="2"/>`;
-                        svg += `<text x="${x}" y="${y - 10}" fill="#0057B7" font-size="11" font-weight="bold" text-anchor="middle">+${d.earned}</text>`;
+                        svg += `<text x="${x}" y="${y - 10}" fill="#0057B7" font-size="9" font-weight="bold" text-anchor="middle">+${d.earned}</text>`;
                     }
                 });
             }
@@ -2877,7 +2884,7 @@ ${ach.desc}
                         const x = scaleX(i);
                         const y = scaleY(d.spent);
                         svg += `<circle cx="${x}" cy="${y}" r="5" fill="#FF6B6B" stroke="#E74C3C" stroke-width="2"/>`;
-                        svg += `<text x="${x}" y="${y - 10}" fill="#E74C3C" font-size="11" font-weight="bold" text-anchor="middle">-${d.spent}</text>`;
+                        svg += `<text x="${x}" y="${y - 10}" fill="#E74C3C" font-size="9" font-weight="bold" text-anchor="middle">-${d.spent}</text>`;
                     }
                 });
             }
@@ -2885,7 +2892,7 @@ ${ach.desc}
             // Підписи осі X
             chartData.forEach((d, i) => {
                 const x = scaleX(i);
-                svg += `<text x="${x}" y="${height - 10}" fill="#666" font-size="10" font-weight="bold" text-anchor="middle">${d.label}</text>`;
+                svg += `<text x="${x}" y="${height - 10}" fill="#666" font-size="9" font-weight="bold" text-anchor="middle">${d.label}</text>`;
             });
             
             svg += '</svg>';
