@@ -1833,7 +1833,8 @@
             achievements: {
                 counters: {},  // grades_12: 5, books: 2
                 streaks: {},   // earning: {current: 7, best: 12, lastDate: "2026-04-11"}
-                unlocked: []   // ["відмінник_1", "книголюб_1"]
+                unlocked: [],  // ["відмінник_1", "книголюб_1"]
+                weekly: {}     // "2026-W15": ["швидкий_старт_1"]
             }
         };
 
@@ -1930,6 +1931,155 @@
                 type: "streak",
                 streak: "earning",
                 target: 30
+            },
+            
+            // Ціленаправлений
+            "ціленаправлений": {
+                name: "🎯 Ціленаправлений",
+                desc: "Досяг свою мету вперше",
+                reward: 20,
+                tier: "gold",
+                type: "special",
+                check: "goal_reached"
+            },
+            
+            // Ощадливий
+            "ощадливий_1": {
+                name: "🥉 Ощадливий I",
+                desc: "Накопич 200⭐ на балансі",
+                reward: 10,
+                tier: "bronze",
+                type: "balance",
+                target: 200
+            },
+            "ощадливий_2": {
+                name: "🥈 Ощадливий II",
+                desc: "Накопич 500⭐ на балансі",
+                reward: 30,
+                tier: "silver",
+                type: "balance",
+                target: 500
+            },
+            "ощадливий_3": {
+                name: "🥇 Ощадливий III",
+                desc: "Накопич 1000⭐ на балансі",
+                reward: 50,
+                tier: "gold",
+                type: "balance",
+                target: 1000
+            },
+            
+            // Транжира
+            "транжира_1": {
+                name: "🥉 Транжира I",
+                desc: "Витрать 300⭐ за весь час",
+                reward: 10,
+                tier: "bronze",
+                type: "cumulative",
+                counter: "total_spent",
+                target: 300
+            },
+            "транжира_2": {
+                name: "🥈 Транжира II",
+                desc: "Витрать 700⭐ за весь час",
+                reward: 20,
+                tier: "silver",
+                type: "cumulative",
+                counter: "total_spent",
+                target: 700
+            },
+            "транжира_3": {
+                name: "🥇 Транжира III",
+                desc: "Витрать 1000⭐ за весь час",
+                reward: 40,
+                tier: "gold",
+                type: "cumulative",
+                counter: "total_spent",
+                target: 1000
+            },
+            
+            // Чистюля
+            "чистюля_1": {
+                name: "🥉 Чистюля I",
+                desc: "Чисти зуби 2 рази на добу 5 днів підряд",
+                reward: 20,
+                tier: "bronze",
+                type: "streak",
+                streak: "teeth",
+                target: 5
+            },
+            "чистюля_2": {
+                name: "🥈 Чистюля II",
+                desc: "Чисти зуби 2 рази на добу 10 днів підряд",
+                reward: 50,
+                tier: "silver",
+                type: "streak",
+                streak: "teeth",
+                target: 10
+            },
+            "чистюля_3": {
+                name: "🥇 Чистюля III",
+                desc: "Чисти зуби 2 рази на добу 30 днів підряд",
+                reward: 100,
+                tier: "gold",
+                type: "streak",
+                streak: "teeth",
+                target: 30
+            },
+            
+            // Красуня
+            "красуня_1": {
+                name: "🥉 Красуня I",
+                desc: "Причешись 3 дні підряд",
+                reward: 10,
+                tier: "bronze",
+                type: "streak",
+                streak: "hair",
+                target: 3
+            },
+            "красуня_2": {
+                name: "🥈 Красуня II",
+                desc: "Причешись 5 днів підряд",
+                reward: 20,
+                tier: "silver",
+                type: "streak",
+                streak: "hair",
+                target: 5
+            },
+            "красуня_3": {
+                name: "🥇 Красуня III",
+                desc: "Причешись 7 днів підряд",
+                reward: 30,
+                tier: "gold",
+                type: "streak",
+                streak: "hair",
+                target: 7
+            },
+            
+            // Швидкий старт (recurring - можна отримувати щотижня)
+            "швидкий_старт_1": {
+                name: "🥉 Швидкий старт I",
+                desc: "Заробляй більше 50⭐ за тиждень",
+                reward: 5,
+                tier: "bronze",
+                type: "weekly",
+                target: 50
+            },
+            "швидкий_старт_2": {
+                name: "🥈 Швидкий старт II",
+                desc: "Заробляй більше 100⭐ за тиждень",
+                reward: 10,
+                tier: "silver",
+                type: "weekly",
+                target: 100
+            },
+            "швидкий_старт_3": {
+                name: "🥇 Швидкий старт III",
+                desc: "Заробляй більше 150⭐ за тиждень",
+                reward: 20,
+                tier: "gold",
+                type: "weekly",
+                target: 150
             }
         };
 
@@ -2176,6 +2326,7 @@
             if (!data.achievements.counters) data.achievements.counters = {};
             if (!data.achievements.streaks) data.achievements.streaks = {};
             if (!data.achievements.unlocked) data.achievements.unlocked = [];
+            if (!data.achievements.weekly) data.achievements.weekly = {};
         }
         
         // ПОВНЕ перерахунок всіх досягнень з нуля
@@ -2200,6 +2351,11 @@
                 // Книги
                 if (record.description === 'Прочитав книгу') {
                     data.achievements.counters.books = (data.achievements.counters.books || 0) + 1;
+                }
+                
+                // Витрати (для Транжира)
+                if (record.type === 'spend') {
+                    data.achievements.counters.total_spent = (data.achievements.counters.total_spent || 0) + record.stars;
                 }
                 
                 // Earning streak
@@ -2257,6 +2413,70 @@
                 }
             });
             
+            // Підрахунок teeth streak (2 рази на добу N днів підряд)
+            const dayGroups = {};
+            sortedRecords.forEach(record => {
+                const day = record.date.split('T')[0]; // тільки дата без часу
+                if (!dayGroups[day]) dayGroups[day] = [];
+                dayGroups[day].push(record);
+            });
+            
+            const allDays = Object.keys(dayGroups).sort();
+            let teethStreak = { current: 0, best: 0 };
+            let hairStreak = { current: 0, best: 0 };
+            let lastDay = null;
+            
+            allDays.forEach(day => {
+                const records = dayGroups[day];
+                const teethCount = records.filter(r => r.description === 'Почистити зуби').length;
+                const hairCount = records.filter(r => r.description === 'Причесати волосся').length;
+                
+                // Teeth streak
+                if (teethCount >= 2) {
+                    if (lastDay) {
+                        const yesterday = new Date(day);
+                        yesterday.setDate(yesterday.getDate() - 1);
+                        const yesterdayStr = yesterday.toISOString().split('T')[0];
+                        
+                        if (lastDay === yesterdayStr) {
+                            teethStreak.current += 1;
+                        } else {
+                            teethStreak.current = 1;
+                        }
+                    } else {
+                        teethStreak.current = 1;
+                    }
+                    teethStreak.best = Math.max(teethStreak.best, teethStreak.current);
+                } else {
+                    teethStreak.current = 0;
+                }
+                
+                // Hair streak
+                if (hairCount >= 1) {
+                    if (lastDay) {
+                        const yesterday = new Date(day);
+                        yesterday.setDate(yesterday.getDate() - 1);
+                        const yesterdayStr = yesterday.toISOString().split('T')[0];
+                        
+                        if (lastDay === yesterdayStr) {
+                            hairStreak.current += 1;
+                        } else {
+                            hairStreak.current = 1;
+                        }
+                    } else {
+                        hairStreak.current = 1;
+                    }
+                    hairStreak.best = Math.max(hairStreak.best, hairStreak.current);
+                } else {
+                    hairStreak.current = 0;
+                }
+                
+                lastDay = day;
+            });
+            
+            data.achievements.streaks.teeth = teethStreak;
+            data.achievements.streaks.hair = hairStreak;
+            
             // Перевіряємо які досягнення треба розблокувати/заблокувати
             const shouldBeUnlocked = [];
             
@@ -2274,6 +2494,19 @@
                     if (streak.current >= ach.target) qualifies = true;
                 }
                 
+                if (ach.type === 'balance') {
+                    const currentBalance = Number(data.balance) || 0;
+                    if (currentBalance >= ach.target) qualifies = true;
+                }
+                
+                if (ach.type === 'special') {
+                    // Ціленаправлений - перевіряємо чи мета досягнута
+                    if (ach.check === 'goal_reached' && data.goal) {
+                        const currentBalance = Number(data.balance) || 0;
+                        if (currentBalance >= data.goal.target) qualifies = true;
+                    }
+                }
+                
                 if (qualifies) {
                     shouldBeUnlocked.push(id);
                 }
@@ -2281,6 +2514,83 @@
             
             // Оновлюємо unlocked список
             data.achievements.unlocked = shouldBeUnlocked;
+        }
+        
+        // Перевірка тижневих досягнень (Швидкий старт)
+        function checkWeeklyAchievements() {
+            initAchievements();
+            
+            // Отримуємо номер поточного тижня
+            const now = new Date();
+            const startOfYear = new Date(now.getFullYear(), 0, 1);
+            const dayOfYear = Math.floor((now - startOfYear) / (1000 * 60 * 60 * 24));
+            const weekNum = Math.ceil((dayOfYear + 1) / 7);
+            const weekKey = `${now.getFullYear()}-W${weekNum}`;
+            
+            // Знаходимо понеділок цього тижня
+            const dayOfWeek = now.getDay();
+            const daysFromMonday = (dayOfWeek === 0 ? 6 : dayOfWeek - 1);
+            const weekStart = new Date(now);
+            weekStart.setDate(now.getDate() - daysFromMonday);
+            weekStart.setHours(0, 0, 0, 0);
+            
+            const weekEnd = new Date(weekStart);
+            weekEnd.setDate(weekStart.getDate() + 6);
+            weekEnd.setHours(23, 59, 59, 999);
+            
+            // Рахуємо зірки за цей тиждень (без досягнень)
+            const weekRecords = (data.records || []).filter(r => {
+                const d = new Date(r.date);
+                return d >= weekStart && d <= weekEnd && r.type === 'earn' && r.category !== 'achievement';
+            });
+            
+            const weekStars = weekRecords.reduce((sum, r) => sum + r.stars, 0);
+            
+            // Перевіряємо кожне тижневе досягнення
+            const newWeeklyUnlocks = [];
+            Object.keys(ACHIEVEMENTS).forEach(id => {
+                const ach = ACHIEVEMENTS[id];
+                if (ach.type !== 'weekly') return;
+                
+                // Перевіряємо чи вже отримували цього тижня
+                const weeklyAchievements = data.achievements.weekly[weekKey] || [];
+                if (weeklyAchievements.includes(id)) return;
+                
+                // Перевіряємо чи досягли цілі
+                if (weekStars >= ach.target) {
+                    newWeeklyUnlocks.push({ id, ach });
+                    
+                    // Додаємо в weekly
+                    if (!data.achievements.weekly[weekKey]) {
+                        data.achievements.weekly[weekKey] = [];
+                    }
+                    data.achievements.weekly[weekKey].push(id);
+                }
+            });
+            
+            // Видаємо бонуси
+            newWeeklyUnlocks.forEach(({ id, ach }) => {
+                data.balance = Number(data.balance) + ach.reward;
+                data.records.push({
+                    id: Date.now() + Math.random(),
+                    date: new Date().toISOString(),
+                    description: `${ach.name}`,
+                    stars: ach.reward,
+                    type: 'earn',
+                    category: 'achievement'
+                });
+                
+                setTimeout(() => {
+                    alert(`🎉 Тижневе досягнення!
+
+${ach.name}
+${ach.desc}
+
++${ach.reward}⭐ нараховано!`);
+                }, 500);
+            });
+            
+            return newWeeklyUnlocks.length > 0;
         }
         
         // Видаляємо бонуси за втрачені досягнення
@@ -2463,7 +2773,9 @@ ${ach.desc}
             
             Object.keys(ACHIEVEMENTS).forEach(id => {
                 const ach = ACHIEVEMENTS[id];
-                const isUnlocked = data.achievements.unlocked.includes(id);
+                
+                // Тижневі досягнення завжди в прогресі (бо їх можна отримувати багато разів)
+                const isUnlocked = ach.type === 'weekly' ? false : data.achievements.unlocked.includes(id);
                 
                 let current = 0;
                 if (ach.type === 'cumulative') {
@@ -2471,11 +2783,46 @@ ${ach.desc}
                 } else if (ach.type === 'streak') {
                     const streak = data.achievements.streaks[ach.streak] || { current: 0 };
                     current = streak.current;
+                } else if (ach.type === 'balance') {
+                    current = Number(data.balance) || 0;
+                } else if (ach.type === 'weekly') {
+                    // Рахуємо зірки за поточний тиждень
+                    const now = new Date();
+                    const dayOfWeek = now.getDay();
+                    const daysFromMonday = (dayOfWeek === 0 ? 6 : dayOfWeek - 1);
+                    const weekStart = new Date(now);
+                    weekStart.setDate(now.getDate() - daysFromMonday);
+                    weekStart.setHours(0, 0, 0, 0);
+                    
+                    const weekRecords = (data.records || []).filter(r => {
+                        const d = new Date(r.date);
+                        return d >= weekStart && r.type === 'earn' && r.category !== 'achievement';
+                    });
+                    current = weekRecords.reduce((sum, r) => sum + r.stars, 0);
+                } else if (ach.type === 'special') {
+                    current = 0; // Особливі не мають прогресу
                 }
                 
                 const percent = Math.min((current / ach.target) * 100, 100);
-                const statusText = isUnlocked ? '✅ Отримано' : `${current} / ${ach.target}`;
+                let statusText = isUnlocked ? '✅ Отримано' : `${current} / ${ach.target}`;
                 const statusClass = isUnlocked ? 'completed' : '';
+                
+                // Для тижневих додаємо підказку
+                if (ach.type === 'weekly') {
+                    // Перевіряємо чи отримували цього тижня
+                    const now = new Date();
+                    const startOfYear = new Date(now.getFullYear(), 0, 1);
+                    const dayOfYear = Math.floor((now - startOfYear) / (1000 * 60 * 60 * 24));
+                    const weekNum = Math.ceil((dayOfYear + 1) / 7);
+                    const weekKey = `${now.getFullYear()}-W${weekNum}`;
+                    const weeklyAch = data.achievements.weekly?.[weekKey] || [];
+                    
+                    if (weeklyAch.includes(id)) {
+                        statusText = '✅ Отримано цього тижня';
+                    } else {
+                        statusText = `${current}⭐ / ${ach.target}⭐ цього тижня`;
+                    }
+                }
                 
                 const cardHTML = `
                     <div class="achievement-card ${ach.tier} ${isUnlocked ? 'unlocked' : ''}">
@@ -2687,6 +3034,11 @@ ${ach.desc}
             // Даємо бонуси тільки за НОВІ досягнення
             giveRewardsForNewAchievements(unlockedBefore);
             
+            // Перевіряємо тижневі досягнення
+            if (checkWeeklyAchievements()) {
+                saveData(); // Зберігаємо якщо були зміни
+            }
+            
             saveData();
 
             document.getElementById('subject').value = '';
@@ -2722,6 +3074,11 @@ ${ach.desc}
             // Даємо бонуси тільки за НОВІ досягнення
             giveRewardsForNewAchievements(unlockedBefore);
             
+            // Перевіряємо тижневі досягнення
+            if (checkWeeklyAchievements()) {
+                saveData(); // Зберігаємо якщо були зміни
+            }
+            
             saveData();
 
             document.getElementById('bonusType').value = '';
@@ -2754,6 +3111,11 @@ ${ach.desc}
             
             // Даємо бонуси тільки за НОВІ досягнення
             giveRewardsForNewAchievements(unlockedBefore);
+            
+            // Перевіряємо тижневі досягнення
+            if (checkWeeklyAchievements()) {
+                saveData(); // Зберігаємо якщо були зміни
+            }
             
             saveData();
 
