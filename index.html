@@ -2108,9 +2108,20 @@
             const streak = data.achievements.streaks?.earning || { current: 0, best: 0 };
             const showStreak = streak.current > 0;
             
-            // Останні отримані досягнення (максимум 5)
+            // Останні отримані досягнення (максимум 5) + тижневі
             const unlockedIds = data.achievements.unlocked || [];
-            const lastUnlocked = unlockedIds.slice(-5).reverse(); // останні 5, новіші спочатку
+            
+            // Додаємо тижневі з поточного тижня
+            const now = new Date();
+            const startOfYear = new Date(now.getFullYear(), 0, 1);
+            const dayOfYear = Math.floor((now - startOfYear) / (1000 * 60 * 60 * 24));
+            const weekNum = Math.ceil((dayOfYear + 1) / 7);
+            const weekKey = `${now.getFullYear()}-W${weekNum}`;
+            const weeklyAch = data.achievements.weekly?.[weekKey] || [];
+            
+            // Об'єднуємо звичайні та тижневі
+            const allUnlocked = [...unlockedIds, ...weeklyAch];
+            const lastUnlocked = allUnlocked.slice(-5).reverse(); // останні 5, новіші спочатку
             
             if (!showStreak && lastUnlocked.length === 0) {
                 container.innerHTML = ''; // Нічого не показуємо
@@ -2800,11 +2811,16 @@ ${ach.desc}
                     });
                     current = weekRecords.reduce((sum, r) => sum + r.stars, 0);
                 } else if (ach.type === 'special') {
-                    current = 0; // Особливі не мають прогресу
+                    // Для Ціленаправлений - перевіряємо чи досягнута мета
+                    if (ach.check === 'goal_reached' && data.goal) {
+                        const currentBalance = Number(data.balance) || 0;
+                        current = currentBalance;
+                        ach.target = data.goal.target; // Встановлюємо target динамічно
+                    }
                 }
                 
-                const percent = Math.min((current / ach.target) * 100, 100);
-                let statusText = isUnlocked ? '✅ Отримано' : `${current} / ${ach.target}`;
+                const percent = ach.target ? Math.min((current / ach.target) * 100, 100) : 0;
+                let statusText = isUnlocked ? '✅ Отримано' : (ach.target ? `${current} / ${ach.target}` : 'Встанови мету');
                 const statusClass = isUnlocked ? 'completed' : '';
                 
                 // Для тижневих додаємо підказку
@@ -2870,6 +2886,7 @@ ${ach.desc}
                 }
                 showLoading(false);
                 recalculateAchievements();  // Перераховуємо досягнення з усіх записів
+                checkWeeklyAchievements();  // Перевіряємо тижневі досягнення
                 updateUI();
                 // Якщо відкрита історія чи статистика — оновлюємо
                 const activeSection = document.querySelector('.section.active');
