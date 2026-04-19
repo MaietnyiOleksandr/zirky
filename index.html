@@ -1852,7 +1852,8 @@
                 counters: {},  // grades_12: 5, books: 2
                 streaks: {},   // earning: {current: 7, best: 12, lastDate: "2026-04-11"}
                 levels: {},    // {"відмінник": 2, "книголюб": 1} - поточний рівень
-                weekly: {}     // "2026-W15": {"швидкий_старт": 2}
+                weekly: {},    // "2026-W15": {"швидкий_старт": 2}
+                repeatableHistory: {}  // {"чистюля": {1: 3, 2: 1}} - скільки разів отримано кожен рівень
             }
         };
 
@@ -1891,7 +1892,7 @@
             "fire_streak": {
                 name: "Fire Streak",
                 icon: "🔥",
-                desc: "Заробляй зірки кожен день поспіль",
+                desc: "Заробляй зірки кожен день без перерв",
                 levels: [
                     { tier: "bronze", target: 7, reward: 50, desc: "7 днів" },
                     { tier: "silver", target: 14, reward: 100, desc: "14 днів" },
@@ -1932,7 +1933,7 @@
                     { tier: "silver", target: 10, reward: 50, desc: "10 днів" },
                     { tier: "gold", target: 30, reward: 100, desc: "30 днів" }
                 ],
-                type: "streak",
+                type: "repeatable_streak",
                 streak: "teeth"
             },
             "красуня": {
@@ -1944,7 +1945,7 @@
                     { tier: "silver", target: 5, reward: 20, desc: "5 днів" },
                     { tier: "gold", target: 7, reward: 30, desc: "7 днів" }
                 ],
-                type: "streak",
+                type: "repeatable_streak",
                 streak: "hair"
             },
             "швидкий_старт": {
@@ -2217,6 +2218,7 @@
             if (!data.achievements.streaks) data.achievements.streaks = {};
             if (!data.achievements.levels) data.achievements.levels = {};
             if (!data.achievements.weekly) data.achievements.weekly = {};
+            if (!data.achievements.repeatableHistory) data.achievements.repeatableHistory = {};
         }
         
         // ПОВНЕ перерахунок всіх досягнень з нуля
@@ -2527,6 +2529,9 @@ ${level.desc}
                 const ach = ACHIEVEMENTS[achId];
                 if (!ach) return;
                 
+                // Для repeatable НЕ забираємо бонуси при втраті рівня
+                if (ach.type === 'repeatable_streak') return;
+                
                 const levelBefore = levelsBefore[achId] || 0;
                 const levelAfter = levelsAfter[achId] || 0;
                 
@@ -2571,37 +2576,75 @@ ${level.desc}
                 const levelBefore = levelsBefore[achId] || 0;
                 const levelAfter = levelsAfter[achId] || 0;
                 
+                // Для repeatable - перевіряємо чи це повторне отримання
+                const isRepeatable = ach.type === 'repeatable_streak';
+                
                 // Якщо рівень збільшився - даємо бонуси за нові рівні
                 if (levelAfter > levelBefore) {
                     for (let i = levelBefore; i < levelAfter; i++) {
                         const level = ach.levels[i];
                         if (!level) continue;
                         
+                        const levelNum = i + 1;
                         const tierName = level.tier === 'bronze' ? 'I' : level.tier === 'silver' ? 'II' : 'III';
                         const fullName = ach.levels.length > 1 ? `${ach.icon} ${ach.name} ${tierName}` : `${ach.icon} ${ach.name}`;
                         
-                        // Додаємо зірки
-                        data.balance = Number(data.balance) + level.reward;
-                        
-                        // Створюємо запис
-                        data.records.push({
-                            id: Date.now() + Math.random(),
-                            date: new Date().toISOString(),
-                            description: fullName,
-                            stars: level.reward,
-                            type: 'earn',
-                            category: 'achievement'
-                        });
-                        
-                        // Показуємо popup
-                        setTimeout(() => {
-                            alert(`🎉 Нове досягнення!
+                        // Для repeatable - зберігаємо історію
+                        if (isRepeatable) {
+                            if (!data.achievements.repeatableHistory[achId]) {
+                                data.achievements.repeatableHistory[achId] = {};
+                            }
+                            const count = data.achievements.repeatableHistory[achId][levelNum] || 0;
+                            data.achievements.repeatableHistory[achId][levelNum] = count + 1;
+                            
+                            // Додаємо позначку про повторне отримання
+                            const repeatCount = data.achievements.repeatableHistory[achId][levelNum];
+                            const repeatText = repeatCount > 1 ? ` (×${repeatCount})` : '';
+                            
+                            // Додаємо зірки
+                            data.balance = Number(data.balance) + level.reward;
+                            
+                            // Створюємо запис
+                            data.records.push({
+                                id: Date.now() + Math.random(),
+                                date: new Date().toISOString(),
+                                description: fullName + repeatText,
+                                stars: level.reward,
+                                type: 'earn',
+                                category: 'achievement'
+                            });
+                            
+                            // Показуємо popup
+                            setTimeout(() => {
+                                alert(`🎉 ${repeatCount > 1 ? 'Знову отримано!' : 'Нове досягнення!'}
+
+${fullName}${repeatText}
+${level.desc}
+
++${level.reward}⭐ нараховано!`);
+                            }, 300);
+                        } else {
+                            // Звичайні досягнення - як раніше
+                            data.balance = Number(data.balance) + level.reward;
+                            
+                            data.records.push({
+                                id: Date.now() + Math.random(),
+                                date: new Date().toISOString(),
+                                description: fullName,
+                                stars: level.reward,
+                                type: 'earn',
+                                category: 'achievement'
+                            });
+                            
+                            setTimeout(() => {
+                                alert(`🎉 Нове досягнення!
 
 ${fullName}
 ${level.desc}
 
 +${level.reward}⭐ нараховано!`);
-                        }, 300);
+                            }, 300);
+                        }
                     }
                 }
             });
@@ -2812,6 +2855,15 @@ ${ach.desc}
                     bestText = `Всього: ${bestValue}`;
                 } else if (ach.type === 'streak') {
                     bestText = `Рекорд: ${bestValue} ${bestValue === 1 ? 'день' : bestValue < 5 ? 'дні' : 'днів'}`;
+                } else if (ach.type === 'repeatable_streak') {
+                    // Для repeatable показуємо скільки разів отримано кожен рівень
+                    const history = data.achievements.repeatableHistory[achId] || {};
+                    const counts = Object.keys(history).map(level => {
+                        const count = history[level];
+                        const medal = level === '1' ? '🥉' : level === '2' ? '🥈' : '🥇';
+                        return count > 0 ? `${medal}×${count}` : '';
+                    }).filter(x => x).join(' ');
+                    bestText = counts || `Рекорд: ${bestValue} ${bestValue === 1 ? 'день' : bestValue < 5 ? 'дні' : 'днів'}`;
                 } else if (ach.type === 'balance') {
                     bestText = `Баланс: ${bestValue}⭐`;
                 } else if (ach.type === 'weekly') {
@@ -2861,7 +2913,7 @@ ${ach.desc}
                     data.isParent = wasParent;
                     if (data.balance === undefined) data.balance = 0;
                     if (!data.records) data.records = [];
-                    if (!data.achievements) data.achievements = { counters: {}, streaks: {}, levels: {}, weekly: {} };
+                    if (!data.achievements) data.achievements = { counters: {}, streaks: {}, levels: {}, weekly: {}, repeatableHistory: {} };
                 }
                 showLoading(false);
                 recalculateAchievements();  // Перераховуємо досягнення з усіх записів
@@ -2884,7 +2936,7 @@ ${ach.desc}
                 balance: data.balance || 0,
                 pin: data.pin || '1234',
                 goal: data.goal || null,
-                achievements: data.achievements || { counters: {}, streaks: {}, levels: {}, weekly: {} }
+                achievements: data.achievements || { counters: {}, streaks: {}, levels: {}, weekly: {}, repeatableHistory: {} }
             };
             set(ref(db, 'zirky'), toSave);
         }
