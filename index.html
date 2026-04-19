@@ -1937,7 +1937,7 @@
             },
             "красуня": {
                 name: "Красуня",
-                icon: "💇",
+                icon: "🪮",
                 desc: "Причесуйся кожен день",
                 levels: [
                     { tier: "bronze", target: 3, reward: 10, desc: "3 дні" },
@@ -1949,7 +1949,7 @@
             },
             "швидкий_старт": {
                 name: "Швидкий старт",
-                icon: "⚡",
+                icon: "🚀",
                 desc: "Заробляй багато зірок за тиждень",
                 levels: [
                     { tier: "bronze", target: 50, reward: 5, desc: "50⭐" },
@@ -1961,7 +1961,7 @@
             "ціленаправлений": {
                 name: "Ціленаправлений",
                 icon: "🎯",
-                desc: "Досягни свою мету",
+                desc: "Досягни своєї мети",
                 levels: [
                     { tier: "gold", reward: 20, desc: "Перша мета" }
                 ],
@@ -2024,14 +2024,13 @@
             // Бейджі досягнень
             if (lastUnlocked.length > 0) {
                 html += '<div class="badges-home">';
-                lastUnlocked.forEach(id => {
-                    const ach = ACHIEVEMENTS[id];
+                lastUnlocked.forEach(achId => {
+                    const ach = ACHIEVEMENTS[achId];
                     if (ach) {
-                        // Витягуємо емодзі (перші 1-2 символи до пробілу)
-                        let emoji = ach.name.split(' ')[0];
-                        // Fallback якщо не витягнулося
-                        if (!emoji || emoji.length > 3) emoji = '🏆';
-                        html += `<div class="badge-home ${ach.tier}" data-ach-id="${id}">${emoji}</div>`;
+                        // Використовуємо іконку досягнення
+                        const currentLevel = data.achievements.levels[achId] || 0;
+                        const tier = currentLevel === 0 ? '' : ach.levels[currentLevel - 1].tier;
+                        html += `<div class="badge-home ${tier}" data-ach-id="${achId}">${ach.icon}</div>`;
                     }
                 });
                 html += '</div>';
