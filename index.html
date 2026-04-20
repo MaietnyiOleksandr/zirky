@@ -2844,14 +2844,30 @@ ${ach.desc}
                 const nextLevelIndex = currentLevel; // індекс наступного рівня (0-based)
                 const nextLevel = ach.levels[nextLevelIndex];
                 
-                // Якщо всі рівні досягнуті
-                const allLevelsCompleted = currentLevel >= ach.levels.length;
+                // Для weekly перевіряємо чи досягнуто в ПОТОЧНОМУ тижні
+                let allLevelsCompleted = currentLevel >= ach.levels.length;
+                
+                // Для weekly - перевіряємо цей тиждень окремо
+                if (ach.type === 'weekly') {
+                    const now = new Date();
+                    const startOfYear = new Date(now.getFullYear(), 0, 1);
+                    const dayOfYear = Math.floor((now - startOfYear) / (1000 * 60 * 60 * 24));
+                    const weekNum = Math.ceil((dayOfYear + 1) / 7);
+                    const weekKey = `${now.getFullYear()}-W${weekNum}`;
+                    const weeklyLevels = data.achievements.weekly?.[weekKey];
+                    const thisWeekLevel = weeklyLevels?.[achId] || 0;
+                    
+                    allLevelsCompleted = thisWeekLevel >= ach.levels.length;
+                }
                 
                 // Рахуємо прогрес для наступного рівня
                 let progressPercent = 0;
                 let progressText = '';
                 
-                if (allLevelsCompleted) {
+                if (allLevelsCompleted && ach.type === 'weekly') {
+                    progressPercent = 100;
+                    progressText = '✅ Всі рівні отримані цього тижня';
+                } else if (allLevelsCompleted) {
                     progressPercent = 100;
                     progressText = '✅ Всі рівні досягнуті';
                 } else if (nextLevel) {
@@ -3835,7 +3851,7 @@ ${ach.desc}
     </script>
 
     <!-- Freeze Mode Modal -->
-    <div id="freezeModal" class="overlay" style="display: none;">
+    <div id="freezeModal" class="overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 10000; justify-content: center; align-items: center;">
         <div class="auth-container">
             <h2 style="margin-bottom: 20px; color: var(--secondary);">❄️ Режим канікул</h2>
             <p style="font-size: 14px; color: #666; margin-bottom: 20px; line-height: 1.5;">
