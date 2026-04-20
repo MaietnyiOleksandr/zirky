@@ -1507,11 +1507,11 @@
                     </div>
                 </div>
                 
-                <!-- Блок мети -->
-                <div id="goalContainer"></div>
-                
                 <!-- Досягнення на головній -->
                 <div id="achievementsHome"></div>
+                
+                <!-- Блок мети -->
+                <div id="goalContainer"></div>
             </div>
         </div>
 
@@ -2047,14 +2047,14 @@
                     <div class="streak-display">
                         <span class="streak-fire">🔥</span>
                         <span>Серія: ${streak.current} ${daysWord}${freezeText}</span>
-                        ${data.isParent ? '<button class="freeze-btn" onclick="showFreezeModal()">❄️ Канікули</button>' : ''}
+                        ${data.isParent ? '<button class="freeze-btn" data-action="freeze">❄️ Канікули</button>' : ''}
                     </div>
                 `;
             } else if (data.isParent) {
                 // Якщо немає серії, але є батьківський режим - все одно показуємо кнопку
                 html += `
                     <div class="streak-display">
-                        <button class="freeze-btn" onclick="showFreezeModal()">❄️ Канікули</button>
+                        <button class="freeze-btn" data-action="freeze">❄️ Канікули</button>
                     </div>
                 `;
             }
@@ -2076,6 +2076,14 @@
             
             html += '</div>';
             container.innerHTML = html;
+            
+            // Додаємо event listener для кнопки Канікули
+            setTimeout(() => {
+                const freezeBtn = document.querySelector('.freeze-btn[data-action="freeze"]');
+                if (freezeBtn) {
+                    freezeBtn.addEventListener('click', showFreezeModal);
+                }
+            }, 50);
             
             // Додаємо event listeners для бейджів (для мобільних)
             setTimeout(() => {
@@ -2859,9 +2867,10 @@ ${ach.desc}
                         const dayOfYear = Math.floor((now - startOfYear) / (1000 * 60 * 60 * 24));
                         const weekNum = Math.ceil((dayOfYear + 1) / 7);
                         const weekKey = `${now.getFullYear()}-W${weekNum}`;
-                        const weeklyLevels = data.achievements.weekly?.[weekKey] || {};
+                        const weeklyLevels = data.achievements.weekly?.[weekKey];
                         
-                        if (weeklyLevels[achId] >= nextLevelIndex + 1) {
+                        // Перевіряємо чи є запис для ПОТОЧНОГО тижня
+                        if (weeklyLevels && weeklyLevels[achId] && weeklyLevels[achId] >= nextLevelIndex + 1) {
                             progressText = '✅ Отримано цього тижня';
                         } else {
                             progressText = `${currentValue}⭐ / ${target}⭐ цього тижня`;
@@ -3714,8 +3723,8 @@ ${ach.desc}
                 document.getElementById('currentPin').textContent = data.pin;
             }
             
-            renderGoal();
             renderAchievementsHome();
+            renderGoal();
         }
 
         // PIN підтвердження для дитини при обміні
