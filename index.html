@@ -1876,7 +1876,7 @@
                 levels: {},    // {"відмінник": 2, "книголюб": 1} - поточний рівень
                 weekly: {},    // "2026-W15": {"швидкий_старт": 2}
                 repeatableHistory: {},  // {"чистюля": {1: 3, 2: 1}} - скільки разів отримано кожен рівень
-                freezeMode: null  // { active: true, from: "2026-04-21", until: "2026-04-30" } - канікули активні
+                freezePeriods: []  // [{ from: "2026-04-21", until: "2026-04-30" }] - всі періоди канікул
             }
         };
 
@@ -2038,14 +2038,20 @@
             if (showStreak) {
                 const daysWord = streak.current === 1 ? 'день' : streak.current < 5 ? 'дні' : 'днів';
                 
-                // Перевіряємо чи активні канікули
-                const freezeActive = data.achievements.freezeMode?.active;
-                const freezeFrom = data.achievements.freezeMode?.from;
-                const freezeUntil = data.achievements.freezeMode?.until;
+                // Перевіряємо чи є активні періоди канікул
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const periods = data.achievements.freezePeriods || [];
+                const activePeriod = periods.find(p => {
+                    const until = new Date(p.until);
+                    until.setHours(23, 59, 59, 999);
+                    return until >= today;
+                });
+                
                 let freezeText = '';
-                if (freezeActive && freezeFrom && freezeUntil) {
-                    const fromStr = new Date(freezeFrom).toLocaleDateString('uk-UA', {day: '2-digit', month: '2-digit'});
-                    const untilStr = new Date(freezeUntil).toLocaleDateString('uk-UA', {day: '2-digit', month: '2-digit'});
+                if (activePeriod) {
+                    const fromStr = new Date(activePeriod.from).toLocaleDateString('uk-UA', {day: '2-digit', month: '2-digit'});
+                    const untilStr = new Date(activePeriod.until).toLocaleDateString('uk-UA', {day: '2-digit', month: '2-digit'});
                     freezeText = ` (❄️ ${fromStr}-${untilStr})`;
                 }
                 
@@ -2270,7 +2276,18 @@
             if (!data.achievements.levels) data.achievements.levels = {};
             if (!data.achievements.weekly) data.achievements.weekly = {};
             if (!data.achievements.repeatableHistory) data.achievements.repeatableHistory = {};
-            if (!data.achievements.freezeMode) data.achievements.freezeMode = null;
+            if (!data.achievements.freezePeriods) data.achievements.freezePeriods = [];
+            
+            // Міграція зі старої структури
+            if (data.achievements.freezeMode) {
+                if (data.achievements.freezeMode.active) {
+                    data.achievements.freezePeriods.push({
+                        from: data.achievements.freezeMode.from,
+                        until: data.achievements.freezeMode.until
+                    });
+                }
+                delete data.achievements.freezeMode;
+            }
         }
         
         // ПОВНЕ перерахунок всіх досягнень з нуля
@@ -2976,7 +2993,6 @@ ${ach.desc}
             const fromInput = document.getElementById('freezeFromDate');
             const untilInput = document.getElementById('freezeUntilDate');
             const statusDiv = document.getElementById('freezeStatus');
-            const deactivateBtn = document.getElementById('deactivateBtn');
             
             // Встановлюємо дати за замовчуванням
             const today = new Date();
@@ -2987,28 +3003,42 @@ ${ach.desc}
             fromInput.value = today.toISOString().split('T')[0];
             untilInput.value = tomorrow.toISOString().split('T')[0];
             
-            // Перевіряємо чи вже активні канікули
-            if (data.achievements.freezeMode?.active) {
-                const from = new Date(data.achievements.freezeMode.from || new Date());
-                const until = new Date(data.achievements.freezeMode.until);
-                statusDiv.innerHTML = `✅ Канікули активні з ${from.toLocaleDateString('uk-UA')} до ${until.toLocaleDateString('uk-UA')}`;
-                fromInput.value = data.achievements.freezeMode.from;
-                untilInput.value = data.achievements.freezeMode.until;
-                deactivateBtn.style.display = 'block';
+            // Показуємо список всіх періодів канікул
+            const periods = data.achievements.freezePeriods || [];
+            if (periods.length > 0) {
+                let html = '<div style="margin-top: 20px; padding-top: 15px; border-top: 2px solid #ddd;"><strong>Збережені періоди:</strong></div>';
+                periods.forEach((period, index) => {
+                    const from = new Date(period.from);
+                    const until = new Date(period.until);
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    const isActive = until >= today;
+                    const statusIcon = isActive ? '✅' : '⏸️';
+                    
+                    html += `
+                        <div style="background: ${isActive ? '#E3F2FD' : '#f5f5f5'}; padding: 10px; border-radius: 10px; margin-top: 8px; display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <span style="font-weight: 700;">${statusIcon} ${from.toLocaleDateString('uk-UA', {day: '2-digit', month: '2-digit', year: 'numeric'})} - ${until.toLocaleDateString('uk-UA', {day: '2-digit', month: '2-digit', year: 'numeric'})}</span>
+                            </div>
+                            <div style="display: flex; gap: 5px;">
+                                <button onclick="editFreezePeriod(${index})" style="padding: 5px 10px; background: #2196F3; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 12px;">✏️</button>
+                                <button onclick="deleteFreezePeriod(${index})" style="padding: 5px 10px; background: #f44336; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 12px;">🗑️</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                statusDiv.innerHTML = html;
             } else {
-                statusDiv.innerHTML = '';
-                deactivateBtn.style.display = 'none';
+                statusDiv.innerHTML = '<div style="margin-top: 15px; color: #999; font-size: 13px; text-align: center;">Поки немає збережених періодів канікул</div>';
             }
             
             // Додаємо event listeners для кнопок
             setTimeout(() => {
                 const closeBtn = modal.querySelector('[data-action="close-freeze"]');
                 const activateBtn = modal.querySelector('[data-action="activate-freeze"]');
-                const deactivateBtn = modal.querySelector('[data-action="deactivate-freeze"]');
                 
                 if (closeBtn) closeBtn.addEventListener('click', closeFreezeModal);
                 if (activateBtn) activateBtn.addEventListener('click', activateFreezeMode);
-                if (deactivateBtn) deactivateBtn.addEventListener('click', deactivateFreezeMode);
             }, 10);
             
             modal.style.display = 'flex';
@@ -3041,60 +3071,79 @@ ${ach.desc}
                 return;
             }
             
-            // Активуємо режим канікул
+            // Додаємо новий період канікул
+            if (!data.achievements.freezePeriods) data.achievements.freezePeriods = [];
             
-            data.achievements.freezeMode = {
-                active: true,
-                from: fromDate,  // Починаємо з сьогодні
+            data.achievements.freezePeriods.push({
+                from: fromDate,
                 until: untilDate
-            };
+            });
+            
+            // Сортуємо періоди по даті початку
+            data.achievements.freezePeriods.sort((a, b) => new Date(a.from) - new Date(b.from));
             
             // Додаємо запис в історію
             data.records.push({
                 id: Date.now() + Math.random(),
                 date: new Date().toISOString(),
-                description: `❄️ Канікули активовано (${new Date(fromDate).toLocaleDateString('uk-UA', {day: '2-digit', month: '2-digit'})} - ${until.toLocaleDateString('uk-UA', {day: '2-digit', month: '2-digit'})})`,
+                description: `❄️ Канікули додано (${from.toLocaleDateString('uk-UA', {day: '2-digit', month: '2-digit'})} - ${until.toLocaleDateString('uk-UA', {day: '2-digit', month: '2-digit'})})`,
                 stars: 0,
                 type: 'info',
                 category: 'system'
             });
             
+            // Перераховуємо серії
+            recalculateAchievements();
             saveData();
             updateUI();
             
-            alert(`❄️ Режим канікул активовано до ${until.toLocaleDateString('uk-UA')}
+            alert(`❄️ Період канікул додано!
 
-Серії з оцінок заморожені.`);
+${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}
+
+Серії перераховані.`);
             closeFreezeModal();
         }
         
-        function deactivateFreezeMode() {
-            if (!confirm('Вимкнути режим канікул?')) return;
+        function deleteFreezePeriod(index) {
+            const period = data.achievements.freezePeriods[index];
+            const from = new Date(period.from);
+            const until = new Date(period.until);
             
-            // Зберігаємо інфо для запису
-            const wasActive = data.achievements.freezeMode;
+            if (!confirm(`Видалити період канікул?
+
+${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) return;
             
-            data.achievements.freezeMode = null;
+            data.achievements.freezePeriods.splice(index, 1);
             
             // Додаємо запис в історію
-            if (wasActive) {
-                const from = new Date(wasActive.from);
-                const until = new Date(wasActive.until);
-                data.records.push({
-                    id: Date.now() + Math.random(),
-                    date: new Date().toISOString(),
-                    description: `❄️ Канікули завершено (${from.toLocaleDateString('uk-UA', {day: '2-digit', month: '2-digit'})} - ${until.toLocaleDateString('uk-UA', {day: '2-digit', month: '2-digit'})})`,
-                    stars: 0,
-                    type: 'info',
-                    category: 'system'
-                });
-            }
+            data.records.push({
+                id: Date.now() + Math.random(),
+                date: new Date().toISOString(),
+                description: `❄️ Канікули видалено (${from.toLocaleDateString('uk-UA', {day: '2-digit', month: '2-digit'})} - ${until.toLocaleDateString('uk-UA', {day: '2-digit', month: '2-digit'})})`,
+                stars: 0,
+                type: 'info',
+                category: 'system'
+            });
             
+            // Перераховуємо серії
+            recalculateAchievements();
             saveData();
-            updateUI();
+            showFreezeModal(); // Перемальовуємо модалку
+        }
+        
+        function editFreezePeriod(index) {
+            const period = data.achievements.freezePeriods[index];
+            const fromInput = document.getElementById('freezeFromDate');
+            const untilInput = document.getElementById('freezeUntilDate');
             
-            alert('Режим канікул вимкнено');
-            closeFreezeModal();
+            fromInput.value = period.from;
+            untilInput.value = period.until;
+            
+            // Видаляємо старий період
+            data.achievements.freezePeriods.splice(index, 1);
+            
+            // При натисканні "Активувати" додасть оновлений період
         }
         
         // Перевіряємо чи день має пропускатися (канікули або вихідні)
@@ -3110,14 +3159,15 @@ ${ach.desc}
                     return true;
                 }
                 
-                // Перевіряємо канікули
-                if (data.achievements.freezeMode?.active) {
-                    const freezeFrom = new Date(data.achievements.freezeMode.from);
+                // Перевіряємо всі періоди канікул
+                const freezePeriods = data.achievements.freezePeriods || [];
+                for (const period of freezePeriods) {
+                    const freezeFrom = new Date(period.from);
                     freezeFrom.setHours(0, 0, 0, 0);
-                    const freezeUntil = new Date(data.achievements.freezeMode.until);
+                    const freezeUntil = new Date(period.until);
                     freezeUntil.setHours(23, 59, 59, 999);
                     
-                    // Пропускаємо тільки якщо день В МЕЖАХ періоду канікул
+                    // Пропускаємо тільки якщо день В МЕЖАХ цього періоду канікул
                     if (checkDate >= freezeFrom && checkDate <= freezeUntil) {
                         return true;  // День в канікулах - пропускаємо
                     }
@@ -3140,7 +3190,7 @@ ${ach.desc}
                     data.isParent = wasParent;
                     if (data.balance === undefined) data.balance = 0;
                     if (!data.records) data.records = [];
-                    if (!data.achievements) data.achievements = { counters: {}, streaks: {}, levels: {}, weekly: {}, repeatableHistory: {}, freezeMode: null };
+                    if (!data.achievements) data.achievements = { counters: {}, streaks: {}, levels: {}, weekly: {}, repeatableHistory: {}, freezePeriods: [] };
                 }
                 showLoading(false);
                 recalculateAchievements();  // Перераховуємо досягнення з усіх записів
@@ -3164,7 +3214,7 @@ ${ach.desc}
                 balance: data.balance || 0,
                 pin: data.pin || '1234',
                 goal: data.goal || null,
-                achievements: data.achievements || { counters: {}, streaks: {}, levels: {}, weekly: {}, repeatableHistory: {}, freezeMode: null }
+                achievements: data.achievements || { counters: {}, streaks: {}, levels: {}, weekly: {}, repeatableHistory: {}, freezePeriods: [] }
             };
             set(ref(db, 'zirky'), toSave);
         }
@@ -3940,14 +3990,10 @@ ${ach.desc}
             
             <div style="display: flex; gap: 10px;">
                 <button class="auth-btn secondary-btn" data-action="close-freeze" style="flex: 1;">Скасувати</button>
-                <button class="auth-btn" data-action="activate-freeze" style="flex: 1;">Активувати</button>
+                <button class="auth-btn" data-action="activate-freeze" style="flex: 1;">Додати період</button>
             </div>
             
-            <div id="freezeStatus" style="margin-top: 15px; font-size: 13px; color: #666; text-align: center;"></div>
-            
-            <button class="auth-btn secondary-btn" data-action="deactivate-freeze" style="margin-top: 10px; width: 100%; display: none;" id="deactivateBtn">
-                Вимкнути канікули
-            </button>
+            <div id="freezeStatus" style="margin-top: 15px; font-size: 13px; color: #666;"></div>
         </div>
     </div>
 
