@@ -1876,7 +1876,7 @@
                 levels: {},    // {"відмінник": 2, "книголюб": 1} - поточний рівень
                 weekly: {},    // "2026-W15": {"швидкий_старт": 2}
                 repeatableHistory: {},  // {"чистюля": {1: 3, 2: 1}} - скільки разів отримано кожен рівень
-                freezeMode: null  // { active: true, until: "2026-04-20" } - канікули активні
+                freezeMode: null  // { active: true, from: "2026-04-21", until: "2026-04-30" } - канікули активні
             }
         };
 
@@ -2040,8 +2040,14 @@
                 
                 // Перевіряємо чи активні канікули
                 const freezeActive = data.achievements.freezeMode?.active;
+                const freezeFrom = data.achievements.freezeMode?.from;
                 const freezeUntil = data.achievements.freezeMode?.until;
-                const freezeText = freezeActive && freezeUntil ? ` (❄️ до ${new Date(freezeUntil).toLocaleDateString('uk-UA', {day: '2-digit', month: '2-digit'})})` : '';
+                let freezeText = '';
+                if (freezeActive && freezeFrom && freezeUntil) {
+                    const fromStr = new Date(freezeFrom).toLocaleDateString('uk-UA', {day: '2-digit', month: '2-digit'});
+                    const untilStr = new Date(freezeUntil).toLocaleDateString('uk-UA', {day: '2-digit', month: '2-digit'});
+                    freezeText = ` (❄️ ${fromStr}-${untilStr})`;
+                }
                 
                 html += `
                     <div class="streak-display">
@@ -2978,8 +2984,9 @@ ${ach.desc}
             
             // Перевіряємо чи вже активні канікули
             if (data.achievements.freezeMode?.active) {
+                const from = new Date(data.achievements.freezeMode.from || new Date());
                 const until = new Date(data.achievements.freezeMode.until);
-                statusDiv.innerHTML = `✅ Канікули активні до ${until.toLocaleDateString('uk-UA')}`;
+                statusDiv.innerHTML = `✅ Канікули активні з ${from.toLocaleDateString('uk-UA')} до ${until.toLocaleDateString('uk-UA')}`;
                 dateInput.value = data.achievements.freezeMode.until;
                 deactivateBtn.style.display = 'block';
             } else {
@@ -3025,10 +3032,23 @@ ${ach.desc}
             }
             
             // Активуємо режим канікул
+            const fromDate = today.toISOString().split('T')[0];
+            
             data.achievements.freezeMode = {
                 active: true,
+                from: fromDate,  // Починаємо з сьогодні
                 until: untilDate
             };
+            
+            // Додаємо запис в історію
+            data.records.push({
+                id: Date.now() + Math.random(),
+                date: new Date().toISOString(),
+                description: `❄️ Канікули активовано (${new Date(fromDate).toLocaleDateString('uk-UA', {day: '2-digit', month: '2-digit'})} - ${until.toLocaleDateString('uk-UA', {day: '2-digit', month: '2-digit'})})`,
+                stars: 0,
+                type: 'info',
+                category: 'system'
+            });
             
             saveData();
             updateUI();
@@ -3042,7 +3062,25 @@ ${ach.desc}
         function deactivateFreezeMode() {
             if (!confirm('Вимкнути режим канікул?')) return;
             
+            // Зберігаємо інфо для запису
+            const wasActive = data.achievements.freezeMode;
+            
             data.achievements.freezeMode = null;
+            
+            // Додаємо запис в історію
+            if (wasActive) {
+                const from = new Date(wasActive.from);
+                const until = new Date(wasActive.until);
+                data.records.push({
+                    id: Date.now() + Math.random(),
+                    date: new Date().toISOString(),
+                    description: `❄️ Канікули завершено (${from.toLocaleDateString('uk-UA', {day: '2-digit', month: '2-digit'})} - ${until.toLocaleDateString('uk-UA', {day: '2-digit', month: '2-digit'})})`,
+                    stars: 0,
+                    type: 'info',
+                    category: 'system'
+                });
+            }
+            
             saveData();
             updateUI();
             
@@ -3053,6 +3091,7 @@ ${ach.desc}
         // Перевіряємо чи день має пропускатися (канікули або вихідні)
         function shouldSkipDayForStreak(date, streakType) {
             const checkDate = new Date(date);
+            checkDate.setHours(0, 0, 0, 0);
             const dayOfWeek = checkDate.getDay();
             
             // Для серій з оцінок (earning, grade-based)
@@ -3064,8 +3103,13 @@ ${ach.desc}
                 
                 // Перевіряємо канікули
                 if (data.achievements.freezeMode?.active) {
+                    const freezeFrom = new Date(data.achievements.freezeMode.from);
+                    freezeFrom.setHours(0, 0, 0, 0);
                     const freezeUntil = new Date(data.achievements.freezeMode.until);
-                    if (checkDate <= freezeUntil) {
+                    freezeUntil.setHours(23, 59, 59, 999);
+                    
+                    // Пропускаємо тільки якщо день В МЕЖАХ періоду канікул
+                    if (checkDate >= freezeFrom && checkDate <= freezeUntil) {
                         return true;  // День в канікулах - пропускаємо
                     }
                 }
@@ -3390,15 +3434,16 @@ ${ach.desc}
                 let desc = r.category === 'grade' ? `${r.subject} — ${r.grade} балів`
                          : r.type === 'spend' ? (r.reward || r.description)
                          : r.description;
-                const starClass = r.type === 'earn' ? 'positive' : 'negative';
-                const deleteBtn = data.isParent ? `<button class="delete-btn" onclick="deleteRecord(${r.id})">🗑️</button>` : '';
+                const starClass = r.type === 'earn' ? 'positive' : r.type === 'info' ? 'info' : 'negative';
+                const deleteBtn = data.isParent && r.type !== 'info' ? `<button class="delete-btn" onclick="deleteRecord(${r.id})">🗑️</button>` : '';
+                const starsDisplay = r.type === 'info' ? '' : `<div class="history-stars ${starClass}">${r.type === 'earn' ? '+' : '-'}${r.stars}⭐</div>`;
                 return `
-                    <div class="history-item ${r.type === 'spend' ? 'expense' : ''}">
+                    <div class="history-item ${r.type === 'spend' ? 'expense' : ''} ${r.type === 'info' ? 'info-item' : ''}">
                         <div class="history-info">
                             <div class="history-date">${dateStr}</div>
                             <div class="history-desc">${desc}</div>
                         </div>
-                        <div class="history-stars ${starClass}">${r.type === 'earn' ? '+' : '-'}${r.stars}⭐</div>
+                        ${starsDisplay}
                         ${deleteBtn}
                     </div>`;
             }).join('');
