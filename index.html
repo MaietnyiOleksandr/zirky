@@ -2973,25 +2973,30 @@ ${ach.desc}
         
         function showFreezeModal() {
             const modal = document.getElementById('freezeModal');
-            const dateInput = document.getElementById('freezeUntilDate');
+            const fromInput = document.getElementById('freezeFromDate');
+            const untilInput = document.getElementById('freezeUntilDate');
             const statusDiv = document.getElementById('freezeStatus');
             const deactivateBtn = document.getElementById('deactivateBtn');
             
-            // Встановлюємо мінімальну дату (завтра)
-            const tomorrow = new Date();
-            tomorrow.setDate(tomorrow.getDate() + 1);
-            dateInput.min = tomorrow.toISOString().split('T')[0];
+            // Встановлюємо дати за замовчуванням
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const tomorrow = new Date(today);
+            tomorrow.setDate(today.getDate() + 1);
+            
+            fromInput.value = today.toISOString().split('T')[0];
+            untilInput.value = tomorrow.toISOString().split('T')[0];
             
             // Перевіряємо чи вже активні канікули
             if (data.achievements.freezeMode?.active) {
                 const from = new Date(data.achievements.freezeMode.from || new Date());
                 const until = new Date(data.achievements.freezeMode.until);
                 statusDiv.innerHTML = `✅ Канікули активні з ${from.toLocaleDateString('uk-UA')} до ${until.toLocaleDateString('uk-UA')}`;
-                dateInput.value = data.achievements.freezeMode.until;
+                fromInput.value = data.achievements.freezeMode.from;
+                untilInput.value = data.achievements.freezeMode.until;
                 deactivateBtn.style.display = 'block';
             } else {
                 statusDiv.innerHTML = '';
-                dateInput.value = tomorrow.toISOString().split('T')[0];
                 deactivateBtn.style.display = 'none';
             }
             
@@ -3014,25 +3019,29 @@ ${ach.desc}
         }
         
         function activateFreezeMode() {
-            const dateInput = document.getElementById('freezeUntilDate');
-            const untilDate = dateInput.value;
+            const fromInput = document.getElementById('freezeFromDate');
+            const untilInput = document.getElementById('freezeUntilDate');
+            const fromDate = fromInput.value;
+            const untilDate = untilInput.value;
             
-            if (!untilDate) {
-                alert('Оберіть дату закінчення канікул');
+            if (!fromDate || !untilDate) {
+                alert('Оберіть дату початку та закінчення канікул');
                 return;
             }
             
+            const from = new Date(fromDate);
+            from.setHours(0, 0, 0, 0);
             const until = new Date(untilDate);
+            until.setHours(0, 0, 0, 0);
             const today = new Date();
             today.setHours(0, 0, 0, 0);
             
-            if (until <= today) {
-                alert('Дата має бути в майбутньому');
+            if (from > until) {
+                alert('Дата початку має бути раніше або дорівнювати даті закінчення');
                 return;
             }
             
             // Активуємо режим канікул
-            const fromDate = today.toISOString().split('T')[0];
             
             data.achievements.freezeMode = {
                 active: true,
@@ -3915,9 +3924,16 @@ ${ach.desc}
                 <small>(Чистюля та Красуня продовжать працювати)</small>
             </p>
             
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; font-size: 14px; font-weight: 700; margin-bottom: 8px; color: var(--secondary);">
+                    Дата початку:
+                </label>
+                <input type="date" id="freezeFromDate" style="width: 100%; padding: 12px; border: 2px solid var(--primary); border-radius: 12px; font-size: 15px;">
+            </div>
+            
             <div style="margin-bottom: 20px;">
                 <label style="display: block; font-size: 14px; font-weight: 700; margin-bottom: 8px; color: var(--secondary);">
-                    До якої дати:
+                    Дата закінчення:
                 </label>
                 <input type="date" id="freezeUntilDate" style="width: 100%; padding: 12px; border: 2px solid var(--primary); border-radius: 12px; font-size: 15px;">
             </div>
