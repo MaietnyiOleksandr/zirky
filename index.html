@@ -1876,7 +1876,7 @@
                 levels: {},    // {"відмінник": 2, "книголюб": 1} - поточний рівень
                 weekly: {},    // "2026-W15": {"швидкий_старт": 2}
                 repeatableHistory: {},  // {"чистюля": {1: 3, 2: 1}} - скільки разів отримано кожен рівень
-                freezeMode: null  // { active: true, until: "2026-04-20" } - канікули активні
+                freezeMode: null  // { active: true, from: "2026-04-21", until: "2026-04-30" } - канікули активні
             }
         };
 
@@ -2040,8 +2040,14 @@
                 
                 // Перевіряємо чи активні канікули
                 const freezeActive = data.achievements.freezeMode?.active;
+                const freezeFrom = data.achievements.freezeMode?.from;
                 const freezeUntil = data.achievements.freezeMode?.until;
-                const freezeText = freezeActive && freezeUntil ? ` (❄️ до ${new Date(freezeUntil).toLocaleDateString('uk-UA', {day: '2-digit', month: '2-digit'})})` : '';
+                let freezeText = '';
+                if (freezeActive && freezeFrom && freezeUntil) {
+                    const fromStr = new Date(freezeFrom).toLocaleDateString('uk-UA', {day: '2-digit', month: '2-digit'});
+                    const untilStr = new Date(freezeUntil).toLocaleDateString('uk-UA', {day: '2-digit', month: '2-digit'});
+                    freezeText = ` (❄️ ${fromStr}-${untilStr})`;
+                }
                 
                 html += `
                     <div class="streak-display">
@@ -2978,8 +2984,9 @@ ${ach.desc}
             
             // Перевіряємо чи вже активні канікули
             if (data.achievements.freezeMode?.active) {
+                const from = new Date(data.achievements.freezeMode.from || new Date());
                 const until = new Date(data.achievements.freezeMode.until);
-                statusDiv.innerHTML = `✅ Канікули активні до ${until.toLocaleDateString('uk-UA')}`;
+                statusDiv.innerHTML = `✅ Канікули активні з ${from.toLocaleDateString('uk-UA')} до ${until.toLocaleDateString('uk-UA')}`;
                 dateInput.value = data.achievements.freezeMode.until;
                 deactivateBtn.style.display = 'block';
             } else {
@@ -3025,8 +3032,13 @@ ${ach.desc}
             }
             
             // Активуємо режим канікул
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const fromDate = today.toISOString().split('T')[0];
+            
             data.achievements.freezeMode = {
                 active: true,
+                from: fromDate,  // Починаємо з сьогодні
                 until: untilDate
             };
             
@@ -3053,6 +3065,7 @@ ${ach.desc}
         // Перевіряємо чи день має пропускатися (канікули або вихідні)
         function shouldSkipDayForStreak(date, streakType) {
             const checkDate = new Date(date);
+            checkDate.setHours(0, 0, 0, 0);
             const dayOfWeek = checkDate.getDay();
             
             // Для серій з оцінок (earning, grade-based)
@@ -3064,8 +3077,13 @@ ${ach.desc}
                 
                 // Перевіряємо канікули
                 if (data.achievements.freezeMode?.active) {
+                    const freezeFrom = new Date(data.achievements.freezeMode.from);
+                    freezeFrom.setHours(0, 0, 0, 0);
                     const freezeUntil = new Date(data.achievements.freezeMode.until);
-                    if (checkDate <= freezeUntil) {
+                    freezeUntil.setHours(23, 59, 59, 999);
+                    
+                    // Пропускаємо тільки якщо день В МЕЖАХ періоду канікул
+                    if (checkDate >= freezeFrom && checkDate <= freezeUntil) {
                         return true;  // День в канікулах - пропускаємо
                     }
                 }
