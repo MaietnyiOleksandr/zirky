@@ -2988,6 +2988,17 @@ ${ach.desc}
                 deactivateBtn.style.display = 'none';
             }
             
+            // Додаємо event listeners для кнопок
+            setTimeout(() => {
+                const closeBtn = modal.querySelector('[data-action="close-freeze"]');
+                const activateBtn = modal.querySelector('[data-action="activate-freeze"]');
+                const deactivateBtn = modal.querySelector('[data-action="deactivate-freeze"]');
+                
+                if (closeBtn) closeBtn.addEventListener('click', closeFreezeModal);
+                if (activateBtn) activateBtn.addEventListener('click', activateFreezeMode);
+                if (deactivateBtn) deactivateBtn.addEventListener('click', deactivateFreezeMode);
+            }, 10);
+            
             modal.style.display = 'flex';
         }
         
@@ -3851,7 +3862,7 @@ ${ach.desc}
     </script>
 
     <!-- Freeze Mode Modal -->
-    <div id="freezeModal" class="overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 10000; justify-content: center; align-items: center;">
+    <div id="freezeModal" class="overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); z-index: 10000; justify-content: center; align-items: center;">
         <div class="auth-container">
             <h2 style="margin-bottom: 20px; color: var(--secondary);">❄️ Режим канікул</h2>
             <p style="font-size: 14px; color: #666; margin-bottom: 20px; line-height: 1.5;">
@@ -3867,13 +3878,13 @@ ${ach.desc}
             </div>
             
             <div style="display: flex; gap: 10px;">
-                <button class="auth-btn secondary-btn" onclick="closeFreezeModal()" style="flex: 1;">Скасувати</button>
-                <button class="auth-btn" onclick="activateFreezeMode()" style="flex: 1;">Активувати</button>
+                <button class="auth-btn secondary-btn" data-action="close-freeze" style="flex: 1;">Скасувати</button>
+                <button class="auth-btn" data-action="activate-freeze" style="flex: 1;">Активувати</button>
             </div>
             
             <div id="freezeStatus" style="margin-top: 15px; font-size: 13px; color: #666; text-align: center;"></div>
             
-            <button class="auth-btn secondary-btn" onclick="deactivateFreezeMode()" style="margin-top: 10px; width: 100%; display: none;" id="deactivateBtn">
+            <button class="auth-btn secondary-btn" data-action="deactivate-freeze" style="margin-top: 10px; width: 100%; display: none;" id="deactivateBtn">
                 Вимкнути канікули
             </button>
         </div>
