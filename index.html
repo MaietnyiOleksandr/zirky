@@ -4088,14 +4088,14 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
         function exportData() {
             try {
                 // Додаємо метадані
-                const exportData = {
+                const dataToExport = {
                     ...data,
                     version: 1,
                     exportDate: new Date().toISOString(),
                     appName: "Зірки Успіху"
                 };
                 
-                const json = JSON.stringify(exportData, null, 2);
+                const json = JSON.stringify(dataToExport, null, 2);
                 const blob = new Blob([json], { type: "application/json" });
                 const url = URL.createObjectURL(blob);
                 
