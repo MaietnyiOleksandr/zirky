@@ -4112,6 +4112,7 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
                 console.error(e);
             }
         }
+        window.exportData = exportData;
         
         function importData(event) {
             const file = event.target.files[0];
@@ -4201,6 +4202,7 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
             
             reader.readAsText(file);
         }
+        window.importData = importData;
         
         function resetAllData() {
             const confirm1 = confirm("⚠️ ВИ ВПЕВНЕНІ?\n\nЦе видалить ВСІ дані:\n• Всі оцінки та записи\n• Весь баланс зірок\n• Всі досягнення\n• Всі налаштування\n\nЦя дія НЕЗВОРОТНА!\n\nПродовжити?");
@@ -4232,6 +4234,7 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
             alert("✅ Всі дані скинуто\n\nСторінка перезавантажиться.");
             setTimeout(() => location.reload(), 500);
         }
+        window.resetAllData = resetAllData;
 
 </script>
 
