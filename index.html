@@ -1484,7 +1484,7 @@
     <div class="container" id="mainApp" style="display: none;">
         <!-- Header -->
         <div class="header">
-            <div class="logo">⭐ Зірки Успіху ⭐</div>
+            <div class="logo">⭐ Зірки Успіху ⭐ <span style="font-size: 11px; color: #999; font-weight: 400; margin-left: 8px;">v3.20260425.0939</span></div>
             <div class="balance-container">
                 <div class="balance-label">Поточний баланс</div>
                 <div class="balance" id="balance">0⭐</div>
@@ -1796,15 +1796,7 @@
                         <li>Щонеділі обговорюйте успіхи разом</li>
                     </ul>
 
-                    <h3>🔧 Налаштування PIN:</h3>
-                    <ul>
-                        <li>Поточний PIN: <strong id="currentPin">1234</strong></li>
-                        <li>Щоб змінити PIN, введіть новий:</li>
-                    </ul>
-                    <div style="display: flex; gap: 10px; margin-top: 15px;">
-                        <input type="password" id="newPin" placeholder="Новий PIN (4 цифри)" maxlength="4" style="flex: 1;">
-                        <button class="btn-secondary" style="width: auto; padding: 15px 25px;" onclick="changePin()">Змінити</button>
-                    </div>
+
                 </div>
 
                 <!-- Дитяча інструкція -->
@@ -1907,6 +1899,22 @@
                     <button class="btn" onclick="resetAllData()" style="width: 100%; background: #f44336; color: white;">
                         🗑️ Скинути всі дані
                     </button>
+                </div>
+                
+                <!-- Блок зміни PIN (тільки для батьків) -->
+                <div id="pinSettingsBlock" style="display: none; background: linear-gradient(135deg, #FFF3E0, #FFE0B2); padding: 18px; border-radius: 15px; margin-top: 15px; border: 2px solid #FF9800;">
+                    <h3 style="margin: 0 0 15px 0; color: #E65100; font-size: 16px;">🔐 Налаштування PIN-коду</h3>
+                    <div style="background: white; padding: 12px; border-radius: 10px; margin-bottom: 15px;">
+                        <div style="font-size: 14px; color: #666; margin-bottom: 8px;">Поточний PIN:</div>
+                        <div style="font-size: 20px; font-weight: 700; color: var(--secondary); letter-spacing: 3px;" id="currentPin">1234</div>
+                    </div>
+                    <div style="font-size: 13px; color: #E65100; margin-bottom: 12px;">
+                        <strong>⚠️ Увага:</strong> PIN-код потрібен для доступу до батьківського режиму
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="password" id="newPin" placeholder="Новий PIN (4 цифри)" maxlength="4" style="flex: 1; padding: 12px; border: 2px solid #FF9800; border-radius: 10px; font-size: 15px;">
+                        <button class="btn btn-primary" onclick="changePin()" style="width: auto; padding: 12px 20px; white-space: nowrap;">🔐 Змінити PIN</button>
+                    </div>
                 </div>
             </div>
 
@@ -4083,6 +4091,12 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
                     <div>💾 Розмір даних: <strong>${sizeKB} KB</strong></div>
                 </div>
             `;
+            
+            // Показуємо/ховаємо блок PIN залежно від режиму
+            const pinBlock = document.getElementById('pinSettingsBlock');
+            if (pinBlock) {
+                pinBlock.style.display = data.isParent ? 'block' : 'none';
+            }
         }
         
         function exportData() {
@@ -4101,7 +4115,9 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
                 
                 const a = document.createElement("a");
                 a.href = url;
-                a.download = `zirky-backup-${new Date().toISOString().slice(0, 10)}.json`;
+                const now = new Date();
+                const dateTime = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}-${String(now.getHours()).padStart(2,'0')}-${String(now.getMinutes()).padStart(2,'0')}`;
+                a.download = `zirky-backup-${dateTime}.json`;
                 a.click();
                 
                 URL.revokeObjectURL(url);
