@@ -691,6 +691,20 @@
             color: var(--secondary);
             box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
         }
+
+        .freeze-period-btn {
+            transition: all 0.2s ease;
+        }
+        
+        .freeze-period-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .freeze-period-btn:active {
+            transform: translateY(0);
+        }
+        
         
         .btn-primary:hover {
             transform: translateY(-3px);
@@ -1029,27 +1043,7 @@
             margin-bottom: 10px;
         }
         
-        .freeze-btn {
-            background: linear-gradient(135deg, #E3F2FD, #BBDEFB);
-            border: 2px solid #2196F3;
-            border-radius: 8px;
-            padding: 6px 12px;
-            font-size: 13px;
-            font-weight: 700;
-            color: #1976D2;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin-left: 10px;
-        }
-        
-        .freeze-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
-        }
-        
-        .freeze-btn:active {
-            transform: translateY(0);
-        }
+
         
         .streak-fire {
             font-size: 24px;
@@ -1539,6 +1533,9 @@
                     <button class="quick-action-btn" onclick="showForm('special')">
                         ✨ Особливе нарахування
                     </button>
+                    <button class="quick-action-btn" onclick="showForm('freeze')">
+                        ❄️ Канікули
+                    </button>
                 </div>
 
                 <!-- Форма оцінки -->
@@ -1628,6 +1625,32 @@
                     </div>
 
                     <button class="btn btn-primary" onclick="addSpecialRecord()">✨ Додати</button>
+                </div>
+
+                <!-- Форма канікул -->
+                <div id="freezeForm" style="display: none;">
+                    <h2 style="margin-bottom: 20px; color: var(--secondary);">❄️ Періоди канікул</h2>
+                    
+                    <div style="margin-bottom: 25px; padding: 15px; background: linear-gradient(135deg, #E3F2FD, #BBDEFB); border-radius: 12px; border: 2px solid #2196F3;">
+                        <p style="font-size: 14px; color: #1976D2; margin: 0; line-height: 1.5;">
+                            <strong>Що заморожується:</strong> Fire Streak та серії з оцінок<br>
+                            <strong>Працює як зазвичай:</strong> Чистюля та Красуня
+                        </p>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>📅 Дата початку</label>
+                        <input type="date" id="freezeFromDate">
+                    </div>
+
+                    <div class="form-group">
+                        <label>📅 Дата закінчення</label>
+                        <input type="date" id="freezeUntilDate">
+                    </div>
+
+                    <button class="btn btn-primary" onclick="addFreezePeriod()">❄️ Додати період</button>
+                    
+                    <div id="freezePeriodsList" style="margin-top: 25px;"></div>
                 </div>
             </div>
 
@@ -2059,14 +2082,7 @@
                     <div class="streak-display">
                         <span class="streak-fire">🔥</span>
                         <span>Серія: ${streak.current} ${daysWord}${freezeText}</span>
-                        ${data.isParent ? '<button class="freeze-btn" data-action="freeze">❄️ Канікули</button>' : ''}
-                    </div>
-                `;
-            } else if (data.isParent) {
-                // Якщо немає серії, але є батьківський режим - все одно показуємо кнопку
-                html += `
-                    <div class="streak-display">
-                        <button class="freeze-btn" data-action="freeze">❄️ Канікули</button>
+
                     </div>
                 `;
             }
@@ -2089,15 +2105,7 @@
             html += '</div>';
             container.innerHTML = html;
             
-            // Додаємо event listener для кнопки Канікули
-            setTimeout(() => {
-                const freezeBtn = document.querySelector('.freeze-btn[data-action="freeze"]');
-                if (freezeBtn) {
-                    freezeBtn.addEventListener('click', showFreezeModal);
-                }
-            }, 50);
-            
-            // Додаємо event listeners для бейджів (для мобільних)
+// Додаємо event listeners для бейджів (для мобільних)
             setTimeout(() => {
                 document.querySelectorAll('.badge-home').forEach(badge => {
                     badge.addEventListener('click', function(e) {
@@ -2277,17 +2285,6 @@
             if (!data.achievements.weekly) data.achievements.weekly = {};
             if (!data.achievements.repeatableHistory) data.achievements.repeatableHistory = {};
             if (!data.achievements.freezePeriods) data.achievements.freezePeriods = [];
-            
-            // Міграція зі старої структури
-            if (data.achievements.freezeMode) {
-                if (data.achievements.freezeMode.active) {
-                    data.achievements.freezePeriods.push({
-                        from: data.achievements.freezeMode.from,
-                        until: data.achievements.freezeMode.until
-                    });
-                }
-                delete data.achievements.freezeMode;
-            }
         }
         
         // ПОВНЕ перерахунок всіх досягнень з нуля
@@ -2988,67 +2985,10 @@ ${ach.desc}
         
         // ═══════════════ РЕЖИМ КАНІКУЛ ═══════════════
         
-        function showFreezeModal() {
-            const modal = document.getElementById('freezeModal');
-            const fromInput = document.getElementById('freezeFromDate');
-            const untilInput = document.getElementById('freezeUntilDate');
-            const statusDiv = document.getElementById('freezeStatus');
-            
-            // Встановлюємо дати за замовчуванням
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            const tomorrow = new Date(today);
-            tomorrow.setDate(today.getDate() + 1);
-            
-            fromInput.value = today.toISOString().split('T')[0];
-            untilInput.value = tomorrow.toISOString().split('T')[0];
-            
-            // Показуємо список всіх періодів канікул
-            const periods = data.achievements.freezePeriods || [];
-            if (periods.length > 0) {
-                let html = '<div style="margin-top: 20px; padding-top: 15px; border-top: 2px solid #ddd;"><strong>Збережені періоди:</strong></div>';
-                periods.forEach((period, index) => {
-                    const from = new Date(period.from);
-                    const until = new Date(period.until);
-                    const today = new Date();
-                    today.setHours(0, 0, 0, 0);
-                    const isActive = until >= today;
-                    const statusIcon = isActive ? '✅' : '⏸️';
-                    
-                    html += `
-                        <div style="background: ${isActive ? '#E3F2FD' : '#f5f5f5'}; padding: 10px; border-radius: 10px; margin-top: 8px; display: flex; justify-content: space-between; align-items: center;">
-                            <div>
-                                <span style="font-weight: 700;">${statusIcon} ${from.toLocaleDateString('uk-UA', {day: '2-digit', month: '2-digit', year: 'numeric'})} - ${until.toLocaleDateString('uk-UA', {day: '2-digit', month: '2-digit', year: 'numeric'})}</span>
-                            </div>
-                            <div style="display: flex; gap: 5px;">
-                                <button onclick="editFreezePeriod(${index})" style="padding: 5px 10px; background: #2196F3; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 12px;">✏️</button>
-                                <button onclick="deleteFreezePeriod(${index})" style="padding: 5px 10px; background: #f44336; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 12px;">🗑️</button>
-                            </div>
-                        </div>
-                    `;
-                });
-                statusDiv.innerHTML = html;
-            } else {
-                statusDiv.innerHTML = '<div style="margin-top: 15px; color: #999; font-size: 13px; text-align: center;">Поки немає збережених періодів канікул</div>';
-            }
-            
-            // Додаємо event listeners для кнопок
-            setTimeout(() => {
-                const closeBtn = modal.querySelector('[data-action="close-freeze"]');
-                const activateBtn = modal.querySelector('[data-action="activate-freeze"]');
-                
-                if (closeBtn) closeBtn.addEventListener('click', closeFreezeModal);
-                if (activateBtn) activateBtn.addEventListener('click', activateFreezeMode);
-            }, 10);
-            
-            modal.style.display = 'flex';
-        }
+
         
-        function closeFreezeModal() {
-            document.getElementById('freezeModal').style.display = 'none';
-        }
         
-        function activateFreezeMode() {
+        function addFreezePeriod() {
             const fromInput = document.getElementById('freezeFromDate');
             const untilInput = document.getElementById('freezeUntilDate');
             const fromDate = fromInput.value;
@@ -3063,12 +3003,20 @@ ${ach.desc}
             from.setHours(0, 0, 0, 0);
             const until = new Date(untilDate);
             until.setHours(0, 0, 0, 0);
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
             
             if (from > until) {
                 alert('Дата початку має бути раніше або дорівнювати даті закінчення');
                 return;
+            }
+            
+            // Якщо редагуємо існуючий період - видаляємо старий
+            if (window.editingFreezeIndex !== undefined) {
+                const oldPeriod = data.achievements.freezePeriods[window.editingFreezeIndex];
+                // Видаляємо запис з історії
+                data.records = data.records.filter(r => r.freezeId !== oldPeriod.id);
+                // Видаляємо період
+                data.achievements.freezePeriods.splice(window.editingFreezeIndex, 1);
+                window.editingFreezeIndex = undefined;
             }
             
             // Додаємо новий період канікул
@@ -3076,7 +3024,8 @@ ${ach.desc}
             
             data.achievements.freezePeriods.push({
                 from: fromDate,
-                until: untilDate
+                until: untilDate,
+                id: Date.now() + Math.random()
             });
             
             // Сортуємо періоди по даті початку
@@ -3086,23 +3035,28 @@ ${ach.desc}
             data.records.push({
                 id: Date.now() + Math.random(),
                 date: new Date().toISOString(),
-                description: `❄️ Канікули додано (${from.toLocaleDateString('uk-UA', {day: '2-digit', month: '2-digit'})} - ${until.toLocaleDateString('uk-UA', {day: '2-digit', month: '2-digit'})})`,
+                description: `❄️ Канікули (${from.toLocaleDateString('uk-UA', {day: '2-digit', month: '2-digit'})} - ${until.toLocaleDateString('uk-UA', {day: '2-digit', month: '2-digit'})})`,
                 stars: 0,
-                type: 'info',
-                category: 'system'
+                type: 'freeze',
+                category: 'system',
+                freezeId: data.achievements.freezePeriods[data.achievements.freezePeriods.length - 1].id
             });
+            
+            // Очищаємо поля
+            fromInput.value = '';
+            untilInput.value = '';
             
             // Перераховуємо серії
             recalculateAchievements();
             saveData();
             updateUI();
+            renderFreezePeriods();
             
             alert(`❄️ Період канікул додано!
 
 ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}
 
 Серії перераховані.`);
-            closeFreezeModal();
         }
         
         function deleteFreezePeriod(index) {
@@ -3114,36 +3068,82 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}
 
 ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) return;
             
-            data.achievements.freezePeriods.splice(index, 1);
+            // Видаляємо запис з історії
+            data.records = data.records.filter(r => r.freezeId !== period.id);
             
-            // Додаємо запис в історію
-            data.records.push({
-                id: Date.now() + Math.random(),
-                date: new Date().toISOString(),
-                description: `❄️ Канікули видалено (${from.toLocaleDateString('uk-UA', {day: '2-digit', month: '2-digit'})} - ${until.toLocaleDateString('uk-UA', {day: '2-digit', month: '2-digit'})})`,
-                stars: 0,
-                type: 'info',
-                category: 'system'
-            });
+            // Видаляємо період
+            data.achievements.freezePeriods.splice(index, 1);
             
             // Перераховуємо серії
             recalculateAchievements();
             saveData();
-            showFreezeModal(); // Перемальовуємо модалку
+            updateUI();
+            renderFreezePeriods();
         }
         
         function editFreezePeriod(index) {
             const period = data.achievements.freezePeriods[index];
-            const fromInput = document.getElementById('freezeFromDate');
-            const untilInput = document.getElementById('freezeUntilDate');
             
-            fromInput.value = period.from;
-            untilInput.value = period.until;
+            // ТІЛЬКИ завантажуємо дати в поля - НІЧОГО НЕ ВИДАЛЯЄМО!
+            document.getElementById('freezeFromDate').value = period.from;
+            document.getElementById('freezeUntilDate').value = period.until;
             
-            // Видаляємо старий період
-            data.achievements.freezePeriods.splice(index, 1);
+            // Зберігаємо індекс для видалення при збереженні
+            window.editingFreezeIndex = index;
             
-            // При натисканні "Активувати" додасть оновлений період
+            // Прокручуємо до форми
+            document.getElementById('freezeFromDate').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        
+        function renderFreezePeriods() {
+            const container = document.getElementById('freezePeriodsList');
+            const periods = data.achievements.freezePeriods || [];
+            
+            if (periods.length === 0) {
+                container.innerHTML = '<div style="margin-top: 15px; color: #999; font-size: 13px; text-align: center; padding: 20px; background: var(--bg); border-radius: 12px;">Поки немає збережених періодів канікул</div>';
+                return;
+            }
+            
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            let html = '<div style="padding-top: 15px; border-top: 2px solid #ddd;"><strong style="color: var(--secondary);">Збережені періоди:</strong></div>';
+            periods.forEach((period, index) => {
+                const from = new Date(period.from);
+                const until = new Date(period.until);
+                const isActive = until >= today;
+                const statusIcon = isActive ? '✅' : '⏸️';
+                
+                html += `
+                    <div style="background: ${isActive ? '#E3F2FD' : '#f5f5f5'}; padding: 12px; border-radius: 10px; margin-top: 10px; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <span style="font-weight: 700; font-size: 14px;">${statusIcon} ${from.toLocaleDateString('uk-UA', {day: '2-digit', month: '2-digit', year: 'numeric'})} - ${until.toLocaleDateString('uk-UA', {day: '2-digit', month: '2-digit', year: 'numeric'})}</span>
+                        </div>
+                        <div style="display: flex; gap: 6px;">
+                            <button class="freeze-period-btn" data-action="edit" data-index="${index}" style="padding: 6px 12px; background: #2196F3; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600;">✏️ Редагувати</button>
+                            <button class="freeze-period-btn" data-action="delete" data-index="${index}" style="padding: 6px 12px; background: #f44336; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600;">🗑️</button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+            
+            // Додаємо event listeners для кнопок
+            setTimeout(() => {
+                document.querySelectorAll('.freeze-period-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const action = this.dataset.action;
+                        const index = parseInt(this.dataset.index);
+                        
+                        if (action === 'edit') {
+                            editFreezePeriod(index);
+                        } else if (action === 'delete') {
+                            deleteFreezePeriod(index);
+                        }
+                    });
+                });
+            }, 10);
         }
         
         // Перевіряємо чи день має пропускатися (канікули або вихідні)
@@ -3209,6 +3209,13 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
 
         // Firebase: зберігаємо дані
         function saveData() {
+            // ЗАХИСТ: Не зберігаємо якщо дані виглядають пошкодженими
+            if (!data.records || data.records.length === 0) {
+                console.error('⚠️ ЗАХИСТ: Спроба зберегти порожні records! Скасовано.');
+                alert('⚠️ ПОМИЛКА: Дані виглядають пошкодженими. Збереження скасовано.\n\nПерезавантажте сторінку.');
+                return;
+            }
+            
             const toSave = {
                 records: data.records || [],
                 balance: data.balance || 0,
@@ -3325,7 +3332,21 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
             document.getElementById('gradeForm').style.display = 'none';
             document.getElementById('bonusForm').style.display = 'none';
             document.getElementById('specialForm').style.display = 'none';
+            document.getElementById('freezeForm').style.display = 'none';
             document.getElementById(type + 'Form').style.display = 'block';
+            
+            // Якщо відкрили канікули - встановлюємо дефолтні дати та оновлюємо список
+            if (type === 'freeze') {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const tomorrow = new Date(today);
+                tomorrow.setDate(today.getDate() + 1);
+                
+                document.getElementById('freezeFromDate').value = today.toISOString().split('T')[0];
+                document.getElementById('freezeUntilDate').value = tomorrow.toISOString().split('T')[0];
+                
+                renderFreezePeriods();
+            }
         }
 
         // Додавання записів
@@ -3493,17 +3514,35 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
                 let desc = r.category === 'grade' ? `${r.subject} — ${r.grade} балів`
                          : r.type === 'spend' ? (r.reward || r.description)
                          : r.description;
-                const starClass = r.type === 'earn' ? 'positive' : r.type === 'info' ? 'info' : 'negative';
-                const deleteBtn = data.isParent && r.type !== 'info' ? `<button class="delete-btn" onclick="deleteRecord(${r.id})">🗑️</button>` : '';
-                const starsDisplay = r.type === 'info' ? '' : `<div class="history-stars ${starClass}">${r.type === 'earn' ? '+' : '-'}${r.stars}⭐</div>`;
+                const starClass = r.type === 'earn' ? 'positive' : (r.type === 'info' || r.type === 'freeze') ? 'info' : 'negative';
+                
+                // Кнопки для різних типів записів
+                let actionButtons = '';
+                if (data.isParent) {
+                    if (r.type === 'freeze' && r.freezeId) {
+                        // Для канікул - редагувати та видалити
+                        const freezeIndex = data.achievements.freezePeriods.findIndex(p => p.id === r.freezeId);
+                        if (freezeIndex !== -1) {
+                            actionButtons = `
+                                <button class="delete-btn" onclick="editFreezePeriod(${freezeIndex}); switchTab('add'); showForm('freeze');" style="background: #2196F3; margin-right: 5px;">✏️</button>
+                                <button class="delete-btn" onclick="deleteFreezePeriod(${freezeIndex})">🗑️</button>
+                            `;
+                        }
+                    } else if (r.type !== 'info' && r.type !== 'freeze') {
+                        // Для звичайних записів - тільки видалити
+                        actionButtons = `<button class="delete-btn" onclick="deleteRecord(${r.id})">🗑️</button>`;
+                    }
+                }
+                
+                const starsDisplay = (r.type === 'info' || r.type === 'freeze') ? '' : `<div class="history-stars ${starClass}">${r.type === 'earn' ? '+' : '-'}${r.stars}⭐</div>`;
                 return `
-                    <div class="history-item ${r.type === 'spend' ? 'expense' : ''} ${r.type === 'info' ? 'info-item' : ''}">
+                    <div class="history-item ${r.type === 'spend' ? 'expense' : ''} ${r.type === 'info' || r.type === 'freeze' ? 'info-item' : ''}">
                         <div class="history-info">
                             <div class="history-date">${dateStr}</div>
                             <div class="history-desc">${desc}</div>
                         </div>
                         ${starsDisplay}
-                        ${deleteBtn}
+                        ${actionButtons}
                     </div>`;
             }).join('');
         }
@@ -3965,37 +4004,6 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
         initFirebase();
     </script>
 
-    <!-- Freeze Mode Modal -->
-    <div id="freezeModal" class="overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); z-index: 10000; justify-content: center; align-items: center;">
-        <div class="auth-container">
-            <h2 style="margin-bottom: 20px; color: var(--secondary);">❄️ Режим канікул</h2>
-            <p style="font-size: 14px; color: #666; margin-bottom: 20px; line-height: 1.5;">
-                Заморозити серії з оцінок?<br>
-                <small>(Чистюля та Красуня продовжать працювати)</small>
-            </p>
-            
-            <div style="margin-bottom: 15px;">
-                <label style="display: block; font-size: 14px; font-weight: 700; margin-bottom: 8px; color: var(--secondary);">
-                    Дата початку:
-                </label>
-                <input type="date" id="freezeFromDate" style="width: 100%; padding: 12px; border: 2px solid var(--primary); border-radius: 12px; font-size: 15px;">
-            </div>
-            
-            <div style="margin-bottom: 20px;">
-                <label style="display: block; font-size: 14px; font-weight: 700; margin-bottom: 8px; color: var(--secondary);">
-                    Дата закінчення:
-                </label>
-                <input type="date" id="freezeUntilDate" style="width: 100%; padding: 12px; border: 2px solid var(--primary); border-radius: 12px; font-size: 15px;">
-            </div>
-            
-            <div style="display: flex; gap: 10px;">
-                <button class="auth-btn secondary-btn" data-action="close-freeze" style="flex: 1;">Скасувати</button>
-                <button class="auth-btn" data-action="activate-freeze" style="flex: 1;">Додати період</button>
-            </div>
-            
-            <div id="freezeStatus" style="margin-top: 15px; font-size: 13px; color: #666;"></div>
-        </div>
-    </div>
 
 </body>
 </html>
