@@ -3698,6 +3698,30 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
         }
 
         // Відображення
+
+        // Мапа емоджі для предметів
+        function getSubjectEmoji(subject) {
+            const emojiMap = {
+                'Математика': '📐',
+                'Українська мова': '🇺🇦',
+                'Я пізнаю світ': '🌍',
+                'Читання': '📖',
+                'Англійська мова': '🇬🇧',
+                'Інформатика': '💻',
+                'Мистецтво': '🎨',
+                'Вірш': '📝',
+                'Фізкультура': '⚽'
+            };
+            
+            // Перевіряємо чи предмет містить назву з мапи
+            for (const [key, emoji] of Object.entries(emojiMap)) {
+                if (subject.includes(key)) {
+                    return emoji + ' ' + subject;
+                }
+            }
+            return subject;
+        }
+
         function renderHistory() {
             const list = document.getElementById('historyList');
             const monthNames = ['Січень','Лютий','Березень','Квітень','Травень','Червень','Липень','Серпень','Вересень','Жовтень','Листопад','Грудень'];
@@ -3717,8 +3741,8 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
             list.innerHTML = filtered.map(r => {
                 const date = new Date(r.date);
                 const dateStr = `${date.getDate()}.${(date.getMonth()+1).toString().padStart(2,'0')}.${date.getFullYear()}`;
-                let desc = r.category === 'grade' ? `${r.subject} — ${r.grade} балів`
-                         : r.category === 'diagnostic' ? `${r.subject} — ${r.grade} балів`
+                let desc = r.category === 'grade' ? `${getSubjectEmoji(r.subject)} — ${r.grade} балів`
+                         : r.category === 'diagnostic' ? `${getSubjectEmoji(r.subject)} — ${r.grade} балів`
                          : r.type === 'spend' ? (r.reward || r.description)
                          : r.description;
                 const starClass = r.type === 'earn' ? 'positive' : (r.type === 'info' || r.type === 'freeze') ? 'info' : 'negative';
@@ -4232,7 +4256,7 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
                 <div style="display: grid; gap: 8px;">
                     <div style="padding: 8px 0; border-bottom: 2px solid #4CAF50;">
                         <span style="font-size: 15px; color: #2E7D32; font-weight: 700;">📌 Версія застосунку:</span>
-                        <strong style="font-size: 16px; color: #1B5E20; margin-left: 8px;">v3.20260425.1957</strong>
+                        <strong style="font-size: 16px; color: #1B5E20; margin-left: 8px;">v3.20260425.2004</strong>
                     </div>
                     <div>📝 Записів в історії: <strong>${recordsCount}</strong></div>
                     <div>⭐ Поточний баланс: <strong>${balance} зірок</strong></div>
