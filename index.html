@@ -1721,6 +1721,10 @@
                 <div style="margin-top: 30px; padding: 20px; background: var(--bg); border-radius: 18px;">
                     <h3 style="color: var(--secondary); margin-bottom: 15px;">✨ Особливе списання</h3>
                     <div class="form-group">
+                        <label>📅 Дата</label>
+                        <input type="date" id="customRewardDate">
+                    </div>
+                    <div class="form-group">
                         <label>📝 Опис</label>
                         <input type="text" id="customRewardDesc" placeholder="На що витрачаються зірки?">
                     </div>
@@ -3456,7 +3460,14 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
             document.getElementById(tab + 'Section').classList.add('active');
 
             if (tab === 'history') renderHistory();
-            else if (tab === 'rewards') renderRewards();
+            else if (tab === 'rewards') {
+                renderRewards();
+                // Встановлюємо дефолтну дату для витрат
+                const rewardDateInput = document.getElementById('customRewardDate');
+                if (rewardDateInput && !rewardDateInput.value) {
+                    rewardDateInput.value = getTodayDate();
+                }
+            }
             else if (tab === 'achievements') renderAchievements();
             else if (tab === 'stats') renderStats();
             else if (tab === 'settings') showDataInfo();
@@ -3819,11 +3830,12 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
         }
 
         function buyCustomReward() {
+            const date = document.getElementById('customRewardDate').value;
             const desc = document.getElementById('customRewardDesc').value;
             const stars = parseInt(document.getElementById('customRewardStars').value);
             const balance = Number(data.balance);
 
-            if (!desc || !stars || stars < 1) { alert('❌ Заповніть всі поля!'); return; }
+            if (!date || !desc || !stars || stars < 1) { alert('❌ Заповніть всі поля!'); return; }
 
             if (balance < stars) {
                 const missing = stars - balance;
@@ -3838,23 +3850,24 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
             }
 
             if (data.isParent) {
-                doCustomReward(desc, stars);
+                doCustomReward(date, desc, stars);
             } else {
-                pendingCustomReward = { desc, stars };
+                pendingCustomReward = { date, desc, stars };
                 showRewardPin();
             }
         }
 
-        function doCustomReward(desc, stars) {
+        function doCustomReward(date, desc, stars) {
             if (confirm(`Списати ${stars}⭐ на "${desc}"?`)) {
                 data.balance = Number(data.balance) - stars;
                 data.records.push({
                     id: Date.now(),
-                    date: new Date().toISOString(),
+                    date: date + 'T12:00:00',
                     description: desc, stars,
                     type: 'spend'
                 });
                 saveData();
+                document.getElementById('customRewardDate').value = '';
                 document.getElementById('customRewardDesc').value = '';
                 document.getElementById('customRewardStars').value = '';
                 alert(`🎁 Списано ${stars}⭐!`);
@@ -4256,7 +4269,7 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
                 <div style="display: grid; gap: 8px;">
                     <div style="padding: 8px 0; border-bottom: 2px solid #4CAF50;">
                         <span style="font-size: 15px; color: #2E7D32; font-weight: 700;">📌 Версія застосунку:</span>
-                        <strong style="font-size: 16px; color: #1B5E20; margin-left: 8px;">v3.20260425.2013</strong>
+                        <strong style="font-size: 16px; color: #1B5E20; margin-left: 8px;">v3.20260425.2057</strong>
                     </div>
                     <div>📝 Записів в історії: <strong>${recordsCount}</strong></div>
                     <div>⭐ Поточний баланс: <strong>${balance} зірок</strong></div>
