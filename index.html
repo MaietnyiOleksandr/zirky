@@ -3165,10 +3165,10 @@ ${ach.desc}
             // Сортуємо періоди по даті початку
             data.achievements.freezePeriods.sort((a, b) => new Date(a.from) - new Date(b.from));
             
-            // Додаємо запис в історію
+            // Додаємо запис в історію (дата = початок канікул)
             data.records.push({
                 id: Date.now() + Math.random(),
-                date: new Date().toISOString(),
+                date: fromDate + 'T12:00:00',
                 description: `❄️ Канікули (${from.toLocaleDateString('uk-UA', {day: '2-digit', month: '2-digit'})} - ${until.toLocaleDateString('uk-UA', {day: '2-digit', month: '2-digit'})})`,
                 stars: 0,
                 type: 'freeze',
@@ -4256,7 +4256,7 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
                 <div style="display: grid; gap: 8px;">
                     <div style="padding: 8px 0; border-bottom: 2px solid #4CAF50;">
                         <span style="font-size: 15px; color: #2E7D32; font-weight: 700;">📌 Версія застосунку:</span>
-                        <strong style="font-size: 16px; color: #1B5E20; margin-left: 8px;">v3.20260425.2004</strong>
+                        <strong style="font-size: 16px; color: #1B5E20; margin-left: 8px;">v3.20260425.2013</strong>
                     </div>
                     <div>📝 Записів в історії: <strong>${recordsCount}</strong></div>
                     <div>⭐ Поточний баланс: <strong>${balance} зірок</strong></div>
