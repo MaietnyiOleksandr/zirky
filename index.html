@@ -1555,16 +1555,15 @@
                         <label>📚 Предмет</label>
                         <select id="subject">
                             <option value="">Оберіть предмет</option>
-                            <option value="Я пізнаю світ">Я пізнаю світ</option>
-                            <option value="Математика">Математика (x2 зірки)</option>
-                            <option value="Українська мова">Українська мова</option>
-                            <option value="Читання">Читання</option>
-                            <option value="Англійська мова">Англійська мова</option>
-                            <option value="Інформатика">Інформатика</option>
-                            <option value="Мистецтво">Мистецтво</option>
-                            <option value="Вірш">Вірш</option>
-                            <option value="Фізкультура">Фізкультура</option>
-
+                            <option value="Математика">📐 Математика (×2 зірки)</option>
+                            <option value="Українська мова">🇺🇦 Українська мова</option>
+                            <option value="Я пізнаю світ">🌍 Я пізнаю світ</option>
+                            <option value="Читання">📖 Читання</option>
+                            <option value="Англійська мова">🇬🇧 Англійська мова</option>
+                            <option value="Інформатика">💻 Інформатика</option>
+                            <option value="Мистецтво">🎨 Мистецтво</option>
+                            <option value="Вірш">📝 Вірш</option>
+                            <option value="Фізкультура">⚽ Фізкультура</option>
                         </select>
                     </div>
 
@@ -1604,12 +1603,12 @@
                         <label>📚 Предмет</label>
                         <select id="diagnosticSubject">
                             <option value="">Оберіть предмет</option>
-                            <option value="Математика">📐 Математика (×6 зірок)</option>
-                            <option value="Українська мова">🇺🇦 Українська мова (×3 зірки)</option>
-                            <option value="Я пізнаю світ">🌍 Я пізнаю світ (×3 зірки)</option>
-                            <option value="Читання">📖 Читання (×3 зірки)</option>
-                            <option value="Англійська мова">🇬🇧 Англійська мова (×3 зірки)</option>
-                            <option value="Інформатика">💻 Інформатика (×3 зірки)</option>
+                            <option value="Математика">📐 Математика</option>
+                            <option value="Українська мова">🇺🇦 Українська мова</option>
+                            <option value="Я пізнаю світ">🌍 Я пізнаю світ</option>
+                            <option value="Читання">📖 Читання</option>
+                            <option value="Англійська мова">🇬🇧 Англійська мова</option>
+                            <option value="Інформатика">💻 Інформатика</option>
                         </select>
                     </div>
 
@@ -1617,15 +1616,11 @@
                         <label>🎯 Оцінка</label>
                         <select id="diagnosticGrade">
                             <option value="">Оберіть оцінку</option>
-                            <option value="12">12 балів</option>
-                            <option value="11">11 балів</option>
-                            <option value="10">10 балів</option>
-                            <option value="9">9 балів</option>
-                            <option value="8">8 балів</option>
-                            <option value="7">7 балів</option>
-                            <option value="6">6 балів</option>
-                            <option value="5">5 балів</option>
-                            <option value="4">4 бали</option>
+                            <option value="12">12 балів (5⭐)</option>
+                            <option value="11">11 балів (4⭐)</option>
+                            <option value="10">10 балів (3⭐)</option>
+                            <option value="9">9 балів (2⭐)</option>
+                            <option value="8">8 балів (1⭐)</option>
                         </select>
                     </div>
 
@@ -3554,10 +3549,9 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
                 return; 
             }
 
-            // Базова кількість зірок за оцінку
+            // Базова кількість зірок за оцінку (як у звичайних оцінках)
             const gradeToStars = {
-                '12': 5, '11': 4, '10': 3, '9': 2, '8': 1,
-                '7': 1, '6': 1, '5': 1, '4': 1
+                '12': 5, '11': 4, '10': 3, '9': 2, '8': 1
             };
             
             let stars = gradeToStars[grade];
@@ -4238,7 +4232,7 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
                 <div style="display: grid; gap: 8px;">
                     <div style="padding: 8px 0; border-bottom: 2px solid #4CAF50;">
                         <span style="font-size: 15px; color: #2E7D32; font-weight: 700;">📌 Версія застосунку:</span>
-                        <strong style="font-size: 16px; color: #1B5E20; margin-left: 8px;">v3.20260425.1929</strong>
+                        <strong style="font-size: 16px; color: #1B5E20; margin-left: 8px;">v3.20260425.1945</strong>
                     </div>
                     <div>📝 Записів в історії: <strong>${recordsCount}</strong></div>
                     <div>⭐ Поточний баланс: <strong>${balance} зірок</strong></div>
