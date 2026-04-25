@@ -2960,10 +2960,12 @@ ${ach.desc}
                         const dayOfYear = Math.floor((now - startOfYear) / (1000 * 60 * 60 * 24));
                         const weekNum = Math.ceil((dayOfYear + 1) / 7);
                         const weekKey = `${now.getFullYear()}-W${weekNum}`;
-                        const weeklyLevels = data.achievements.weekly?.[weekKey];
+                        const thisWeekLevel = data.achievements.weekly?.[weekKey]?.[achId] || 0;
                         
-                        // Перевіряємо чи є запис для ПОТОЧНОГО тижня
-                        if (weeklyLevels && weeklyLevels[achId] && weeklyLevels[achId] >= nextLevelIndex + 1) {
+                        // Перевіряємо чи рівень ЦЬОГО тижня >= наступного рівня
+                        // nextLevelIndex - це індекс наступного рівня (0-based)
+                        // якщо thisWeekLevel >= nextLevelIndex + 1 - значить вже отримали цей рівень
+                        if (thisWeekLevel >= nextLevelIndex + 1) {
                             progressText = '✅ Отримано цього тижня';
                         } else {
                             progressText = `${currentValue}⭐ / ${target}⭐ цього тижня`;
@@ -4116,7 +4118,7 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
                 <div style="display: grid; gap: 8px;">
                     <div style="padding: 8px 0; border-bottom: 2px solid #4CAF50;">
                         <span style="font-size: 15px; color: #2E7D32; font-weight: 700;">📌 Версія застосунку:</span>
-                        <strong style="font-size: 16px; color: #1B5E20; margin-left: 8px;">v3.20260425.1020</strong>
+                        <strong style="font-size: 16px; color: #1B5E20; margin-left: 8px;">v3.20260425.1908</strong>
                     </div>
                     <div>📝 Записів в історії: <strong>${recordsCount}</strong></div>
                     <div>⭐ Поточний баланс: <strong>${balance} зірок</strong></div>
