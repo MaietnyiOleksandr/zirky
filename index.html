@@ -1528,6 +1528,9 @@
                     <button class="quick-action-btn active" onclick="showForm('grade')">
                         📚 Додати оцінку
                     </button>
+                    <button class="quick-action-btn" onclick="showForm('diagnostic')">
+                        📝 Діагностувальна робота
+                    </button>
                     <button class="quick-action-btn" onclick="showForm('bonus')">
                         🌟 Додати бонус
                     </button>
@@ -1561,7 +1564,7 @@
                             <option value="Мистецтво">Мистецтво</option>
                             <option value="Вірш">Вірш</option>
                             <option value="Фізкультура">Фізкультура</option>
-                            <option value="Діагностувальна робота">Діагностувальна робота (x3 зірки)</option>
+
                         </select>
                     </div>
 
@@ -1578,6 +1581,55 @@
                     </div>
 
                     <button class="btn btn-primary" onclick="addGradeRecord()">✨ Додати оцінку</button>
+                </div>
+
+                <!-- Форма діагностувальної роботи -->
+                <div id="diagnosticForm" style="display: none;">
+                    <h2 style="margin-bottom: 20px; color: var(--secondary);">📝 Діагностувальна робота</h2>
+                    
+                    <div style="background: linear-gradient(135deg, #E3F2FD, #BBDEFB); padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 2px solid #2196F3;">
+                        <p style="margin: 0; font-size: 13px; color: #1976D2; line-height: 1.6;">
+                            <strong>🎯 Бонуси за діагностувальні роботи:</strong><br>
+                            • Всі предмети: <strong>×3 зірки</strong><br>
+                            • Математика: <strong>×6 зірок</strong> (подвійний бонус!)
+                        </p>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>📅 Дата</label>
+                        <input type="date" id="diagnosticDate">
+                    </div>
+
+                    <div class="form-group">
+                        <label>📚 Предмет</label>
+                        <select id="diagnosticSubject">
+                            <option value="">Оберіть предмет</option>
+                            <option value="Математика">📐 Математика (×6 зірок)</option>
+                            <option value="Українська мова">🇺🇦 Українська мова (×3 зірки)</option>
+                            <option value="Я пізнаю світ">🌍 Я пізнаю світ (×3 зірки)</option>
+                            <option value="Читання">📖 Читання (×3 зірки)</option>
+                            <option value="Англійська мова">🇬🇧 Англійська мова (×3 зірки)</option>
+                            <option value="Інформатика">💻 Інформатика (×3 зірки)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>🎯 Оцінка</label>
+                        <select id="diagnosticGrade">
+                            <option value="">Оберіть оцінку</option>
+                            <option value="12">12 балів</option>
+                            <option value="11">11 балів</option>
+                            <option value="10">10 балів</option>
+                            <option value="9">9 балів</option>
+                            <option value="8">8 балів</option>
+                            <option value="7">7 балів</option>
+                            <option value="6">6 балів</option>
+                            <option value="5">5 балів</option>
+                            <option value="4">4 бали</option>
+                        </select>
+                    </div>
+
+                    <button class="btn btn-primary" onclick="addDiagnosticWork()">📝 Додати діагностувальну роботу</button>
                 </div>
 
                 <!-- Форма бонусу -->
@@ -3423,10 +3475,17 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
             document.querySelectorAll('.quick-action-btn').forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');
             document.getElementById('gradeForm').style.display = 'none';
+            document.getElementById('diagnosticForm').style.display = 'none';
             document.getElementById('bonusForm').style.display = 'none';
             document.getElementById('specialForm').style.display = 'none';
             document.getElementById('freezeForm').style.display = 'none';
             document.getElementById(type + 'Form').style.display = 'block';
+            
+            // Встановлюємо дефолтні дати
+            if (type === 'diagnostic') {
+                const today = getTodayDate();
+                document.getElementById('diagnosticDate').value = today;
+            }
             
             // Якщо відкрили канікули - встановлюємо дефолтні дати та оновлюємо список
             if (type === 'freeze') {
@@ -3452,7 +3511,6 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
 
             let stars = gradeToStars[grade];
             if (subject === 'Математика') stars *= 2;
-            if (subject === 'Діагностувальна робота') stars *= 3;
 
             data.records.push({
                 id: Date.now(),
@@ -3485,6 +3543,67 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
             document.getElementById('grade').value = '';
             alert(`✅ Додано ${stars}⭐!`);
         }
+
+        function addDiagnosticWork() {
+            const date = document.getElementById('diagnosticDate').value;
+            const subject = document.getElementById('diagnosticSubject').value;
+            const grade = document.getElementById('diagnosticGrade').value;
+
+            if (!date || !subject || !grade) { 
+                alert('❌ Заповніть всі поля!'); 
+                return; 
+            }
+
+            // Базова кількість зірок за оцінку
+            const gradeToStars = {
+                '12': 5, '11': 4, '10': 3, '9': 2, '8': 1,
+                '7': 1, '6': 1, '5': 1, '4': 1
+            };
+            
+            let stars = gradeToStars[grade];
+            
+            // Діагностувальна робота: ×3 для всіх, ×6 для математики
+            if (subject === 'Математика') {
+                stars *= 6;  // ×2 (математика) × ×3 (діагностувальна) = ×6
+            } else {
+                stars *= 3;  // ×3 для всіх інших предметів
+            }
+
+            data.records.push({
+                id: Date.now(),
+                date: date + 'T12:00:00',
+                subject: `Діагностувальна робота з ${subject}`,
+                grade,
+                stars,
+                type: 'earn',
+                category: 'diagnostic'
+            });
+            
+            data.balance = Number(data.balance) + stars;
+            
+            // Запам'ятовуємо які досягнення були ДО додавання
+            const levelsBefore = {...(data.achievements.levels || {})};
+            
+            // Перераховуємо ВСЕ (бо могли додати заднім числом)
+            recalculateAchievements();
+            
+            // Даємо бонуси тільки за НОВІ досягнення
+            giveRewardsForNewAchievements(levelsBefore);
+            
+            // Перевіряємо тижневі досягнення
+            if (checkWeeklyAchievements()) {
+                saveData();
+            }
+            
+            saveData();
+
+            document.getElementById('diagnosticSubject').value = '';
+            document.getElementById('diagnosticGrade').value = '';
+            
+            const multiplier = subject === 'Математика' ? '×6' : '×3';
+            alert(`✅ Додано діагностувальну роботу!\n\n${subject}: ${grade} балів\nБонус: ${multiplier}\nОтримано: ${stars}⭐`);
+        }
+        window.addDiagnosticWork = addDiagnosticWork;
 
         function addBonusRecord() {
             const date = document.getElementById('bonusDate').value;
@@ -3605,6 +3724,7 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
                 const date = new Date(r.date);
                 const dateStr = `${date.getDate()}.${(date.getMonth()+1).toString().padStart(2,'0')}.${date.getFullYear()}`;
                 let desc = r.category === 'grade' ? `${r.subject} — ${r.grade} балів`
+                         : r.category === 'diagnostic' ? `${r.subject} — ${r.grade} балів`
                          : r.type === 'spend' ? (r.reward || r.description)
                          : r.description;
                 const starClass = r.type === 'earn' ? 'positive' : (r.type === 'info' || r.type === 'freeze') ? 'info' : 'negative';
@@ -4118,7 +4238,7 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
                 <div style="display: grid; gap: 8px;">
                     <div style="padding: 8px 0; border-bottom: 2px solid #4CAF50;">
                         <span style="font-size: 15px; color: #2E7D32; font-weight: 700;">📌 Версія застосунку:</span>
-                        <strong style="font-size: 16px; color: #1B5E20; margin-left: 8px;">v3.20260425.1908</strong>
+                        <strong style="font-size: 16px; color: #1B5E20; margin-left: 8px;">v3.20260425.1929</strong>
                     </div>
                     <div>📝 Записів в історії: <strong>${recordsCount}</strong></div>
                     <div>⭐ Поточний баланс: <strong>${balance} зірок</strong></div>
