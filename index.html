@@ -1734,6 +1734,28 @@
                     </div>
                     <button class="btn btn-secondary" onclick="buyCustomReward()">💫 Списати</button>
                 </div>
+                
+                <!-- Блок корекції балансу (тільки для батьків) -->
+                <div id="balanceCorrectionBlock" style="display: none; background: linear-gradient(135deg, #FFF9C4, #FFF59D); padding: 18px; border-radius: 15px; margin-top: 15px; border: 2px solid #FBC02D;">
+                    <h3 style="margin: 0 0 15px 0; color: #F57F17; font-size: 16px;">💰 Корекція балансу</h3>
+                    
+                    <div style="background: white; padding: 12px; border-radius: 10px; margin-bottom: 15px;">
+                        <div style="font-size: 14px; color: #666; margin-bottom: 8px;">Поточний баланс:</div>
+                        <div style="font-size: 24px; font-weight: 700; color: var(--secondary);" id="currentBalanceDisplay">0⭐</div>
+                    </div>
+                    
+                    <div style="font-size: 13px; color: #F57F17; margin-bottom: 12px;">
+                        <strong>⚠️ Увага:</strong> Використовуйте тільки для виправлення помилок або відновлення даних
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px; align-items: flex-end;">
+                        <div style="flex: 1;">
+                            <label style="display: block; font-size: 13px; color: #666; margin-bottom: 5px;">Новий баланс:</label>
+                            <input type="number" id="newBalanceInput" min="0" placeholder="Введіть новий баланс" style="width: 100%; padding: 12px; border: 2px solid #FBC02D; border-radius: 10px; font-size: 15px;">
+                        </div>
+                        <button class="btn btn-primary" onclick="adjustBalance()" style="white-space: nowrap; padding: 12px 20px;">💰 Встановити баланс</button>
+                    </div>
+                </div>
             </div>
 
             <!-- Achievements section -->
@@ -4269,7 +4291,7 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
                 <div style="display: grid; gap: 8px;">
                     <div style="padding: 8px 0; border-bottom: 2px solid #4CAF50;">
                         <span style="font-size: 15px; color: #2E7D32; font-weight: 700;">📌 Версія застосунку:</span>
-                        <strong style="font-size: 16px; color: #1B5E20; margin-left: 8px;">v3.20260425.2057</strong>
+                        <strong style="font-size: 16px; color: #1B5E20; margin-left: 8px;">v3.20260425.2130</strong>
                     </div>
                     <div>📝 Записів в історії: <strong>${recordsCount}</strong></div>
                     <div>⭐ Поточний баланс: <strong>${balance} зірок</strong></div>
@@ -4279,10 +4301,20 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
                 </div>
             `;
             
-            // Показуємо/ховаємо блок PIN залежно від режиму
+            // Показуємо/ховаємо блоки для батьків
             const pinBlock = document.getElementById('pinSettingsBlock');
             if (pinBlock) {
                 pinBlock.style.display = data.isParent ? 'block' : 'none';
+            }
+            
+            const balanceBlock = document.getElementById('balanceCorrectionBlock');
+            if (balanceBlock) {
+                balanceBlock.style.display = data.isParent ? 'block' : 'none';
+                // Оновлюємо поточний баланс
+                const balanceDisplay = document.getElementById('currentBalanceDisplay');
+                if (balanceDisplay) {
+                    balanceDisplay.textContent = `${data.balance || 0}⭐`;
+                }
             }
         }
         
@@ -4438,6 +4470,39 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
             setTimeout(() => location.reload(), 500);
         }
         window.resetAllData = resetAllData;
+        
+        function adjustBalance() {
+            const input = document.getElementById('newBalanceInput');
+            const newBalance = parseInt(input.value);
+            
+            if (isNaN(newBalance) || newBalance < 0) {
+                alert('❌ Введіть коректне число (0 або більше)');
+                return;
+            }
+            
+            const oldBalance = data.balance || 0;
+            
+            const confirmMsg = `💰 Змінити баланс?\n\nБуло: ${oldBalance}⭐\nСтане: ${newBalance}⭐\n\nПродовжити?`;
+            
+            if (!confirm(confirmMsg)) {
+                return;
+            }
+            
+            // Змінюємо баланс
+            data.balance = newBalance;
+            
+            // Зберігаємо
+            saveData();
+            
+            // Оновлюємо відображення
+            showDataInfo();
+            
+            // Очищаємо поле
+            input.value = '';
+            
+            alert(`✅ Баланс змінено!\n\nНовий баланс: ${newBalance}⭐`);
+        }
+        window.adjustBalance = adjustBalance;
 
 </script>
 
