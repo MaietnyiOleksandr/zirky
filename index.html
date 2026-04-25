@@ -1517,6 +1517,7 @@
             <button class="tab" onclick="switchTab('achievements', true)">🏆 Досягнення</button>
             <button class="tab" onclick="switchTab('stats', true)">📊 Статистика</button>
             <button class="tab" onclick="switchTab('instructions', true)">❓ Інструкції</button>
+            <button class="tab" onclick="switchTab('settings', true)">⚙️ Налаштування</button>
         </div>
 
         <!-- Content -->
@@ -1861,6 +1862,54 @@
                 </div>
 
             </div>
+
+            <!-- Settings section -->
+            <div class="section" id="settingsSection">
+                <h2 style="margin-bottom: 20px; color: var(--secondary);">⚙️ Налаштування</h2>
+                
+                <!-- Інфо про дані -->
+                <div style="background: linear-gradient(135deg, #E8F5E9, #C8E6C9); padding: 18px; border-radius: 15px; margin-bottom: 20px;">
+                    <h3 style="margin: 0 0 15px 0; color: #2E7D32; font-size: 16px;">📊 Інформація про дані</h3>
+                    <div id="dataInfo" style="font-size: 14px; color: #1B5E20; line-height: 1.8;"></div>
+                </div>
+                
+                <!-- Експорт -->
+                <div style="background: var(--bg); padding: 18px; border-radius: 15px; margin-bottom: 15px;">
+                    <h3 style="margin: 0 0 10px 0; color: var(--secondary); font-size: 16px;">📤 Експорт даних</h3>
+                    <p style="font-size: 13px; color: #666; margin-bottom: 15px;">
+                        Зберігає всі дані (оцінки, винагороди, досягнення) в файл JSON.<br>
+                        <strong>Рекомендується робити резервну копію щотижня!</strong>
+                    </p>
+                    <button class="btn btn-primary" onclick="exportData()" style="width: 100%;">
+                        📤 Завантажити резервну копію
+                    </button>
+                </div>
+                
+                <!-- Імпорт -->
+                <div style="background: var(--bg); padding: 18px; border-radius: 15px; margin-bottom: 15px;">
+                    <h3 style="margin: 0 0 10px 0; color: var(--secondary); font-size: 16px;">📥 Імпорт даних</h3>
+                    <p style="font-size: 13px; color: #666; margin-bottom: 15px;">
+                        Відновлює дані з раніше збереженого файлу.<br>
+                        <strong style="color: #f44336;">⚠️ УВАГА: Замінить всі поточні дані!</strong>
+                    </p>
+                    <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
+                    <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()" style="width: 100%;">
+                        📥 Завантажити з файлу
+                    </button>
+                </div>
+                
+                <!-- Скидання -->
+                <div style="background: linear-gradient(135deg, #FFEBEE, #FFCDD2); padding: 18px; border-radius: 15px; border: 2px solid #f44336;">
+                    <h3 style="margin: 0 0 10px 0; color: #c62828; font-size: 16px;">🗑️ Небезпечна зона</h3>
+                    <p style="font-size: 13px; color: #b71c1c; margin-bottom: 15px;">
+                        Видаляє ВСІ дані назавжди. Ця дія незворотна!
+                    </p>
+                    <button class="btn" onclick="resetAllData()" style="width: 100%; background: #f44336; color: white;">
+                        🗑️ Скинути всі дані
+                    </button>
+                </div>
+            </div>
+
         </div>
     </div>
 
@@ -3012,8 +3061,10 @@ ${ach.desc}
             // Якщо редагуємо існуючий період - видаляємо старий
             if (window.editingFreezeIndex !== undefined) {
                 const oldPeriod = data.achievements.freezePeriods[window.editingFreezeIndex];
-                // Видаляємо запис з історії
-                data.records = data.records.filter(r => r.freezeId !== oldPeriod.id);
+                // Видаляємо запис з історії (тільки якщо є ID!)
+                if (oldPeriod && oldPeriod.id) {
+                    data.records = data.records.filter(r => r.freezeId !== oldPeriod.id);
+                }
                 // Видаляємо період
                 data.achievements.freezePeriods.splice(window.editingFreezeIndex, 1);
                 window.editingFreezeIndex = undefined;
@@ -3068,8 +3119,10 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}
 
 ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) return;
             
-            // Видаляємо запис з історії
-            data.records = data.records.filter(r => r.freezeId !== period.id);
+            // Видаляємо запис з історії (тільки якщо є ID!)
+            if (period && period.id) {
+                data.records = data.records.filter(r => r.freezeId !== period.id);
+            }
             
             // Видаляємо період
             data.achievements.freezePeriods.splice(index, 1);
@@ -3209,10 +3262,9 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
 
         // Firebase: зберігаємо дані
         function saveData() {
-            // ЗАХИСТ: Не зберігаємо якщо дані виглядають пошкодженими
-            if (!data.records || data.records.length === 0) {
-                console.error('⚠️ ЗАХИСТ: Спроба зберегти порожні records! Скасовано.');
-                alert('⚠️ ПОМИЛКА: Дані виглядають пошкодженими. Збереження скасовано.\n\nПерезавантажте сторінку.');
+            // ЗАХИСТ: Перевіряємо чи data існує
+            if (!data) {
+                console.error('⚠️ ЗАХИСТ: data не існує!');
                 return;
             }
             
@@ -3320,6 +3372,7 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
             else if (tab === 'rewards') renderRewards();
             else if (tab === 'achievements') renderAchievements();
             else if (tab === 'stats') renderStats();
+            else if (tab === 'settings') showDataInfo();
 
             if (!data.isParent && tab === 'add') {
                 switchTab('instructions');
@@ -3852,8 +3905,9 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
 
 Активна серія: ${streak} ${streak === 1 ? 'день' : streak < 5 ? 'дні' : 'днів'}
 
-Якщо були канікули - активуйте режим заморозки?`)) {
-                                showFreezeModal();
+Якщо були канікули - додайте період канікул у розділі "+Додати"`)) {
+                                switchTab('add');
+                                showForm('freeze');
                             }
                         }, 1000);
                     }
@@ -4002,7 +4056,184 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
         // Ініціалізація
         setTodayDates();
         initFirebase();
-    </script>
+    
+        // ═══════════════════════════════════════════════════
+        // ЕКСПОРТ/ІМПОРТ ДАНИХ
+        // ═══════════════════════════════════════════════════
+        
+        function showDataInfo() {
+            const container = document.getElementById('dataInfo');
+            if (!container) return;
+            
+            const recordsCount = data.records?.length || 0;
+            const balance = data.balance || 0;
+            const achievementsCount = Object.keys(data.achievements?.levels || {}).length;
+            const freezePeriodsCount = data.achievements?.freezePeriods?.length || 0;
+            
+            // Розмір даних
+            const dataSize = new Blob([JSON.stringify(data)]).size;
+            const sizeKB = (dataSize / 1024).toFixed(2);
+            
+            container.innerHTML = `
+                <div style="display: grid; gap: 8px;">
+                    <div>📝 Записів в історії: <strong>${recordsCount}</strong></div>
+                    <div>⭐ Поточний баланс: <strong>${balance} зірок</strong></div>
+                    <div>🏆 Досягнень отримано: <strong>${achievementsCount}</strong></div>
+                    <div>❄️ Періодів канікул: <strong>${freezePeriodsCount}</strong></div>
+                    <div>💾 Розмір даних: <strong>${sizeKB} KB</strong></div>
+                </div>
+            `;
+        }
+        
+        function exportData() {
+            try {
+                // Додаємо метадані
+                const exportData = {
+                    ...data,
+                    version: 1,
+                    exportDate: new Date().toISOString(),
+                    appName: "Зірки Успіху"
+                };
+                
+                const json = JSON.stringify(exportData, null, 2);
+                const blob = new Blob([json], { type: "application/json" });
+                const url = URL.createObjectURL(blob);
+                
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = `zirky-backup-${new Date().toISOString().slice(0, 10)}.json`;
+                a.click();
+                
+                URL.revokeObjectURL(url);
+                
+                alert("✅ Дані успішно експортовано!\n\nФайл: " + a.download);
+            } catch (e) {
+                alert("❌ Помилка експорту: " + e.message);
+                console.error(e);
+            }
+        }
+        
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    
+                    // Базова валідація
+                    if (!imported || typeof imported !== 'object') {
+                        alert("❌ Невірний формат файлу");
+                        return;
+                    }
+                    
+                    if (!Array.isArray(imported.records)) {
+                        alert("❌ Файл не містить записів або має невірний формат");
+                        return;
+                    }
+                    
+                    if (imported.balance === undefined) {
+                        alert("❌ Файл не містить балансу");
+                        return;
+                    }
+                    
+                    // Показуємо інфо про файл ПЕРЕД імпортом
+                    const recordsCount = imported.records?.length || 0;
+                    const balance = imported.balance || 0;
+                    const exportDate = imported.exportDate ? new Date(imported.exportDate).toLocaleDateString('uk-UA') : 'невідомо';
+                    
+                    const confirmMsg = `📁 Файл: ${file.name}\n\n` +
+                        `📊 Що буде імпортовано:\n` +
+                        `• Записів: ${recordsCount}\n` +
+                        `• Баланс: ${balance}⭐\n` +
+                        `• Дата експорту: ${exportDate}\n\n` +
+                        `⚠️ УВАГА: Це замінить всі поточні дані!\n\n` +
+                        `Продовжити?`;
+                    
+                    if (!confirm(confirmMsg)) {
+                        // Очищаємо input щоб можна було вибрати той же файл знову
+                        event.target.value = '';
+                        return;
+                    }
+                    
+                    // Нормалізація даних
+                    imported.balance = Number(imported.balance) || 0;
+                    imported.records = Array.isArray(imported.records) ? imported.records : [];
+                    imported.pin = imported.pin || '1234';
+                    imported.goal = imported.goal || null;
+                    imported.achievements = imported.achievements || {
+                        counters: {},
+                        streaks: {},
+                        levels: {},
+                        weekly: {},
+                        repeatableHistory: {},
+                        freezePeriods: []
+                    };
+                    
+                    // Очищаємо метадані експорту
+                    delete imported.version;
+                    delete imported.exportDate;
+                    delete imported.appName;
+                    
+                    // Замінюємо data
+                    data = imported;
+                    
+                    // Перераховуємо досягнення
+                    recalculateAchievements();
+                    
+                    // Зберігаємо в Firebase
+                    saveData();
+                    
+                    // Перезавантажуємо сторінку
+                    alert("✅ Дані успішно імпортовано!\n\nСторінка перезавантажиться.");
+                    setTimeout(() => location.reload(), 500);
+                    
+                } catch (err) {
+                    alert("❌ Помилка імпорту: " + err.message);
+                    console.error(err);
+                }
+                
+                // Очищаємо input
+                event.target.value = '';
+            };
+            
+            reader.readAsText(file);
+        }
+        
+        function resetAllData() {
+            const confirm1 = confirm("⚠️ ВИ ВПЕВНЕНІ?\n\nЦе видалить ВСІ дані:\n• Всі оцінки та записи\n• Весь баланс зірок\n• Всі досягнення\n• Всі налаштування\n\nЦя дія НЕЗВОРОТНА!\n\nПродовжити?");
+            if (!confirm1) return;
+            
+            const confirm2 = prompt("Щоб підтвердити, введіть: ВИДАЛИТИ");
+            if (confirm2 !== "ВИДАЛИТИ") {
+                alert("Скасовано");
+                return;
+            }
+            
+            // Скидаємо дані
+            data = {
+                records: [],
+                balance: 0,
+                pin: '1234',
+                goal: null,
+                achievements: {
+                    counters: {},
+                    streaks: {},
+                    levels: {},
+                    weekly: {},
+                    repeatableHistory: {},
+                    freezePeriods: []
+                }
+            };
+            
+            saveData();
+            alert("✅ Всі дані скинуто\n\nСторінка перезавантажиться.");
+            setTimeout(() => location.reload(), 500);
+        }
+
+</script>
 
 
 </body>
