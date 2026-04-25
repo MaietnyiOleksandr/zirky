@@ -1484,7 +1484,7 @@
     <div class="container" id="mainApp" style="display: none;">
         <!-- Header -->
         <div class="header">
-            <div class="logo">⭐ Зірки Успіху ⭐ <span style="font-size: 11px; color: #999; font-weight: 400; margin-left: 8px;">v3.20260425.0939</span></div>
+            <div class="logo">⭐ Зірки Успіху ⭐</div>
             <div class="balance-container">
                 <div class="balance-label">Поточний баланс</div>
                 <div class="balance" id="balance">0⭐</div>
@@ -4084,6 +4084,10 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
             
             container.innerHTML = `
                 <div style="display: grid; gap: 8px;">
+                    <div style="padding: 8px 0; border-bottom: 2px solid #4CAF50;">
+                        <span style="font-size: 15px; color: #2E7D32; font-weight: 700;">📌 Версія застосунку:</span>
+                        <strong style="font-size: 16px; color: #1B5E20; margin-left: 8px;">v3.20260425.0947</strong>
+                    </div>
                     <div>📝 Записів в історії: <strong>${recordsCount}</strong></div>
                     <div>⭐ Поточний баланс: <strong>${balance} зірок</strong></div>
                     <div>🏆 Досягнень отримано: <strong>${achievementsCount}</strong></div>
