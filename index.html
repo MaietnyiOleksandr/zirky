@@ -3066,6 +3066,32 @@ ${ach.desc}
                 return;
             }
             
+            // Перевіряємо чи новий період не перетинається з існуючими
+            const periods = data.achievements.freezePeriods || [];
+            for (let i = 0; i < periods.length; i++) {
+                // Пропускаємо період який редагуємо
+                if (window.editingFreezeIndex !== undefined && i === window.editingFreezeIndex) {
+                    continue;
+                }
+                
+                const existing = periods[i];
+                const existingFrom = new Date(existing.from);
+                existingFrom.setHours(0, 0, 0, 0);
+                const existingUntil = new Date(existing.until);
+                existingUntil.setHours(23, 59, 59, 999);
+                
+                // Перевірка на перетинання:
+                // Новий період перетинається з існуючим якщо:
+                // (новий_початок <= існуючий_кінець) && (новий_кінець >= існуючий_початок)
+                if (from <= existingUntil && until >= existingFrom) {
+                    const existingStr = `${existingFrom.toLocaleDateString('uk-UA', {day: '2-digit', month: '2-digit', year: 'numeric'})} - ${existingUntil.toLocaleDateString('uk-UA', {day: '2-digit', month: '2-digit', year: 'numeric'})}`;
+                    const newStr = `${from.toLocaleDateString('uk-UA', {day: '2-digit', month: '2-digit', year: 'numeric'})} - ${until.toLocaleDateString('uk-UA', {day: '2-digit', month: '2-digit', year: 'numeric'})}`;
+                    
+                    alert(`⚠️ Період перетинається з існуючим!\n\nНовий період:\n${newStr}\n\nІснуючий період:\n${existingStr}\n\nБудь ласка, оберіть інші дати.`);
+                    return;
+                }
+            }
+            
             // Якщо редагуємо існуючий період - видаляємо старий
             if (window.editingFreezeIndex !== undefined) {
                 const oldPeriod = data.achievements.freezePeriods[window.editingFreezeIndex];
@@ -4090,7 +4116,7 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
                 <div style="display: grid; gap: 8px;">
                     <div style="padding: 8px 0; border-bottom: 2px solid #4CAF50;">
                         <span style="font-size: 15px; color: #2E7D32; font-weight: 700;">📌 Версія застосунку:</span>
-                        <strong style="font-size: 16px; color: #1B5E20; margin-left: 8px;">v3.20260425.0947</strong>
+                        <strong style="font-size: 16px; color: #1B5E20; margin-left: 8px;">v3.20260425.1020</strong>
                     </div>
                     <div>📝 Записів в історії: <strong>${recordsCount}</strong></div>
                     <div>⭐ Поточний баланс: <strong>${balance} зірок</strong></div>
