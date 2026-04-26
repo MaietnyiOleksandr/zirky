@@ -1,6 +1,6 @@
 // ════════════════════════════════════════════════════
 // STATS  stats.js — Stats
-//     Зірки Успіху | v3.20260426.0912
+//     Зірки Успіху | v3.20260426.1534
 // ════════════════════════════════════════════════════
 
 import { state } from './state.js';
@@ -9,7 +9,7 @@ import { showForm, switchTab } from './ui.js';
 // ════════════════════════════════════════════════════════════
 // 📊  БЛОК: Статистика / Графіки
 // ════════════════════════════════════════════════════════════
-        export function renderStats() {
+export function renderStats() {
     updateChart();
     
     const totalEarned = (state.data.records||[]).filter(r=>r.type==='earn').reduce((s,r)=>s+r.stars,0);

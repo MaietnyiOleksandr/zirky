@@ -1,6 +1,6 @@
 // ════════════════════════════════════════════════════
 // FREEZE  freeze.js — Freeze
-//     Зірки Успіху | v3.20260426.0912
+//     Зірки Успіху | v3.20260426.1534
 // ════════════════════════════════════════════════════
 
 import { state } from './state.js';
@@ -11,7 +11,7 @@ import { updateUI } from './ui.js';
 // ════════════════════════════════════════════════════════════
 // ❄️   БЛОК: Канікули
 // ════════════════════════════════════════════════════════════
-        export function addFreezePeriod() {
+export function addFreezePeriod() {
     const fromInput = document.getElementById('freezeFromDate');
     const untilInput = document.getElementById('freezeUntilDate');
     const fromDate = fromInput.value;
@@ -109,7 +109,6 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}
 
 Серії перераховані.`);
 }
-window.addFreezePeriod = addFreezePeriod;
 
 export function deleteFreezePeriod(index) {
     const period = state.data.achievements.freezePeriods[index];
@@ -134,7 +133,6 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
     updateUI();
     renderFreezePeriods();
 }
-window.deleteFreezePeriod = deleteFreezePeriod;
 
 export function editFreezePeriod(index) {
     const period = state.data.achievements.freezePeriods[index];
@@ -149,7 +147,6 @@ export function editFreezePeriod(index) {
     // Прокручуємо до форми
     document.getElementById('freezeFromDate').scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
-window.editFreezePeriod = editFreezePeriod;
 
 export function renderFreezePeriods() {
     const container = document.getElementById('freezePeriodsList');
@@ -201,7 +198,6 @@ export function renderFreezePeriods() {
         });
     }, 10);
 }
-window.renderFreezePeriods = renderFreezePeriods;
 
 // Перевіряємо чи день має пропускатися (канікули або вихідні)
 // shouldSkipDayForStreak → achievements.js

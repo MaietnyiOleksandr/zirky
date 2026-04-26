@@ -1,6 +1,6 @@
 // ════════════════════════════════════════════════════
 // RECORDS  records.js — Records
-//     Зірки Успіху | v3.20260426.0912
+//     Зірки Успіху | v3.20260426.1534
 // ════════════════════════════════════════════════════
 
 import { state } from './state.js';
@@ -11,7 +11,7 @@ import { saveData } from './firebase.js';
 // ════════════════════════════════════════════════════════════
 // ➕  БЛОК: Нарахування (оцінки, бонуси, діагностика)
 // ════════════════════════════════════════════════════════════
-        export function addGradeRecord() {
+export function addGradeRecord() {
     const date = document.getElementById('gradeDate').value;
     const subject = document.getElementById('subject').value;
     const grade = document.getElementById('grade').value;
@@ -108,7 +108,6 @@ export function addDiagnosticWork() {
     const multiplier = subject === 'Математика' ? '×6' : '×3';
     alert(`✅ Додано діагностувальну роботу!\n\n${subject}: ${grade} балів\nБонус: ${multiplier}\nОтримано: ${stars}⭐`);
 }
-window.addDiagnosticWork = addDiagnosticWork;
 
 export function addBonusRecord() {
     const date = document.getElementById('bonusDate').value;

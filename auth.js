@@ -1,6 +1,6 @@
 // ════════════════════════════════════════════════════
 // 🔐  auth.js — Авторизація та PIN-код
-//     Зірки Успіху | v3.20260426.0901
+//     Зірки Успіху | v3.20260426.1534
 // ════════════════════════════════════════════════════
 
 import { state } from './state.js';
@@ -11,7 +11,7 @@ import { switchTab, updateUI } from './ui.js';
 // ════════════════════════════════════════════════════════════
 // 🔐  БЛОК: Авторизація / PIN
 // ════════════════════════════════════════════════════════════
-        export function showPinInput() {
+export function showPinInput() {
     document.getElementById('loginOverlay').style.display = 'none';
     document.getElementById('pinOverlay').style.display = 'flex';
 }

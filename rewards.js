@@ -1,6 +1,6 @@
 // ════════════════════════════════════════════════════
 // REWARDS  rewards.js — Rewards
-//     Зірки Успіху | v3.20260426.0912
+//     Зірки Успіху | v3.20260426.1534
 // ════════════════════════════════════════════════════
 
 import { state } from './state.js';
@@ -11,7 +11,7 @@ import { showRewardPin } from './auth.js';
 // ════════════════════════════════════════════════════════════
 // 🎁  БЛОК: Витрати / Винагороди
 // ════════════════════════════════════════════════════════════
-        export function renderRewards() {
+export function renderRewards() {
     const list = document.getElementById('rewardsList');
     list.innerHTML = rewards.map((r, i) => {
         const canAfford = Number(state.data.balance) >= r.cost;

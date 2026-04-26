@@ -1,6 +1,6 @@
 // ════════════════════════════════════════════════════
 // UI     ui.js — Ui
-//     Зірки Успіху | v3.20260426.0912
+//     Зірки Успіху | v3.20260426.1534
 // ════════════════════════════════════════════════════
 
 import { state } from './state.js';
@@ -16,7 +16,7 @@ import { getTodayDate } from './utils.js';
 // ════════════════════════════════════════════════════════════
 // 🗂️   БЛОК: Навігація по вкладках
 // ════════════════════════════════════════════════════════════
-        export function switchTab(tab, fromClick) {
+export function switchTab(tab, fromClick) {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     // Якщо виклик від кліку — підсвічуємо натиснуту вкладку
     if (fromClick && event && event.target) {
