@@ -2012,7 +2012,11 @@
         const db = getDatabase(app);
 
         // Показуємо індикатор завантаження
-        function showLoading(show) {
+
+        // ════════════════════════════════════════════════════════════
+        // 🖥️  БЛОК: UI / Навігація
+        // ════════════════════════════════════════════════════════════
+                function showLoading(show) {
             document.getElementById('loadingOverlay').style.display = show ? 'flex' : 'none';
         }
 
@@ -2344,7 +2348,11 @@
             `;
         }
         
-        function showGoalModal() {
+
+        // ════════════════════════════════════════════════════════════
+        // 🎯  БЛОК: Цілі
+        // ════════════════════════════════════════════════════════════
+                function showGoalModal() {
             if (data.goal) {
                 document.getElementById('goalName').value = data.goal.name || '';
                 document.getElementById('goalTarget').value = data.goal.target || '';
@@ -2404,7 +2412,11 @@
         // ═══════════════ СИСТЕМА ДОСЯГНЕНЬ ═══════════════
         
         // Ініціалізація лічильників при завантаженні
-        function initAchievements() {
+
+        // ════════════════════════════════════════════════════════════
+        // 🏆  БЛОК: Досягнення
+        // ════════════════════════════════════════════════════════════
+                function initAchievements() {
             if (!data.achievements) {
                 data.achievements = { counters: {}, streaks: {}, levels: {}, weekly: {} };
             }
@@ -2436,7 +2448,7 @@
                 }
                 
                 // Книги
-                if (record.description === 'Прочитав книгу') {
+                if (record.description && record.description.includes('Прочитав книгу')) {
                     data.achievements.counters.books = (data.achievements.counters.books || 0) + 1;
                 }
                 
@@ -2514,8 +2526,8 @@
             
             allDays.forEach(day => {
                 const records = dayGroups[day];
-                const teethCount = records.filter(r => r.description === 'Почистити зуби').length;
-                const hairCount = records.filter(r => r.description === 'Причесати волосся').length;
+                const teethCount = records.filter(r => r.description && r.description.includes('Почистити зуби')).length;
+                const hairCount = records.filter(r => r.description && r.description.includes('Причесати волосся')).length;
                 
                 // Teeth streak
                 if (teethCount >= 2) {
@@ -2857,7 +2869,7 @@ ${level.desc}
             }
             
             // Книги
-            if (record.description === 'Прочитав книгу') {
+            if (record.description && record.description.includes('Прочитав книгу')) {
                 data.achievements.counters.books = (data.achievements.counters.books || 0) + 1;
             }
             
@@ -3119,7 +3131,11 @@ ${ach.desc}
 
         
         
-        function addFreezePeriod() {
+
+        // ════════════════════════════════════════════════════════════
+        // ❄️   БЛОК: Канікули
+        // ════════════════════════════════════════════════════════════
+                function addFreezePeriod() {
             const fromInput = document.getElementById('freezeFromDate');
             const untilInput = document.getElementById('freezeUntilDate');
             const fromDate = fromInput.value;
@@ -3344,7 +3360,11 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
         }
         
         // Firebase: читаємо дані і слухаємо зміни в реальному часі
-        function initFirebase() {
+
+        // ════════════════════════════════════════════════════════════
+        // 🔥  БЛОК: Firebase / Збереження даних
+        // ════════════════════════════════════════════════════════════
+                function initFirebase() {
             showLoading(true);
             const dataRef = ref(db, 'zirky');
             onValue(dataRef, (snapshot) => {
@@ -3390,7 +3410,11 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
             set(ref(db, 'zirky'), toSave);
         }
 
-        function getTodayDate() {
+
+        // ════════════════════════════════════════════════════════════
+        // 🔧  БЛОК: Утиліти
+        // ════════════════════════════════════════════════════════════
+                function getTodayDate() {
             const today = new Date();
             return today.toISOString().split('T')[0];
         }
@@ -3403,7 +3427,11 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
         }
 
         // Вхід
-        function showPinInput() {
+
+        // ════════════════════════════════════════════════════════════
+        // 🔐  БЛОК: Авторизація / PIN
+        // ════════════════════════════════════════════════════════════
+                function showPinInput() {
             document.getElementById('loginOverlay').style.display = 'none';
             document.getElementById('pinOverlay').style.display = 'flex';
         }
@@ -3464,7 +3492,11 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
         }
 
         // Вкладки
-        function switchTab(tab, fromClick) {
+
+        // ════════════════════════════════════════════════════════════
+        // 🗂️   БЛОК: Навігація по вкладках
+        // ════════════════════════════════════════════════════════════
+                function switchTab(tab, fromClick) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             // Якщо виклик від кліку — підсвічуємо натиснуту вкладку
             if (fromClick && event && event.target) {
@@ -3529,7 +3561,11 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
         }
 
         // Додавання записів
-        function addGradeRecord() {
+
+        // ════════════════════════════════════════════════════════════
+        // ➕  БЛОК: Нарахування (оцінки, бонуси, діагностика)
+        // ════════════════════════════════════════════════════════════
+                function addGradeRecord() {
             const date = document.getElementById('gradeDate').value;
             const subject = document.getElementById('subject').value;
             const grade = document.getElementById('grade').value;
@@ -3732,7 +3768,11 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
         // Відображення
 
         // Мапа емоджі для предметів
-        function getSubjectEmoji(subject) {
+
+        // ════════════════════════════════════════════════════════════
+        // 📜  БЛОК: Історія
+        // ════════════════════════════════════════════════════════════
+                function getSubjectEmoji(subject) {
             const emojiMap = {
                 'Математика': '📐',
                 'Українська мова': '🇺🇦',
@@ -3815,7 +3855,11 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
             renderHistory();
         }
 
-        function renderRewards() {
+
+        // ════════════════════════════════════════════════════════════
+        // 🎁  БЛОК: Витрати / Винагороди
+        // ════════════════════════════════════════════════════════════
+                function renderRewards() {
             const list = document.getElementById('rewardsList');
             list.innerHTML = rewards.map((r, i) => {
                 const canAfford = Number(data.balance) >= r.cost;
@@ -3895,7 +3939,11 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
             }
         }
 
-        function renderStats() {
+
+        // ════════════════════════════════════════════════════════════
+        // 📊  БЛОК: Статистика / Графіки
+        // ════════════════════════════════════════════════════════════
+                function renderStats() {
             updateChart();
             
             const totalEarned = (data.records||[]).filter(r=>r.type==='earn').reduce((s,r)=>s+r.stars,0);
@@ -4273,7 +4321,11 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
         // ЕКСПОРТ/ІМПОРТ ДАНИХ
         // ═══════════════════════════════════════════════════
         
-        function showDataInfo() {
+
+        // ════════════════════════════════════════════════════════════
+        // ⚙️   БЛОК: Налаштування / Експорт / Імпорт
+        // ════════════════════════════════════════════════════════════
+                function showDataInfo() {
             const container = document.getElementById('dataInfo');
             if (!container) return;
             
@@ -4290,7 +4342,7 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
                 <div style="display: grid; gap: 8px;">
                     <div style="padding: 8px 0; border-bottom: 2px solid #4CAF50;">
                         <span style="font-size: 15px; color: #2E7D32; font-weight: 700;">📌 Версія застосунку:</span>
-                        <strong style="font-size: 16px; color: #1B5E20; margin-left: 8px;">v3.20260426.0058</strong>
+                        <strong style="font-size: 16px; color: #1B5E20; margin-left: 8px;">v3.20260426.0837</strong>
                     </div>
                     <div>📝 Записів в історії: <strong>${recordsCount}</strong></div>
                     <div>⭐ Поточний баланс: <strong>${balance} зірок</strong></div>
