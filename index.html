@@ -4,1385 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>⭐ Зірки Успіху</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;900&display=swap');
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-        
-        :root {
-            --primary: #FFD700;
-            --secondary: #0057B7;
-            --accent: #FF6B6B;
-            --success: #4CAF50;
-            --bg: #FFF9E6;
-            --card: #FFFFFF;
-            --text: #2C3E50;
-            --shadow: 0 8px 24px rgba(0, 87, 183, 0.15);
-            --radius: 24px;
-        }
-        
-        body {
-            font-family: 'Nunito', sans-serif;
-            background: linear-gradient(135deg, var(--secondary) 0%, #4A90E2 50%, var(--primary) 100%);
-            min-height: 100vh;
-            color: var(--text);
-            overflow-x: hidden;
-        }
-        
-        body::before {
-            content: '⭐';
-            position: fixed;
-            font-size: 200px;
-            opacity: 0.05;
-            top: 10%;
-            left: -50px;
-            animation: float 6s ease-in-out infinite;
-            pointer-events: none;
-        }
-        
-        body::after {
-            content: '✨';
-            position: fixed;
-            font-size: 150px;
-            opacity: 0.05;
-            bottom: 10%;
-            right: -50px;
-            animation: float 8s ease-in-out infinite reverse;
-            pointer-events: none;
-        }
-        
-        @keyframes float {
-            0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-30px) rotate(10deg); }
-        }
-        
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        
-        .header {
-            background: var(--card);
-            border-radius: var(--radius);
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: var(--shadow);
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-            animation: slideDown 0.6s ease-out;
-        }
-        
-        @keyframes slideDown {
-            from { opacity: 0; transform: translateY(-30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .header::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, var(--primary) 0%, transparent 70%);
-            opacity: 0.1;
-            animation: rotate 20s linear infinite;
-        }
-        
-        @keyframes rotate {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-        
-        .logo {
-            font-family: 'Caveat', cursive;
-            font-size: 32px;
-            color: var(--secondary);
-            margin-bottom: 8px;
-            text-shadow: 2px 2px 0 var(--primary);
-            position: relative;
-            z-index: 1;
-        }
-        
-        .balance-container {
-            position: relative;
-            z-index: 1;
-        }
-        
-        .balance {
-            font-size: 52px;
-            font-weight: 900;
-            color: var(--secondary);
-            margin: 8px 0;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-            animation: pulse 2s ease-in-out infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-        
-        .balance-label {
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            color: #666;
-            font-weight: 700;
-        }
-        
-        .stats-row {
-            display: flex;
-            gap: 10px;
-            margin-top: 12px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-        
-        .stat-mini {
-            background: var(--bg);
-            padding: 8px 16px;
-            border-radius: 12px;
-            font-size: 13px;
-        }
-        
-        .stat-mini strong {
-            color: var(--secondary);
-            font-weight: 900;
-        }
-        
-        .period-toggle {
-            display: flex;
-            gap: 6px;
-            justify-content: center;
-            margin-bottom: 10px;
-        }
-        
-        .period-btn {
-            padding: 6px 14px;
-            background: var(--bg);
-            border: 2px solid #E0E0E0;
-            border-radius: 10px;
-            font-family: 'Nunito', sans-serif;
-            font-size: 12px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s;
-            color: var(--text);
-        }
-        
-        .period-btn:hover {
-            transform: translateY(-2px);
-            border-color: var(--primary);
-        }
-        
-        .period-btn.active {
-            background: var(--primary);
-            border-color: var(--primary);
-            color: var(--secondary);
-        }
-        
-        .goal-container {
-            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
-            padding: 18px;
-            border-radius: 18px;
-            margin-top: 15px;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 4px 16px rgba(255, 215, 0, 0.3);
-        }
-        
-        .goal-container::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%);
-            animation: rotate 15s linear infinite;
-            pointer-events: none;
-        }
-        
-        .goal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-            position: relative;
-            z-index: 1;
-        }
-        
-        .goal-title {
-            font-size: 18px;
-            font-weight: 900;
-            color: var(--secondary);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .goal-emoji {
-            font-size: 24px;
-        }
-        
-        .goal-edit-btn {
-            background: rgba(255, 255, 255, 0.9);
-            border: 2px solid var(--secondary);
-            border-radius: 10px;
-            padding: 6px 12px;
-            font-size: 12px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s;
-            color: var(--secondary);
-        }
-        
-        .goal-edit-btn:hover {
-            transform: scale(1.05);
-            background: white;
-        }
-        
-        .progress-bar-container {
-            background: rgba(0, 87, 183, 0.15);
-            border-radius: 12px;
-            height: 32px;
-            position: relative;
-            overflow: hidden;
-            margin-bottom: 10px;
-            z-index: 1;
-        }
-        
-        .progress-bar {
-            background: linear-gradient(90deg, var(--secondary) 0%, #4A90E2 100%);
-            height: 100%;
-            border-radius: 12px;
-            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            padding-right: 12px;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .progress-bar::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-            animation: shimmer 2s infinite;
-        }
-        
-        @keyframes shimmer {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
-        }
-        
-        .progress-text {
-            color: white;
-            font-size: 14px;
-            font-weight: 900;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
-            position: relative;
-            z-index: 1;
-        }
-        
-        .goal-stats {
-            font-size: 13px;
-            font-weight: 700;
-            color: var(--secondary);
-            position: relative;
-            z-index: 1;
-            padding: 0 5px;
-        }
-        
-        .achievements-grid {
-            display: grid;
-            gap: 15px;
-            margin-bottom: 30px;
-        }
-        
-        .achievement-card {
-            background: var(--bg);
-            padding: 18px;
-            border-radius: 18px;
-            border-left: 6px solid #ccc;
-            transition: all 0.3s;
-            position: relative;
-        }
-        
-        .achievement-card.bronze {
-            border-left-color: #CD7F32;
-            box-shadow: 0 2px 8px rgba(205, 127, 50, 0.2);
-        }
-        
-        .achievement-card.silver {
-            border-left-color: #C0C0C0;
-            box-shadow: 0 2px 8px rgba(192, 192, 192, 0.3);
-        }
-        
-        .achievement-card.gold {
-            border-left-color: #FFD700;
-            box-shadow: 0 2px 8px rgba(255, 215, 0, 0.4);
-        }
-        
-        .achievement-card.unlocked {
-            background: linear-gradient(135deg, #FFF9E6 0%, #FFFEF0 100%);
-            border-left-width: 8px;
-        }
-        
-        .achievement-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 10px;
-        }
-        
-        .achievement-title {
-            font-size: 17px;
-            font-weight: 900;
-            color: var(--secondary);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .achievement-reward {
-            font-size: 16px;
-            font-weight: 900;
-            color: var(--success);
-        }
-        
-        .achievement-desc {
-            font-size: 13px;
-            color: #666;
-            margin-bottom: 12px;
-            line-height: 1.4;
-        }
-        
-        .achievement-progress-bar {
-            background: #E0E0E0;
-            border-radius: 10px;
-            height: 20px;
-            overflow: hidden;
-            margin-bottom: 8px;
-        }
-        
-        .achievement-progress-fill {
-            height: 100%;
-            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 11px;
-            font-weight: 900;
-            color: white;
-        }
-        
-        .achievement-progress-fill.bronze {
-            background: linear-gradient(90deg, #CD7F32, #E89968);
-        }
-        
-        .achievement-progress-fill.silver {
-            background: linear-gradient(90deg, #C0C0C0, #E8E8E8);
-        }
-        
-        .achievement-progress-fill.gold {
-            background: linear-gradient(90deg, #FFD700, #FFA500);
-        }
-        
-        .achievement-stats {
-            font-size: 12px;
-            font-weight: 700;
-            color: var(--secondary);
-        }
-        
-        .achievement-badge {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            font-size: 36px;
-            opacity: 0.15;
-        }
-        
-        .achievement-card.unlocked .achievement-badge {
-            opacity: 1;
-            animation: bounceIn 0.6s;
-        }
-        
-        @keyframes bounceIn {
-            0% { transform: scale(0); }
-            50% { transform: scale(1.2); }
-            100% { transform: scale(1); }
-        }
-        
-        .achievements-section-title {
-            font-size: 14px;
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #999;
-            margin: 25px 0 15px 0;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .achievements-section-title::after {
-            content: '';
-            flex: 1;
-            height: 2px;
-            background: linear-gradient(to right, #ccc, transparent);
-        }
-        
-        .achievement-popup {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(0);
-            background: white;
-            padding: 30px;
-            border-radius: 24px;
-            box-shadow: 0 12px 48px rgba(0,0,0,0.3);
-            z-index: 2000;
-            text-align: center;
-            max-width: 400px;
-            width: 90%;
-        }
-        
-        .achievement-popup.show {
-            animation: popupShow 0.5s forwards;
-        }
-        
-        @keyframes popupShow {
-            0% { transform: translate(-50%, -50%) scale(0); }
-            50% { transform: translate(-50%, -50%) scale(1.1); }
-            100% { transform: translate(-50%, -50%) scale(1); }
-        }
-        
-        .achievement-popup-emoji {
-            font-size: 72px;
-            margin-bottom: 15px;
-        }
-        
-        .achievement-popup-title {
-            font-size: 24px;
-            font-weight: 900;
-            color: var(--secondary);
-            margin-bottom: 10px;
-        }
-        
-        .achievement-popup-reward {
-            font-size: 32px;
-            font-weight: 900;
-            color: var(--success);
-            margin: 15px 0;
-        }
-        
-        .achievements-mini {
-            display: flex;
-            gap: 8px;
-            justify-content: center;
-            margin-top: 12px;
-            flex-wrap: wrap;
-        }
-        
-        .achievement-mini-badge {
-            font-size: 28px;
-            padding: 6px;
-            background: var(--bg);
-            border-radius: 12px;
-            border: 2px solid;
-            transition: all 0.3s;
-        }
-        
-        .achievement-mini-badge.bronze {
-            border-color: #CD7F32;
-        }
-        
-        .achievement-mini-badge.silver {
-            border-color: #C0C0C0;
-        }
-        
-        .achievement-mini-badge.gold {
-            border-color: #FFD700;
-        }
-        
-        .achievement-mini-badge:hover {
-            transform: scale(1.15);
-        }
-        
-        .no-goal {
-            text-align: center;
-            padding: 20px;
-            color: var(--secondary);
-            font-weight: 700;
-        }
-        
-        .stats-controls {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-        
-        .chart-toggles {
-            display: flex;
-            gap: 15px;
-        }
-        
-        .chart-toggle {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            user-select: none;
-        }
-        
-        .chart-toggle input[type="checkbox"] {
-            width: 20px;
-            height: 20px;
-            cursor: pointer;
-        }
-        
-        .chart-toggle label {
-            font-weight: 700;
-            font-size: 14px;
-            cursor: pointer;
-            margin: 0;
-        }
-        
-        .chart-toggle.earned label {
-            color: var(--secondary);
-        }
-        
-        .chart-toggle.spent label {
-            color: var(--accent);
-        }
-        
-        .tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-            padding-bottom: 5px;
-        }
-        
-        .tabs::-webkit-scrollbar {
-            height: 4px;
-        }
-        
-        .tabs::-webkit-scrollbar-thumb {
-            background: var(--primary);
-            border-radius: 4px;
-        }
-        
-        .tab {
-            flex: 1;
-            min-width: 140px;
-            padding: 15px 20px;
-            background: var(--card);
-            border: none;
-            border-radius: 18px;
-            font-family: 'Nunito', sans-serif;
-            font-size: 16px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-        
-        .tab:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-        }
-        
-        .tab.active {
-            background: linear-gradient(135deg, var(--primary), #FFA500);
-            color: var(--secondary);
-            transform: translateY(-3px);
-            box-shadow: 0 8px 24px rgba(255, 215, 0, 0.4);
-        }
-        
-        .content {
-            background: var(--card);
-            border-radius: var(--radius);
-            padding: 30px;
-            box-shadow: var(--shadow);
-            min-height: 400px;
-            animation: fadeIn 0.4s ease-out;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .section {
-            display: none;
-        }
-        
-        .section.active {
-            display: block;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: var(--text);
-            font-weight: 700;
-            font-size: 15px;
-        }
-        
-        select, input[type="number"], input[type="text"], input[type="password"], input[type="date"] {
-            width: 100%;
-            padding: 15px;
-            border: 3px solid #E0E0E0;
-            border-radius: 15px;
-            font-family: 'Nunito', sans-serif;
-            font-size: 16px;
-            font-weight: 600;
-            transition: all 0.3s;
-            background: var(--bg);
-        }
-        
-        select:focus, input:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 4px rgba(255, 215, 0, 0.2);
-            transform: translateY(-2px);
-        }
-        
-        .btn {
-            width: 100%;
-            padding: 18px;
-            border: none;
-            border-radius: 18px;
-            font-family: 'Nunito', sans-serif;
-            font-size: 18px;
-            font-weight: 900;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-top: 10px;
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary) 0%, #FFA500 100%);
-            color: var(--secondary);
-            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
-        }
-
-        .freeze-period-btn {
-            transition: all 0.2s ease;
-        }
-        
-        .freeze-period-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-        
-        .freeze-period-btn:active {
-            transform: translateY(0);
-        }
-        
-        
-        .btn-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 28px rgba(255, 215, 0, 0.5);
-        }
-        
-        .btn-secondary {
-            background: var(--bg);
-            color: var(--text);
-        }
-        
-        .btn-danger {
-            background: linear-gradient(135deg, var(--accent) 0%, #E74C3C 100%);
-            color: white;
-        }
-        
-        .history-list {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-        
-        .history-item {
-            background: var(--bg);
-            padding: 20px;
-            border-radius: 18px;
-            border-left: 6px solid var(--secondary);
-            transition: all 0.3s;
-            animation: slideIn 0.4s ease-out;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateX(-30px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-        
-        .history-item:hover {
-            transform: translateX(8px);
-            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
-        }
-        
-        .history-item.expense {
-            border-left-color: var(--accent);
-        }
-        
-        .history-info {
-            flex: 1;
-        }
-        
-        .history-date {
-            font-size: 13px;
-            color: #666;
-            margin-bottom: 8px;
-            font-weight: 700;
-        }
-        
-        .history-desc {
-            font-weight: 700;
-            font-size: 16px;
-            margin-bottom: 5px;
-        }
-        
-        .history-stars {
-            font-size: 28px;
-            font-weight: 900;
-            margin-right: 15px;
-        }
-        
-        .history-stars.positive {
-            color: var(--success);
-        }
-        
-        .history-stars.negative {
-            color: var(--accent);
-        }
-        
-        .delete-btn {
-            background: var(--accent);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            padding: 10px 15px;
-            font-size: 20px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .delete-btn:hover {
-            transform: scale(1.1);
-        }
-        
-        .rewards-grid {
-            display: grid;
-            gap: 15px;
-        }
-        
-        .reward-item {
-            background: var(--bg);
-            padding: 20px;
-            border-radius: 18px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: all 0.3s;
-        }
-        
-        .reward-item:hover {
-            transform: scale(1.02);
-            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
-        }
-        
-        .reward-name {
-            font-weight: 700;
-            font-size: 16px;
-        }
-        
-        .reward-cost {
-            color: var(--secondary);
-            font-size: 24px;
-            font-weight: 900;
-        }
-        
-        .reward-btn {
-            padding: 10px 20px;
-            background: var(--primary);
-            border: none;
-            border-radius: 12px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .reward-btn:hover {
-            transform: scale(1.1);
-            box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
-        }
-        
-        .reward-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        
-        .achievement-card {
-            background: var(--bg);
-            padding: 18px;
-            border-radius: 18px;
-            margin-bottom: 15px;
-            border: 4px solid transparent;
-            transition: all 0.3s;
-        }
-        
-        .achievement-icon-large {
-            font-size: 48px;
-            margin-right: 15px;
-            font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
-        }
-        
-        .achievement-info {
-            flex: 1;
-        }
-        
-        .achievement-best {
-            font-size: 12px;
-            color: #999;
-            margin-top: 4px;
-        }
-        
-        .achievement-levels-info {
-            font-size: 10px;
-            color: #999;
-            margin-top: 8px;
-            line-height: 1.4;
-        }
-        
-        .achievement-card.bronze {
-            border-color: #CD7F32;
-            box-shadow: 0 4px 12px rgba(205, 127, 50, 0.2);
-        }
-        
-        .achievement-card.silver {
-            border-color: #C0C0C0;
-            box-shadow: 0 4px 12px rgba(192, 192, 192, 0.2);
-        }
-        
-        .achievement-card.gold {
-            border-color: #FFD700;
-            box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
-        }
-        
-        .achievement-card.unlocked {
-            background: linear-gradient(135deg, #FFF9E6 0%, #FFE5B4 100%);
-            border-width: 3px;
-            opacity: 0.9;
-        }
-        
-        .achievement-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-        
-        .achievement-name {
-            font-size: 17px;
-            font-weight: 900;
-            color: var(--secondary);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .achievement-reward {
-            font-size: 15px;
-            font-weight: 900;
-            color: var(--success);
-        }
-        
-        .achievement-desc {
-            font-size: 13px;
-            color: #666;
-            margin-bottom: 12px;
-            line-height: 1.4;
-        }
-        
-        .achievement-progress-bar {
-            background: #E0E0E0;
-            height: 24px;
-            border-radius: 12px;
-            overflow: hidden;
-            position: relative;
-            margin-bottom: 8px;
-        }
-        
-        .achievement-progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--secondary), var(--primary));
-            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .achievement-progress-text {
-            color: white;
-            font-size: 12px;
-            font-weight: 900;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
-        }
-        
-        .achievement-status {
-            font-size: 11px;
-            color: #999;
-            text-align: right;
-        }
-        
-        .achievement-status.completed {
-            color: var(--success);
-            font-weight: 700;
-        }
-        
-        .achievements-section-title {
-            font-size: 16px;
-            font-weight: 900;
-            color: var(--secondary);
-            margin: 20px 0 15px 0;
-            padding-bottom: 8px;
-            border-bottom: 2px solid var(--primary);
-        }
-        
-        .badge-container {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            margin-top: 10px;
-        }
-        
-        .badge {
-            width: 50px;
-            height: 50px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-            background: var(--bg);
-            border: 3px solid transparent;
-            transition: all 0.3s;
-        }
-        
-        .badge.bronze { border-color: #CD7F32; }
-        .badge.silver { border-color: #C0C0C0; }
-        .badge.gold { border-color: #FFD700; }
-        
-        .badge:hover {
-            transform: scale(1.1);
-        }
-        
-        .achievements-home {
-            background: var(--bg);
-            padding: 12px 15px;
-            border-radius: 15px;
-            margin-top: 12px;
-            position: relative;
-        }
-        
-        .achievement-tooltip {
-            position: fixed;
-            background: rgba(0, 0, 0, 0.9);
-            color: white;
-            padding: 12px 16px;
-            border-radius: 12px;
-            font-size: 13px;
-            font-weight: 700;
-            z-index: 10000;
-            max-width: 250px;
-            text-align: center;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.3);
-            animation: fadeIn 0.2s;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.9); }
-            to { opacity: 1; transform: scale(1); }
-        }
-        
-        .streak-display {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            font-size: 15px;
-            font-weight: 900;
-            color: var(--secondary);
-            margin-bottom: 10px;
-        }
-        
-
-        
-        .streak-fire {
-            font-size: 24px;
-            animation: flicker 1.5s infinite;
-        }
-        
-        @keyframes flicker {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.8; transform: scale(1.1); }
-        }
-        
-        .badges-home {
-            display: flex;
-            gap: 6px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-        
-        .badge-home {
-            width: 45px;
-            height: 45px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
-            background: linear-gradient(135deg, #FFF9E6 0%, #FFE5B4 100%);
-            border: 2px solid transparent;
-            transition: all 0.3s;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-        }
-        
-        .badge-home.bronze { border-color: #CD7F32; }
-        .badge-home.silver { border-color: #C0C0C0; }
-        .badge-home.gold { border-color: #FFD700; }
-        
-        .badge-home:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-        }
-        
-        .chart-container {
-            background: var(--bg);
-            padding: 20px;
-            border-radius: 18px;
-            margin-top: 20px;
-            height: 320px;
-            position: relative;
-            overflow-x: auto;
-            overflow-y: hidden;
-        }
-        
-        .chart-container::-webkit-scrollbar {
-            height: 8px;
-        }
-        
-        .chart-container::-webkit-scrollbar-track {
-            background: #E0E0E0;
-            border-radius: 4px;
-        }
-        
-        .chart-container::-webkit-scrollbar-thumb {
-            background: var(--primary);
-            border-radius: 4px;
-        }
-        
-        .chart-wrapper {
-            min-width: 100%;
-            height: 100%;
-            position: relative;
-        }
-        
-        .chart {
-            width: 100%;
-            height: 100%;
-        }
-        
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: #999;
-        }
-        
-        .empty-icon {
-            font-size: 72px;
-            margin-bottom: 20px;
-            opacity: 0.3;
-        }
-        
-        .login-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.9);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            animation: fadeIn 0.3s;
-        }
-        
-        .login-box {
-            background: var(--card);
-            padding: 40px;
-            border-radius: var(--radius);
-            max-width: 400px;
-            width: 90%;
-            text-align: center;
-            animation: scaleIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        @keyframes scaleIn {
-            from { opacity: 0; transform: scale(0.8); }
-            to { opacity: 1; transform: scale(1); }
-        }
-        
-        .login-box h2 {
-            font-family: 'Caveat', cursive;
-            font-size: 36px;
-            color: var(--secondary);
-            margin-bottom: 30px;
-        }
-        
-        .login-buttons {
-            display: grid;
-            gap: 15px;
-        }
-        
-        .login-btn {
-            padding: 25px;
-            font-size: 20px;
-            font-weight: 900;
-            background: linear-gradient(135deg, var(--primary), #FFA500);
-            color: var(--secondary);
-            border: none;
-            border-radius: 18px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .login-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 8px 24px rgba(255, 215, 0, 0.4);
-        }
-        
-        .login-btn.child {
-            background: linear-gradient(135deg, var(--secondary), #4A90E2);
-            color: white;
-        }
-        
-        .pin-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.9);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 1001;
-        }
-        
-        .pin-box {
-            background: var(--card);
-            padding: 40px;
-            border-radius: var(--radius);
-            max-width: 400px;
-            width: 90%;
-            text-align: center;
-        }
-        
-        .pin-box h2 {
-            font-family: 'Caveat', cursive;
-            font-size: 36px;
-            color: var(--secondary);
-            margin-bottom: 20px;
-        }
-        
-        .pin-input {
-            font-size: 32px;
-            text-align: center;
-            letter-spacing: 20px;
-            padding: 20px;
-            margin: 20px 0;
-        }
-        
-        .pin-buttons {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            margin-top: 20px;
-        }
-        
-        .pin-btn {
-            padding: 20px;
-            font-size: 24px;
-            font-weight: 900;
-            background: var(--bg);
-            border: 3px solid var(--primary);
-            border-radius: 15px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        
-        .pin-btn:hover {
-            background: var(--primary);
-            transform: scale(1.05);
-        }
-        
-        .pin-btn:active {
-            transform: scale(0.95);
-        }
-        
-        .instructions {
-            line-height: 1.8;
-        }
-        
-        .instructions h3 {
-            color: var(--secondary);
-            margin: 25px 0 15px 0;
-            font-size: 20px;
-        }
-        
-        .instructions ul {
-            margin-left: 20px;
-        }
-        
-        .instructions li {
-            margin-bottom: 10px;
-        }
-        
-        .month-selector {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            align-items: center;
-        }
-        
-        .month-btn {
-            padding: 10px 20px;
-            background: var(--bg);
-            border: 2px solid var(--secondary);
-            border-radius: 12px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .month-btn:hover {
-            background: var(--primary);
-        }
-        
-        .month-btn:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-            border-color: #ccc;
-        }
-        
-        .month-btn:disabled:hover {
-            background: var(--bg);
-        }
-        
-        .month-display {
-            flex: 1;
-            text-align: center;
-            font-size: 18px;
-            font-weight: 900;
-            color: var(--secondary);
-        }
-        
-        .quick-actions {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            margin-bottom: 30px;
-        }
-        
-        .quick-action-btn {
-            padding: 20px;
-            background: var(--bg);
-            border: 3px solid var(--secondary);
-            border-radius: 18px;
-            font-weight: 900;
-            font-size: 16px;
-            cursor: pointer;
-            transition: all 0.3s;
-            color: var(--secondary);
-        }
-        
-        .quick-action-btn:hover {
-            background: var(--primary);
-            transform: scale(1.05);
-        }
-        
-        .quick-action-btn.active {
-            background: var(--primary);
-            border-color: var(--primary);
-        }
-        
-        @media (max-width: 600px) {
-            .container {
-                padding: 15px;
-            }
-            
-            .header {
-                padding: 20px;
-            }
-            
-            .logo {
-                font-size: 28px;
-            }
-            
-            .balance {
-                font-size: 44px;
-            }
-            
-            .content {
-                padding: 20px;
-            }
-            
-            .tabs {
-                gap: 8px;
-            }
-            
-            .tab {
-                min-width: 100px;
-                padding: 12px 15px;
-                font-size: 14px;
-            }
-        }
-        
-        .hidden {
-            display: none !important;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <!-- Початковий екран входу -->
@@ -1995,296 +617,52 @@
 
     <!-- Firebase SDK -->
     <script type="module">
+        // ── Імпорти Firebase ──────────────────────────────────────
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
         import { getDatabase, ref, set, get, onValue } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyBv_Lm_p-laB5cq1FiJ59q5IcTKVuGE0H0",
-            authDomain: "zirky-uspihu.firebaseapp.com",
-            databaseURL: "https://zirky-uspihu-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "zirky-uspihu",
-            storageBucket: "zirky-uspihu.firebasestorage.app",
-            messagingSenderId: "1034534533154",
-            appId: "1:1034534533154:web:7bfefc2f6fbd1e782f727b"
-        };
+        // ── Імпорти модулів ───────────────────────────────────────
+        import { state } from './state.js';
+        import { firebaseConfig, ACHIEVEMENTS, rewards, gradeToStars } from './config.js';
+        import { showPinInput, enterAsChild, addPin, clearPin, cancelPin,
+                 checkPin, changePin, showRewardPin, addRewardPin, clearRewardPin,
+                 cancelRewardPin, checkRewardPin, togglePeriod } from './auth.js';
+        import { recalculateAchievements, checkWeeklyAchievements,
+                 removeRewardsForLostAchievements, giveRewardsForNewAchievements,
+                 updateAchievementCounters, checkAndUnlockAchievements,
+                 renderAchievements, renderAchievementsHome,
+                 shouldSkipDayForStreak } from './achievements.js';
+        import { renderGoal, showGoalModal, cancelGoal, saveGoal, deleteGoal } from './goals.js';
+        import { addFreezePeriod, deleteFreezePeriod, editFreezePeriod,
+                 renderFreezePeriods } from './freeze.js';
+        import { initFirebase, saveData } from './firebase.js';
+        import { getTodayDate, setTodayDates } from './utils.js';
+        import { switchTab, showForm, showLoading, updateUI } from './ui.js';
+        import { addGradeRecord, addDiagnosticWork, addBonusRecord,
+                 addSpecialRecord, deleteRecord, getSubjectEmoji } from './records.js';
+        import { renderHistory, changeMonth } from './history.js';
+        import { renderRewards, buyReward, buyCustomReward, doCustomReward,
+                 buyRewardWithPin } from './rewards.js';
+        import { renderStats, updateChart, changeChartPeriod, changeChartOffset,
+                 checkStreakWarning } from './stats.js';
+        import { showDataInfo, exportData, importData, resetAllData,
+                 adjustBalance } from './settings.js';
 
+        // ── Ініціалізація Firebase ─────────────────────────────────
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // Показуємо індикатор завантаження
 
-        // ════════════════════════════════════════════════════════════
-        // 🖥️  БЛОК: UI / Навігація
-        // ════════════════════════════════════════════════════════════
-                function showLoading(show) {
-            document.getElementById('loadingOverlay').style.display = show ? 'flex' : 'none';
-        }
-
-        let data = {
-            records: [],
-            balance: 0,
-            pin: '1234',
-            isParent: false,
-            goal: null,  // { name: string, target: number, emoji: string }
-            achievements: {
-                counters: {},  // grades_12: 5, books: 2
-                streaks: {},   // earning: {current: 7, best: 12, lastDate: "2026-04-11"}
-                levels: {},    // {"відмінник": 2, "книголюб": 1} - поточний рівень
-                weekly: {},    // "2026-W15": {"швидкий_старт": 2}
-                repeatableHistory: {},  // {"чистюля": {1: 3, 2: 1}} - скільки разів отримано кожен рівень
-                freezePeriods: []  // [{ from: "2026-04-21", until: "2026-04-30" }] - всі періоди канікул
-            }
-        };
-
-        const rewards = [
-            { name: '+30 хв смартфону', cost: 10 },
-            { name: "Вихідний без обов'язків", cost: 50 },
-            { name: '50 грн', cost: 50 }
-        ];
-        
-        // Визначення всіх досягнень (з рівнями)
-        const ACHIEVEMENTS = {
-            "відмінник": {
-                name: "Відмінник",
-                icon: "🎓",
-                desc: "Збирай оцінки «12» з будь-яких предметів",
-                levels: [
-                    { tier: "bronze", target: 5, reward: 50, desc: "5 дванадцяток" },
-                    { tier: "silver", target: 20, reward: 200, desc: "20 дванадцяток" },
-                    { tier: "gold", target: 100, reward: 1000, desc: "100 дванадцяток" }
-                ],
-                type: "cumulative",
-                counter: "grades_12"
-            },
-            "книголюб": {
-                name: "Книголюб",
-                icon: "📚",
-                desc: "Читай книги та розвивайся",
-                levels: [
-                    { tier: "bronze", target: 5, reward: 20, desc: "5 книг" },
-                    { tier: "silver", target: 10, reward: 40, desc: "10 книг" },
-                    { tier: "gold", target: 20, reward: 100, desc: "20 книг" }
-                ],
-                type: "cumulative",
-                counter: "books"
-            },
-            "fire_streak": {
-                name: "Fire Streak",
-                icon: "🔥",
-                desc: "Заробляй зірки кожен день без перерв",
-                levels: [
-                    { tier: "bronze", target: 7, reward: 50, desc: "7 днів" },
-                    { tier: "silver", target: 14, reward: 100, desc: "14 днів" },
-                    { tier: "gold", target: 30, reward: 300, desc: "30 днів" }
-                ],
-                type: "streak",
-                streak: "earning"
-            },
-            "ощадливий": {
-                name: "Ощадливий",
-                icon: "💰",
-                desc: "Накопичуй зірки на балансі",
-                levels: [
-                    { tier: "bronze", target: 200, reward: 10, desc: "200⭐" },
-                    { tier: "silver", target: 500, reward: 30, desc: "500⭐" },
-                    { tier: "gold", target: 1000, reward: 50, desc: "1000⭐" }
-                ],
-                type: "balance"
-            },
-            "транжира": {
-                name: "Транжира",
-                icon: "💸",
-                desc: "Витрачай зірки на винагороди",
-                levels: [
-                    { tier: "bronze", target: 300, reward: 10, desc: "300⭐" },
-                    { tier: "silver", target: 700, reward: 20, desc: "700⭐" },
-                    { tier: "gold", target: 1000, reward: 40, desc: "1000⭐" }
-                ],
-                type: "cumulative",
-                counter: "total_spent"
-            },
-            "чистюля": {
-                name: "Чистюля",
-                icon: "🦷",
-                desc: "Чисти зуби 2 рази на добу",
-                levels: [
-                    { tier: "bronze", target: 5, reward: 20, desc: "5 днів" },
-                    { tier: "silver", target: 10, reward: 50, desc: "10 днів" },
-                    { tier: "gold", target: 30, reward: 100, desc: "30 днів" }
-                ],
-                type: "repeatable_streak",
-                streak: "teeth"
-            },
-            "красуня": {
-                name: "Красуня",
-                icon: "🪮",
-                desc: "Причесуйся кожен день",
-                levels: [
-                    { tier: "bronze", target: 3, reward: 10, desc: "3 дні" },
-                    { tier: "silver", target: 5, reward: 20, desc: "5 днів" },
-                    { tier: "gold", target: 7, reward: 30, desc: "7 днів" }
-                ],
-                type: "repeatable_streak",
-                streak: "hair"
-            },
-            "швидкий_старт": {
-                name: "Швидкий старт",
-                icon: "🚀",
-                desc: "Заробляй багато зірок за тиждень",
-                levels: [
-                    { tier: "bronze", target: 50, reward: 5, desc: "50⭐" },
-                    { tier: "silver", target: 100, reward: 10, desc: "100⭐" },
-                    { tier: "gold", target: 150, reward: 20, desc: "150⭐" }
-                ],
-                type: "weekly"
-            },
-            "ціленаправлений": {
-                name: "Ціленаправлений",
-                icon: "🎯",
-                desc: "Досягни своєї мети",
-                levels: [
-                    { tier: "gold", reward: 20, desc: "Перша мета" }
-                ],
-                type: "special",
-                check: "goal_reached"
-            }
-        };
-
-        const gradeToStars = {
-            '12': 5,
-            '11': 4,
-            '10': 3,
-            '9': 2,
-            '8': 1
-        };
-
-        let currentViewMonth = new Date();
-        let pinValue = '';
-        let showPeriod = 'month'; // 'month' або 'all'
-        let chartPeriod = 'week'; // 'week', 'month', 'year'
-        let chartOffset = 0; // 0 = поточний період, -1 = попередній, і т.д.
 
         // Рендеринг досягнень на головній сторінці
-        function renderAchievementsHome() {
-            const container = document.getElementById('achievementsHome');
-            if (!container) return;
-            
-            initAchievements();
-            
-            // Fire Streak
-            const streak = data.achievements.streaks?.earning || { current: 0, best: 0 };
-            const showStreak = streak.current > 0;
-            
-            // Останні отримані досягнення (максимум 5)
-            const levels = data.achievements.levels || {};
-            const achievedAchievements = Object.keys(levels).filter(id => levels[id] > 0);
-            
-            // Сортуємо по рівню (вищі рівні спочатку)
-            achievedAchievements.sort((a, b) => (levels[b] || 0) - (levels[a] || 0));
-            const lastUnlocked = achievedAchievements.slice(0, 5);
-            
-            if (!showStreak && lastUnlocked.length === 0) {
-                container.innerHTML = ''; // Нічого не показуємо
-                return;
-            }
-            
-            let html = '<div class="achievements-home">';
-            
-            // Fire Streak
-            if (showStreak) {
-                const daysWord = streak.current === 1 ? 'день' : streak.current < 5 ? 'дні' : 'днів';
-                
-                // Перевіряємо чи є активні періоди канікул
-                const today = new Date();
-                today.setHours(0, 0, 0, 0);
-                const periods = data.achievements.freezePeriods || [];
-                const activePeriod = periods.find(p => {
-                    const until = new Date(p.until);
-                    until.setHours(23, 59, 59, 999);
-                    return until >= today;
-                });
-                
-                let freezeText = '';
-                if (activePeriod) {
-                    const fromStr = new Date(activePeriod.from).toLocaleDateString('uk-UA', {day: '2-digit', month: '2-digit'});
-                    const untilStr = new Date(activePeriod.until).toLocaleDateString('uk-UA', {day: '2-digit', month: '2-digit'});
-                    freezeText = ` (❄️ ${fromStr}-${untilStr})`;
-                }
-                
-                html += `
-                    <div class="streak-display">
-                        <span class="streak-fire">🔥</span>
-                        <span>Серія: ${streak.current} ${daysWord}${freezeText}</span>
-
-                    </div>
-                `;
-            }
-            
-            // Бейджі досягнень
-            if (lastUnlocked.length > 0) {
-                html += '<div class="badges-home">';
-                lastUnlocked.forEach(achId => {
-                    const ach = ACHIEVEMENTS[achId];
-                    if (ach) {
-                        // Використовуємо іконку досягнення
-                        const currentLevel = data.achievements.levels[achId] || 0;
-                        const tier = currentLevel === 0 ? '' : ach.levels[currentLevel - 1].tier;
-                        html += `<div class="badge-home ${tier}" data-ach-id="${achId}">${ach.icon}</div>`;
-                    }
-                });
-                html += '</div>';
-            }
-            
-            html += '</div>';
-            container.innerHTML = html;
-            
-// Додаємо event listeners для бейджів (для мобільних)
-            setTimeout(() => {
-                document.querySelectorAll('.badge-home').forEach(badge => {
-                    badge.addEventListener('click', function(e) {
-                        const achId = this.getAttribute('data-ach-id');
-                        const ach = ACHIEVEMENTS[achId];
-                        if (!ach) return;
-                        
-                        // Видаляємо старий tooltip якщо є
-                        const oldTooltip = document.querySelector('.achievement-tooltip');
-                        if (oldTooltip) oldTooltip.remove();
-                        
-                        // Створюємо tooltip
-                        const tooltip = document.createElement('div');
-                        tooltip.className = 'achievement-tooltip';
-                        tooltip.innerHTML = `${ach.name}<br><small style="font-size: 11px; opacity: 0.9;">${ach.desc}</small>`;
-                        document.body.appendChild(tooltip);
-                        
-                        // Позиціонуємо по центру екрану
-                        const rect = this.getBoundingClientRect();
-                        tooltip.style.left = '50%';
-                        tooltip.style.top = (rect.top - tooltip.offsetHeight - 10) + 'px';
-                        tooltip.style.transform = 'translateX(-50%)';
-                        
-                        // Автоматично прибираємо через 3 секунди
-                        setTimeout(() => tooltip.remove(), 3000);
-                        
-                        // Або по кліку поза tooltip
-                        setTimeout(() => {
-                            document.addEventListener('click', function removeTooltip(e) {
-                                if (!tooltip.contains(e.target) && e.target !== badge) {
-                                    tooltip.remove();
-                                    document.removeEventListener('click', removeTooltip);
-                                }
-                            });
-                        }, 100);
-                    });
-                });
-            }, 100);
-        }
+        // renderAchievementsHome → achievements.js
         
         // Функції роботи з метою
         function renderGoal() {
             const container = document.getElementById('goalContainer');
             
-            if (!data.goal || !data.goal.name || !data.goal.target) {
-                if (data.isParent) {
+            if (!state.data.goal || !state.data.goal.name || !state.data.goal.target) {
+                if (state.data.isParent) {
                     container.innerHTML = `
                         <div class="goal-container">
                             <div class="no-goal">
@@ -2299,14 +677,14 @@
                 return;
             }
             
-            const current = Number(data.balance);
-            const target = Number(data.goal.target);
+            const current = Number(state.data.balance);
+            const target = Number(state.data.goal.target);
             const percent = Math.min((current / target) * 100, 100);
-            const emoji = data.goal.emoji || '🎯';
+            const emoji = state.data.goal.emoji || '🎯';
             
             // Прогноз (на основі середнього за останні 7 днів)
             const now = new Date();
-            const last7Days = (data.records || []).filter(r => {
+            const last7Days = (state.data.records || []).filter(r => {
                 const d = new Date(r.date);
                 const diff = (now - d) / (1000 * 60 * 60 * 24);
                 return diff <= 7 && r.type === 'earn';
@@ -2315,7 +693,7 @@
             const remaining = Math.max(target - current, 0);
             const daysLeft = avgPerDay > 0 ? Math.ceil(remaining / avgPerDay) : '?';
             
-            const editBtn = data.isParent ? `<button class="goal-edit-btn" id="editGoalBtn">✏️ Змінити</button>` : '';
+            const editBtn = state.data.isParent ? `<button class="goal-edit-btn" id="editGoalBtn">✏️ Змінити</button>` : '';
             
             let statusText = '';
             if (remaining <= 0) {
@@ -2332,7 +710,7 @@
                     <div class="goal-header">
                         <div class="goal-title">
                             <span class="goal-emoji">${emoji}</span>
-                            <span>${data.goal.name}</span>
+                            <span>${state.data.goal.name}</span>
                         </div>
                         ${editBtn}
                     </div>
@@ -2353,10 +731,10 @@
         // 🎯  БЛОК: Цілі
         // ════════════════════════════════════════════════════════════
                 function showGoalModal() {
-            if (data.goal) {
-                document.getElementById('goalName').value = data.goal.name || '';
-                document.getElementById('goalTarget').value = data.goal.target || '';
-                document.getElementById('goalEmoji').value = data.goal.emoji || '';
+            if (state.data.goal) {
+                document.getElementById('goalName').value = state.data.goal.name || '';
+                document.getElementById('goalTarget').value = state.data.goal.target || '';
+                document.getElementById('goalEmoji').value = state.data.goal.emoji || '';
                 document.getElementById('deleteGoalBtn').style.display = 'block';
             } else {
                 document.getElementById('goalName').value = '';
@@ -2393,7 +771,7 @@
                 return;
             }
             
-            data.goal = { name, target, emoji };
+            state.data.goal = { name, target, emoji };
             saveData();
             document.getElementById('goalModal').style.display = 'none';
             renderGoal();
@@ -2402,7 +780,7 @@
         
         function deleteGoal() {
             if (confirm('Видалити мету? Прогрес не втратиться.')) {
-                data.goal = null;
+                state.data.goal = null;
                 saveData();
                 document.getElementById('goalModal').style.display = 'none';
                 renderGoal();
@@ -2413,724 +791,7 @@
         
         // Ініціалізація лічильників при завантаженні
 
-        // ════════════════════════════════════════════════════════════
-        // 🏆  БЛОК: Досягнення
-        // ════════════════════════════════════════════════════════════
-                function initAchievements() {
-            if (!data.achievements) {
-                data.achievements = { counters: {}, streaks: {}, levels: {}, weekly: {} };
-            }
-            if (!data.achievements.counters) data.achievements.counters = {};
-            if (!data.achievements.streaks) data.achievements.streaks = {};
-            if (!data.achievements.levels) data.achievements.levels = {};
-            if (!data.achievements.weekly) data.achievements.weekly = {};
-            if (!data.achievements.repeatableHistory) data.achievements.repeatableHistory = {};
-            if (!data.achievements.freezePeriods) data.achievements.freezePeriods = [];
-        }
-        
-        // ПОВНЕ перерахунок всіх досягнень з нуля
-        function recalculateAchievements() {
-            initAchievements();
-            
-            // Скидаємо всі лічильники
-            data.achievements.counters = {};
-            data.achievements.streaks = {};
-            
-            // Проходимо ВСІ записи в хронологічному порядку
-            const sortedRecords = [...(data.records || [])].sort((a, b) => 
-                new Date(a.date) - new Date(b.date)
-            );
-            
-            sortedRecords.forEach(record => {
-                // Оцінка 12
-                if (record.category === 'grade' && record.grade === '12') {
-                    data.achievements.counters.grades_12 = (data.achievements.counters.grades_12 || 0) + 1;
-                }
-                
-                // Книги
-                if (record.description && record.description.includes('Прочитав книгу')) {
-                    data.achievements.counters.books = (data.achievements.counters.books || 0) + 1;
-                }
-                
-                // Витрати (для Транжира)
-                if (record.type === 'spend') {
-                    data.achievements.counters.total_spent = (data.achievements.counters.total_spent || 0) + record.stars;
-                }
-                
-                // Earning streak
-                if (record.type === 'earn' && record.category !== 'achievement') {
-                    const recordDate = new Date(record.date);
-                    const recordDay = recordDate.toDateString();
-                    const streak = data.achievements.streaks.earning || { current: 0, best: 0, lastDate: null };
-                    
-                    if (streak.lastDate === recordDay) {
-                        // Сьогодні вже заробляв - нічого не робимо
-                    } else if (streak.current === 0) {
-                        // Перший запис - починаємо streak
-                        streak.current = 1;
-                        streak.lastDate = recordDay;
-                    } else {
-                        // Перевіряємо скільки днів пройшло
-                        const lastDate = new Date(streak.lastDate);
-                        const daysDiff = Math.floor((recordDate - lastDate) / (1000 * 60 * 60 * 24));
-                        
-                        if (daysDiff === 1) {
-                            // Наступний день - продовжуємо
-                            streak.current += 1;
-                            streak.best = Math.max(streak.best, streak.current);
-                            streak.lastDate = recordDay;
-                        } else if (daysDiff > 1) {
-                            // Пропуск - перевіряємо чи це вихідні/канікули
-                            let allSkippable = true;
-                            for (let i = 1; i < daysDiff; i++) {
-                                const checkDate = new Date(lastDate);
-                                checkDate.setDate(lastDate.getDate() + i);
-                                if (!shouldSkipDayForStreak(checkDate, 'grade')) {
-                                    allSkippable = false;
-                                    break;
-                                }
-                            }
-                            
-                            if (allSkippable) {
-                                // Всі пропущені дні - вихідні/канікули - продовжуємо
-                                streak.current += 1;
-                                streak.best = Math.max(streak.best, streak.current);
-                            } else {
-                                // Був будній день без запису - скидаємо
-                                streak.current = 1;
-                            }
-                            streak.lastDate = recordDay;
-                        } else {
-                            // Невідомий випадок - скидаємо
-                            streak.current = 1;
-                            streak.lastDate = recordDay;
-                        }
-                    }
-                    
-                    data.achievements.streaks.earning = streak;
-                }
-            });
-            
-            // Підрахунок teeth streak (2 рази на добу N днів підряд)
-            const dayGroups = {};
-            sortedRecords.forEach(record => {
-                const day = record.date.split('T')[0]; // тільки дата без часу
-                if (!dayGroups[day]) dayGroups[day] = [];
-                dayGroups[day].push(record);
-            });
-            
-            const allDays = Object.keys(dayGroups).sort();
-            let teethStreak = { current: 0, best: 0 };
-            let hairStreak = { current: 0, best: 0 };
-            let lastDay = null;
-            
-            allDays.forEach(day => {
-                const records = dayGroups[day];
-                const teethCount = records.filter(r => r.description && r.description.includes('Почистити зуби')).length;
-                const hairCount = records.filter(r => r.description && r.description.includes('Причесати волосся')).length;
-                
-                // Teeth streak
-                if (teethCount >= 2) {
-                    if (lastDay) {
-                        const yesterday = new Date(day);
-                        yesterday.setDate(yesterday.getDate() - 1);
-                        const yesterdayStr = yesterday.toISOString().split('T')[0];
-                        
-                        if (lastDay === yesterdayStr) {
-                            teethStreak.current += 1;
-                        } else {
-                            teethStreak.current = 1;
-                        }
-                    } else {
-                        teethStreak.current = 1;
-                    }
-                    teethStreak.best = Math.max(teethStreak.best, teethStreak.current);
-                } else {
-                    teethStreak.current = 0;
-                }
-                
-                // Hair streak
-                if (hairCount >= 1) {
-                    if (lastDay) {
-                        const yesterday = new Date(day);
-                        yesterday.setDate(yesterday.getDate() - 1);
-                        const yesterdayStr = yesterday.toISOString().split('T')[0];
-                        
-                        if (lastDay === yesterdayStr) {
-                            hairStreak.current += 1;
-                        } else {
-                            hairStreak.current = 1;
-                        }
-                    } else {
-                        hairStreak.current = 1;
-                    }
-                    hairStreak.best = Math.max(hairStreak.best, hairStreak.current);
-                } else {
-                    hairStreak.current = 0;
-                }
-                
-                lastDay = day;
-            });
-            
-            data.achievements.streaks.teeth = teethStreak;
-            data.achievements.streaks.hair = hairStreak;
-            
-            // Визначаємо поточний рівень для кожного досягнення
-            Object.keys(ACHIEVEMENTS).forEach(achId => {
-                const ach = ACHIEVEMENTS[achId];
-                let currentValue = 0;
-                
-                // Отримуємо поточне значення
-                if (ach.type === 'cumulative') {
-                    currentValue = data.achievements.counters[ach.counter] || 0;
-                } else if (ach.type === 'streak') {
-                    const streak = data.achievements.streaks[ach.streak] || { current: 0 };
-                    currentValue = streak.current;
-                } else if (ach.type === 'balance') {
-                    currentValue = Number(data.balance) || 0;
-                } else if (ach.type === 'special') {
-                    if (ach.check === 'goal_reached' && data.goal) {
-                        const currentBalance = Number(data.balance) || 0;
-                        currentValue = currentBalance >= data.goal.target ? data.goal.target : 0;
-                    }
-                } else if (ach.type === 'weekly') {
-                    // Для weekly рахуємо зірки за поточний тиждень
-                    const now = new Date();
-                    const dayOfWeek = now.getDay();
-                    const daysFromMonday = (dayOfWeek === 0 ? 6 : dayOfWeek - 1);
-                    const weekStart = new Date(now);
-                    weekStart.setDate(now.getDate() - daysFromMonday);
-                    weekStart.setHours(0, 0, 0, 0);
-                    
-                    const weekRecords = (data.records || []).filter(r => {
-                        const d = new Date(r.date);
-                        return d >= weekStart && r.type === 'earn' && r.category !== 'achievement';
-                    });
-                    currentValue = weekRecords.reduce((sum, r) => sum + r.stars, 0);
-                }
-                
-                // Визначаємо поточний рівень (0 якщо не досягнуто жодного)
-                let achievedLevel = 0;
-                for (let i = 0; i < ach.levels.length; i++) {
-                    const level = ach.levels[i];
-                    const target = ach.type === 'special' && ach.check === 'goal_reached' 
-                        ? (data.goal?.target || Infinity) 
-                        : level.target;
-                    
-                    if (currentValue >= target) {
-                        achievedLevel = i + 1; // рівні нумеруються з 1
-                    } else {
-                        break; // не досягнуто цього рівня - припиняємо
-                    }
-                }
-                
-                // Зберігаємо поточний рівень
-                if (achievedLevel > 0) {
-                    data.achievements.levels[achId] = achievedLevel;
-                } else {
-                    delete data.achievements.levels[achId]; // не досягнуто жодного рівня
-                }
-            });
-        }
-        
-        // Перевірка тижневих досягнень (Швидкий старт)
-        function checkWeeklyAchievements() {
-            initAchievements();
-            
-            // Отримуємо номер поточного тижня
-            const now = new Date();
-            const startOfYear = new Date(now.getFullYear(), 0, 1);
-            const dayOfYear = Math.floor((now - startOfYear) / (1000 * 60 * 60 * 24));
-            const weekNum = Math.ceil((dayOfYear + 1) / 7);
-            const weekKey = `${now.getFullYear()}-W${weekNum}`;
-            
-            // Знаходимо понеділок цього тижня
-            const dayOfWeek = now.getDay();
-            const daysFromMonday = (dayOfWeek === 0 ? 6 : dayOfWeek - 1);
-            const weekStart = new Date(now);
-            weekStart.setDate(now.getDate() - daysFromMonday);
-            weekStart.setHours(0, 0, 0, 0);
-            
-            const weekEnd = new Date(weekStart);
-            weekEnd.setDate(weekStart.getDate() + 6);
-            weekEnd.setHours(23, 59, 59, 999);
-            
-            // Рахуємо зірки за цей тиждень (без досягнень)
-            const weekRecords = (data.records || []).filter(r => {
-                const d = new Date(r.date);
-                return d >= weekStart && d <= weekEnd && r.type === 'earn' && r.category !== 'achievement';
-            });
-            
-            const weekStars = weekRecords.reduce((sum, r) => sum + r.stars, 0);
-            
-            // Перевіряємо кожне тижневе досягнення
-            const newWeeklyUnlocks = [];
-            Object.keys(ACHIEVEMENTS).forEach(achId => {
-                const ach = ACHIEVEMENTS[achId];
-                if (ach.type !== 'weekly') return;
-                
-                // Перевіряємо який рівень досягнуто
-                const weeklyLevels = data.achievements.weekly[weekKey] || {};
-                const currentWeekLevel = weeklyLevels[achId] || 0;
-                
-                // Визначаємо найвищий досягнутий рівень
-                let achievedLevel = 0;
-                for (let i = 0; i < ach.levels.length; i++) {
-                    if (weekStars >= ach.levels[i].target) {
-                        achievedLevel = i + 1;
-                    } else {
-                        break;
-                    }
-                }
-                
-                // Якщо є нові рівні
-                if (achievedLevel > currentWeekLevel) {
-                    for (let i = currentWeekLevel; i < achievedLevel; i++) {
-                        const level = ach.levels[i];
-                        newWeeklyUnlocks.push({ achId, ach, level, levelNum: i + 1 });
-                    }
-                    
-                    // Оновлюємо рівень за цей тиждень
-                    if (!data.achievements.weekly[weekKey]) {
-                        data.achievements.weekly[weekKey] = {};
-                    }
-                    data.achievements.weekly[weekKey][achId] = achievedLevel;
-                }
-            });
-            
-            // Видаємо бонуси
-            newWeeklyUnlocks.forEach(({ achId, ach, level, levelNum }) => {
-                const tierName = level.tier === 'bronze' ? 'I' : level.tier === 'silver' ? 'II' : 'III';
-                const fullName = `${ach.icon} ${ach.name} ${tierName}`;
-                
-                data.balance = Number(data.balance) + level.reward;
-                data.records.push({
-                    id: Date.now() + Math.random(),
-                    date: new Date().toISOString(),
-                    description: fullName,
-                    stars: level.reward,
-                    type: 'earn',
-                    category: 'achievement'
-                });
-                
-                setTimeout(() => {
-                    alert(`🎉 Тижневе досягнення!
-
-${fullName}
-${level.desc}
-
-+${level.reward}⭐ нараховано!`);
-                }, 500);
-            });
-            
-            return newWeeklyUnlocks.length > 0;
-        }
-        
-        // Видаляємо бонуси за втрачені рівні досягнень
-        function removeRewardsForLostAchievements(levelsBefore) {
-            const levelsAfter = data.achievements.levels || {};
-            
-            // Перевіряємо кожне досягнення
-            Object.keys(levelsBefore).forEach(achId => {
-                const ach = ACHIEVEMENTS[achId];
-                if (!ach) return;
-                
-                // Для repeatable НЕ забираємо бонуси при втраті рівня
-                if (ach.type === 'repeatable_streak') return;
-                
-                const levelBefore = levelsBefore[achId] || 0;
-                const levelAfter = levelsAfter[achId] || 0;
-                
-                // Якщо рівень зменшився - видаляємо бонуси за втрачені рівні
-                if (levelAfter < levelBefore) {
-                    for (let i = levelAfter; i < levelBefore; i++) {
-                        const level = ach.levels[i];
-                        if (!level) continue;
-                        
-                        const tierName = level.tier === 'bronze' ? 'I' : level.tier === 'silver' ? 'II' : 'III';
-                        const fullName = ach.levels.length > 1 ? `${ach.icon} ${ach.name} ${tierName}` : `${ach.icon} ${ach.name}`;
-                        
-                        // Знаходимо записи про цей рівень
-                        const recordsToRemove = data.records.filter(r => 
-                            r.category === 'achievement' && 
-                            r.description === fullName
-                        );
-                        
-                        // Видаляємо
-                        recordsToRemove.forEach(record => {
-                            const index = data.records.indexOf(record);
-                            if (index > -1) {
-                                data.records.splice(index, 1);
-                                data.balance = Number(data.balance) - record.stars;
-                            }
-                        });
-                    }
-                }
-            });
-            
-            // Оновлюємо показ
-            renderAchievementsHome();
-        }
-        
-        // Нараховуємо бонуси за нові рівні досягнень
-        function giveRewardsForNewAchievements(levelsBefore) {
-            const levelsAfter = data.achievements.levels || {};
-            
-            // Перевіряємо кожне досягнення
-            Object.keys(ACHIEVEMENTS).forEach(achId => {
-                const ach = ACHIEVEMENTS[achId];
-                const levelBefore = levelsBefore[achId] || 0;
-                const levelAfter = levelsAfter[achId] || 0;
-                
-                // Для repeatable - перевіряємо чи це повторне отримання
-                const isRepeatable = ach.type === 'repeatable_streak';
-                
-                // Якщо рівень збільшився - даємо бонуси за нові рівні
-                if (levelAfter > levelBefore) {
-                    for (let i = levelBefore; i < levelAfter; i++) {
-                        const level = ach.levels[i];
-                        if (!level) continue;
-                        
-                        const levelNum = i + 1;
-                        const tierName = level.tier === 'bronze' ? 'I' : level.tier === 'silver' ? 'II' : 'III';
-                        const fullName = ach.levels.length > 1 ? `${ach.icon} ${ach.name} ${tierName}` : `${ach.icon} ${ach.name}`;
-                        
-                        // Для repeatable - зберігаємо історію
-                        if (isRepeatable) {
-                            if (!data.achievements.repeatableHistory[achId]) {
-                                data.achievements.repeatableHistory[achId] = {};
-                            }
-                            const count = data.achievements.repeatableHistory[achId][levelNum] || 0;
-                            data.achievements.repeatableHistory[achId][levelNum] = count + 1;
-                            
-                            // Додаємо позначку про повторне отримання
-                            const repeatCount = data.achievements.repeatableHistory[achId][levelNum];
-                            const repeatText = repeatCount > 1 ? ` (×${repeatCount})` : '';
-                            
-                            // Додаємо зірки
-                            data.balance = Number(data.balance) + level.reward;
-                            
-                            // Створюємо запис
-                            data.records.push({
-                                id: Date.now() + Math.random(),
-                                date: new Date().toISOString(),
-                                description: fullName + repeatText,
-                                stars: level.reward,
-                                type: 'earn',
-                                category: 'achievement'
-                            });
-                            
-                            // Показуємо popup
-                            setTimeout(() => {
-                                alert(`🎉 ${repeatCount > 1 ? 'Знову отримано!' : 'Нове досягнення!'}
-
-${fullName}${repeatText}
-${level.desc}
-
-+${level.reward}⭐ нараховано!`);
-                            }, 300);
-                        } else {
-                            // Звичайні досягнення - як раніше
-                            data.balance = Number(data.balance) + level.reward;
-                            
-                            data.records.push({
-                                id: Date.now() + Math.random(),
-                                date: new Date().toISOString(),
-                                description: fullName,
-                                stars: level.reward,
-                                type: 'earn',
-                                category: 'achievement'
-                            });
-                            
-                            setTimeout(() => {
-                                alert(`🎉 Нове досягнення!
-
-${fullName}
-${level.desc}
-
-+${level.reward}⭐ нараховано!`);
-                            }, 300);
-                        }
-                    }
-                }
-            });
-            
-            // Оновлюємо показ
-            renderAchievementsHome();
-        }
-        
-        // Оновлення лічильників після додавання запису
-        function updateAchievementCounters(record) {
-            initAchievements();
-            
-            // Оцінка 12
-            if (record.category === 'grade' && record.grade === '12') {
-                data.achievements.counters.grades_12 = (data.achievements.counters.grades_12 || 0) + 1;
-            }
-            
-            // Книги
-            if (record.description && record.description.includes('Прочитав книгу')) {
-                data.achievements.counters.books = (data.achievements.counters.books || 0) + 1;
-            }
-            
-            // Earning streak - оновлюємо при кожному заробленні зірок
-            if (record.type === 'earn' && record.category !== 'achievement') {
-                const today = new Date(record.date).toDateString();
-                const streak = data.achievements.streaks.earning || { current: 0, best: 0, lastDate: null };
-                
-                if (streak.lastDate === today) {
-                    // Сьогодні вже заробляв - нічого не робимо
-                } else {
-                    const yesterday = new Date(record.date);
-                    yesterday.setDate(yesterday.getDate() - 1);
-                    const yesterdayStr = yesterday.toDateString();
-                    
-                    if (streak.lastDate === yesterdayStr || streak.current === 0) {
-                        // Продовжуємо серію
-                        streak.current += 1;
-                        streak.best = Math.max(streak.best, streak.current);
-                    } else {
-                        // Перерва - починаємо заново
-                        streak.current = 1;
-                    }
-                    streak.lastDate = today;
-                }
-                
-                data.achievements.streaks.earning = streak;
-            }
-        }
-        
-        // Перевірка та видача досягнень
-        function checkAndUnlockAchievements(record) {
-            initAchievements();
-            const newUnlocks = [];
-            
-            Object.keys(ACHIEVEMENTS).forEach(id => {
-                // Якщо вже отримано - пропускаємо
-                if (data.achievements.unlocked.includes(id)) return;
-                
-                const ach = ACHIEVEMENTS[id];
-                let unlocked = false;
-                
-                if (ach.type === 'cumulative') {
-                    const current = data.achievements.counters[ach.counter] || 0;
-                    if (current >= ach.target) unlocked = true;
-                }
-                
-                if (ach.type === 'streak') {
-                    const streak = data.achievements.streaks[ach.streak] || { current: 0 };
-                    if (streak.current >= ach.target) unlocked = true;
-                }
-                
-                if (unlocked) {
-                    data.achievements.unlocked.push(id);
-                    newUnlocks.push({ id, ach });
-                }
-            });
-            
-            // Видаємо бонуси за нові досягнення
-            newUnlocks.forEach(({ id, ach }) => {
-                data.balance = Number(data.balance) + ach.reward;
-                data.records.push({
-                    id: Date.now() + Math.random(),
-                    date: new Date().toISOString(),
-                    description: `${ach.name}`,
-                    stars: ach.reward,
-                    type: 'earn',
-                    category: 'achievement'
-                });
-                
-                // Показуємо popup
-                setTimeout(() => {
-                    alert(`🎉 Нове досягнення!
-
-${ach.name}
-${ach.desc}
-
-+${ach.reward}⭐ нараховано!`);
-                }, 500);
-            });
-            
-            return newUnlocks.length > 0;
-        }
-        
-        // Рендеринг досягнень
-        function renderAchievements() {
-            initAchievements();
-            
-            const achievementsHTML = [];
-            
-            Object.keys(ACHIEVEMENTS).forEach(achId => {
-                const ach = ACHIEVEMENTS[achId];
-                const currentLevel = data.achievements.levels[achId] || 0;
-                
-                // Отримуємо поточне значення
-                let currentValue = 0;
-                let bestValue = 0;
-                
-                if (ach.type === 'cumulative') {
-                    currentValue = data.achievements.counters[ach.counter] || 0;
-                    bestValue = currentValue;
-                } else if (ach.type === 'streak') {
-                    const streak = data.achievements.streaks[ach.streak] || { current: 0, best: 0 };
-                    currentValue = streak.current;
-                    bestValue = streak.best;
-                } else if (ach.type === 'balance') {
-                    currentValue = Number(data.balance) || 0;
-                    bestValue = currentValue;
-                } else if (ach.type === 'weekly') {
-                    // Рахуємо за поточний тиждень
-                    const now = new Date();
-                    const dayOfWeek = now.getDay();
-                    const daysFromMonday = (dayOfWeek === 0 ? 6 : dayOfWeek - 1);
-                    const weekStart = new Date(now);
-                    weekStart.setDate(now.getDate() - daysFromMonday);
-                    weekStart.setHours(0, 0, 0, 0);
-                    
-                    const weekRecords = (data.records || []).filter(r => {
-                        const d = new Date(r.date);
-                        return d >= weekStart && r.type === 'earn' && r.category !== 'achievement';
-                    });
-                    currentValue = weekRecords.reduce((sum, r) => sum + r.stars, 0);
-                    bestValue = currentValue;
-                } else if (ach.type === 'special') {
-                    if (ach.check === 'goal_reached' && data.goal) {
-                        const currentBalance = Number(data.balance) || 0;
-                        currentValue = currentBalance;
-                        bestValue = currentValue;
-                    }
-                }
-                
-                // Визначаємо наступний рівень для прогресу
-                const nextLevelIndex = currentLevel; // індекс наступного рівня (0-based)
-                const nextLevel = ach.levels[nextLevelIndex];
-                
-                // Для weekly перевіряємо чи досягнуто в ПОТОЧНОМУ тижні
-                let allLevelsCompleted = currentLevel >= ach.levels.length;
-                
-                // Для weekly - перевіряємо цей тиждень окремо
-                if (ach.type === 'weekly') {
-                    const now = new Date();
-                    const startOfYear = new Date(now.getFullYear(), 0, 1);
-                    const dayOfYear = Math.floor((now - startOfYear) / (1000 * 60 * 60 * 24));
-                    const weekNum = Math.ceil((dayOfYear + 1) / 7);
-                    const weekKey = `${now.getFullYear()}-W${weekNum}`;
-                    const weeklyLevels = data.achievements.weekly?.[weekKey];
-                    const thisWeekLevel = weeklyLevels?.[achId] || 0;
-                    
-                    allLevelsCompleted = thisWeekLevel >= ach.levels.length;
-                }
-                
-                // Рахуємо прогрес для наступного рівня
-                let progressPercent = 0;
-                let progressText = '';
-                
-                if (allLevelsCompleted && ach.type === 'weekly') {
-                    progressPercent = 100;
-                    progressText = '✅ Всі рівні отримані цього тижня';
-                } else if (allLevelsCompleted) {
-                    progressPercent = 100;
-                    progressText = '✅ Всі рівні досягнуті';
-                } else if (nextLevel) {
-                    const target = ach.type === 'special' && ach.check === 'goal_reached' 
-                        ? (data.goal?.target || nextLevel.target) 
-                        : nextLevel.target;
-                    progressPercent = Math.min((currentValue / target) * 100, 100);
-                    
-                    if (ach.type === 'weekly') {
-                        // Перевіряємо чи отримували цього тижня
-                        const now = new Date();
-                        const startOfYear = new Date(now.getFullYear(), 0, 1);
-                        const dayOfYear = Math.floor((now - startOfYear) / (1000 * 60 * 60 * 24));
-                        const weekNum = Math.ceil((dayOfYear + 1) / 7);
-                        const weekKey = `${now.getFullYear()}-W${weekNum}`;
-                        const thisWeekLevel = data.achievements.weekly?.[weekKey]?.[achId] || 0;
-                        
-                        // Перевіряємо чи рівень ЦЬОГО тижня >= наступного рівня
-                        // nextLevelIndex - це індекс наступного рівня (0-based)
-                        // якщо thisWeekLevel >= nextLevelIndex + 1 - значить вже отримали цей рівень
-                        if (thisWeekLevel >= nextLevelIndex + 1) {
-                            progressText = '✅ Отримано цього тижня';
-                        } else {
-                            progressText = `${currentValue}⭐ / ${target}⭐ цього тижня`;
-                        }
-                    } else {
-                        progressText = `${currentValue} / ${target}`;
-                    }
-                }
-                
-                // Медаль поточного рівня
-                const levelMedal = currentLevel === 0 ? '' : 
-                                  currentLevel === 1 ? '🥉' :
-                                  currentLevel === 2 ? '🥈' : '🥇';
-                
-                // Рамка картки
-                const currentTier = currentLevel === 0 ? '' :
-                                   ach.levels[currentLevel - 1].tier;
-                
-                // Опис рівнів (короткий)
-                const levelsDesc = ach.levels.map((l, i) => {
-                    const medal = i === 0 ? '🥉' : i === 1 ? '🥈' : '🥇';
-                    return `${medal} ${l.desc} → +${l.reward}⭐`;
-                }).join(' • ');
-                
-                // Best value текст
-                let bestText = '';
-                if (ach.type === 'cumulative') {
-                    bestText = `Всього: ${bestValue}`;
-                } else if (ach.type === 'streak') {
-                    bestText = `Рекорд: ${bestValue} ${bestValue === 1 ? 'день' : bestValue < 5 ? 'дні' : 'днів'}`;
-                } else if (ach.type === 'repeatable_streak') {
-                    // Для repeatable показуємо скільки разів отримано кожен рівень
-                    const history = data.achievements.repeatableHistory[achId] || {};
-                    const counts = Object.keys(history).map(level => {
-                        const count = history[level];
-                        const medal = level === '1' ? '🥉' : level === '2' ? '🥈' : '🥇';
-                        return count > 0 ? `${medal}×${count}` : '';
-                    }).filter(x => x).join(' ');
-                    bestText = counts || `Рекорд: ${bestValue} ${bestValue === 1 ? 'день' : bestValue < 5 ? 'дні' : 'днів'}`;
-                } else if (ach.type === 'balance') {
-                    bestText = `Баланс: ${bestValue}⭐`;
-                } else if (ach.type === 'weekly') {
-                    bestText = `За тиждень: ${bestValue}⭐`;
-                } else if (ach.type === 'special') {
-                    bestText = data.goal ? `Мета: ${data.goal.target}⭐` : 'Встанови мету';
-                }
-                
-                const cardHTML = `
-                    <div class="achievement-card ${currentTier}">
-                        <div class="achievement-header">
-                            <div class="achievement-icon-large">${ach.icon}</div>
-                            <div class="achievement-info">
-                                <div class="achievement-name">${ach.name} ${levelMedal}</div>
-                                <div class="achievement-best">${bestText}</div>
-                            </div>
-                        </div>
-                        <div class="achievement-desc">${ach.desc}</div>
-                        <div class="achievement-progress-bar">
-                            <div class="achievement-progress-fill" style="width: ${progressPercent}%">
-                                ${progressPercent >= 20 ? `<span class="achievement-progress-text">${Math.round(progressPercent)}%</span>` : ''}
-                            </div>
-                        </div>
-                        <div class="achievement-status">${progressText}</div>
-                        <div class="achievement-levels-info">${levelsDesc}</div>
-                    </div>
-                `;
-                
-                achievementsHTML.push(cardHTML);
-            });
-            
-            document.getElementById('achievementsInProgress').innerHTML = achievementsHTML.join('');
-            document.getElementById('achievementsUnlocked').innerHTML = ''; // Не використовується більше
-        }
-
-        
-        
-        // ═══════════════ РЕЖИМ КАНІКУЛ ═══════════════
-        
-
-        
-        
+        // 🏆 Achievements → achievements.js
 
         // ════════════════════════════════════════════════════════════
         // ❄️   БЛОК: Канікули
@@ -3157,10 +818,10 @@ ${ach.desc}
             }
             
             // Перевіряємо чи новий період не перетинається з існуючими
-            const periods = data.achievements.freezePeriods || [];
+            const periods = state.data.achievements.freezePeriods || [];
             for (let i = 0; i < periods.length; i++) {
                 // Пропускаємо період який редагуємо
-                if (window.editingFreezeIndex !== undefined && i === window.editingFreezeIndex) {
+                if (state.editingFreezeIndex !== undefined && i === state.editingFreezeIndex) {
                     continue;
                 }
                 
@@ -3183,38 +844,38 @@ ${ach.desc}
             }
             
             // Якщо редагуємо існуючий період - видаляємо старий
-            if (window.editingFreezeIndex !== undefined) {
-                const oldPeriod = data.achievements.freezePeriods[window.editingFreezeIndex];
+            if (state.editingFreezeIndex !== undefined) {
+                const oldPeriod = state.data.achievements.freezePeriods[state.editingFreezeIndex];
                 // Видаляємо запис з історії (тільки якщо є ID!)
                 if (oldPeriod && oldPeriod.id) {
-                    data.records = data.records.filter(r => r.freezeId !== oldPeriod.id);
+                    state.data.records = state.data.records.filter(r => r.freezeId !== oldPeriod.id);
                 }
                 // Видаляємо період
-                data.achievements.freezePeriods.splice(window.editingFreezeIndex, 1);
-                window.editingFreezeIndex = undefined;
+                state.data.achievements.freezePeriods.splice(state.editingFreezeIndex, 1);
+                state.editingFreezeIndex = undefined;
             }
             
             // Додаємо новий період канікул
-            if (!data.achievements.freezePeriods) data.achievements.freezePeriods = [];
+            if (!state.data.achievements.freezePeriods) state.data.achievements.freezePeriods = [];
             
-            data.achievements.freezePeriods.push({
+            state.data.achievements.freezePeriods.push({
                 from: fromDate,
                 until: untilDate,
                 id: Date.now() + Math.random()
             });
             
             // Сортуємо періоди по даті початку
-            data.achievements.freezePeriods.sort((a, b) => new Date(a.from) - new Date(b.from));
+            state.data.achievements.freezePeriods.sort((a, b) => new Date(a.from) - new Date(b.from));
             
             // Додаємо запис в історію (дата = початок канікул)
-            data.records.push({
+            state.data.records.push({
                 id: Date.now() + Math.random(),
                 date: fromDate + 'T12:00:00',
                 description: `❄️ Канікули (${from.toLocaleDateString('uk-UA', {day: '2-digit', month: '2-digit'})} - ${until.toLocaleDateString('uk-UA', {day: '2-digit', month: '2-digit'})})`,
                 stars: 0,
                 type: 'freeze',
                 category: 'system',
-                freezeId: data.achievements.freezePeriods[data.achievements.freezePeriods.length - 1].id
+                freezeId: state.data.achievements.freezePeriods[state.data.achievements.freezePeriods.length - 1].id
             });
             
             // Очищаємо поля
@@ -3236,7 +897,7 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}
         window.addFreezePeriod = addFreezePeriod;
         
         function deleteFreezePeriod(index) {
-            const period = data.achievements.freezePeriods[index];
+            const period = state.data.achievements.freezePeriods[index];
             const from = new Date(period.from);
             const until = new Date(period.until);
             
@@ -3246,11 +907,11 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
             
             // Видаляємо запис з історії (тільки якщо є ID!)
             if (period && period.id) {
-                data.records = data.records.filter(r => r.freezeId !== period.id);
+                state.data.records = state.data.records.filter(r => r.freezeId !== period.id);
             }
             
             // Видаляємо період
-            data.achievements.freezePeriods.splice(index, 1);
+            state.data.achievements.freezePeriods.splice(index, 1);
             
             // Перераховуємо серії
             recalculateAchievements();
@@ -3261,14 +922,14 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
         window.deleteFreezePeriod = deleteFreezePeriod;
         
         function editFreezePeriod(index) {
-            const period = data.achievements.freezePeriods[index];
+            const period = state.data.achievements.freezePeriods[index];
             
             // ТІЛЬКИ завантажуємо дати в поля - НІЧОГО НЕ ВИДАЛЯЄМО!
             document.getElementById('freezeFromDate').value = period.from;
             document.getElementById('freezeUntilDate').value = period.until;
             
             // Зберігаємо індекс для видалення при збереженні
-            window.editingFreezeIndex = index;
+            state.editingFreezeIndex = index;
             
             // Прокручуємо до форми
             document.getElementById('freezeFromDate').scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -3277,7 +938,7 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
         
         function renderFreezePeriods() {
             const container = document.getElementById('freezePeriodsList');
-            const periods = data.achievements.freezePeriods || [];
+            const periods = state.data.achievements.freezePeriods || [];
             
             if (periods.length === 0) {
                 container.innerHTML = '<div style="margin-top: 15px; color: #999; font-size: 13px; text-align: center; padding: 20px; background: var(--bg); border-radius: 12px;">Поки немає збережених періодів канікул</div>';
@@ -3328,36 +989,7 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
         window.renderFreezePeriods = renderFreezePeriods;
         
         // Перевіряємо чи день має пропускатися (канікули або вихідні)
-        function shouldSkipDayForStreak(date, streakType) {
-            const checkDate = new Date(date);
-            checkDate.setHours(0, 0, 0, 0);
-            const dayOfWeek = checkDate.getDay();
-            
-            // Для серій з оцінок (earning, grade-based)
-            if (streakType === 'grade') {
-                // Суботи/неділі завжди пропускаємо
-                if (dayOfWeek === 0 || dayOfWeek === 6) {
-                    return true;
-                }
-                
-                // Перевіряємо всі періоди канікул
-                const freezePeriods = data.achievements.freezePeriods || [];
-                for (const period of freezePeriods) {
-                    const freezeFrom = new Date(period.from);
-                    freezeFrom.setHours(0, 0, 0, 0);
-                    const freezeUntil = new Date(period.until);
-                    freezeUntil.setHours(23, 59, 59, 999);
-                    
-                    // Пропускаємо тільки якщо день В МЕЖАХ цього періоду канікул
-                    if (checkDate >= freezeFrom && checkDate <= freezeUntil) {
-                        return true;  // День в канікулах - пропускаємо
-                    }
-                }
-            }
-            
-            // Для інших серій (teeth, hair) - канікули не діють
-            return false;
-        }
+        // shouldSkipDayForStreak → achievements.js
         
         // Firebase: читаємо дані і слухаємо зміни в реальному часі
 
@@ -3370,12 +1002,12 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
             onValue(dataRef, (snapshot) => {
                 const saved = snapshot.val();
                 if (saved) {
-                    const wasParent = data.isParent;
+                    const wasParent = state.data.isParent;
                     data = saved;
-                    data.isParent = wasParent;
-                    if (data.balance === undefined) data.balance = 0;
-                    if (!data.records) data.records = [];
-                    if (!data.achievements) data.achievements = { counters: {}, streaks: {}, levels: {}, weekly: {}, repeatableHistory: {}, freezePeriods: [] };
+                    state.data.isParent = wasParent;
+                    if (state.data.balance === undefined) state.data.balance = 0;
+                    if (!state.data.records) state.data.records = [];
+                    if (!state.data.achievements) state.data.achievements = { counters: {}, streaks: {}, levels: {}, weekly: {}, repeatableHistory: {}, freezePeriods: [] };
                 }
                 showLoading(false);
                 recalculateAchievements();  // Перераховуємо досягнення з усіх записів
@@ -3401,11 +1033,11 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
             }
             
             const toSave = {
-                records: data.records || [],
-                balance: data.balance || 0,
-                pin: data.pin || '1234',
-                goal: data.goal || null,
-                achievements: data.achievements || { counters: {}, streaks: {}, levels: {}, weekly: {}, repeatableHistory: {}, freezePeriods: [] }
+                records: state.data.records || [],
+                balance: state.data.balance || 0,
+                pin: state.data.pin || '1234',
+                goal: state.data.goal || null,
+                achievements: state.data.achievements || { counters: {}, streaks: {}, levels: {}, weekly: {}, repeatableHistory: {}, freezePeriods: [] }
             };
             set(ref(db, 'zirky'), toSave);
         }
@@ -3428,70 +1060,7 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
 
         // Вхід
 
-        // ════════════════════════════════════════════════════════════
-        // 🔐  БЛОК: Авторизація / PIN
-        // ════════════════════════════════════════════════════════════
-                function showPinInput() {
-            document.getElementById('loginOverlay').style.display = 'none';
-            document.getElementById('pinOverlay').style.display = 'flex';
-        }
-
-        function enterAsChild() {
-            data.isParent = false;
-            document.getElementById('loginOverlay').style.display = 'none';
-            document.getElementById('mainApp').style.display = 'block';
-            updateUI();
-            switchTab('instructions');
-        }
-
-        function addPin(digit) {
-            if (pinValue.length < 4) {
-                pinValue += digit;
-                document.getElementById('pinInput').value = '•'.repeat(pinValue.length);
-                if (pinValue.length === 4) setTimeout(checkPin, 300);
-            }
-        }
-
-        function clearPin() {
-            pinValue = pinValue.slice(0, -1);
-            document.getElementById('pinInput').value = '•'.repeat(pinValue.length);
-        }
-
-        function cancelPin() {
-            pinValue = '';
-            document.getElementById('pinInput').value = '';
-            document.getElementById('pinOverlay').style.display = 'none';
-            document.getElementById('loginOverlay').style.display = 'flex';
-        }
-
-        function checkPin() {
-            if (pinValue === data.pin) {
-                data.isParent = true;
-                document.getElementById('pinOverlay').style.display = 'none';
-                document.getElementById('mainApp').style.display = 'block';
-                updateUI();
-            } else {
-                alert('❌ Невірний PIN! Вхід як Дитина.');
-                pinValue = '';
-                document.getElementById('pinInput').value = '';
-                enterAsChild();
-            }
-        }
-
-        function changePin() {
-            const newPin = document.getElementById('newPin').value;
-            if (newPin.length === 4 && /^\d+$/.test(newPin)) {
-                data.pin = newPin;
-                saveData();
-                document.getElementById('currentPin').textContent = newPin;
-                document.getElementById('newPin').value = '';
-                alert('✅ PIN змінено!');
-            } else {
-                alert('❌ PIN має містити 4 цифри!');
-            }
-        }
-
-        // Вкладки
+        // 🔐 AUTH функції → auth.js
 
         // ════════════════════════════════════════════════════════════
         // 🗂️   БЛОК: Навігація по вкладках
@@ -3525,7 +1094,7 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
             else if (tab === 'stats') renderStats();
             else if (tab === 'settings') showDataInfo();
 
-            if (!data.isParent && tab === 'add') {
+            if (!state.data.isParent && tab === 'add') {
                 switchTab('instructions');
             }
         }
@@ -3575,19 +1144,19 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
             let stars = gradeToStars[grade];
             if (subject === 'Математика') stars *= 2;
 
-            data.records.push({
+            state.data.records.push({
                 id: Date.now(),
                 date: date + 'T12:00:00',
                 subject, grade, stars,
                 type: 'earn',
                 category: 'grade'
             });
-            data.balance = Number(data.balance) + stars;
+            state.data.balance = Number(state.data.balance) + stars;
             
-            const newRecord = data.records[data.records.length - 1];
+            const newRecord = state.data.records[state.data.records.length - 1];
             
             // Запам'ятовуємо які досягнення були ДО додавання
-            const levelsBefore = {...(data.achievements.levels || {})};
+            const levelsBefore = {...(state.data.achievements.levels || {})};
             
             // Перераховуємо ВСЕ (бо могли додати заднім числом)
             recalculateAchievements();
@@ -3617,10 +1186,7 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
                 return; 
             }
 
-            // Базова кількість зірок за оцінку (як у звичайних оцінках)
-            const gradeToStars = {
-                '12': 5, '11': 4, '10': 3, '9': 2, '8': 1
-            };
+            // gradeToStars береться з config.js
             
             let stars = gradeToStars[grade];
             
@@ -3631,7 +1197,7 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
                 stars *= 3;  // ×3 для всіх інших предметів
             }
 
-            data.records.push({
+            state.data.records.push({
                 id: Date.now(),
                 date: date + 'T12:00:00',
                 subject: `Діагностувальна робота з ${subject}`,
@@ -3641,10 +1207,10 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
                 category: 'diagnostic'
             });
             
-            data.balance = Number(data.balance) + stars;
+            state.data.balance = Number(state.data.balance) + stars;
             
             // Запам'ятовуємо які досягнення були ДО додавання
-            const levelsBefore = {...(data.achievements.levels || {})};
+            const levelsBefore = {...(state.data.achievements.levels || {})};
             
             // Перераховуємо ВСЕ (бо могли додати заднім числом)
             recalculateAchievements();
@@ -3674,7 +1240,7 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
             if (!date || !bonusType) { alert('❌ Заповніть всі поля!'); return; }
 
             const [name, stars] = bonusType.split('|');
-            data.records.push({
+            state.data.records.push({
                 id: Date.now(),
                 date: date + 'T12:00:00',
                 description: name,
@@ -3682,12 +1248,12 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
                 type: 'earn',
                 category: 'bonus'
             });
-            data.balance = Number(data.balance) + parseInt(stars);
+            state.data.balance = Number(state.data.balance) + parseInt(stars);
             
-            const newRecord = data.records[data.records.length - 1];
+            const newRecord = state.data.records[state.data.records.length - 1];
             
             // Запам'ятовуємо які досягнення були ДО додавання
-            const levelsBefore = {...(data.achievements.levels || {})};
+            const levelsBefore = {...(state.data.achievements.levels || {})};
             
             // Перераховуємо ВСЕ (бо могли додати заднім числом)
             recalculateAchievements();
@@ -3713,19 +1279,19 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
 
             if (!date || !desc || !stars || stars < 1) { alert('❌ Заповніть всі поля!'); return; }
 
-            data.records.push({
+            state.data.records.push({
                 id: Date.now(),
                 date: date + 'T12:00:00',
                 description: desc, stars,
                 type: 'earn',
                 category: 'special'
             });
-            data.balance = Number(data.balance) + stars;
+            state.data.balance = Number(state.data.balance) + stars;
             
-            const newRecord = data.records[data.records.length - 1];
+            const newRecord = state.data.records[state.data.records.length - 1];
             
             // Запам'ятовуємо які досягнення були ДО додавання
-            const levelsBefore = {...(data.achievements.levels || {})};
+            const levelsBefore = {...(state.data.achievements.levels || {})};
             
             // Перераховуємо ВСЕ (бо могли додати заднім числом)
             recalculateAchievements();
@@ -3747,16 +1313,16 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
 
         function deleteRecord(id) {
             if (!confirm('Видалити цей запис?')) return;
-            const record = data.records.find(r => r.id === id);
+            const record = state.data.records.find(r => r.id === id);
             if (!record) return;
 
-            if (record.type === 'earn') data.balance = Number(data.balance) - record.stars;
-            else data.balance = Number(data.balance) + record.stars;
+            if (record.type === 'earn') state.data.balance = Number(state.data.balance) - record.stars;
+            else state.data.balance = Number(state.data.balance) + record.stars;
 
             // Запам'ятовуємо які досягнення були ДО видалення
-            const levelsBefore = {...(data.achievements.levels || {})};
+            const levelsBefore = {...(state.data.achievements.levels || {})};
 
-            data.records = data.records.filter(r => r.id !== id);
+            state.data.records = state.data.records.filter(r => r.id !== id);
             recalculateAchievements();  // Перераховуємо після видалення
             
             // Видаляємо бонуси за втрачені досягнення
@@ -3797,12 +1363,12 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
         function renderHistory() {
             const list = document.getElementById('historyList');
             const monthNames = ['Січень','Лютий','Березень','Квітень','Травень','Червень','Липень','Серпень','Вересень','Жовтень','Листопад','Грудень'];
-            document.getElementById('currentMonth').textContent = `${monthNames[currentViewMonth.getMonth()]} ${currentViewMonth.getFullYear()}`;
+            document.getElementById('currentMonth').textContent = `${monthNames[state.currentViewMonth.getMonth()]} ${state.currentViewMonth.getFullYear()}`;
 
-            const filtered = (data.records || []).filter(r => {
+            const filtered = (state.data.records || []).filter(r => {
                 const d = new Date(r.date);
-                return d.getMonth() === currentViewMonth.getMonth() &&
-                       d.getFullYear() === currentViewMonth.getFullYear();
+                return d.getMonth() === state.currentViewMonth.getMonth() &&
+                       d.getFullYear() === state.currentViewMonth.getFullYear();
             }).sort((a, b) => new Date(b.date) - new Date(a.date));
 
             if (filtered.length === 0) {
@@ -3821,10 +1387,10 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
                 
                 // Кнопки для різних типів записів
                 let actionButtons = '';
-                if (data.isParent) {
+                if (state.data.isParent) {
                     if (r.type === 'freeze' && r.freezeId) {
                         // Для канікул - редагувати та видалити
-                        const freezeIndex = data.achievements.freezePeriods.findIndex(p => p.id === r.freezeId);
+                        const freezeIndex = state.data.achievements.freezePeriods.findIndex(p => p.id === r.freezeId);
                         if (freezeIndex !== -1) {
                             actionButtons = `
                                 <button class="delete-btn" onclick="editFreezePeriod(${freezeIndex}); switchTab('add'); showForm('freeze');" style="background: #2196F3; margin-right: 5px;">✏️</button>
@@ -3851,7 +1417,7 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
         }
 
         function changeMonth(delta) {
-            currentViewMonth.setMonth(currentViewMonth.getMonth() + delta);
+            state.currentViewMonth.setMonth(state.currentViewMonth.getMonth() + delta);
             renderHistory();
         }
 
@@ -3862,14 +1428,14 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
                 function renderRewards() {
             const list = document.getElementById('rewardsList');
             list.innerHTML = rewards.map((r, i) => {
-                const canAfford = Number(data.balance) >= r.cost;
+                const canAfford = Number(state.data.balance) >= r.cost;
                 return `
                     <div class="reward-item">
                         <div>
                             <div class="reward-name">${r.name}</div>
                             <div class="reward-cost">${r.cost}⭐</div>
                         </div>
-                        <button class="reward-btn" onclick="${canAfford ? (data.isParent ? 'buyReward('+i+')' : 'buyRewardWithPin('+i+')') : ''}" ${!canAfford ? 'disabled' : ''}>
+                        <button class="reward-btn" onclick="${canAfford ? (state.data.isParent ? 'buyReward('+i+')' : 'buyRewardWithPin('+i+')') : ''}" ${!canAfford ? 'disabled' : ''}>
                             ${canAfford ? '✅ Обміняти' : '🔒'}
                         </button>
                     </div>`;
@@ -3878,10 +1444,10 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
 
         function buyReward(index) {
             const reward = rewards[index];
-            if (Number(data.balance) >= reward.cost) {
+            if (Number(state.data.balance) >= reward.cost) {
                 if (confirm(`Обміняти ${reward.cost}⭐ на "${reward.name}"?`)) {
-                    data.balance = Number(data.balance) - reward.cost;
-                    data.records.push({
+                    state.data.balance = Number(state.data.balance) - reward.cost;
+                    state.data.records.push({
                         id: Date.now(),
                         date: new Date().toISOString(),
                         reward: reward.name,
@@ -3898,7 +1464,7 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
             const date = document.getElementById('customRewardDate').value;
             const desc = document.getElementById('customRewardDesc').value;
             const stars = parseInt(document.getElementById('customRewardStars').value);
-            const balance = Number(data.balance);
+            const balance = Number(state.data.balance);
 
             if (!date || !desc || !stars || stars < 1) { alert('❌ Заповніть всі поля!'); return; }
 
@@ -3914,18 +1480,18 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
                 return;
             }
 
-            if (data.isParent) {
+            if (state.data.isParent) {
                 doCustomReward(date, desc, stars);
             } else {
-                pendingCustomReward = { date, desc, stars };
+                state.pendingCustomReward = { date, desc, stars };
                 showRewardPin();
             }
         }
 
         function doCustomReward(date, desc, stars) {
             if (confirm(`Списати ${stars}⭐ на "${desc}"?`)) {
-                data.balance = Number(data.balance) - stars;
-                data.records.push({
+                state.data.balance = Number(state.data.balance) - stars;
+                state.data.records.push({
                     id: Date.now(),
                     date: date + 'T12:00:00',
                     description: desc, stars,
@@ -3946,10 +1512,10 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
                 function renderStats() {
             updateChart();
             
-            const totalEarned = (data.records||[]).filter(r=>r.type==='earn').reduce((s,r)=>s+r.stars,0);
-            const totalSpent = (data.records||[]).filter(r=>r.type==='spend').reduce((s,r)=>s+r.stars,0);
+            const totalEarned = (state.data.records||[]).filter(r=>r.type==='earn').reduce((s,r)=>s+r.stars,0);
+            const totalSpent = (state.data.records||[]).filter(r=>r.type==='spend').reduce((s,r)=>s+r.stars,0);
             const thisMonth = new Date().getMonth();
-            const recordsCount = (data.records||[]).filter(r=>new Date(r.date).getMonth()===thisMonth).length;
+            const recordsCount = (state.data.records||[]).filter(r=>new Date(r.date).getMonth()===thisMonth).length;
 
             document.getElementById('totalEarned').textContent = totalEarned + '⭐';
             document.getElementById('totalSpent').textContent = totalSpent + '⭐';
@@ -3968,14 +1534,14 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
             let periodName = '';
             
             // Вимикаємо кнопку "вперед" якщо дивимось поточний період
-            document.getElementById('chartNextBtn').disabled = chartOffset === 0;
+            document.getElementById('chartNextBtn').disabled = state.chartOffset === 0;
             
             // Визначаємо періоди з урахуванням offset
-            if (chartPeriod === 'week') {
+            if (state.chartPeriod === 'week') {
                 const weekStart = new Date(now);
                 const dayOfWeek = now.getDay();
                 const daysFromMonday = (dayOfWeek === 0 ? 6 : dayOfWeek - 1); // Неділя = 6 днів від понеділка
-                weekStart.setDate(now.getDate() - daysFromMonday + (chartOffset * 7)); // Понеділок поточного тижня + offset
+                weekStart.setDate(now.getDate() - daysFromMonday + (state.chartOffset * 7)); // Понеділок поточного тижня + offset
                 
                 for (let i = 0; i < 7; i++) {
                     const d = new Date(weekStart);
@@ -3987,8 +1553,8 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
                 periodName = `${periods[0].getDate()} ${['січ','лют','бер','кві','тра','чер','лип','сер','вер','жов','лис','гру'][periods[0].getMonth()]} — ${weekEnd.getDate()} ${['січ','лют','бер','кві','тра','чер','лип','сер','вер','жов','лис','гру'][weekEnd.getMonth()]} ${weekEnd.getFullYear()}`;
                 labelFormat = d => d.getDate();
                 pointWidth = 50;
-            } else if (chartPeriod === 'month') {
-                const targetMonth = new Date(now.getFullYear(), now.getMonth() + chartOffset, 1);
+            } else if (state.chartPeriod === 'month') {
+                const targetMonth = new Date(now.getFullYear(), now.getMonth() + state.chartOffset, 1);
                 const daysInMonth = new Date(targetMonth.getFullYear(), targetMonth.getMonth() + 1, 0).getDate();
                 
                 for (let i = 1; i <= daysInMonth; i++) {
@@ -3998,8 +1564,8 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
                 periodName = `${['Січень','Лютий','Березень','Квітень','Травень','Червень','Липень','Серпень','Вересень','Жовтень','Листопад','Грудень'][targetMonth.getMonth()]} ${targetMonth.getFullYear()}`;
                 labelFormat = d => d.getDate();
                 pointWidth = 35;
-            } else if (chartPeriod === 'year') {
-                const targetYear = now.getFullYear() + chartOffset;
+            } else if (state.chartPeriod === 'year') {
+                const targetYear = now.getFullYear() + state.chartOffset;
                 
                 for (let i = 0; i < 12; i++) {
                     periods.push(new Date(targetYear, i, 1));
@@ -4014,9 +1580,9 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
             document.getElementById('chartPeriodDisplay').textContent = periodName;
                         // Збираємо дані
             const chartData = periods.map(d => {
-                const records = (data.records || []).filter(r => {
+                const records = (state.data.records || []).filter(r => {
                     const rd = new Date(r.date);
-                    if (chartPeriod === 'year') {
+                    if (state.chartPeriod === 'year') {
                         return rd.getMonth() === d.getMonth() && rd.getFullYear() === d.getFullYear();
                     } else {
                         return rd.toDateString() === d.toDateString();
@@ -4037,7 +1603,7 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
             
             // Розміри SVG
             let width;
-            if (chartPeriod === 'week') {
+            if (state.chartPeriod === 'week') {
                 // Для тижня - завжди 100% контейнера (без скролу)
                 width = chartContainer.clientWidth - 20;
             } else {
@@ -4124,15 +1690,15 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
         }
 
         function changeChartPeriod(period) {
-            chartPeriod = period;
-            chartOffset = 0; // Скидаємо на поточний період
+            state.chartPeriod = period;
+            state.chartOffset = 0; // Скидаємо на поточний період
             document.querySelectorAll('.stats-controls .period-btn').forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');
             updateChart();
         }
         
         function changeChartOffset(delta) {
-            chartOffset += delta;
+            state.chartOffset += delta;
             updateChart();
         }
 
@@ -4149,18 +1715,18 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
                 const fridayStr = friday.toISOString().split('T')[0];
                 
                 // Перевіряємо чи були записи в п'ятницю
-                const hadRecordsOnFriday = data.records.some(r => 
+                const hadRecordsOnFriday = state.data.records.some(r => 
                     r.date.startsWith(fridayStr) && r.type === 'earn' && r.category !== 'achievement'
                 );
                 
-                const hasActiveStreak = (data.achievements.streaks.earning?.current || 0) > 0;
+                const hasActiveStreak = (state.data.achievements.streaks.earning?.current || 0) > 0;
                 
                 // Якщо є серія але не було записів у п'ятницю і канікули не активні
-                if (hasActiveStreak && !hadRecordsOnFriday && !data.achievements.freezeMode?.active) {
+                if (hasActiveStreak && !hadRecordsOnFriday && !state.data.achievements.freezeMode?.active) {
                     // Показуємо нагадування тільки для батьків
-                    if (data.isParent) {
+                    if (state.data.isParent) {
                         setTimeout(() => {
-                            const streak = data.achievements.streaks.earning.current;
+                            const streak = state.data.achievements.streaks.earning.current;
                             if (confirm(`⚠️ Вихідні минули!
 
 Активна серія: ${streak} ${streak === 1 ? 'день' : streak < 5 ? 'дні' : 'днів'}
@@ -4176,10 +1742,10 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
         }
         
         function updateUI() {
-            document.getElementById('balance').textContent = Number(data.balance) + '⭐';
+            document.getElementById('balance').textContent = Number(state.data.balance) + '⭐';
 
-            let records = data.records || [];
-            if (showPeriod === 'month') {
+            let records = state.data.records || [];
+            if (state.showPeriod === 'month') {
                 const thisMonth = new Date().getMonth();
                 const thisYear = new Date().getFullYear();
                 records = records.filter(r => {
@@ -4193,7 +1759,7 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
             document.getElementById('earnedStats').textContent = earned + '⭐';
             document.getElementById('spentStats').textContent = spent + '⭐';
 
-            if (!data.isParent) {
+            if (!state.data.isParent) {
                 document.querySelectorAll('.tab').forEach(t => {
                     if (t.textContent.includes('Додати')) t.style.display = 'none';
                 });
@@ -4204,7 +1770,7 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
                 document.querySelectorAll('.tab').forEach(t => t.style.display = '');
                 document.getElementById('parentInstructions').style.display = 'block';
                 document.getElementById('childInstructions').style.display = 'none';
-                document.getElementById('currentPin').textContent = data.pin;
+                document.getElementById('currentPin').textContent = state.data.pin;
             }
             
             renderAchievementsHome();
@@ -4213,114 +1779,16 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
 
         // PIN підтвердження для дитини при обміні
         let pendingRewardIndex = null;
-        let pendingCustomReward = null;
+        // state.pendingCustomReward → state.state.pendingCustomReward
         let rewardPinValue = '';
 
         function buyRewardWithPin(index) {
             pendingRewardIndex = index;
-            pendingCustomReward = null;
+            state.pendingCustomReward = null;
             showRewardPin();
         }
 
-        function showRewardPin() {
-            rewardPinValue = '';
-            document.getElementById('rewardPinInput').value = '';
-            document.getElementById('rewardPinOverlay').style.display = 'flex';
-        }
-
-        function addRewardPin(digit) {
-            if (rewardPinValue.length < 4) {
-                rewardPinValue += digit;
-                document.getElementById('rewardPinInput').value = '•'.repeat(rewardPinValue.length);
-                if (rewardPinValue.length === 4) setTimeout(checkRewardPin, 300);
-            }
-        }
-
-        function clearRewardPin() {
-            rewardPinValue = rewardPinValue.slice(0, -1);
-            document.getElementById('rewardPinInput').value = '•'.repeat(rewardPinValue.length);
-        }
-
-        function cancelRewardPin() {
-            document.getElementById('rewardPinOverlay').style.display = 'none';
-            pendingRewardIndex = null;
-            pendingCustomReward = null;
-        }
-
-        function checkRewardPin() {
-            if (rewardPinValue === data.pin) {
-                document.getElementById('rewardPinOverlay').style.display = 'none';
-                if (pendingRewardIndex !== null) {
-                    buyReward(pendingRewardIndex);
-                    pendingRewardIndex = null;
-                } else if (pendingCustomReward) {
-                    doCustomReward(pendingCustomReward.desc, pendingCustomReward.stars);
-                    pendingCustomReward = null;
-                }
-            } else {
-                alert('❌ Невірний PIN!');
-                rewardPinValue = '';
-                document.getElementById('rewardPinInput').value = '';
-            }
-        }
-
-        // Функція перемикання періоду
-        function togglePeriod(period) {
-            showPeriod = period;
-            document.querySelectorAll('.period-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-            updateUI();
-        }
-
-        // Робимо функції глобальними для onclick в HTML
-        window.togglePeriod = togglePeriod;
-        window.updateChart = updateChart;
-        window.changeChartPeriod = changeChartPeriod;
-        window.changeChartOffset = changeChartOffset;
-        window.showGoalModal = showGoalModal;
-        window.cancelGoal = cancelGoal;
-        window.saveGoal = saveGoal;
-        window.deleteGoal = deleteGoal;
-        window.showPinInput = showPinInput;
-        window.enterAsChild = enterAsChild;
-        window.addPin = addPin;
-        window.clearPin = clearPin;
-        window.cancelPin = cancelPin;
-        window.changePin = changePin;
-        window.switchTab = switchTab;
-        window.showForm = showForm;
-        window.addGradeRecord = addGradeRecord;
-        window.addBonusRecord = addBonusRecord;
-        window.addSpecialRecord = addSpecialRecord;
-        window.deleteRecord = deleteRecord;
-        window.renderHistory = renderHistory;
-        window.changeMonth = changeMonth;
-        window.renderRewards = renderRewards;
-        window.buyReward = buyReward;
-        window.buyCustomReward = buyCustomReward;
-        window.renderStats = renderStats;
-        window.buyRewardWithPin = buyRewardWithPin;
-        window.showRewardPin = showRewardPin;
-        window.addRewardPin = addRewardPin;
-        window.clearRewardPin = clearRewardPin;
-        window.cancelRewardPin = cancelRewardPin;
-        window.checkRewardPin = checkRewardPin;
-
-        // Event delegation для кнопок мети (працює для динамічно створених кнопок)
-        document.addEventListener('click', (e) => {
-            if (e.target.id === 'setGoalBtn' || e.target.id === 'editGoalBtn') {
-                showGoalModal();
-            }
-        });
-
-        // Ініціалізація
-        setTodayDates();
-        initFirebase();
-    
-        // ═══════════════════════════════════════════════════
-        // ЕКСПОРТ/ІМПОРТ ДАНИХ
-        // ═══════════════════════════════════════════════════
-        
+        // 🔐 Reward PIN функції → auth.js
 
         // ════════════════════════════════════════════════════════════
         // ⚙️   БЛОК: Налаштування / Експорт / Імпорт
@@ -4329,10 +1797,10 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
             const container = document.getElementById('dataInfo');
             if (!container) return;
             
-            const recordsCount = data.records?.length || 0;
-            const balance = data.balance || 0;
-            const achievementsCount = Object.keys(data.achievements?.levels || {}).length;
-            const freezePeriodsCount = data.achievements?.freezePeriods?.length || 0;
+            const recordsCount = state.data.records?.length || 0;
+            const balance = state.data.balance || 0;
+            const achievementsCount = Object.keys(state.data.achievements?.levels || {}).length;
+            const freezePeriodsCount = state.data.achievements?.freezePeriods?.length || 0;
             
             // Розмір даних
             const dataSize = new Blob([JSON.stringify(data)]).size;
@@ -4342,7 +1810,7 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
                 <div style="display: grid; gap: 8px;">
                     <div style="padding: 8px 0; border-bottom: 2px solid #4CAF50;">
                         <span style="font-size: 15px; color: #2E7D32; font-weight: 700;">📌 Версія застосунку:</span>
-                        <strong style="font-size: 16px; color: #1B5E20; margin-left: 8px;">v3.20260426.0837</strong>
+                        <strong style="font-size: 16px; color: #1B5E20; margin-left: 8px;">v3.20260426.0914</strong>
                     </div>
                     <div>📝 Записів в історії: <strong>${recordsCount}</strong></div>
                     <div>⭐ Поточний баланс: <strong>${balance} зірок</strong></div>
@@ -4355,16 +1823,16 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
             // Показуємо/ховаємо блоки для батьків
             const pinBlock = document.getElementById('pinSettingsBlock');
             if (pinBlock) {
-                pinBlock.style.display = data.isParent ? 'block' : 'none';
+                pinBlock.style.display = state.data.isParent ? 'block' : 'none';
             }
             
             const balanceBlock = document.getElementById('balanceCorrectionBlock');
             if (balanceBlock) {
-                balanceBlock.style.display = data.isParent ? 'block' : 'none';
+                balanceBlock.style.display = state.data.isParent ? 'block' : 'none';
                 // Оновлюємо поточний баланс
                 const balanceDisplay = document.getElementById('currentBalanceDisplay');
                 if (balanceDisplay) {
-                    balanceDisplay.textContent = `${data.balance || 0}⭐`;
+                    balanceDisplay.textContent = `${state.data.balance || 0}⭐`;
                 }
             }
         }
@@ -4531,7 +1999,7 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
                 return;
             }
             
-            const oldBalance = data.balance || 0;
+            const oldBalance = state.data.balance || 0;
             
             const confirmMsg = `💰 Змінити баланс?\n\nБуло: ${oldBalance}⭐\nСтане: ${newBalance}⭐\n\nПродовжити?`;
             
@@ -4540,7 +2008,7 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
             }
             
             // Змінюємо баланс
-            data.balance = newBalance;
+            state.data.balance = newBalance;
             
             // Зберігаємо
             saveData();
@@ -4554,6 +2022,25 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
             alert(`✅ Баланс змінено!\n\nНовий баланс: ${newBalance}⭐`);
         }
         window.adjustBalance = adjustBalance;
+
+        // 🏆 Achievements → window
+        window.renderAchievements = renderAchievements;
+        window.renderAchievementsHome = renderAchievementsHome;
+
+        // 🔐 Auth → window
+        window.showPinInput = showPinInput;
+        window.enterAsChild = enterAsChild;
+        window.addPin = addPin;
+        window.clearPin = clearPin;
+        window.cancelPin = cancelPin;
+        window.checkPin = checkPin;
+        window.changePin = changePin;
+        window.showRewardPin = showRewardPin;
+        window.addRewardPin = addRewardPin;
+        window.clearRewardPin = clearRewardPin;
+        window.cancelRewardPin = cancelRewardPin;
+        window.checkRewardPin = checkRewardPin;
+        window.togglePeriod = togglePeriod;
 
 </script>
 
