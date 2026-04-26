@@ -8,7 +8,7 @@ import { state } from './state.js';
 // ════════════════════════════════════════════════════════════
 // 🎯  БЛОК: Цілі
 // ════════════════════════════════════════════════════════════
-        function showGoalModal() {
+export function showGoalModal() {
     if (state.data.goal) {
         document.getElementById('goalName').value = state.data.goal.name || '';
         document.getElementById('goalTarget').value = state.data.goal.target || '';
@@ -30,11 +30,11 @@ import { state } from './state.js';
     }, 0);
 }
 
-export export function cancelGoal() {
+export function cancelGoal() {
     document.getElementById('goalModal').style.display = 'none';
 }
 
-export export function saveGoal() {
+export function saveGoal() {
     const name = document.getElementById('goalName').value.trim();
     const target = parseInt(document.getElementById('goalTarget').value);
     const emoji = document.getElementById('goalEmoji').value.trim() || '🎯';
@@ -56,7 +56,7 @@ export export function saveGoal() {
     alert('✅ Мета встановлена!');
 }
 
-export export function deleteGoal() {
+export function deleteGoal() {
     if (confirm('Видалити мету? Прогрес не втратиться.')) {
         state.data.goal = null;
         saveData();

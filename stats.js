@@ -21,7 +21,7 @@ import { state } from './state.js';
     document.getElementById('recordsCount').textContent = recordsCount;
 }
 
-export export function updateChart() {
+export function updateChart() {
     const chartContainer = document.querySelector('.chart-container');
     const showEarned = document.getElementById('showEarned').checked;
     const showSpent = document.getElementById('showSpent').checked;
@@ -188,7 +188,7 @@ export export function updateChart() {
     chartContainer.innerHTML = `<div class="chart-wrapper" style="width: ${width}px;">${svg}</div>`;
 }
 
-export export function changeChartPeriod(period) {
+export function changeChartPeriod(period) {
     state.chartPeriod = period;
     state.chartOffset = 0; // Скидаємо на поточний період
     document.querySelectorAll('.stats-controls .period-btn').forEach(btn => btn.classList.remove('active'));
@@ -196,14 +196,14 @@ export export function changeChartPeriod(period) {
     updateChart();
 }
 
-export export function changeChartOffset(delta) {
+export function changeChartOffset(delta) {
     state.chartOffset += delta;
     updateChart();
 }
 
 
 // Нагадування про серію при вході в понеділок
-export export function checkStreakWarning() {
+export function checkStreakWarning() {
     const today = new Date();
     const dayOfWeek = today.getDay();
     

@@ -9,7 +9,7 @@ import { saveData } from './firebase.js';
 // ════════════════════════════════════════════════════════════
 // 📜  БЛОК: Історія
 // ════════════════════════════════════════════════════════════
-        function getSubjectEmoji(subject) {
+export function getSubjectEmoji(subject) {
     const emojiMap = {
         'Математика': '📐',
         'Українська мова': '🇺🇦',

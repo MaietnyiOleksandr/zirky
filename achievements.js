@@ -9,7 +9,7 @@ import { ACHIEVEMENTS } from './config.js';
 // ════════════════════════════════════════════════════════════
 // 🏆  БЛОК: Досягнення
 // ════════════════════════════════════════════════════════════
-        function initAchievements() {
+export function initAchievements() {
     if (!state.data.achievements) {
         state.data.achievements = { counters: {}, streaks: {}, levels: {}, weekly: {} };
     }

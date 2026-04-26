@@ -45,7 +45,7 @@ import { checkStreakWarning } from './stats.js';
     }
 }
 
-export export function showForm(type) {
+export function showForm(type) {
     document.querySelectorAll('.quick-action-btn').forEach(btn => btn.classList.remove('active'));
     event.target.classList.add('active');
     document.getElementById('gradeForm').style.display = 'none';

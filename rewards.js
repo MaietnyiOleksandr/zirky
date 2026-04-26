@@ -27,7 +27,7 @@ import { saveData } from './firebase.js';
     }).join('');
 }
 
-export export function buyReward(index) {
+export function buyReward(index) {
     const reward = rewards[index];
     if (Number(state.data.balance) >= reward.cost) {
         if (confirm(`Обміняти ${reward.cost}⭐ на "${reward.name}"?`)) {
@@ -45,7 +45,7 @@ export export function buyReward(index) {
     }
 }
 
-export export function buyCustomReward() {
+export function buyCustomReward() {
     const date = document.getElementById('customRewardDate').value;
     const desc = document.getElementById('customRewardDesc').value;
     const stars = parseInt(document.getElementById('customRewardStars').value);
@@ -73,7 +73,7 @@ export export function buyCustomReward() {
     }
 }
 
-export export function doCustomReward(date, desc, stars) {
+export function doCustomReward(date, desc, stars) {
     if (confirm(`Списати ${stars}⭐ на "${desc}"?`)) {
         state.data.balance = Number(state.data.balance) - stars;
         state.data.records.push({
