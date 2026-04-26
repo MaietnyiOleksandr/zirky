@@ -1,6 +1,6 @@
 // ════════════════════════════════════════════════════
 // 🔐  auth.js — Авторизація та PIN-код
-//     Зірки Успіху | v3.20260426.1550
+//     Зірки Успіху | v3.20260426.1607
 // ════════════════════════════════════════════════════
 
 import { state } from './state.js';
@@ -75,22 +75,22 @@ export function changePin() {
 // ── Reward PIN ──────────────────────────────────
 
 export function showRewardPin() {
-    rewardPinValue = '';
+    state.rewardPinValue = '';
     document.getElementById('rewardPinInput').value = '';
     document.getElementById('rewardPinOverlay').style.display = 'flex';
 }
 
 export function addRewardPin(digit) {
-    if (rewardPinValue.length < 4) {
-        rewardPinValue += digit;
-        document.getElementById('rewardPinInput').value = '•'.repeat(rewardPinValue.length);
-        if (rewardPinValue.length === 4) setTimeout(checkRewardPin, 300);
+    if (state.rewardPinValue.length < 4) {
+        state.rewardPinValue += digit;
+        document.getElementById('rewardPinInput').value = '•'.repeat(state.rewardPinValue.length);
+        if (state.rewardPinValue.length === 4) setTimeout(checkRewardPin, 300);
     }
 }
 
 export function clearRewardPin() {
-    rewardPinValue = rewardPinValue.slice(0, -1);
-    document.getElementById('rewardPinInput').value = '•'.repeat(rewardPinValue.length);
+    state.rewardPinValue = state.rewardPinValue.slice(0, -1);
+    document.getElementById('rewardPinInput').value = '•'.repeat(state.rewardPinValue.length);
 }
 
 export function cancelRewardPin() {
@@ -105,3 +105,6 @@ export function togglePeriod(period) {
     event.target.classList.add('active');
     updateUI();
 }
+
+// ── Слухаємо запит на показ RewardPin від rewards.js ─────────
+document.addEventListener('zirky:showRewardPin', () => showRewardPin());

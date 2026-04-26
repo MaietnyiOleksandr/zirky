@@ -1,12 +1,11 @@
 // ════════════════════════════════════════════════════
 // REWARDS  rewards.js — Rewards
-//     Зірки Успіху | v3.20260426.1550
+//     Зірки Успіху | v3.20260426.1607
 // ════════════════════════════════════════════════════
 
 import { state } from './state.js';
 import { rewards } from './config.js';
 import { saveData } from './firebase.js';
-import { showRewardPin } from './auth.js';
 
 // ════════════════════════════════════════════════════════════
 // 🎁  БЛОК: Витрати / Винагороди
@@ -70,7 +69,7 @@ export function buyCustomReward() {
         doCustomReward(date, desc, stars);
     } else {
         state.pendingCustomReward = { date, desc, stars };
-        showRewardPin();
+        document.dispatchEvent(new CustomEvent('zirky:showRewardPin'));  // auth.js слухає
     }
 }
 
@@ -94,12 +93,12 @@ export function doCustomReward(date, desc, stars) {
 export function buyRewardWithPin(index) {
     pendingRewardIndex = index;
     state.pendingCustomReward = null;
-    showRewardPin();
+    document.dispatchEvent(new CustomEvent('zirky:showRewardPin'));  // auth.js слухає
 }
 
 // ── Перенесено з auth.js (розрив циклічної залежності) ──
-export export function checkRewardPin() {
-    if (rewardPinValue === state.data.pin) {
+export function checkRewardPin() {
+    if (state.rewardPinValue === state.data.pin) {
         document.getElementById('rewardPinOverlay').style.display = 'none';
         if (pendingRewardIndex !== null) {
             buyReward(pendingRewardIndex);
@@ -110,7 +109,7 @@ export export function checkRewardPin() {
         }
     } else {
         alert('❌ Невірний PIN!');
-        rewardPinValue = '';
+        state.rewardPinValue = '';
         document.getElementById('rewardPinInput').value = '';
     }
 }
