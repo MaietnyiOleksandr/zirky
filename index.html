@@ -622,9 +622,7 @@
         // ── Імпорти модулів ───────────────────────────────────────
         import { state } from './state.js';
         import { firebaseConfig, ACHIEVEMENTS, rewards, gradeToStars } from './config.js';
-        import { showPinInput, enterAsChild, addPin, clearPin, cancelPin,
-                 checkPin, changePin, showRewardPin, addRewardPin, clearRewardPin,
-                 cancelRewardPin, checkRewardPin, togglePeriod } from './auth.js';
+        import { showPinInput, enterAsChild, addPin, clearPin, cancelPin, checkPin, changePin, showRewardPin, addRewardPin, clearRewardPin, cancelRewardPin, togglePeriod } from './auth.js';
         import { recalculateAchievements, checkWeeklyAchievements,
                  removeRewardsForLostAchievements, giveRewardsForNewAchievements,
                  updateAchievementCounters, checkAndUnlockAchievements,
@@ -635,12 +633,13 @@
                  renderFreezePeriods } from './freeze.js';
         import { initFirebase, saveData } from './firebase.js';
         import { getTodayDate, setTodayDates } from './utils.js';
-        import { switchTab, showForm, showLoading, updateUI } from './ui.js';
+        import { showLoading, updateUI } from './ui.js';
+        import { switchTab, showForm } from './navigation.js';
         import { addGradeRecord, addDiagnosticWork, addBonusRecord,
                  addSpecialRecord, deleteRecord } from './records.js';
         import { renderHistory, changeMonth, getSubjectEmoji } from './history.js';
-        import { renderRewards, buyReward, buyCustomReward, doCustomReward,
-                 buyRewardWithPin } from './rewards.js';
+        import {  renderRewards, buyReward, buyCustomReward, doCustomReward,
+                 buyRewardWithPin, checkRewardPin } from './rewards.js';
         import { renderStats, updateChart, changeChartPeriod, changeChartOffset,
                  checkStreakWarning } from './stats.js';
         import { showDataInfo, exportData, importData, resetAllData,

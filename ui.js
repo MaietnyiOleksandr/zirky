@@ -1,85 +1,20 @@
 // ════════════════════════════════════════════════════
 // UI     ui.js — Ui
-//     Зірки Успіху | v3.20260426.1534
+//     Зірки Успіху | v3.20260426.1551
 // ════════════════════════════════════════════════════
 
 import { state } from './state.js';
+import { showForm, switchTab } from './navigation.js';
+export { showForm, switchTab };  // re-export — інші файли ще імпортують з ui.js
 import { renderAchievementsHome, renderAchievements } from './achievements.js';
 import { renderGoal } from './goals.js';
-import { checkStreakWarning, renderStats } from './stats.js';
 import { renderFreezePeriods } from './freeze.js';
-import { renderHistory } from './history.js';
-import { renderRewards } from './rewards.js';
 import { showDataInfo } from './settings.js';
 import { getTodayDate } from './utils.js';
 
 // ════════════════════════════════════════════════════════════
 // 🗂️   БЛОК: Навігація по вкладках
 // ════════════════════════════════════════════════════════════
-export function switchTab(tab, fromClick) {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    // Якщо виклик від кліку — підсвічуємо натиснуту вкладку
-    if (fromClick && event && event.target) {
-        event.target.classList.add('active');
-    } else {
-        // Програмний виклик — підсвічуємо вкладку по імені
-        document.querySelectorAll('.tab').forEach(t => {
-            if (t.getAttribute('onclick') && t.getAttribute('onclick').includes("'" + tab + "'")) {
-                t.classList.add('active');
-            }
-        });
-    }
-    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-    document.getElementById(tab + 'Section').classList.add('active');
-
-    if (tab === 'history') renderHistory();
-    else if (tab === 'rewards') {
-        renderRewards();
-        // Встановлюємо дефолтну дату для витрат
-        const rewardDateInput = document.getElementById('customRewardDate');
-        if (rewardDateInput && !rewardDateInput.value) {
-            rewardDateInput.value = getTodayDate();
-        }
-    }
-    else if (tab === 'achievements') renderAchievements();
-    else if (tab === 'stats') renderStats();
-    else if (tab === 'settings') showDataInfo();
-
-    if (!state.data.isParent && tab === 'add') {
-        switchTab('instructions');
-    }
-}
-
-export function showForm(type) {
-    document.querySelectorAll('.quick-action-btn').forEach(btn => btn.classList.remove('active'));
-    event.target.classList.add('active');
-    document.getElementById('gradeForm').style.display = 'none';
-    document.getElementById('diagnosticForm').style.display = 'none';
-    document.getElementById('bonusForm').style.display = 'none';
-    document.getElementById('specialForm').style.display = 'none';
-    document.getElementById('freezeForm').style.display = 'none';
-    document.getElementById(type + 'Form').style.display = 'block';
-    
-    // Встановлюємо дефолтні дати
-    if (type === 'diagnostic') {
-        const today = getTodayDate();
-        document.getElementById('diagnosticDate').value = today;
-    }
-    
-    // Якщо відкрили канікули - встановлюємо дефолтні дати та оновлюємо список
-    if (type === 'freeze') {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const tomorrow = new Date(today);
-        tomorrow.setDate(today.getDate() + 1);
-        
-        document.getElementById('freezeFromDate').value = today.toISOString().split('T')[0];
-        document.getElementById('freezeUntilDate').value = tomorrow.toISOString().split('T')[0];
-        
-        renderFreezePeriods();
-    }
-}
-
 // Додавання записів
 
 export function updateUI() {
@@ -122,3 +57,9 @@ export function showLoading(show) {
     const overlay = document.getElementById('loadingOverlay');
     if (overlay) overlay.style.display = show ? 'flex' : 'none';
 }
+
+
+// ── Слухаємо зміни стану (від freeze.js та інших) ────────────
+document.addEventListener('zirky:stateChanged', () => {
+    updateUI();
+});

@@ -1,6 +1,6 @@
 // ════════════════════════════════════════════════════
 // FIREBASE  firebase.js — Firebase
-//     Зірки Успіху | v3.20260426.1541
+//     Зірки Успіху | v3.20260426.1550
 // ════════════════════════════════════════════════════
 
 import { state } from './state.js';
@@ -8,9 +8,6 @@ import { firebaseConfig } from './config.js';
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
 import { getDatabase, ref, set, onValue } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 import { checkWeeklyAchievements, recalculateAchievements } from './achievements.js';
-import { renderHistory } from './history.js';
-import { renderRewards } from './rewards.js';
-import { checkStreakWarning, renderStats } from './stats.js';
 import { showLoading, updateUI } from './ui.js';
 
 // ════════════════════════════════════════════════════════════
@@ -40,13 +37,8 @@ export function initFirebase() {
         checkWeeklyAchievements();  // Перевіряємо тижневі досягнення
         updateUI();
         checkStreakWarning();  // Перевіряємо чи треба нагадати про канікули
-        // Якщо відкрита історія чи статистика — оновлюємо
-        const activeSection = document.querySelector('.section.active');
-        if (activeSection) {
-            if (activeSection.id === 'historySection') renderHistory();
-            if (activeSection.id === 'statsSection') renderStats();
-            if (activeSection.id === 'rewardsSection') renderRewards();
-        }
+        // Сигналізуємо що дані завантажені — ui.js сам оновить активну секцію
+        document.dispatchEvent(new CustomEvent('zirky:dataLoaded'));
     });
 }
 

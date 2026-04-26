@@ -1,12 +1,11 @@
 // ════════════════════════════════════════════════════
 // FREEZE  freeze.js — Freeze
-//     Зірки Успіху | v3.20260426.1534
+//     Зірки Успіху | v3.20260426.1550
 // ════════════════════════════════════════════════════
 
 import { state } from './state.js';
 import { recalculateAchievements } from './achievements.js';
 import { saveData } from './firebase.js';
-import { updateUI } from './ui.js';
 
 // ════════════════════════════════════════════════════════════
 // ❄️   БЛОК: Канікули
@@ -100,7 +99,7 @@ export function addFreezePeriod() {
     // Перераховуємо серії
     recalculateAchievements();
     saveData();
-    updateUI();
+    document.dispatchEvent(new CustomEvent('zirky:stateChanged'));  // ui.js оновить UI
     renderFreezePeriods();
     
     alert(`❄️ Період канікул додано!
@@ -130,7 +129,7 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
     // Перераховуємо серії
     recalculateAchievements();
     saveData();
-    updateUI();
+    document.dispatchEvent(new CustomEvent('zirky:stateChanged'));  // ui.js оновить UI
     renderFreezePeriods();
 }
 

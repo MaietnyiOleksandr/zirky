@@ -1,11 +1,10 @@
 // ════════════════════════════════════════════════════
 // 🔐  auth.js — Авторизація та PIN-код
-//     Зірки Успіху | v3.20260426.1534
+//     Зірки Успіху | v3.20260426.1550
 // ════════════════════════════════════════════════════
 
 import { state } from './state.js';
 import { saveData } from './firebase.js';
-import { buyReward, doCustomReward } from './rewards.js';
 import { switchTab, updateUI } from './ui.js';
 
 // ════════════════════════════════════════════════════════════
@@ -99,24 +98,6 @@ export function cancelRewardPin() {
     pendingRewardIndex = null;
     state.pendingCustomReward = null;
 }
-
-export function checkRewardPin() {
-    if (rewardPinValue === state.data.pin) {
-        document.getElementById('rewardPinOverlay').style.display = 'none';
-        if (pendingRewardIndex !== null) {
-            buyReward(pendingRewardIndex);
-            pendingRewardIndex = null;
-        } else if (state.pendingCustomReward) {
-            doCustomReward(state.pendingCustomReward.desc, state.pendingCustomReward.stars);
-            state.pendingCustomReward = null;
-        }
-    } else {
-        alert('❌ Невірний PIN!');
-        rewardPinValue = '';
-        document.getElementById('rewardPinInput').value = '';
-    }
-}
-
 // Функція перемикання періоду
 export function togglePeriod(period) {
     state.showPeriod = period;

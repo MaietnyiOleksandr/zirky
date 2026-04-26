@@ -1,13 +1,12 @@
 // ════════════════════════════════════════════════════
 // HISTORY  history.js — History
-//     Зірки Успіху | v3.20260426.0912
+//     Зірки Успіху | v3.20260426.1552
 // ════════════════════════════════════════════════════
 
 import { state } from './state.js';
 import { saveData } from './firebase.js';
 import { deleteFreezePeriod, editFreezePeriod } from './freeze.js';
 import { deleteRecord } from './records.js';
-import { showForm, switchTab } from './ui.js';
 
 // ════════════════════════════════════════════════════════════
 // 📜  БЛОК: Історія
@@ -67,7 +66,7 @@ export function renderHistory() {
                 const freezeIndex = state.data.achievements.freezePeriods.findIndex(p => p.id === r.freezeId);
                 if (freezeIndex !== -1) {
                     actionButtons = `
-                        <button class="delete-btn" onclick="editFreezePeriod(${freezeIndex}); switchTab('add'); showForm('freeze');" style="background: #2196F3; margin-right: 5px;">✏️</button>
+                        <button class="delete-btn" onclick="editFreezePeriod(${freezeIndex}); document.dispatchEvent(new CustomEvent('zirky:switchTab', { detail: 'add' })); document.dispatchEvent(new CustomEvent('zirky:showForm', { detail: 'freeze' }));" style="background: #2196F3; margin-right: 5px;">✏️</button>
                         <button class="delete-btn" onclick="deleteFreezePeriod(${freezeIndex})">🗑️</button>
                     `;
                 }

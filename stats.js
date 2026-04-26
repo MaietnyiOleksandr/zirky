@@ -1,10 +1,9 @@
 // ════════════════════════════════════════════════════
 // STATS  stats.js — Stats
-//     Зірки Успіху | v3.20260426.1534
+//     Зірки Успіху | v3.20260426.1552
 // ════════════════════════════════════════════════════
 
 import { state } from './state.js';
-import { showForm, switchTab } from './ui.js';
 
 // ════════════════════════════════════════════════════════════
 // 📊  БЛОК: Статистика / Графіки
@@ -232,8 +231,8 @@ export function checkStreakWarning() {
 Активна серія: ${streak} ${streak === 1 ? 'день' : streak < 5 ? 'дні' : 'днів'}
 
 Якщо були канікули - додайте період канікул у розділі "+Додати"`)) {
-                        switchTab('add');
-                        showForm('freeze');
+                        document.dispatchEvent(new CustomEvent('zirky:switchTab', { detail: 'add' }));
+                        document.dispatchEvent(new CustomEvent('zirky:showForm', { detail: 'freeze' }));
                     }
                 }, 1000);
             }

@@ -1,6 +1,6 @@
 // ════════════════════════════════════════════════════
 // REWARDS  rewards.js — Rewards
-//     Зірки Успіху | v3.20260426.1534
+//     Зірки Успіху | v3.20260426.1550
 // ════════════════════════════════════════════════════
 
 import { state } from './state.js';
@@ -95,4 +95,22 @@ export function buyRewardWithPin(index) {
     pendingRewardIndex = index;
     state.pendingCustomReward = null;
     showRewardPin();
+}
+
+// ── Перенесено з auth.js (розрив циклічної залежності) ──
+export export function checkRewardPin() {
+    if (rewardPinValue === state.data.pin) {
+        document.getElementById('rewardPinOverlay').style.display = 'none';
+        if (pendingRewardIndex !== null) {
+            buyReward(pendingRewardIndex);
+            pendingRewardIndex = null;
+        } else if (state.pendingCustomReward) {
+            doCustomReward(state.pendingCustomReward.desc, state.pendingCustomReward.stars);
+            state.pendingCustomReward = null;
+        }
+    } else {
+        alert('❌ Невірний PIN!');
+        rewardPinValue = '';
+        document.getElementById('rewardPinInput').value = '';
+    }
 }
