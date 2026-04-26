@@ -1,6 +1,6 @@
 // ════════════════════════════════════════════════════
 // RECORDS  records.js — Records
-//     Зірки Успіху | v3.20260426.1734
+//     Зірки Успіху | v3.20260426.1755
 // ════════════════════════════════════════════════════
 
 import { state } from './state.js';
@@ -39,7 +39,7 @@ export function addGradeRecord() {
     recalculateAchievements();
     
     // Перевіряємо чи досягнута мета (тільки тут, не в recalculate!)
-    checkGoalReached();
+    const goalJustReached = checkGoalReached();
     
     // Даємо бонуси тільки за НОВІ досягнення
     giveRewardsForNewAchievements(levelsBefore);
@@ -96,7 +96,7 @@ export function addDiagnosticWork() {
     recalculateAchievements();
     
     // Перевіряємо чи досягнута мета (тільки тут, не в recalculate!)
-    checkGoalReached();
+    const goalJustReached = checkGoalReached();
     
     // Даємо бонуси тільки за НОВІ досягнення
     giveRewardsForNewAchievements(levelsBefore);
@@ -141,7 +141,7 @@ export function addBonusRecord() {
     recalculateAchievements();
     
     // Перевіряємо чи досягнута мета (тільки тут, не в recalculate!)
-    checkGoalReached();
+    const goalJustReached = checkGoalReached();
     
     // Даємо бонуси тільки за НОВІ досягнення
     giveRewardsForNewAchievements(levelsBefore);
@@ -182,7 +182,7 @@ export function addSpecialRecord() {
     recalculateAchievements();
     
     // Перевіряємо чи досягнута мета (тільки тут, не в recalculate!)
-    checkGoalReached();
+    const goalJustReached = checkGoalReached();
     
     // Даємо бонуси тільки за НОВІ досягнення
     giveRewardsForNewAchievements(levelsBefore);

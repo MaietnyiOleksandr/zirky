@@ -1,6 +1,6 @@
 // ════════════════════════════════════════════════════
 // 🗂️  navigation.js — Навігація між вкладками та формами
-//     Зірки Успіху | v3.20260426.1636
+//     Зірки Успіху | v3.20260426.1755
 //
 //     Виокремлено для розриву циклічних залежностей:
 //     history.js, stats.js, freeze.js потребували
@@ -97,3 +97,9 @@ document.addEventListener('zirky:dataLoaded', () => {
 // ── Слухаємо навігаційні події від інших модулів ─────────────
 document.addEventListener('zirky:showForm', (e) => showForm(e.detail));
 document.addEventListener('zirky:switchTab', (e) => switchTab(e.detail, true));
+
+// ── При досягненні мети — одразу оновлюємо badges без очікування Firebase ──
+document.addEventListener('zirky:goalReached', () => {
+    renderAchievementsHome();
+    renderGoal();
+});
