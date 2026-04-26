@@ -652,89 +652,8 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-
-
-        // Рендеринг досягнень на головній сторінці
-        // renderAchievementsHome → achievements.js
-        
-        // Функції роботи з метою
-        
-
-        // ════════════════════════════════════════════════════════════
-        // 🎯  БЛОК: Цілі
-        // ════════════════════════════════════════════════════════════
-        // ═══════════════ СИСТЕМА ДОСЯГНЕНЬ ═══════════════
-        
-        // Ініціалізація лічильників при завантаженні
-
-        // 🏆 Achievements → achievements.js
-
-        // ════════════════════════════════════════════════════════════
-        // ❄️   БЛОК: Канікули
-        // ════════════════════════════════════════════════════════════
-        window.addFreezePeriod = addFreezePeriod;
-        
-        
-        
-        
-        // Перевіряємо чи день має пропускатися (канікули або вихідні)
-        // shouldSkipDayForStreak → achievements.js
-        
-        // Firebase: читаємо дані і слухаємо зміни в реальному часі
-
-        // ════════════════════════════════════════════════════════════
-        // 🔥  БЛОК: Firebase / Збереження даних
-        // ════════════════════════════════════════════════════════════
-        // Firebase: зберігаємо дані
-
-
-        // ════════════════════════════════════════════════════════════
-        // 🔧  БЛОК: Утиліти
-        // ════════════════════════════════════════════════════════════
-        // Вхід
-
-        // 🔐 AUTH функції → auth.js
-
-        // ════════════════════════════════════════════════════════════
-        // 🗂️   БЛОК: Навігація по вкладках
-        // ════════════════════════════════════════════════════════════
-        // Додавання записів
-
-        // ════════════════════════════════════════════════════════════
-        // ➕  БЛОК: Нарахування (оцінки, бонуси, діагностика)
-        // ════════════════════════════════════════════════════════════
-        // Відображення
-
-        // Мапа емоджі для предметів
-
-        // ════════════════════════════════════════════════════════════
-        // 📜  БЛОК: Історія
-        // ════════════════════════════════════════════════════════════
-        // ════════════════════════════════════════════════════════════
-        // 🎁  БЛОК: Витрати / Винагороди
-        // ════════════════════════════════════════════════════════════
-        // ════════════════════════════════════════════════════════════
-        // 📊  БЛОК: Статистика / Графіки
-        // ════════════════════════════════════════════════════════════
-        // Нагадування про серію при вході в понеділок
-        
-
-        // PIN підтвердження для дитини при обміні
-        let pendingRewardIndex = null;
-        // state.pendingCustomReward → state.state.pendingCustomReward
-        let rewardPinValue = '';
-
-
-        // 🔐 Reward PIN функції → auth.js
-
-        // ════════════════════════════════════════════════════════════
-        // ⚙️   БЛОК: Налаштування / Експорт / Імпорт
-        // ════════════════════════════════════════════════════════════
-        // 🏆 Achievements → window
-        window.renderAchievements = renderAchievements;
-        window.renderAchievementsHome = renderAchievementsHome;
-
-        // 🔐 Auth → window
+        // ── Глобальні функції для onclick ─────────────────────
+        // auth.js
         window.showPinInput = showPinInput;
         window.enterAsChild = enterAsChild;
         window.addPin = addPin;
@@ -748,8 +667,61 @@
         window.cancelRewardPin = cancelRewardPin;
         window.checkRewardPin = checkRewardPin;
         window.togglePeriod = togglePeriod;
+        // goals.js
+        window.showGoalModal = showGoalModal;
+        window.cancelGoal = cancelGoal;
+        window.saveGoal = saveGoal;
+        window.deleteGoal = deleteGoal;
+        window.renderGoal = renderGoal;
+        // freeze.js
+        window.addFreezePeriod = addFreezePeriod;
+        window.deleteFreezePeriod = deleteFreezePeriod;
+        window.editFreezePeriod = editFreezePeriod;
+        window.renderFreezePeriods = renderFreezePeriods;
+        // ui.js
+        window.switchTab = switchTab;
+        window.showForm = showForm;
+        // records.js
+        window.addGradeRecord = addGradeRecord;
+        window.addDiagnosticWork = addDiagnosticWork;
+        window.addBonusRecord = addBonusRecord;
+        window.addSpecialRecord = addSpecialRecord;
+        window.deleteRecord = deleteRecord;
+        // history.js
+        window.renderHistory = renderHistory;
+        window.changeMonth = changeMonth;
+        // rewards.js
+        window.renderRewards = renderRewards;
+        window.buyReward = buyReward;
+        window.buyCustomReward = buyCustomReward;
+        window.buyRewardWithPin = buyRewardWithPin;
+        // stats.js
+        window.renderStats = renderStats;
+        window.updateChart = updateChart;
+        window.changeChartPeriod = changeChartPeriod;
+        window.changeChartOffset = changeChartOffset;
+        // settings.js
+        window.exportData = exportData;
+        window.importData = importData;
+        window.resetAllData = resetAllData;
+        window.adjustBalance = adjustBalance;
+        window.showDataInfo = showDataInfo;
+        // achievements.js
+        window.renderAchievements = renderAchievements;
+        window.renderAchievementsHome = renderAchievementsHome;
 
-</script>
+        // ── Event listeners ───────────────────────────────────────
+        document.addEventListener('click', (e) => {
+            if (e.target.id === 'setGoalBtn' || e.target.id === 'editGoalBtn') {
+                showGoalModal();
+            }
+        });
+
+        // ── Ініціалізація ─────────────────────────────────────────
+        setTodayDates();
+        initFirebase();
+
+    </script>
 
 
 </body>
