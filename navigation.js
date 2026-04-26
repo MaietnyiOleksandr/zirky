@@ -1,6 +1,6 @@
 // ════════════════════════════════════════════════════
 // 🗂️  navigation.js — Навігація між вкладками та формами
-//     Зірки Успіху | v3.20260426.1627
+//     Зірки Успіху | v3.20260426.1636
 //
 //     Виокремлено для розриву циклічних залежностей:
 //     history.js, stats.js, freeze.js потребували
@@ -49,7 +49,7 @@ export function showForm(type) {
 
 // Додавання записів
 
-export function switchTab(tab, fromClick) {
+export function switchTab(tab, fromClick = false) {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     // Якщо виклик від кліку — підсвічуємо натиснуту вкладку
     if (fromClick && event && event.target) {
