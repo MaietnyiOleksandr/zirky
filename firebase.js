@@ -7,6 +7,11 @@ import { state } from './state.js';
 import { firebaseConfig } from './config.js';
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
 import { getDatabase, ref, set, onValue } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+import { checkWeeklyAchievements, recalculateAchievements } from './achievements.js';
+import { renderHistory } from './history.js';
+import { renderRewards } from './rewards.js';
+import { checkStreakWarning, renderStats } from './stats.js';
+import { showLoading, updateUI } from './ui.js';
 
 // ════════════════════════════════════════════════════════════
 // 🔥  БЛОК: Firebase / Збереження даних

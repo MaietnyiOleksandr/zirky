@@ -5,7 +5,7 @@
 
 import { state } from './state.js';
 import { ACHIEVEMENTS, gradeToStars } from './config.js';
-import { recalculateAchievements, checkWeeklyAchievements, giveRewardsForNewAchievements } from './achievements.js';
+import { recalculateAchievements, checkWeeklyAchievements, giveRewardsForNewAchievements, removeRewardsForLostAchievements } from './achievements.js';
 import { saveData } from './firebase.js';
 
 // ════════════════════════════════════════════════════════════

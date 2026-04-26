@@ -5,6 +5,8 @@
 
 import { state } from './state.js';
 import { recalculateAchievements } from './achievements.js';
+import { saveData } from './firebase.js';
+import { updateUI } from './ui.js';
 
 // ════════════════════════════════════════════════════════════
 // ❄️   БЛОК: Канікули

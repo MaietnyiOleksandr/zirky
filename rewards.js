@@ -6,6 +6,7 @@
 import { state } from './state.js';
 import { rewards } from './config.js';
 import { saveData } from './firebase.js';
+import { showRewardPin } from './auth.js';
 
 // ════════════════════════════════════════════════════════════
 // 🎁  БЛОК: Витрати / Винагороди

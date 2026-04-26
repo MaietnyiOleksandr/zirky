@@ -5,6 +5,9 @@
 
 import { state } from './state.js';
 import { saveData } from './firebase.js';
+import { deleteFreezePeriod, editFreezePeriod } from './freeze.js';
+import { deleteRecord } from './records.js';
+import { showForm, switchTab } from './ui.js';
 
 // ════════════════════════════════════════════════════════════
 // 📜  БЛОК: Історія

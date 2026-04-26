@@ -4,6 +4,9 @@
 // ════════════════════════════════════════════════════
 
 import { state } from './state.js';
+import { saveData } from './firebase.js';
+import { buyReward, doCustomReward } from './rewards.js';
+import { switchTab, updateUI } from './ui.js';
 
 // ════════════════════════════════════════════════════════════
 // 🔐  БЛОК: Авторизація / PIN

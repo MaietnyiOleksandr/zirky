@@ -4,9 +4,14 @@
 // ════════════════════════════════════════════════════
 
 import { state } from './state.js';
-import { renderAchievementsHome } from './achievements.js';
+import { renderAchievementsHome, renderAchievements } from './achievements.js';
 import { renderGoal } from './goals.js';
-import { checkStreakWarning } from './stats.js';
+import { checkStreakWarning, renderStats } from './stats.js';
+import { renderFreezePeriods } from './freeze.js';
+import { renderHistory } from './history.js';
+import { renderRewards } from './rewards.js';
+import { showDataInfo } from './settings.js';
+import { getTodayDate } from './utils.js';
 
 // ════════════════════════════════════════════════════════════
 // 🗂️   БЛОК: Навігація по вкладках
