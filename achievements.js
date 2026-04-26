@@ -1,6 +1,6 @@
 // ════════════════════════════════════════════════════
 // 🏆  achievements.js — Система досягнень
-//     Зірки Успіху | v3.20260426.1733
+//     Зірки Успіху | v3.20260426.1743
 // ════════════════════════════════════════════════════
 
 import { state } from './state.js';
@@ -400,8 +400,9 @@ export function removeRewardsForLostAchievements(levelsBefore) {
         const ach = ACHIEVEMENTS[achId];
         if (!ach) return;
         
-        // Для repeatable НЕ забираємо бонуси при втраті рівня
+        // Для repeatable та goal_counter НЕ забираємо бонуси при втраті рівня
         if (ach.type === 'repeatable_streak') return;
+        if (ach.type === 'goal_counter') return;  // мета — незворотня
         
         const levelBefore = levelsBefore[achId] || 0;
         const levelAfter = levelsAfter[achId] || 0;
@@ -446,6 +447,9 @@ export function giveRewardsForNewAchievements(levelsBefore) {
         const ach = ACHIEVEMENTS[achId];
         const levelBefore = levelsBefore[achId] || 0;
         const levelAfter = levelsAfter[achId] || 0;
+        
+        // goal_counter обробляється окремо в checkGoalReached()
+        if (ach.type === 'goal_counter') return;
         
         // Для repeatable - перевіряємо чи це повторне отримання
         const isRepeatable = ach.type === 'repeatable_streak';

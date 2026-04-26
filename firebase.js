@@ -1,6 +1,6 @@
 // ════════════════════════════════════════════════════
 // FIREBASE  firebase.js — Firebase
-//     Зірки Успіху | v3.20260426.1649
+//     Зірки Успіху | v3.20260426.1743
 // ════════════════════════════════════════════════════
 
 import { state } from './state.js';
@@ -26,8 +26,14 @@ export function initFirebase() {
         const saved = snapshot.val();
         if (saved) {
             const wasParent = state.data.isParent;
+            // Зберігаємо goal.reached перед перезаписом (race condition з Firebase)
+            const goalReachedBefore = state.data.goal?.reached;
             // Мутуємо існуючий об'єкт щоб зберегти посилання в інших модулях
             Object.assign(state.data, saved);
+            // Відновлюємо reached якщо Firebase ще не встиг зберегти
+            if (goalReachedBefore && state.data.goal && !state.data.goal.reached) {
+                state.data.goal.reached = true;
+            }
             state.data.isParent = wasParent;
             if (state.data.balance === undefined) state.data.balance = 0;
             if (!state.data.records) state.data.records = [];
