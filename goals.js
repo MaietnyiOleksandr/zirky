@@ -138,25 +138,3 @@ export function renderGoal() {
         </div>
     `;
 }
-
-export function showGoalModal() {
-    if (state.data.goal) {
-        document.getElementById('goalName').value = state.data.goal.name || '';
-        document.getElementById('goalTarget').value = state.data.goal.target || '';
-        document.getElementById('goalEmoji').value = state.data.goal.emoji || '';
-        document.getElementById('deleteGoalBtn').style.display = 'block';
-    } else {
-        document.getElementById('goalName').value = '';
-        document.getElementById('goalTarget').value = '';
-        document.getElementById('goalEmoji').value = '';
-        document.getElementById('deleteGoalBtn').style.display = 'none';
-    }
-    document.getElementById('goalModal').style.display = 'flex';
-    
-    // Додаємо event listeners
-    setTimeout(() => {
-        document.getElementById('cancelGoalBtn').onclick = cancelGoal;
-        document.getElementById('saveGoalBtn').onclick = saveGoal;
-        document.getElementById('deleteGoalBtn').onclick = deleteGoal;
-    }, 0);
-}

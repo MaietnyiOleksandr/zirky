@@ -239,52 +239,8 @@ export function checkStreakWarning() {
         }
     }
 }
-
-export function updateUI() {
-    document.getElementById('balance').textContent = Number(state.data.balance) + '⭐';
-
-    let records = state.data.records || [];
-    if (state.showPeriod === 'month') {
-        const thisMonth = new Date().getMonth();
-        const thisYear = new Date().getFullYear();
-        records = records.filter(r => {
-            const d = new Date(r.date);
-            return d.getMonth() === thisMonth && d.getFullYear() === thisYear;
-        });
-    }
-    const earned = records.filter(r=>r.type==='earn').reduce((s,r)=>s+r.stars,0);
-    const spent = records.filter(r=>r.type==='spend').reduce((s,r)=>s+r.stars,0);
-
-    document.getElementById('earnedStats').textContent = earned + '⭐';
-    document.getElementById('spentStats').textContent = spent + '⭐';
-
-    if (!state.data.isParent) {
-        document.querySelectorAll('.tab').forEach(t => {
-            if (t.textContent.includes('Додати')) t.style.display = 'none';
-        });
-        document.getElementById('parentInstructions').style.display = 'none';
-        document.getElementById('childInstructions').style.display = 'block';
-    } else {
-        // Відновлюємо всі вкладки для батьків
-        document.querySelectorAll('.tab').forEach(t => t.style.display = '');
-        document.getElementById('parentInstructions').style.display = 'block';
-        document.getElementById('childInstructions').style.display = 'none';
-        document.getElementById('currentPin').textContent = state.data.pin;
-    }
-    
-    renderAchievementsHome();
-    renderGoal();
-}
-
 // PIN підтвердження для дитини при обміні
 let pendingRewardIndex = null;
 // state.pendingCustomReward → state.state.pendingCustomReward
 let rewardPinValue = '';
-
-export function buyRewardWithPin(index) {
-    pendingRewardIndex = index;
-    state.pendingCustomReward = null;
-    showRewardPin();
-}
-
 // 🔐 Reward PIN функції → auth.js
