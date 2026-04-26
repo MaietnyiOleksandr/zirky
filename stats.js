@@ -1,6 +1,6 @@
 // ════════════════════════════════════════════════════
 // STATS  stats.js — Stats
-//     Зірки Успіху | v3.20260426.1552
+//     Зірки Успіху | v3.20260426.1627
 // ════════════════════════════════════════════════════
 
 import { state } from './state.js';
@@ -240,7 +240,6 @@ export function checkStreakWarning() {
     }
 }
 // PIN підтвердження для дитини при обміні
-let pendingRewardIndex = null;
 // state.pendingCustomReward → state.state.pendingCustomReward
 let rewardPinValue = '';
 // 🔐 Reward PIN функції → auth.js

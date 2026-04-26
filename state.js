@@ -38,7 +38,8 @@ export const state = {
 
     // ── Тимчасові дані ────────────────────────────
     pendingCustomReward: null,
-    rewardPinValue: '',     // Зберігається спільно між auth.js та rewards.js
+    rewardPinValue: '',
+    pendingRewardIndex: null, // Індекс винагороди що очікує PIN підтвердження     // Зберігається спільно між auth.js та rewards.js
     editingFreezeIndex: undefined,
 
 };

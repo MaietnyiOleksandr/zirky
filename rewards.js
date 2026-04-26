@@ -1,6 +1,6 @@
 // ════════════════════════════════════════════════════
 // REWARDS  rewards.js — Rewards
-//     Зірки Успіху | v3.20260426.1607
+//     Зірки Успіху | v3.20260426.1627
 // ════════════════════════════════════════════════════
 
 import { state } from './state.js';
@@ -91,7 +91,7 @@ export function doCustomReward(date, desc, stars) {
 }
 
 export function buyRewardWithPin(index) {
-    pendingRewardIndex = index;
+    state.pendingRewardIndex = index;
     state.pendingCustomReward = null;
     document.dispatchEvent(new CustomEvent('zirky:showRewardPin'));  // auth.js слухає
 }
@@ -100,9 +100,9 @@ export function buyRewardWithPin(index) {
 export function checkRewardPin() {
     if (state.rewardPinValue === state.data.pin) {
         document.getElementById('rewardPinOverlay').style.display = 'none';
-        if (pendingRewardIndex !== null) {
-            buyReward(pendingRewardIndex);
-            pendingRewardIndex = null;
+        if (state.pendingRewardIndex !== null) {
+            buyReward(state.pendingRewardIndex);
+            state.pendingRewardIndex = null;
         } else if (state.pendingCustomReward) {
             doCustomReward(state.pendingCustomReward.desc, state.pendingCustomReward.stars);
             state.pendingCustomReward = null;

@@ -1,6 +1,6 @@
 // ════════════════════════════════════════════════════
 // 🔐  auth.js — Авторизація та PIN-код
-//     Зірки Успіху | v3.20260426.1607
+//     Зірки Успіху | v3.20260426.1627
 // ════════════════════════════════════════════════════
 
 import { state } from './state.js';
@@ -95,7 +95,7 @@ export function clearRewardPin() {
 
 export function cancelRewardPin() {
     document.getElementById('rewardPinOverlay').style.display = 'none';
-    pendingRewardIndex = null;
+    state.pendingRewardIndex = null;
     state.pendingCustomReward = null;
 }
 // Функція перемикання періоду

@@ -1,6 +1,6 @@
 // ════════════════════════════════════════════════════
 // 🗂️  navigation.js — Навігація між вкладками та формами
-//     Зірки Успіху | v3.20260426.1551
+//     Зірки Успіху | v3.20260426.1627
 //
 //     Виокремлено для розриву циклічних залежностей:
 //     history.js, stats.js, freeze.js потребували
@@ -8,6 +8,7 @@
 // ════════════════════════════════════════════════════
 
 import { state } from './state.js';
+import { getTodayDate } from './utils.js';
 import { renderAchievements, renderAchievementsHome } from './achievements.js';
 import { renderGoal } from './goals.js';
 import { renderFreezePeriods } from './freeze.js';
