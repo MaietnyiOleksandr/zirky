@@ -1,6 +1,6 @@
 // ════════════════════════════════════════════════════
 // FIREBASE  firebase.js — Firebase
-//     Зірки Успіху | v3.20260426.0912
+//     Зірки Успіху | v3.20260426.1517
 // ════════════════════════════════════════════════════
 
 import { state } from './state.js';
@@ -16,14 +16,19 @@ import { showLoading, updateUI } from './ui.js';
 // ════════════════════════════════════════════════════════════
 // 🔥  БЛОК: Firebase / Збереження даних
 // ════════════════════════════════════════════════════════════
-        export function initFirebase() {
+
+// Ініціалізуємо Firebase тут — db потрібен локально
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+export function initFirebase() {
     showLoading(true);
     const dataRef = ref(db, 'zirky');
     onValue(dataRef, (snapshot) => {
         const saved = snapshot.val();
         if (saved) {
             const wasParent = state.data.isParent;
-            data = saved;
+            state.data = saved;
             state.data.isParent = wasParent;
             if (state.data.balance === undefined) state.data.balance = 0;
             if (!state.data.records) state.data.records = [];
@@ -47,7 +52,7 @@ import { showLoading, updateUI } from './ui.js';
 // Firebase: зберігаємо дані
 export function saveData() {
     // ЗАХИСТ: Перевіряємо чи data існує
-    if (!data) {
+    if (!state.data) {
         console.error('⚠️ ЗАХИСТ: data не існує!');
         return;
     }
