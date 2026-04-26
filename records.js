@@ -1,6 +1,6 @@
 // ════════════════════════════════════════════════════
 // RECORDS  records.js — Records
-//     Зірки Успіху | v3.20260426.1534
+//     Зірки Успіху | v3.20260426.1650
 // ════════════════════════════════════════════════════
 
 import { state } from './state.js';
@@ -203,6 +203,9 @@ export function deleteRecord(id) {
     
     // Видаляємо бонуси за втрачені досягнення
     removeRewardsForLostAchievements(levelsBefore);
+    
+    // Перераховуємо weekly (може знизитись рівень після видалення)
+    checkWeeklyAchievements();
     
     saveData();
 }

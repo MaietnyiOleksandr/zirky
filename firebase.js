@@ -1,13 +1,13 @@
 // ════════════════════════════════════════════════════
 // FIREBASE  firebase.js — Firebase
-//     Зірки Успіху | v3.20260426.1627
+//     Зірки Успіху | v3.20260426.1649
 // ════════════════════════════════════════════════════
 
 import { state } from './state.js';
 import { firebaseConfig } from './config.js';
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
 import { getDatabase, ref, set, onValue } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
-import { checkWeeklyAchievements, recalculateAchievements } from './achievements.js';
+import { recalculateAchievements } from './achievements.js';
 import { checkStreakWarning } from './stats.js';
 import { showLoading, updateUI } from './ui.js';
 
@@ -35,7 +35,6 @@ export function initFirebase() {
         }
         showLoading(false);
         recalculateAchievements();  // Перераховуємо досягнення з усіх записів
-        checkWeeklyAchievements();  // Перевіряємо тижневі досягнення
         updateUI();
         checkStreakWarning();  // Перевіряємо чи треба нагадати про канікули
         // Сигналізуємо що дані завантажені — ui.js сам оновить активну секцію

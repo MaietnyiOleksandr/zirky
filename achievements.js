@@ -1,6 +1,6 @@
 // ════════════════════════════════════════════════════
 // 🏆  achievements.js — Система досягнень
-//     Зірки Успіху | v3.20260426.0910
+//     Зірки Успіху | v3.20260426.1650
 // ════════════════════════════════════════════════════
 
 import { state } from './state.js';
@@ -276,14 +276,38 @@ export function checkWeeklyAchievements() {
             }
         }
         
-        // Якщо є нові рівні
+        // Якщо рівень підвищився — нараховуємо
         if (achievedLevel > currentWeekLevel) {
             for (let i = currentWeekLevel; i < achievedLevel; i++) {
                 const level = ach.levels[i];
                 newWeeklyUnlocks.push({ achId, ach, level, levelNum: i + 1 });
             }
+            if (!state.data.achievements.weekly[weekKey]) {
+                state.data.achievements.weekly[weekKey] = {};
+            }
+            state.data.achievements.weekly[weekKey][achId] = achievedLevel;
+        
+        // Якщо рівень знизився — забираємо нараховані зірки і видаляємо записи
+        } else if (achievedLevel < currentWeekLevel) {
+            // Видаляємо записи досягнення за рівні що були скасовані
+            for (let i = achievedLevel; i < currentWeekLevel; i++) {
+                const level = ach.levels[i];
+                const tierName = level.tier === 'bronze' ? 'I' : level.tier === 'silver' ? 'II' : 'III';
+                const fullName = `${ach.icon} ${ach.name} ${tierName}`;
+                
+                // Видаляємо запис з цього тижня і повертаємо зірки
+                const before = state.data.records.length;
+                state.data.records = state.data.records.filter(r => {
+                    if (r.category !== 'achievement' || r.description !== fullName) return true;
+                    const rDate = new Date(r.date);
+                    if (rDate < weekStart || rDate > weekEnd) return true;
+                    // Видаляємо і повертаємо зірки
+                    state.data.balance = Number(state.data.balance) - (r.stars || 0);
+                    return false;
+                });
+            }
             
-            // Оновлюємо рівень за цей тиждень
+            // Оновлюємо рівень вниз
             if (!state.data.achievements.weekly[weekKey]) {
                 state.data.achievements.weekly[weekKey] = {};
             }
