@@ -1,6 +1,6 @@
 // ════════════════════════════════════════════════════
 // REWARDS  rewards.js — Rewards
-//     Зірки Успіху | v3.20260426.1627
+//     Зірки Успіху | v3.20260426.1633
 // ════════════════════════════════════════════════════
 
 import { state } from './state.js';
@@ -104,7 +104,7 @@ export function checkRewardPin() {
             buyReward(state.pendingRewardIndex);
             state.pendingRewardIndex = null;
         } else if (state.pendingCustomReward) {
-            doCustomReward(state.pendingCustomReward.desc, state.pendingCustomReward.stars);
+            doCustomReward(state.pendingCustomReward.date, state.pendingCustomReward.desc, state.pendingCustomReward.stars);
             state.pendingCustomReward = null;
         }
     } else {
