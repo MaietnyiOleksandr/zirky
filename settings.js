@@ -1,6 +1,6 @@
 // ════════════════════════════════════════════════════
 // ⚙️   settings.js — Налаштування / Експорт / Імпорт
-//     Зірки Успіху | v3.20260426.1528
+//     Зірки Успіху | v3.20260426.1541
 // ════════════════════════════════════════════════════
 
 import { state } from './state.js';
@@ -27,7 +27,7 @@ export function showDataInfo() {
         <div style="display: grid; gap: 8px;">
             <div style="padding: 8px 0; border-bottom: 2px solid #4CAF50;">
                 <span style="font-size: 15px; color: #2E7D32; font-weight: 700;">📌 Версія застосунку:</span>
-                <strong style="font-size: 16px; color: #1B5E20; margin-left: 8px;">v3.20260426.1528</strong>
+                <strong style="font-size: 16px; color: #1B5E20; margin-left: 8px;">v3.20260426.1541</strong>
             </div>
             <div>📝 Записів в історії: <strong>${recordsCount}</strong></div>
             <div>⭐ Поточний баланс: <strong>${balance} зірок</strong></div>
@@ -149,7 +149,8 @@ export function importData(event) {
             delete imported.appName;
             
             // Замінюємо data
-            state.data = imported;
+            // Мутуємо існуючий об'єкт щоб зберегти посилання
+            Object.assign(state.data, imported);
             
             // Перераховуємо досягнення
             recalculateAchievements();
@@ -184,7 +185,8 @@ export function resetAllData() {
     }
     
     // Скидаємо дані
-    state.data = {
+    // Мутуємо існуючий об'єкт
+    Object.assign(state.data, {
         records: [],
         balance: 0,
         pin: '1234',
@@ -197,7 +199,7 @@ export function resetAllData() {
             repeatableHistory: {},
             freezePeriods: []
         }
-    };
+    });
     
     saveData();
     alert("✅ Всі дані скинуто\n\nСторінка перезавантажиться.");

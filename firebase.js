@@ -1,6 +1,6 @@
 // ════════════════════════════════════════════════════
 // FIREBASE  firebase.js — Firebase
-//     Зірки Успіху | v3.20260426.1517
+//     Зірки Успіху | v3.20260426.1541
 // ════════════════════════════════════════════════════
 
 import { state } from './state.js';
@@ -28,7 +28,8 @@ export function initFirebase() {
         const saved = snapshot.val();
         if (saved) {
             const wasParent = state.data.isParent;
-            state.data = saved;
+            // Мутуємо існуючий об'єкт щоб зберегти посилання в інших модулях
+            Object.assign(state.data, saved);
             state.data.isParent = wasParent;
             if (state.data.balance === undefined) state.data.balance = 0;
             if (!state.data.records) state.data.records = [];
