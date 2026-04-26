@@ -1,6 +1,6 @@
 // ════════════════════════════════════════════════════
 // ⚙️   settings.js — Налаштування / Експорт / Імпорт
-//     Зірки Успіху | v3.20260426.0912
+//     Зірки Успіху | v3.20260426.1528
 // ════════════════════════════════════════════════════
 
 import { state } from './state.js';
@@ -10,7 +10,7 @@ import { saveData } from './firebase.js';
 // ════════════════════════════════════════════════════════════
 // // ⚙️   БЛОК: Налаштування / Експорт / Імпорт
 // ════════════════════════════════════════════════════════════
-        export function showDataInfo() {
+export function showDataInfo() {
     const container = document.getElementById('dataInfo');
     if (!container) return;
     
@@ -20,14 +20,14 @@ import { saveData } from './firebase.js';
     const freezePeriodsCount = state.data.achievements?.freezePeriods?.length || 0;
     
     // Розмір даних
-    const dataSize = new Blob([JSON.stringify(data)]).size;
+    const dataSize = new Blob([JSON.stringify(state.data)]).size;
     const sizeKB = (dataSize / 1024).toFixed(2);
     
     container.innerHTML = `
         <div style="display: grid; gap: 8px;">
             <div style="padding: 8px 0; border-bottom: 2px solid #4CAF50;">
                 <span style="font-size: 15px; color: #2E7D32; font-weight: 700;">📌 Версія застосунку:</span>
-                <strong style="font-size: 16px; color: #1B5E20; margin-left: 8px;">v3.20260426.0910</strong>
+                <strong style="font-size: 16px; color: #1B5E20; margin-left: 8px;">v3.20260426.1528</strong>
             </div>
             <div>📝 Записів в історії: <strong>${recordsCount}</strong></div>
             <div>⭐ Поточний баланс: <strong>${balance} зірок</strong></div>
@@ -58,7 +58,7 @@ export function exportData() {
     try {
         // Додаємо метадані
         const dataToExport = {
-            ...data,
+            ...state.data,
             version: 1,
             exportDate: new Date().toISOString(),
             appName: "Зірки Успіху"
@@ -83,7 +83,6 @@ export function exportData() {
         console.error(e);
     }
 }
-window.exportData = exportData;
 
 export function importData(event) {
     const file = event.target.files[0];
@@ -150,7 +149,7 @@ export function importData(event) {
             delete imported.appName;
             
             // Замінюємо data
-            data = imported;
+            state.data = imported;
             
             // Перераховуємо досягнення
             recalculateAchievements();
@@ -173,7 +172,6 @@ export function importData(event) {
     
     reader.readAsText(file);
 }
-window.importData = importData;
 
 export function resetAllData() {
     const confirm1 = confirm("⚠️ ВИ ВПЕВНЕНІ?\n\nЦе видалить ВСІ дані:\n• Всі оцінки та записи\n• Весь баланс зірок\n• Всі досягнення\n• Всі налаштування\n\nЦя дія НЕЗВОРОТНА!\n\nПродовжити?");
@@ -186,7 +184,7 @@ export function resetAllData() {
     }
     
     // Скидаємо дані
-    data = {
+    state.data = {
         records: [],
         balance: 0,
         pin: '1234',
@@ -205,7 +203,6 @@ export function resetAllData() {
     alert("✅ Всі дані скинуто\n\nСторінка перезавантажиться.");
     setTimeout(() => location.reload(), 500);
 }
-window.resetAllData = resetAllData;
 
 export function adjustBalance() {
     const input = document.getElementById('newBalanceInput');
