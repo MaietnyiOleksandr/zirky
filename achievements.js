@@ -1,6 +1,6 @@
 // ════════════════════════════════════════════════════
 // 🏆  achievements.js — Система досягнень
-//     Зірки Успіху | v3.20260426.1650
+//     Зірки Успіху | v3.20260426.1721
 // ════════════════════════════════════════════════════
 
 import { state } from './state.js';
@@ -181,10 +181,19 @@ export function recalculateAchievements() {
             currentValue = streak.current;
         } else if (ach.type === 'balance') {
             currentValue = Number(state.data.balance) || 0;
-        } else if (ach.type === 'special') {
-            if (ach.check === 'goal_reached' && state.data.goal) {
-                const currentBalance = Number(state.data.balance) || 0;
-                currentValue = currentBalance >= state.data.goal.target ? state.data.goal.target : 0;
+        } else if (ach.type === 'goal_counter') {
+            // Лічильник досягнутих цілей
+            currentValue = state.data.achievements.counters.goalsReached || 0;
+            
+            // Перевіряємо чи поточна мета тільки-що досягнута
+            if (state.data.goal && !state.data.goal.reached) {
+                const balance = Number(state.data.balance) || 0;
+                if (balance >= Number(state.data.goal.target)) {
+                    // Мета досягнута! Позначаємо та збільшуємо лічильник
+                    state.data.goal.reached = true;
+                    state.data.achievements.counters.goalsReached = currentValue + 1;
+                    currentValue = currentValue + 1;
+                }
             }
         } else if (ach.type === 'weekly') {
             // Для weekly рахуємо зірки за поточний тиждень
@@ -206,8 +215,8 @@ export function recalculateAchievements() {
         let achievedLevel = 0;
         for (let i = 0; i < ach.levels.length; i++) {
             const level = ach.levels[i];
-            const target = ach.type === 'special' && ach.check === 'goal_reached' 
-                ? (state.data.goal?.target || Infinity) 
+            const target = ach.type === 'goal_counter'
+                ? level.target   // 1, 2, 3 рази
                 : level.target;
             
             if (currentValue >= target) {
@@ -610,12 +619,9 @@ export function renderAchievements() {
             });
             currentValue = weekRecords.reduce((sum, r) => sum + r.stars, 0);
             bestValue = currentValue;
-        } else if (ach.type === 'special') {
-            if (ach.check === 'goal_reached' && state.data.goal) {
-                const currentBalance = Number(state.data.balance) || 0;
-                currentValue = currentBalance;
-                bestValue = currentValue;
-            }
+        } else if (ach.type === 'goal_counter') {
+            currentValue = state.data.achievements.counters.goalsReached || 0;
+            bestValue = currentValue;
         }
         
         // Визначаємо наступний рівень для прогресу
@@ -649,9 +655,7 @@ export function renderAchievements() {
             progressPercent = 100;
             progressText = '✅ Всі рівні досягнуті';
         } else if (nextLevel) {
-            const target = ach.type === 'special' && ach.check === 'goal_reached' 
-                ? (state.data.goal?.target || nextLevel.target) 
-                : nextLevel.target;
+            const target = nextLevel.target;
             progressPercent = Math.min((currentValue / target) * 100, 100);
             
             if (ach.type === 'weekly') {
@@ -671,6 +675,11 @@ export function renderAchievements() {
                 } else {
                     progressText = `${currentValue}⭐ / ${target}⭐ цього тижня`;
                 }
+            } else if (ach.type === 'goal_counter') {
+                const timesText = currentValue === 1 ? 'раз' : currentValue < 5 ? 'рази' : 'разів';
+                progressText = currentValue > 0 
+                    ? `✅ Досягнуто ${currentValue} ${timesText} / потрібно ${target}`
+                    : `Досягни мету ${target} ${target === 1 ? 'раз' : 'рази'}`;
             } else {
                 progressText = `${currentValue} / ${target}`;
             }
@@ -706,12 +715,17 @@ export function renderAchievements() {
                 return count > 0 ? `${medal}×${count}` : '';
             }).filter(x => x).join(' ');
             bestText = counts || `Рекорд: ${bestValue} ${bestValue === 1 ? 'день' : bestValue < 5 ? 'дні' : 'днів'}`;
+        } else if (ach.type === 'goal_counter') {
+            const timesWord = bestValue === 1 ? 'раз' : bestValue < 5 ? 'рази' : 'разів';
+            bestText = bestValue > 0 ? `Досягнуто мети: ${bestValue} ${timesWord}` : '';
         } else if (ach.type === 'balance') {
             bestText = `Баланс: ${bestValue}⭐`;
         } else if (ach.type === 'weekly') {
             bestText = `За тиждень: ${bestValue}⭐`;
-        } else if (ach.type === 'special') {
-            bestText = state.data.goal ? `Мета: ${state.data.goal.target}⭐` : 'Встанови мету';
+        } else if (ach.type === 'goal_counter') {
+            const cnt = state.data.achievements.counters.goalsReached || 0;
+            const cntWord = cnt === 1 ? 'раз' : cnt < 5 ? 'рази' : 'разів';
+            bestText = cnt > 0 ? `Досягнуто ${cnt} ${cntWord}` : 'Ще не досягнуто';
         }
         
         const cardHTML = `

@@ -1,6 +1,6 @@
 // ════════════════════════════════════════════════════
 // GOALS  goals.js — Goals
-//     Зірки Успіху | v3.20260426.0912
+//     Зірки Успіху | v3.20260426.1721
 // ════════════════════════════════════════════════════
 
 import { state } from './state.js';
@@ -50,7 +50,7 @@ export function saveGoal() {
         return;
     }
     
-    state.data.goal = { name, target, emoji };
+    state.data.goal = { name, target, emoji, reached: false };  // reached скидається для нової мети
     saveData();
     document.getElementById('goalModal').style.display = 'none';
     renderGoal();
@@ -109,9 +109,14 @@ export function renderGoal() {
     
     const editBtn = state.data.isParent ? `<button class="goal-edit-btn" id="editGoalBtn">✏️ Змінити</button>` : '';
     
+    const goalsReached = state.data.achievements?.counters?.goalsReached || 0;
+    const reachedText = goalsReached > 0
+        ? ` (всього досягнуто: ${goalsReached} ${goalsReached === 1 ? 'раз' : goalsReached < 5 ? 'рази' : 'разів'})`
+        : '';
+    
     let statusText = '';
     if (remaining <= 0) {
-        statusText = '🎉 Мета досягнута!';
+        statusText = `🎉 Мета досягнута!${reachedText}`;
     } else if (daysLeft !== '?') {
         const daysWord = daysLeft === 1 ? 'день' : daysLeft < 5 ? 'дні' : 'днів';
         statusText = `Зібрано ${current} із ${target}⭐ — залишається ще приблизно ${daysLeft} ${daysWord} до мети (на основі твоїх досягнень за попередній тиждень)`;
