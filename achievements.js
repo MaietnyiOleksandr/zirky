@@ -1,6 +1,6 @@
 // ════════════════════════════════════════════════════
 // 🏆  achievements.js — Система досягнень
-//     Зірки Успіху | v3.20260426.1721
+//     Зірки Успіху | v3.20260426.1733
 // ════════════════════════════════════════════════════
 
 import { state } from './state.js';
@@ -182,19 +182,9 @@ export function recalculateAchievements() {
         } else if (ach.type === 'balance') {
             currentValue = Number(state.data.balance) || 0;
         } else if (ach.type === 'goal_counter') {
-            // Лічильник досягнутих цілей
+            // Читаємо лічильник досягнутих цілей
+            // (збільшується тільки в checkGoalReached, не тут!)
             currentValue = state.data.achievements.counters.goalsReached || 0;
-            
-            // Перевіряємо чи поточна мета тільки-що досягнута
-            if (state.data.goal && !state.data.goal.reached) {
-                const balance = Number(state.data.balance) || 0;
-                if (balance >= Number(state.data.goal.target)) {
-                    // Мета досягнута! Позначаємо та збільшуємо лічильник
-                    state.data.goal.reached = true;
-                    state.data.achievements.counters.goalsReached = currentValue + 1;
-                    currentValue = currentValue + 1;
-                }
-            }
         } else if (ach.type === 'weekly') {
             // Для weekly рахуємо зірки за поточний тиждень
             const now = new Date();
@@ -236,6 +226,55 @@ export function recalculateAchievements() {
 }
 
 // Перевірка тижневих досягнень (Швидкий старт)
+
+// ── Перевірка досягнення мети (викликається тільки при нарахуванні зірок) ──
+export function checkGoalReached() {
+    if (!state.data.goal || state.data.goal.reached) return false;
+    
+    const balance = Number(state.data.balance) || 0;
+    const target = Number(state.data.goal.target);
+    
+    if (balance < target) return false;
+    
+    // Мета досягнута!
+    state.data.goal.reached = true;
+    const prevCount = state.data.achievements.counters.goalsReached || 0;
+    const newCount = prevCount + 1;
+    state.data.achievements.counters.goalsReached = newCount;
+    
+    // Оновлюємо рівень досягнення
+    state.data.achievements.levels['ціленаправлений'] = newCount;
+    
+    // Знаходимо нагороду для поточного рівня
+    const goalAch = ACHIEVEMENTS['ціленаправлений'];
+    const levelIndex = newCount - 1; // 0-based
+    
+    if (levelIndex < goalAch.levels.length) {
+        const level = goalAch.levels[levelIndex];
+        const tierName = levelIndex === 0 ? 'I' : levelIndex === 1 ? 'II' : 'III';
+        const fullName = `${goalAch.icon} ${goalAch.name} ${tierName}`;
+        
+        // Нараховуємо зірки
+        state.data.balance = Number(state.data.balance) + level.reward;
+        state.data.records.push({
+            id: Date.now() + Math.random(),
+            date: new Date().toISOString(),
+            description: fullName,
+            stars: level.reward,
+            type: 'earn',
+            category: 'achievement'
+        });
+        
+        // Показуємо сповіщення
+        const timesWord = newCount === 1 ? 'вперше' : `${newCount}-й раз`;
+        setTimeout(() => {
+            alert(`🎉 Ціль досягнута ${timesWord}!\n\n${fullName}\n+${level.reward}⭐`);
+        }, 500);
+    }
+    
+    return true;
+}
+
 export function checkWeeklyAchievements() {
     initAchievements();
     

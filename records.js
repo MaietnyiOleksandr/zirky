@@ -1,11 +1,11 @@
 // ════════════════════════════════════════════════════
 // RECORDS  records.js — Records
-//     Зірки Успіху | v3.20260426.1650
+//     Зірки Успіху | v3.20260426.1734
 // ════════════════════════════════════════════════════
 
 import { state } from './state.js';
 import { ACHIEVEMENTS, gradeToStars } from './config.js';
-import { recalculateAchievements, checkWeeklyAchievements, giveRewardsForNewAchievements, removeRewardsForLostAchievements } from './achievements.js';
+import { recalculateAchievements, checkWeeklyAchievements, checkGoalReached, giveRewardsForNewAchievements, removeRewardsForLostAchievements } from './achievements.js';
 import { saveData } from './firebase.js';
 
 // ════════════════════════════════════════════════════════════
@@ -37,6 +37,9 @@ export function addGradeRecord() {
     
     // Перераховуємо ВСЕ (бо могли додати заднім числом)
     recalculateAchievements();
+    
+    // Перевіряємо чи досягнута мета (тільки тут, не в recalculate!)
+    checkGoalReached();
     
     // Даємо бонуси тільки за НОВІ досягнення
     giveRewardsForNewAchievements(levelsBefore);
@@ -92,6 +95,9 @@ export function addDiagnosticWork() {
     // Перераховуємо ВСЕ (бо могли додати заднім числом)
     recalculateAchievements();
     
+    // Перевіряємо чи досягнута мета (тільки тут, не в recalculate!)
+    checkGoalReached();
+    
     // Даємо бонуси тільки за НОВІ досягнення
     giveRewardsForNewAchievements(levelsBefore);
     
@@ -134,6 +140,9 @@ export function addBonusRecord() {
     // Перераховуємо ВСЕ (бо могли додати заднім числом)
     recalculateAchievements();
     
+    // Перевіряємо чи досягнута мета (тільки тут, не в recalculate!)
+    checkGoalReached();
+    
     // Даємо бонуси тільки за НОВІ досягнення
     giveRewardsForNewAchievements(levelsBefore);
     
@@ -171,6 +180,9 @@ export function addSpecialRecord() {
     
     // Перераховуємо ВСЕ (бо могли додати заднім числом)
     recalculateAchievements();
+    
+    // Перевіряємо чи досягнута мета (тільки тут, не в recalculate!)
+    checkGoalReached();
     
     // Даємо бонуси тільки за НОВІ досягнення
     giveRewardsForNewAchievements(levelsBefore);
