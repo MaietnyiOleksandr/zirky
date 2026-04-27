@@ -1,8 +1,8 @@
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260427.1649';
+export const VERSION = 'v3.20260427.1654';
 // STATS  stats.js — Stats
-//     Зірки Успіху | v3.20260427.1649
+//     Зірки Успіху | v3.20260427.1654
 // ════════════════════════════════════════════════════
 
 import { state } from './state.js';
@@ -137,6 +137,58 @@ export function updateChart() {
         svg += `<text x="${padding.left - 10}" y="${y + 5}" fill="#999" font-size="9" text-anchor="end">${value}⭐</text>`;
     }
     
+    // ── Сірі зони канікул ────────────────────────────────────
+    const freezePeriods = state.data.achievements?.freezePeriods || [];
+    freezePeriods.forEach(period => {
+        const fromDate = new Date(period.from);
+        fromDate.setHours(0, 0, 0, 0);
+        const untilDate = new Date(period.until);
+        untilDate.setHours(23, 59, 59, 999);
+
+        // Знаходимо індекси точок що попадають у канікули
+        let xStart = null;
+        let xEnd = null;
+
+        periods.forEach((p, i) => {
+            const pDate = new Date(p);
+            pDate.setHours(12, 0, 0, 0);
+            if (pDate >= fromDate && pDate <= untilDate) {
+                const x = scaleX(i);
+                if (xStart === null) xStart = x;
+                xEnd = x;
+            }
+        });
+
+        // Якщо жодна точка не потрапила — шукаємо між точками
+        if (xStart === null) {
+            for (let i = 0; i < periods.length - 1; i++) {
+                const p1 = new Date(periods[i]);
+                const p2 = new Date(periods[i + 1]);
+                if (p1 <= untilDate && p2 >= fromDate) {
+                    xStart = xStart ?? scaleX(i);
+                    xEnd = scaleX(i + 1);
+                }
+            }
+        }
+
+        if (xStart !== null && xEnd !== null) {
+            const isActive = untilDate >= new Date();
+            const fillColor = isActive ? 'rgba(100,149,237,0.15)' : 'rgba(180,180,180,0.2)';
+            const strokeColor = isActive ? 'rgba(100,149,237,0.4)' : 'rgba(150,150,150,0.3)';
+            const rectX = xStart - (xStart === scaleX(0) ? 0 : 5);
+            const rectWidth = xEnd - rectX + 5;
+
+            svg += `<rect x="${rectX}" y="${padding.top}" width="${rectWidth}"
+                height="${chartHeight}" fill="${fillColor}"
+                stroke="${strokeColor}" stroke-width="1" rx="3"/>`;
+
+            // Підпис ❄️ зверху зони
+            const labelX = rectX + rectWidth / 2;
+            svg += `<text x="${labelX}" y="${padding.top - 4}" fill="${isActive ? '#6495ED' : '#aaa'}"
+                font-size="9" text-anchor="middle">❄️</text>`;
+        }
+    });
+
     // Лінія доходів
     if (showEarned && chartData.some(d => d.earned > 0)) {
         let earnedPath = 'M';
