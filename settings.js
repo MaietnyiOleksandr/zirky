@@ -1,6 +1,6 @@
 // ════════════════════════════════════════════════════
 // ⚙️   settings.js — Налаштування / Експорт / Імпорт
-//     Зірки Успіху | v3.20260426.1541
+//     Зірки Успіху | v3.20260427.0826
 // ════════════════════════════════════════════════════
 
 import { state } from './state.js';
@@ -27,7 +27,7 @@ export function showDataInfo() {
         <div style="display: grid; gap: 8px;">
             <div style="padding: 8px 0; border-bottom: 2px solid #4CAF50;">
                 <span style="font-size: 15px; color: #2E7D32; font-weight: 700;">📌 Версія застосунку:</span>
-                <strong style="font-size: 16px; color: #1B5E20; margin-left: 8px;">v3.20260426.1541</strong>
+                <strong style="font-size: 16px; color: #1B5E20; margin-left: 8px;">v3.20260427.0826</strong>
             </div>
             <div>📝 Записів в історії: <strong>${recordsCount}</strong></div>
             <div>⭐ Поточний баланс: <strong>${balance} зірок</strong></div>
@@ -71,8 +71,8 @@ export function exportData() {
         const a = document.createElement("a");
         a.href = url;
         const now = new Date();
-        const dateTime = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}-${String(now.getHours()).padStart(2,'0')}-${String(now.getMinutes()).padStart(2,'0')}`;
-        a.download = `zirky-backup-${dateTime}.json`;
+        const dateTime = `${String(now.getHours()).padStart(2,'0')}-${String(now.getMinutes()).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}-${String(now.getMonth()+1).padStart(2,'0')}-${now.getFullYear()}`;
+        a.download = `${dateTime}-zirky-backup.json`;
         a.click();
         
         URL.revokeObjectURL(url);
