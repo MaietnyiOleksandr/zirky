@@ -1,6 +1,6 @@
 // ════════════════════════════════════════════════════
 // RECORDS  records.js — Records
-//     Зірки Успіху | v3.20260426.1755
+//     Зірки Успіху | v3.20260427.0623
 // ════════════════════════════════════════════════════
 
 import { state } from './state.js';
@@ -32,14 +32,14 @@ export function addGradeRecord() {
     
     const newRecord = state.data.records[state.data.records.length - 1];
     
-    // Запам'ятовуємо які досягнення були ДО додавання
+    // Перевіряємо мету ДО recalculate — щоб goalsReached вже був оновлений
+    const goalJustReached = checkGoalReached(date + 'T12:00:00');
+    
+    // Запам'ятовуємо рівні ДО перерахунку
     const levelsBefore = {...(state.data.achievements.levels || {})};
     
-    // Перераховуємо ВСЕ (бо могли додати заднім числом)
+    // Перераховуємо ВСЕ — тепер goal_counter вже має правильний лічильник
     recalculateAchievements();
-    
-    // Перевіряємо чи досягнута мета (тільки тут, не в recalculate!)
-    const goalJustReached = checkGoalReached();
     
     // Даємо бонуси тільки за НОВІ досягнення
     giveRewardsForNewAchievements(levelsBefore);
@@ -89,14 +89,14 @@ export function addDiagnosticWork() {
     
     state.data.balance = Number(state.data.balance) + stars;
     
-    // Запам'ятовуємо які досягнення були ДО додавання
+    // Перевіряємо мету ДО recalculate — щоб goalsReached вже був оновлений
+    const goalJustReached = checkGoalReached(date + 'T12:00:00');
+    
+    // Запам'ятовуємо рівні ДО перерахунку
     const levelsBefore = {...(state.data.achievements.levels || {})};
     
-    // Перераховуємо ВСЕ (бо могли додати заднім числом)
+    // Перераховуємо ВСЕ — тепер goal_counter вже має правильний лічильник
     recalculateAchievements();
-    
-    // Перевіряємо чи досягнута мета (тільки тут, не в recalculate!)
-    const goalJustReached = checkGoalReached();
     
     // Даємо бонуси тільки за НОВІ досягнення
     giveRewardsForNewAchievements(levelsBefore);
@@ -134,14 +134,14 @@ export function addBonusRecord() {
     
     const newRecord = state.data.records[state.data.records.length - 1];
     
-    // Запам'ятовуємо які досягнення були ДО додавання
+    // Перевіряємо мету ДО recalculate — щоб goalsReached вже був оновлений
+    const goalJustReached = checkGoalReached(date + 'T12:00:00');
+    
+    // Запам'ятовуємо рівні ДО перерахунку
     const levelsBefore = {...(state.data.achievements.levels || {})};
     
-    // Перераховуємо ВСЕ (бо могли додати заднім числом)
+    // Перераховуємо ВСЕ — тепер goal_counter вже має правильний лічильник
     recalculateAchievements();
-    
-    // Перевіряємо чи досягнута мета (тільки тут, не в recalculate!)
-    const goalJustReached = checkGoalReached();
     
     // Даємо бонуси тільки за НОВІ досягнення
     giveRewardsForNewAchievements(levelsBefore);
@@ -175,14 +175,14 @@ export function addSpecialRecord() {
     
     const newRecord = state.data.records[state.data.records.length - 1];
     
-    // Запам'ятовуємо які досягнення були ДО додавання
+    // Перевіряємо мету ДО recalculate — щоб goalsReached вже був оновлений
+    const goalJustReached = checkGoalReached(date + 'T12:00:00');
+    
+    // Запам'ятовуємо рівні ДО перерахунку
     const levelsBefore = {...(state.data.achievements.levels || {})};
     
-    // Перераховуємо ВСЕ (бо могли додати заднім числом)
+    // Перераховуємо ВСЕ — тепер goal_counter вже має правильний лічильник
     recalculateAchievements();
-    
-    // Перевіряємо чи досягнута мета (тільки тут, не в recalculate!)
-    const goalJustReached = checkGoalReached();
     
     // Даємо бонуси тільки за НОВІ досягнення
     giveRewardsForNewAchievements(levelsBefore);
