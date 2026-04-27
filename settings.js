@@ -1,6 +1,8 @@
 // ════════════════════════════════════════════════════
+
+export const VERSION = 'v3.20260427.0855';
 // ⚙️   settings.js — Налаштування / Експорт / Імпорт
-//     Зірки Успіху | v3.20260427.0826
+//     Зірки Успіху | v3.20260427.0855
 // ════════════════════════════════════════════════════
 
 import { state } from './state.js';
@@ -25,17 +27,67 @@ export function showDataInfo() {
     
     container.innerHTML = `
         <div style="display: grid; gap: 8px;">
-            <div style="padding: 8px 0; border-bottom: 2px solid #4CAF50;">
-                <span style="font-size: 15px; color: #2E7D32; font-weight: 700;">📌 Версія застосунку:</span>
-                <strong style="font-size: 16px; color: #1B5E20; margin-left: 8px;">v3.20260427.0826</strong>
-            </div>
             <div>📝 Записів в історії: <strong>${recordsCount}</strong></div>
             <div>⭐ Поточний баланс: <strong>${balance} зірок</strong></div>
             <div>🏆 Досягнень отримано: <strong>${achievementsCount}</strong></div>
-            <div>❄️ Періодів канікул: <strong>${freezePeriodsCount}</strong></div>
+            <div>❄️ Периодів канікул: <strong>${freezePeriodsCount}</strong></div>
             <div>💾 Розмір даних: <strong>${sizeKB} KB</strong></div>
         </div>
+
+        <div style="margin-top: 12px; border: 1px solid #A5D6A7; border-radius: 10px; overflow: hidden;">
+            <button id="versionsBtn"
+                style="width: 100%; padding: 11px 16px; background: #E8F5E9;
+                       border: none; cursor: pointer; display: flex;
+                       justify-content: space-between; align-items: center;
+                       font-size: 14px; font-weight: 600; color: #2E7D32;">
+                <span>📋 Інформація про версії</span>
+                <span id="versionsArrow" style="font-size: 11px;">▶</span>
+            </button>
+            <div id="versionsBody" style="display: none; padding: 10px 14px; background: white;">
+                <div style="font-size: 12px; color: #aaa; text-align: center;">Завантаження...</div>
+            </div>
+        </div>
     `;
+
+    // Accordion — зчитує VERSION динамічно з вже завантажених модулів
+    document.getElementById('versionsBtn').addEventListener('click', async function() {
+        const body = document.getElementById('versionsBody');
+        const arrow = document.getElementById('versionsArrow');
+        const isOpen = body.style.display !== 'none';
+
+        if (isOpen) {
+            body.style.display = 'none';
+            arrow.textContent = '▶';
+            return;
+        }
+
+        body.style.display = 'block';
+        arrow.textContent = '▼';
+
+        const files = [
+            'config.js','state.js','auth.js','achievements.js',
+            'goals.js','freeze.js','firebase.js','utils.js',
+            'ui.js','navigation.js','records.js','history.js',
+            'rewards.js','stats.js','settings.js'
+        ];
+
+        const rows = await Promise.all(files.map(async fname => {
+            try {
+                const mod = await import('./' + fname);
+                const ver = mod.VERSION || '—';
+                return `<div style="display:flex; justify-content:space-between;
+                                    padding:4px 0; border-bottom:1px solid #f5f5f5;
+                                    font-size:12px; font-family:monospace;">
+                    <span style="color:#555;">${fname}</span>
+                    <span style="color:#2E7D32; font-weight:600;">${ver}</span>
+                </div>`;
+            } catch(e) {
+                return `<div style="font-size:12px;color:#f44336;font-family:monospace;">${fname}: помилка</div>`;
+            }
+        }));
+
+        body.innerHTML = rows.join('');
+    });
     
     // Показуємо/ховаємо блоки для батьків
     const pinBlock = document.getElementById('pinSettingsBlock');
