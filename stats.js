@@ -1,8 +1,8 @@
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260427.1706';
+export const VERSION = 'v3.20260427.1715';
 // STATS  stats.js — Stats
-//     Зірки Успіху | v3.20260427.1706
+//     Зірки Успіху | v3.20260427.1715
 // ════════════════════════════════════════════════════
 
 import { state } from './state.js';
@@ -21,6 +21,87 @@ export function renderStats() {
     document.getElementById('totalEarned').textContent = totalEarned + '⭐';
     document.getElementById('totalSpent').textContent = totalSpent + '⭐';
     document.getElementById('recordsCount').textContent = recordsCount;
+    
+    renderSubjectAnalytics();
+}
+
+
+// ── Аналітика по предметах ────────────────────────────────
+export function renderSubjectAnalytics() {
+    const container = document.getElementById('subjectAnalytics');
+    if (!container) return;
+
+    const records = state.data.records || [];
+
+    // Збираємо дані по предметах (оцінки та діагностичні)
+    const subjectData = {};
+    records.forEach(r => {
+        if (r.category !== 'grade' && r.category !== 'diagnostic') return;
+        if (!r.subject || !r.grade) return;
+
+        // Нормалізуємо назву (прибираємо "Діагностувальна робота з ")
+        let subject = r.subject;
+        if (subject.startsWith('Діагностувальна робота з ')) {
+            subject = subject.replace('Діагностувальна робота з ', '');
+        }
+
+        if (!subjectData[subject]) {
+            subjectData[subject] = { grades: [], stars: 0, count: 0 };
+        }
+        subjectData[subject].grades.push(parseInt(r.grade));
+        subjectData[subject].stars += r.stars || 0;
+        subjectData[subject].count++;
+    });
+
+    if (Object.keys(subjectData).length === 0) {
+        container.innerHTML = '<div style="color:#999; font-size:14px; text-align:center;">Ще немає оцінок для аналізу</div>';
+        return;
+    }
+
+    // Сортуємо за середньою оцінкою (спадання)
+    const subjects = Object.entries(subjectData)
+        .map(([name, data]) => {
+            const avg = data.grades.reduce((s, g) => s + g, 0) / data.grades.length;
+            return { name, avg, count: data.count, stars: data.stars, grades: data.grades };
+        })
+        .sort((a, b) => b.avg - a.avg);
+
+    const emojiMap = {
+        'Математика': '📐', 'Українська мова': '🇺🇦', 'Я пізнаю світ': '🌍',
+        'Читання': '📖', 'Англійська мова': '🇬🇧', 'Інформатика': '💻',
+        'Мистецтво': '🎨', 'Вірш': '📝', 'Фізкультура': '⚽'
+    };
+
+    // Максимальна середня для шкали
+    const maxAvg = 12;
+
+    let html = `<div style="display: grid; gap: 10px;">`;
+
+    subjects.forEach(s => {
+        const emoji = emojiMap[s.name] || '📚';
+        const avgRounded = Math.round(s.avg * 10) / 10;
+        const barWidth = Math.round((s.avg / maxAvg) * 100);
+
+        // Колір залежно від середньої
+        const barColor = s.avg >= 10 ? '#4CAF50' : s.avg >= 7 ? '#FFC107' : '#f44336';
+
+        html += `
+        <div style="background: white; padding: 12px; border-radius: 12px; border: 1px solid #eee;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <span style="font-size: 14px; font-weight: 600;">${emoji} ${s.name}</span>
+                <div style="text-align: right;">
+                    <span style="font-size: 16px; font-weight: 700; color: ${barColor};">${avgRounded}</span>
+                    <span style="font-size: 11px; color: #999; margin-left: 4px;">(${s.count} ${s.count === 1 ? 'оцінка' : s.count < 5 ? 'оцінки' : 'оцінок'})</span>
+                </div>
+            </div>
+            <div style="background: #f0f0f0; border-radius: 6px; height: 8px; overflow: hidden;">
+                <div style="width: ${barWidth}%; height: 100%; background: ${barColor}; border-radius: 6px; transition: width 0.3s;"></div>
+            </div>
+        </div>`;
+    });
+
+    html += `</div>`;
+    container.innerHTML = html;
 }
 
 export function updateChart() {
