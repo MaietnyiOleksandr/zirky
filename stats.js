@@ -145,57 +145,103 @@ export function drawSubjectChart(subjectName, subjects) {
     }
 
     // Сортуємо по даті
-    const points = [...s.gradesByDate].sort((a,b) => a.date - b.date);
+    const allPoints = [...s.gradesByDate].sort((a,b) => a.date - b.date);
+
+    // Якщо точок забагато — агрегуємо по тижнях
+    const MAX_POINTS = 12;
+    let points = allPoints;
+    let aggregated = false;
+
+    if (allPoints.length > MAX_POINTS) {
+        aggregated = true;
+        // Групуємо по тижнях
+        const weeks = {};
+        allPoints.forEach(p => {
+            const d = new Date(p.date);
+            // Початок тижня (понеділок)
+            const day = d.getDay() || 7;
+            d.setDate(d.getDate() - day + 1);
+            d.setHours(0,0,0,0);
+            const key = d.toISOString();
+            if (!weeks[key]) weeks[key] = { grades: [], date: d };
+            weeks[key].grades.push(p.grade);
+        });
+        points = Object.values(weeks)
+            .sort((a,b) => a.date - b.date)
+            .map(w => ({
+                grade: Math.round(w.grades.reduce((s,g)=>s+g,0) / w.grades.length * 10) / 10,
+                date: w.date,
+                count: w.grades.length,
+                isAvg: true
+            }));
+    }
 
     const w = container.clientWidth || 300;
-    const h = 160;
-    const pad = { top: 20, right: 20, bottom: 30, left: 30 };
+    const h = 180;
+    const pad = { top: 24, right: 16, bottom: 32, left: 28 };
     const cw = w - pad.left - pad.right;
     const ch = h - pad.top - pad.bottom;
 
     const scaleX = i => pad.left + (points.length < 2 ? cw/2 : (i / (points.length-1)) * cw);
     const scaleY = g => pad.top + ch - ((g - 4) / (12 - 4)) * ch;
 
-    // Середня лінія
     const avg = s.avg;
     const avgY = scaleY(avg);
 
-    let svg = `<svg width="${w}" height="${h}" style="display:block;">`;
+    // Крок для дат (щоб не накладались)
+    const dateStep = Math.max(1, Math.ceil(points.length / 6));
 
-    // Сітка (4, 7, 10, 12)
+    let svg = `<svg width="${w}" height="${h}" style="display:block; overflow:visible;">`;
+
+    // Сітка
     [4, 7, 10, 12].forEach(val => {
         const y = scaleY(val);
         const col = val === 10 ? '#C8E6C9' : '#f0f0f0';
         svg += `<line x1="${pad.left}" y1="${y}" x2="${w-pad.right}" y2="${y}"
             stroke="${col}" stroke-width="1"/>`;
-        svg += `<text x="${pad.left-4}" y="${y+4}" font-size="9" fill="#bbb"
+        svg += `<text x="${pad.left-3}" y="${y+3}" font-size="8" fill="#ccc"
             text-anchor="end">${val}</text>`;
     });
 
-    // Середня лінія (пунктир)
+    // Середня (пунктир)
     svg += `<line x1="${pad.left}" y1="${avgY}" x2="${w-pad.right}" y2="${avgY}"
-        stroke="#FFC107" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.7"/>`;
+        stroke="#FFC107" stroke-width="1" stroke-dasharray="4,3" opacity="0.6"/>`;
 
+    // Лінія
     if (points.length >= 2) {
-        // Лінія тренду
-        const path = points.map((p,i) => `${i===0?'M':'L'}${scaleX(i)},${scaleY(p.grade)}`).join(' ');
+        const path = points.map((p,i) => `${i===0?'M':'L'}${scaleX(i).toFixed(1)},${scaleY(p.grade).toFixed(1)}`).join(' ');
         svg += `<path d="${path}" fill="none" stroke="#0057B7" stroke-width="2"
             stroke-linecap="round" stroke-linejoin="round"/>`;
     }
 
-    // Точки + мітки
+    // Точки
     points.forEach((p, i) => {
         const x = scaleX(i);
         const y = scaleY(p.grade);
         const col = p.grade >= 10 ? '#4CAF50' : p.grade >= 7 ? '#FFC107' : '#f44336';
         const dateStr = p.date.toLocaleDateString('uk-UA', {day:'2-digit', month:'2-digit'});
+        const label = p.isAvg ? p.grade.toFixed(1) : p.grade;
 
-        svg += `<circle cx="${x}" cy="${y}" r="5" fill="${col}" stroke="white" stroke-width="1.5"/>`;
-        svg += `<text x="${x}" y="${y-8}" font-size="9" font-weight="bold"
-            fill="${col}" text-anchor="middle">${p.grade}</text>`;
-        svg += `<text x="${x}" y="${h-5}" font-size="8" fill="#aaa"
-            text-anchor="middle">${dateStr}</text>`;
+        // Чергуємо мітку вгору/вниз щоб не накладались
+        const labelY = i % 2 === 0 ? y - 9 : y + 16;
+
+        svg += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4"
+            fill="${col}" stroke="white" stroke-width="1.5"/>`;
+        svg += `<text x="${x.toFixed(1)}" y="${labelY}"
+            font-size="9" font-weight="bold" fill="${col}" text-anchor="middle">${label}</text>`;
+
+        // Дата — тільки кожен dateStep
+        if (i % dateStep === 0 || i === points.length - 1) {
+            svg += `<text x="${x.toFixed(1)}" y="${h - 4}"
+                font-size="8" fill="#bbb" text-anchor="middle">${dateStr}</text>`;
+        }
     });
+
+    // Підпис якщо агрегація
+    if (aggregated) {
+        svg += `<text x="${w/2}" y="${pad.top - 6}" font-size="9" fill="#aaa"
+            text-anchor="middle">середнє по тижнях</text>`;
+    }
 
     svg += '</svg>';
     container.innerHTML = svg;
@@ -203,7 +249,7 @@ export function drawSubjectChart(subjectName, subjects) {
 
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260427.1802';
+export const VERSION = 'v3.20260427.2029';
 // STATS  stats.js — Stats
 //     Зірки Успіху | v3.20260427.1729
 // ════════════════════════════════════════════════════
