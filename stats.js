@@ -1,8 +1,8 @@
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260426.1627';
+export const VERSION = 'v3.20260427.1649';
 // STATS  stats.js — Stats
-//     Зірки Успіху | v3.20260426.1627
+//     Зірки Успіху | v3.20260427.1649
 // ════════════════════════════════════════════════════
 
 import { state } from './state.js';
@@ -153,7 +153,7 @@ export function updateChart() {
                 const x = scaleX(i);
                 const y = scaleY(d.earned);
                 svg += `<circle cx="${x}" cy="${y}" r="5" fill="#FFD700" stroke="#0057B7" stroke-width="2"/>`;
-                svg += `<text x="${x}" y="${y - 10}" fill="#0057B7" font-size="9" font-weight="bold" text-anchor="middle">+${d.earned}</text>`;
+                svg += `<text x="${x - 8}" y="${y + 4}" fill="#0057B7" font-size="9" font-weight="bold" text-anchor="end">+${d.earned}</text>`;
             }
         });
     }
@@ -174,7 +174,7 @@ export function updateChart() {
                 const x = scaleX(i);
                 const y = scaleY(d.spent);
                 svg += `<circle cx="${x}" cy="${y}" r="5" fill="#FF6B6B" stroke="#E74C3C" stroke-width="2"/>`;
-                svg += `<text x="${x}" y="${y - 10}" fill="#E74C3C" font-size="9" font-weight="bold" text-anchor="middle">-${d.spent}</text>`;
+                svg += `<text x="${x + 8}" y="${y + 4}" fill="#E74C3C" font-size="9" font-weight="bold" text-anchor="start">-${d.spent}</text>`;
             }
         });
     }
