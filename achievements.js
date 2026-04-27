@@ -1,6 +1,6 @@
 // ════════════════════════════════════════════════════
 // 🏆  achievements.js — Система досягнень
-//     Зірки Успіху | v3.20260427.0623
+//     Зірки Успіху | v3.20260427.0644
 // ════════════════════════════════════════════════════
 
 import { state } from './state.js';
@@ -35,6 +35,13 @@ export function recalculateAchievements() {
     );
     
     sortedRecords.forEach(record => {
+        // Лічильник досягнутих цілей — з записів типу achievement
+        if (record.category === 'achievement' && record.description &&
+            record.description.includes('Ціленаправлений')) {
+            state.data.achievements.counters.goalsReached =
+                (state.data.achievements.counters.goalsReached || 0) + 1;
+        }
+        
         // Оцінка 12
         if (record.category === 'grade' && record.grade === '12') {
             state.data.achievements.counters.grades_12 = (state.data.achievements.counters.grades_12 || 0) + 1;
@@ -236,14 +243,12 @@ export function checkGoalReached(recordDate = null) {
     
     if (balance < target) return false;
     
-    // Мета досягнута!
+    // Мета досягнута! Позначаємо як досягнуту
     state.data.goal.reached = true;
-    const prevCount = state.data.achievements.counters.goalsReached || 0;
-    const newCount = prevCount + 1;
-    state.data.achievements.counters.goalsReached = newCount;
+    // goalsReached буде автоматично підраховано з записів в recalculateAchievements
+    const newCount = (state.data.achievements.counters.goalsReached || 0) + 1;
     
-    // Оновлюємо рівень досягнення
-    state.data.achievements.levels['ціленаправлений'] = newCount;
+    // Рівень оновиться автоматично через recalculateAchievements після цього виклику
     
     // Знаходимо нагороду для поточного рівня
     const goalAch = ACHIEVEMENTS['ціленаправлений'];
