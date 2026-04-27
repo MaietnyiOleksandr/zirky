@@ -30,7 +30,7 @@ export function showDataInfo() {
             <div>📝 Записів в історії: <strong>${recordsCount}</strong></div>
             <div>⭐ Поточний баланс: <strong>${balance} зірок</strong></div>
             <div>🏆 Досягнень отримано: <strong>${achievementsCount}</strong></div>
-            <div>❄️ Периодів канікул: <strong>${freezePeriodsCount}</strong></div>
+            <div>❄️ Періодів канікул: <strong>${freezePeriodsCount}</strong></div>
             <div>💾 Розмір даних: <strong>${sizeKB} KB</strong></div>
         </div>
 
