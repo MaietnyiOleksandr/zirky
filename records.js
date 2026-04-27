@@ -1,6 +1,6 @@
 // ════════════════════════════════════════════════════
 // RECORDS  records.js — Records
-//     Зірки Успіху | v3.20260427.0635
+//     Зірки Успіху | v3.20260427.0709
 // ════════════════════════════════════════════════════
 
 import { state } from './state.js';
@@ -223,6 +223,16 @@ export function deleteRecord(id) {
     
     // Перераховуємо weekly (може знизитись рівень після видалення)
     checkWeeklyAchievements();
+    
+    // Якщо баланс впав нижче цілі — скидаємо goal.reached
+    // щоб при наступному досягненні мети знову зарахувалось
+    if (state.data.goal && state.data.goal.reached) {
+        const balance = Number(state.data.balance) || 0;
+        const target = Number(state.data.goal.target);
+        if (balance < target) {
+            state.data.goal.reached = false;
+        }
+    }
     
     saveData();
 }

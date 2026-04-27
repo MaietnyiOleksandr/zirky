@@ -1,6 +1,6 @@
 // ════════════════════════════════════════════════════
 // FIREBASE  firebase.js — Firebase
-//     Зірки Успіху | v3.20260426.1755
+//     Зірки Успіху | v3.20260427.0709
 // ════════════════════════════════════════════════════
 
 import { state } from './state.js';
@@ -27,22 +27,15 @@ export function initFirebase() {
         if (saved) {
             const wasParent = state.data.isParent;
 
-            // Зберігаємо стан goal_counter перед перезаписом (race condition)
-            const goalReachedBefore   = state.data.goal?.reached;
-            const goalsCountBefore    = state.data.achievements?.counters?.goalsReached || 0;
-            const goalLevelBefore     = state.data.achievements?.levels?.['ціленаправлений'] || 0;
+            // Зберігаємо goal.reached перед перезаписом (race condition)
+            const goalReachedBefore = state.data.goal?.reached;
 
             // Мутуємо існуючий об'єкт щоб зберегти посилання в інших модулях
             Object.assign(state.data, saved);
 
-            // Відновлюємо goal_counter якщо Firebase ще не встиг зберегти нові дані
+            // Відновлюємо goal.reached якщо Firebase ще не встиг зберегти
             if (goalReachedBefore && state.data.goal && !state.data.goal.reached) {
                 state.data.goal.reached = true;
-            }
-            const goalsCountAfter = state.data.achievements?.counters?.goalsReached || 0;
-            if (goalsCountBefore > goalsCountAfter) {
-                state.data.achievements.counters.goalsReached = goalsCountBefore;
-                state.data.achievements.levels['ціленаправлений'] = goalLevelBefore;
             }
 
             state.data.isParent = wasParent;
