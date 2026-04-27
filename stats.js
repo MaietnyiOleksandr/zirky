@@ -55,7 +55,7 @@ export function renderSubjectAnalytics() {
                 else                  trend = { icon: '➡️', color: '#999',    text: '~' };
             }
 
-            return { name, avg, count: data.count, stars: data.stars, grades: data.grades, trend };
+            return { name, avg, count: data.count, stars: data.stars, grades: data.grades, gradesByDate: data.gradesByDate, trend };
         })
         .sort((a, b) => b.avg - a.avg);
 
@@ -203,7 +203,7 @@ export function drawSubjectChart(subjectName, subjects) {
 
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260427.1752';
+export const VERSION = 'v3.20260427.1802';
 // STATS  stats.js — Stats
 //     Зірки Успіху | v3.20260427.1729
 // ════════════════════════════════════════════════════
