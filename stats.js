@@ -1,30 +1,3 @@
-// ════════════════════════════════════════════════════
-
-export const VERSION = 'v3.20260427.1715';
-// STATS  stats.js — Stats
-//     Зірки Успіху | v3.20260427.1715
-// ════════════════════════════════════════════════════
-
-import { state } from './state.js';
-
-// ════════════════════════════════════════════════════════════
-// 📊  БЛОК: Статистика / Графіки
-// ════════════════════════════════════════════════════════════
-export function renderStats() {
-    updateChart();
-    
-    const totalEarned = (state.data.records||[]).filter(r=>r.type==='earn').reduce((s,r)=>s+r.stars,0);
-    const totalSpent = (state.data.records||[]).filter(r=>r.type==='spend').reduce((s,r)=>s+r.stars,0);
-    const thisMonth = new Date().getMonth();
-    const recordsCount = (state.data.records||[]).filter(r=>new Date(r.date).getMonth()===thisMonth).length;
-
-    document.getElementById('totalEarned').textContent = totalEarned + '⭐';
-    document.getElementById('totalSpent').textContent = totalSpent + '⭐';
-    document.getElementById('recordsCount').textContent = recordsCount;
-    
-    renderSubjectAnalytics();
-}
-
 
 // ── Аналітика по предметах ────────────────────────────────
 export function renderSubjectAnalytics() {
@@ -103,6 +76,35 @@ export function renderSubjectAnalytics() {
     html += `</div>`;
     container.innerHTML = html;
 }
+
+// ════════════════════════════════════════════════════
+
+export const VERSION = 'v3.20260427.1720';
+// STATS  stats.js — Stats
+//     Зірки Успіху | v3.20260427.1720
+// ════════════════════════════════════════════════════
+
+import { state } from './state.js';
+
+// ════════════════════════════════════════════════════════════
+// 📊  БЛОК: Статистика / Графіки
+// ════════════════════════════════════════════════════════════
+export function renderStats() {
+    updateChart();
+    
+    const totalEarned = (state.data.records||[]).filter(r=>r.type==='earn').reduce((s,r)=>s+r.stars,0);
+    const totalSpent = (state.data.records||[]).filter(r=>r.type==='spend').reduce((s,r)=>s+r.stars,0);
+    const thisMonth = new Date().getMonth();
+    const recordsCount = (state.data.records||[]).filter(r=>new Date(r.date).getMonth()===thisMonth).length;
+
+    document.getElementById('totalEarned').textContent = totalEarned + '⭐';
+    document.getElementById('totalSpent').textContent = totalSpent + '⭐';
+    document.getElementById('recordsCount').textContent = recordsCount;
+    
+    // setTimeout гарантує що DOM вже показаний
+    setTimeout(renderSubjectAnalytics, 0);
+}
+
 
 export function updateChart() {
     const chartContainer = document.querySelector('.chart-container');
