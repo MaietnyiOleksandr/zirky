@@ -98,11 +98,112 @@ export function renderSubjectAnalytics() {
 
     html += `</div>`;
     container.innerHTML = html;
+
+    // Додаємо selector і графік предмету
+    renderSubjectChartSelector(subjects);
+}
+
+export function renderSubjectChartSelector(subjects) {
+    const container = document.getElementById('subjectAnalytics');
+    if (!container || !subjects.length) return;
+
+    // Selector предметів
+    const options = subjects.map(s => {
+        const emoji = {'Математика':'📐','Українська мова':'🇺🇦','Я пізнаю світ':'🌍',
+            'Читання':'📖','Англійська мова':'🇬🇧','Інформатика':'💻',
+            'Мистецтво':'🎨','Вірш':'📝','Фізкультура':'⚽'}[s.name] || '📚';
+        return `<option value="${s.name}">${emoji} ${s.name}</option>`;
+    }).join('');
+
+    const selectorHTML = `
+        <div style="margin-top:16px; background:white; padding:14px; border-radius:12px; border:1px solid #eee;">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+                <span style="font-size:14px; font-weight:600; color:var(--secondary);">📈 Динаміка оцінок</span>
+                <select id="subjectChartSelect"
+                    style="flex:1; padding:6px 10px; border-radius:8px; border:1px solid #ddd; font-size:13px;">
+                    ${options}
+                </select>
+            </div>
+            <div id="subjectChartContainer"></div>
+        </div>`;
+
+    container.innerHTML += selectorHTML;
+
+    const select = document.getElementById('subjectChartSelect');
+    select.addEventListener('change', () => drawSubjectChart(select.value, subjects));
+    drawSubjectChart(subjects[0].name, subjects);
+}
+
+export function drawSubjectChart(subjectName, subjects) {
+    const container = document.getElementById('subjectChartContainer');
+    if (!container) return;
+
+    const s = subjects.find(x => x.name === subjectName);
+    if (!s || !s.gradesByDate.length) {
+        container.innerHTML = '<div style="color:#999;font-size:13px;text-align:center;">Немає даних</div>';
+        return;
+    }
+
+    // Сортуємо по даті
+    const points = [...s.gradesByDate].sort((a,b) => a.date - b.date);
+
+    const w = container.clientWidth || 300;
+    const h = 160;
+    const pad = { top: 20, right: 20, bottom: 30, left: 30 };
+    const cw = w - pad.left - pad.right;
+    const ch = h - pad.top - pad.bottom;
+
+    const scaleX = i => pad.left + (points.length < 2 ? cw/2 : (i / (points.length-1)) * cw);
+    const scaleY = g => pad.top + ch - ((g - 4) / (12 - 4)) * ch;
+
+    // Середня лінія
+    const avg = s.avg;
+    const avgY = scaleY(avg);
+
+    let svg = `<svg width="${w}" height="${h}" style="display:block;">`;
+
+    // Сітка (4, 7, 10, 12)
+    [4, 7, 10, 12].forEach(val => {
+        const y = scaleY(val);
+        const col = val === 10 ? '#C8E6C9' : '#f0f0f0';
+        svg += `<line x1="${pad.left}" y1="${y}" x2="${w-pad.right}" y2="${y}"
+            stroke="${col}" stroke-width="1"/>`;
+        svg += `<text x="${pad.left-4}" y="${y+4}" font-size="9" fill="#bbb"
+            text-anchor="end">${val}</text>`;
+    });
+
+    // Середня лінія (пунктир)
+    svg += `<line x1="${pad.left}" y1="${avgY}" x2="${w-pad.right}" y2="${avgY}"
+        stroke="#FFC107" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.7"/>`;
+
+    if (points.length >= 2) {
+        // Лінія тренду
+        const path = points.map((p,i) => `${i===0?'M':'L'}${scaleX(i)},${scaleY(p.grade)}`).join(' ');
+        svg += `<path d="${path}" fill="none" stroke="#0057B7" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round"/>`;
+    }
+
+    // Точки + мітки
+    points.forEach((p, i) => {
+        const x = scaleX(i);
+        const y = scaleY(p.grade);
+        const col = p.grade >= 10 ? '#4CAF50' : p.grade >= 7 ? '#FFC107' : '#f44336';
+        const dateStr = p.date.toLocaleDateString('uk-UA', {day:'2-digit', month:'2-digit'});
+
+        svg += `<circle cx="${x}" cy="${y}" r="5" fill="${col}" stroke="white" stroke-width="1.5"/>`;
+        svg += `<text x="${x}" y="${y-8}" font-size="9" font-weight="bold"
+            fill="${col}" text-anchor="middle">${p.grade}</text>`;
+        svg += `<text x="${x}" y="${h-5}" font-size="8" fill="#aaa"
+            text-anchor="middle">${dateStr}</text>`;
+    });
+
+    svg += '</svg>';
+    container.innerHTML = svg;
 }
 
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260427.1745';
+export const VERSION = 'v3.20260427.1752';
 // STATS  stats.js — Stats
 //     Зірки Успіху | v3.20260427.1729
 // ════════════════════════════════════════════════════
