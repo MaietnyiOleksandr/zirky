@@ -102,7 +102,7 @@ export function renderSubjectAnalytics() {
 
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260427.1729';
+export const VERSION = 'v3.20260427.1745';
 // STATS  stats.js — Stats
 //     Зірки Успіху | v3.20260427.1729
 // ════════════════════════════════════════════════════
