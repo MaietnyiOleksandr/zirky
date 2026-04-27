@@ -1,11 +1,13 @@
 // ════════════════════════════════════════════════════
 // REWARDS  rewards.js — Rewards
-//     Зірки Успіху | v3.20260426.1633
+//     Зірки Успіху | v3.20260427.0729
 // ════════════════════════════════════════════════════
 
 import { state } from './state.js';
 import { rewards } from './config.js';
 import { saveData } from './firebase.js';
+import { recalculateAchievements, giveRewardsForNewAchievements } from './achievements.js';
+import { updateUI } from './ui.js';
 
 // ════════════════════════════════════════════════════════════
 // 🎁  БЛОК: Витрати / Винагороди
@@ -39,7 +41,11 @@ export function buyReward(index) {
                 stars: reward.cost,
                 type: 'spend'
             });
+            const levelsBefore = {...(state.data.achievements.levels || {})};
+            recalculateAchievements();
+            giveRewardsForNewAchievements(levelsBefore);
             saveData();
+            updateUI();
             alert(`🎁 Вітаємо! Отримано: ${reward.name}`);
         }
     }
@@ -82,7 +88,11 @@ export function doCustomReward(date, desc, stars) {
             description: desc, stars,
             type: 'spend'
         });
+        const levelsBefore = {...(state.data.achievements.levels || {})};
+        recalculateAchievements();
+        giveRewardsForNewAchievements(levelsBefore);
         saveData();
+        updateUI();
         document.getElementById('customRewardDate').value = '';
         document.getElementById('customRewardDesc').value = '';
         document.getElementById('customRewardStars').value = '';
