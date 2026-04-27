@@ -1,6 +1,6 @@
 // ════════════════════════════════════════════════════
 // 🏆  achievements.js — Система досягнень
-//     Зірки Успіху | v3.20260427.0709
+//     Зірки Успіху | v3.20260427.0742
 // ════════════════════════════════════════════════════
 
 import { state } from './state.js';
@@ -518,10 +518,7 @@ ${level.desc}
                     
                     state.data.records.push({
                         id: Date.now() + Math.random(),
-                        // +1с щоб досягнення завжди було ПІСЛЯ оцінки в історії
-            date: recordDate
-                ? new Date(new Date(recordDate).getTime() + 1000).toISOString()
-                : new Date().toISOString(),
+                        date: new Date().toISOString(),
                         description: fullName,
                         stars: level.reward,
                         type: 'earn',
