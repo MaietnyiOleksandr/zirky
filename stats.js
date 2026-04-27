@@ -1,8 +1,8 @@
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260427.1654';
+export const VERSION = 'v3.20260427.1706';
 // STATS  stats.js — Stats
-//     Зірки Успіху | v3.20260427.1654
+//     Зірки Успіху | v3.20260427.1706
 // ════════════════════════════════════════════════════
 
 import { state } from './state.js';
@@ -137,8 +137,10 @@ export function updateChart() {
         svg += `<text x="${padding.left - 10}" y="${y + 5}" fill="#999" font-size="9" text-anchor="end">${value}⭐</text>`;
     }
     
-    // ── Сірі зони канікул ────────────────────────────────────
-    const freezePeriods = state.data.achievements?.freezePeriods || [];
+    // ── Сірі зони канікул (тільки для тижня та місяця) ──────────
+    const freezePeriods = state.chartPeriod !== 'year'
+        ? (state.data.achievements?.freezePeriods || [])
+        : [];
     freezePeriods.forEach(period => {
         const fromDate = new Date(period.from);
         fromDate.setHours(0, 0, 0, 0);
