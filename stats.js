@@ -19,9 +19,11 @@ export function renderSubjectAnalytics() {
         }
 
         if (!subjectData[subject]) {
-            subjectData[subject] = { grades: [], stars: 0, count: 0 };
+            subjectData[subject] = { grades: [], gradesByDate: [], stars: 0, count: 0 };
         }
-        subjectData[subject].grades.push(parseInt(r.grade));
+        const grade = parseInt(r.grade);
+        subjectData[subject].grades.push(grade);
+        subjectData[subject].gradesByDate.push({ grade, date: new Date(r.date) });
         subjectData[subject].stars += r.stars || 0;
         subjectData[subject].count++;
     });
@@ -35,7 +37,25 @@ export function renderSubjectAnalytics() {
     const subjects = Object.entries(subjectData)
         .map(([name, data]) => {
             const avg = data.grades.reduce((s, g) => s + g, 0) / data.grades.length;
-            return { name, avg, count: data.count, stars: data.stars, grades: data.grades };
+
+            // Тренд: порівнюємо останні 30 днів з попередніми 30 днями
+            const now = new Date();
+            const d30 = new Date(now - 30 * 24 * 60 * 60 * 1000);
+            const d60 = new Date(now - 60 * 24 * 60 * 60 * 1000);
+            const recent = data.gradesByDate.filter(g => g.date >= d30).map(g => g.grade);
+            const prev   = data.gradesByDate.filter(g => g.date >= d60 && g.date < d30).map(g => g.grade);
+            const avgRecent = recent.length ? recent.reduce((s,g)=>s+g,0)/recent.length : null;
+            const avgPrev   = prev.length   ? prev.reduce((s,g)=>s+g,0)/prev.length     : null;
+            
+            let trend = null;
+            if (avgRecent !== null && avgPrev !== null) {
+                const diff = avgRecent - avgPrev;
+                if (diff > 0.5)       trend = { icon: '📈', color: '#4CAF50', text: `+${diff.toFixed(1)}` };
+                else if (diff < -0.5) trend = { icon: '📉', color: '#f44336', text: diff.toFixed(1) };
+                else                  trend = { icon: '➡️', color: '#999',    text: '~' };
+            }
+
+            return { name, avg, count: data.count, stars: data.stars, grades: data.grades, trend };
         })
         .sort((a, b) => b.avg - a.avg);
 
@@ -62,9 +82,12 @@ export function renderSubjectAnalytics() {
         <div style="background: white; padding: 12px; border-radius: 12px; border: 1px solid #eee;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
                 <span style="font-size: 14px; font-weight: 600;">${emoji} ${s.name}</span>
-                <div style="text-align: right;">
-                    <span style="font-size: 16px; font-weight: 700; color: ${barColor};">${avgRounded}</span>
-                    <span style="font-size: 11px; color: #999; margin-left: 4px;">(${s.count} ${s.count === 1 ? 'оцінка' : s.count < 5 ? 'оцінки' : 'оцінок'})</span>
+                <div style="display: flex; align-items: center; gap: 6px;">
+                    ${s.trend ? `<span style="font-size: 12px; color: ${s.trend.color}; font-weight: 600;">${s.trend.icon} ${s.trend.text}</span>` : ''}
+                    <div style="text-align: right;">
+                        <span style="font-size: 16px; font-weight: 700; color: ${barColor};">${avgRounded}</span>
+                        <span style="font-size: 11px; color: #999; margin-left: 4px;">(${s.count} ${s.count === 1 ? 'оцінка' : s.count < 5 ? 'оцінки' : 'оцінок'})</span>
+                    </div>
                 </div>
             </div>
             <div style="background: #f0f0f0; border-radius: 6px; height: 8px; overflow: hidden;">
@@ -79,9 +102,9 @@ export function renderSubjectAnalytics() {
 
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260427.1720';
+export const VERSION = 'v3.20260427.1729';
 // STATS  stats.js — Stats
-//     Зірки Успіху | v3.20260427.1720
+//     Зірки Успіху | v3.20260427.1729
 // ════════════════════════════════════════════════════
 
 import { state } from './state.js';
