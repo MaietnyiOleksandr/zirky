@@ -1,8 +1,8 @@
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260427.0855';
+export const VERSION = 'v3.20260427.0915';
 // ⚙️   settings.js — Налаштування / Експорт / Імпорт
-//     Зірки Успіху | v3.20260427.0855
+//     Зірки Успіху | v3.20260427.0915
 // ════════════════════════════════════════════════════
 
 import { state } from './state.js';
@@ -64,29 +64,63 @@ export function showDataInfo() {
         body.style.display = 'block';
         arrow.textContent = '▼';
 
-        const files = [
-            'config.js','state.js','auth.js','achievements.js',
-            'goals.js','freeze.js','firebase.js','utils.js',
-            'ui.js','navigation.js','records.js','history.js',
-            'rewards.js','stats.js','settings.js'
+        // HTML та CSS — читаємо з DOM
+        const htmlVer = document.querySelector('meta[charset]')?.nextElementSibling
+            ?.previousSibling?.textContent?.match(/v3\.\d+\.\d+/)?.[0]
+            || (() => {
+                const c = document.documentElement.outerHTML;
+                return c.match(/version:\s*(v3\.\d+\.\d+)/)?.[1] || '—';
+            })();
+
+        // Читаємо версію CSS з завантаженого stylesheet
+        let cssVer = '—';
+        try {
+            const cssText = Array.from(document.styleSheets)
+                .find(s => s.href?.includes('style.css'));
+            if (cssText) {
+                const resp = await fetch(cssText.href);
+                const text = await resp.text();
+                cssVer = text.match(/v3\.\d+\.\d+/)?.[0] || '—';
+            }
+        } catch(e) {}
+
+        // JS файли — відсортовані за алфавітом
+        const jsFiles = [
+            'achievements.js','auth.js','config.js','firebase.js',
+            'freeze.js','goals.js','history.js','navigation.js',
+            'records.js','rewards.js','settings.js','state.js',
+            'stats.js','ui.js','utils.js'
         ];
 
-        const rows = await Promise.all(files.map(async fname => {
+        const makeRow = (name, ver, isHeader = false) => {
+            const bg = isHeader ? 'background:#f5f5f5; font-weight:700;' : '';
+            const color = ver !== '—' ? '#2E7D32' : '#aaa';
+            return `<div style="display:flex; justify-content:space-between;
+                                padding:5px 0; border-bottom:1px solid #f0f0f0;
+                                font-size:12px; font-family:monospace; ${bg}">
+                <span style="color:#555;">${name}</span>
+                <span style="color:${color}; font-weight:600;">${ver}</span>
+            </div>`;
+        };
+
+        // Збираємо рядки HTML+CSS
+        let rows = [
+            makeRow('🌐 zirky-uspihu-v3.html', htmlVer),
+            makeRow('🎨 style.css', cssVer),
+            `<div style="height:6px;"></div>`,
+        ];
+
+        // Додаємо JS файли
+        const jsRows = await Promise.all(jsFiles.map(async fname => {
             try {
                 const mod = await import('./' + fname);
-                const ver = mod.VERSION || '—';
-                return `<div style="display:flex; justify-content:space-between;
-                                    padding:4px 0; border-bottom:1px solid #f5f5f5;
-                                    font-size:12px; font-family:monospace;">
-                    <span style="color:#555;">${fname}</span>
-                    <span style="color:#2E7D32; font-weight:600;">${ver}</span>
-                </div>`;
+                return makeRow('📄 ' + fname, mod.VERSION || '—');
             } catch(e) {
-                return `<div style="font-size:12px;color:#f44336;font-family:monospace;">${fname}: помилка</div>`;
+                return makeRow(fname, 'помилка');
             }
         }));
 
-        body.innerHTML = rows.join('');
+        body.innerHTML = rows.join('') + jsRows.join('');
     });
     
     // Показуємо/ховаємо блоки для батьків
