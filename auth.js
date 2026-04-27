@@ -1,6 +1,6 @@
 // ════════════════════════════════════════════════════
 // 🔐  auth.js — Авторизація та PIN-код
-//     Зірки Успіху | v3.20260426.1627
+//     Зірки Успіху | v3.20260427.0821
 // ════════════════════════════════════════════════════
 
 import { state } from './state.js';
@@ -20,7 +20,7 @@ export function enterAsChild() {
     document.getElementById('loginOverlay').style.display = 'none';
     document.getElementById('mainApp').style.display = 'block';
     updateUI();
-    switchTab('instructions');
+    switchTab('achievements');
 }
 
 export function addPin(digit) {
