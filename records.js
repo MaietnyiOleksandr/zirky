@@ -1,12 +1,13 @@
 // ════════════════════════════════════════════════════
 // RECORDS  records.js — Records
-//     Зірки Успіху | v3.20260427.0623
+//     Зірки Успіху | v3.20260427.0635
 // ════════════════════════════════════════════════════
 
 import { state } from './state.js';
 import { ACHIEVEMENTS, gradeToStars } from './config.js';
 import { recalculateAchievements, checkWeeklyAchievements, checkGoalReached, giveRewardsForNewAchievements, removeRewardsForLostAchievements } from './achievements.js';
 import { saveData } from './firebase.js';
+import { updateUI } from './ui.js';
 
 // ════════════════════════════════════════════════════════════
 // ➕  БЛОК: Нарахування (оцінки, бонуси, діагностика)
@@ -50,6 +51,7 @@ export function addGradeRecord() {
     }
     
     saveData();
+    updateUI();  // Одразу оновлюємо badges та досягнення
 
     document.getElementById('subject').value = '';
     document.getElementById('grade').value = '';
@@ -107,6 +109,7 @@ export function addDiagnosticWork() {
     }
     
     saveData();
+    updateUI();
 
     document.getElementById('diagnosticSubject').value = '';
     document.getElementById('diagnosticGrade').value = '';
@@ -152,6 +155,7 @@ export function addBonusRecord() {
     }
     
     saveData();
+    updateUI();
 
     document.getElementById('bonusType').value = '';
     alert(`✅ Додано ${stars}⭐!`);
@@ -193,6 +197,7 @@ export function addSpecialRecord() {
     }
     
     saveData();
+    updateUI();
 
     document.getElementById('specialDesc').value = '';
     document.getElementById('specialStars').value = '';
