@@ -1,8 +1,8 @@
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260427.0915';
+export const VERSION = 'v3.20260427.0944';
 // ⚙️   settings.js — Налаштування / Експорт / Імпорт
-//     Зірки Успіху | v3.20260427.0915
+//     Зірки Успіху | v3.20260427.0944
 // ════════════════════════════════════════════════════
 
 import { state } from './state.js';
@@ -105,7 +105,7 @@ export function showDataInfo() {
 
         // Збираємо рядки HTML+CSS
         let rows = [
-            makeRow('🌐 zirky-uspihu-v3.html', htmlVer),
+            makeRow('🌐 index.html', htmlVer),
             makeRow('🎨 style.css', cssVer),
             `<div style="height:6px;"></div>`,
         ];
