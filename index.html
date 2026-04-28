@@ -2,7 +2,7 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <!-- version: v3.20260427.2231 -->
+    <!-- version: v3.20260427.2305 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>⭐ Зірки Успіху</title>
     <link rel="stylesheet" href="style.css">
@@ -139,7 +139,6 @@
             <button class="tab" onclick="switchTab('rewards', true)">🎁 Витрати</button>
             <button class="tab" onclick="switchTab('achievements', true)">🏆 Досягнення</button>
             <button class="tab" onclick="switchTab('stats', true)">📊 Статистика</button>
-            <button class="tab" onclick="switchTab('instructions', true)">❓ Інструкції</button>
             <button class="tab" onclick="switchTab('settings', true)">⚙️ Налаштування</button>
         </div>
 
@@ -147,6 +146,13 @@
         <div class="content">
             <!-- Add section -->
             <div class="section active" id="addSection">
+                <div style="display:flex; justify-content:flex-end; margin-bottom:8px;">
+                    <button onclick="showHelp('addSection')"
+                        style="background:none; border:2px solid var(--secondary); border-radius:50%;
+                               width:32px; height:32px; font-size:16px; cursor:pointer;
+                               color:var(--secondary); font-weight:700; line-height:1;
+                               display:flex; align-items:center; justify-content:center;">?</button>
+                </div>
                 <div class="quick-actions">
                     <button class="quick-action-btn active" onclick="showForm('grade')">
                         📚 Додати оцінку
@@ -327,6 +333,15 @@
 
             <!-- History section -->
             <div class="section" id="historySection">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                    <h2 style="margin:0; color:var(--secondary);">📜 Історія</h2>
+                    <button onclick="showHelp('historySection')"
+                        style="background:none; border:2px solid var(--secondary); border-radius:50%;
+                               width:32px; height:32px; font-size:16px; cursor:pointer;
+                               color:var(--secondary); font-weight:700; line-height:1;
+                               display:flex; align-items:center; justify-content:center;">?</button>
+                </div>
+
                 <div class="month-selector">
                     <button class="month-btn" onclick="changeMonth(-1)">◀</button>
                     <div class="month-display" id="currentMonth"></div>
@@ -337,6 +352,15 @@
 
             <!-- Rewards section -->
             <div class="section" id="rewardsSection">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                    <h2 style="margin:0; color:var(--secondary);">🎁 Витрати</h2>
+                    <button onclick="showHelp('rewardsSection')"
+                        style="background:none; border:2px solid var(--secondary); border-radius:50%;
+                               width:32px; height:32px; font-size:16px; cursor:pointer;
+                               color:var(--secondary); font-weight:700; line-height:1;
+                               display:flex; align-items:center; justify-content:center;">?</button>
+                </div>
+
                 <h2 style="margin-bottom: 20px; color: var(--secondary);">Обміняти зірки</h2>
                 
                 <div class="rewards-grid" id="rewardsList"></div>
@@ -362,6 +386,15 @@
 
             <!-- Achievements section -->
             <div class="section" id="achievementsSection">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                    <h2 style="margin:0; color:var(--secondary);">🏆 Досягнення</h2>
+                    <button onclick="showHelp('achievementsSection')"
+                        style="background:none; border:2px solid var(--secondary); border-radius:50%;
+                               width:32px; height:32px; font-size:16px; cursor:pointer;
+                               color:var(--secondary); font-weight:700; line-height:1;
+                               display:flex; align-items:center; justify-content:center;">?</button>
+                </div>
+
                 <h2 style="margin-bottom: 15px; color: var(--secondary); font-size: 20px;">🏆 Досягнення</h2>
                 
                 <div id="achievementsInProgress"></div>
@@ -370,6 +403,15 @@
 
             <!-- Achievements section -->
             <div class="section" id="achievementsSection">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                    <h2 style="margin:0; color:var(--secondary);">🏆 Досягнення</h2>
+                    <button onclick="showHelp('achievementsSection')"
+                        style="background:none; border:2px solid var(--secondary); border-radius:50%;
+                               width:32px; height:32px; font-size:16px; cursor:pointer;
+                               color:var(--secondary); font-weight:700; line-height:1;
+                               display:flex; align-items:center; justify-content:center;">?</button>
+                </div>
+
                 <h2 style="margin-bottom: 15px; color: var(--secondary); font-size: 20px;">🏆 Досягнення</h2>
                 
                 <div id="achievementsInProgress"></div>
@@ -377,6 +419,15 @@
 
             <!-- Stats section -->
             <div class="section" id="statsSection">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                    <h2 style="margin:0; color:var(--secondary);">📊 Статистика</h2>
+                    <button onclick="showHelp('statsSection')"
+                        style="background:none; border:2px solid var(--secondary); border-radius:50%;
+                               width:32px; height:32px; font-size:16px; cursor:pointer;
+                               color:var(--secondary); font-weight:700; line-height:1;
+                               display:flex; align-items:center; justify-content:center;">?</button>
+                </div>
+
                 <h2 style="margin-bottom: 15px; color: var(--secondary); font-size: 20px;">Статистика</h2>
                 <div style="background: var(--bg); padding: 20px; border-radius: 18px;">
                     <div class="stats-controls">
@@ -436,6 +487,15 @@
 
             <!-- Instructions section -->
             <div class="section" id="instructionsSection">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                    <h2 style="margin:0; color:var(--secondary);">❓ Інструкції</h2>
+                    <button onclick="showHelp('instructionsSection')"
+                        style="background:none; border:2px solid var(--secondary); border-radius:50%;
+                               width:32px; height:32px; font-size:16px; cursor:pointer;
+                               color:var(--secondary); font-weight:700; line-height:1;
+                               display:flex; align-items:center; justify-content:center;">?</button>
+                </div>
+
 
                 <!-- Батьківська інструкція -->
                 <div class="instructions" id="parentInstructions">
@@ -541,8 +601,27 @@
 
             <!-- Settings section -->
             <div class="section" id="settingsSection">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                    <h2 style="margin:0; color:var(--secondary);">⚙️ Налаштування</h2>
+                    <button onclick="showHelp('settingsSection')"
+                        style="background:none; border:2px solid var(--secondary); border-radius:50%;
+                               width:32px; height:32px; font-size:16px; cursor:pointer;
+                               color:var(--secondary); font-weight:700; line-height:1;
+                               display:flex; align-items:center; justify-content:center;">?</button>
+                </div>
+
                 <h2 style="margin-bottom: 20px; color: var(--secondary);">⚙️ Налаштування</h2>
                 
+                <!-- Про програму -->
+                <div style="margin-bottom: 15px;">
+                    <button onclick="showHelp('about')"
+                        style="width:100%; padding:14px; background:linear-gradient(135deg, #E3F2FD, #BBDEFB);
+                               border:2px solid #2196F3; border-radius:15px; cursor:pointer;
+                               font-size:15px; font-weight:600; color:#1565C0; text-align:left;">
+                        ℹ️ Про програму "Зірки Успіху"
+                    </button>
+                </div>
+
                 <!-- Інфо про дані -->
                 <div style="background: linear-gradient(135deg, #E8F5E9, #C8E6C9); padding: 18px; border-radius: 15px; margin-bottom: 20px;">
                     <h3 style="margin: 0 0 15px 0; color: #2E7D32; font-size: 16px;">📊 Інформація про дані</h3>
@@ -644,6 +723,7 @@
         import { initFirebase, saveData } from './firebase.js';
         import { getTodayDate, setTodayDates } from './utils.js';
         import { showLoading, updateUI } from './ui.js';
+        import { showHelp, closeHelp } from './help.js';
         import { switchTab, showForm } from './navigation.js';
         import { addGradeRecord, addDiagnosticWork, addBonusRecord,
                  addSpecialRecord, deleteRecord } from './records.js';
@@ -672,6 +752,8 @@
         window.cancelRewardPin = cancelRewardPin;
         window.checkRewardPin = checkRewardPin;
         window.togglePeriod = togglePeriod;
+        window.showHelp = showHelp;
+        window.closeHelp = closeHelp;
         // goals.js
         window.showGoalModal = showGoalModal;
         window.cancelGoal = cancelGoal;
@@ -728,6 +810,21 @@
 
     </script>
 
+
+
+        <!-- Модальне вікно інструкцій -->
+        <div id="helpModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+             background:rgba(0,0,0,0.5); z-index:1000; justify-content:center; align-items:flex-end;">
+            <div style="background:white; width:100%; max-width:600px; max-height:85vh;
+                        border-radius:24px 24px 0 0; overflow-y:auto; padding:24px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                    <h3 id="helpModalTitle" style="margin:0; color:var(--secondary); font-size:18px;"></h3>
+                    <button onclick="closeHelp()"
+                        style="background:none; border:none; font-size:24px; cursor:pointer; color:#999;">✕</button>
+                </div>
+                <div id="helpModalContent" style="font-size:14px; line-height:1.7; color:#444;"></div>
+            </div>
+        </div>
 
 </body>
 </html>
