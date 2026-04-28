@@ -183,7 +183,7 @@ export function drawSubjectChart(subjectName, subjects) {
     const ch = h - pad.top - pad.bottom;
 
     const scaleX = i => pad.left + (points.length < 2 ? cw/2 : (i / (points.length-1)) * cw);
-    const scaleY = g => pad.top + ch - ((g - 4) / (12 - 4)) * ch;
+    const scaleY = g => pad.top + ch - ((g - 7) / (12 - 7)) * ch;
 
     const avg = s.avg;
     const avgY = scaleY(avg);
@@ -194,7 +194,7 @@ export function drawSubjectChart(subjectName, subjects) {
     let svg = `<svg width="${w}" height="${h}" style="display:block; overflow:visible;">`;
 
     // Сітка
-    [4, 7, 10, 12].forEach(val => {
+    [7, 9, 10, 12].forEach(val => {
         const y = scaleY(val);
         const col = val === 10 ? '#C8E6C9' : '#f0f0f0';
         svg += `<line x1="${pad.left}" y1="${y}" x2="${w-pad.right}" y2="${y}"
@@ -249,7 +249,7 @@ export function drawSubjectChart(subjectName, subjects) {
 
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260427.2248';
+export const VERSION = 'v3.20260428.2124';
 // STATS  stats.js — Stats
 //     Зірки Успіху | v3.20260427.1729
 // ════════════════════════════════════════════════════
