@@ -117,10 +117,10 @@ export function renderSubjectChartSelector(subjects) {
 
     const selectorHTML = `
         <div style="margin-top:16px; background:white; padding:14px; border-radius:12px; border:1px solid #eee;">
-            <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
-                <span style="font-size:14px; font-weight:600; color:var(--secondary);">📈 Динаміка оцінок</span>
+            <div style="margin-bottom:12px;">
+                <div style="font-size:14px; font-weight:600; color:var(--secondary); margin-bottom:8px;">📈 Динаміка оцінок</div>
                 <select id="subjectChartSelect"
-                    style="flex:1; padding:6px 10px; border-radius:8px; border:1px solid #ddd; font-size:13px;">
+                    style="width:100%; padding:8px 10px; border-radius:8px; border:1px solid #ddd; font-size:13px;">
                     ${options}
                 </select>
             </div>
@@ -239,8 +239,8 @@ export function drawSubjectChart(subjectName, subjects) {
 
     // Підпис якщо агрегація
     if (aggregated) {
-        svg += `<text x="${w/2}" y="${pad.top - 6}" font-size="9" fill="#aaa"
-            text-anchor="middle">середнє по тижнях</text>`;
+        svg += `<text x="${w - pad.right}" y="${h - 4}" font-size="8" fill="#bbb"
+            text-anchor="end">~ середнє по тижнях</text>`;
     }
 
     svg += '</svg>';
@@ -249,7 +249,7 @@ export function drawSubjectChart(subjectName, subjects) {
 
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260427.2029';
+export const VERSION = 'v3.20260427.2248';
 // STATS  stats.js — Stats
 //     Зірки Успіху | v3.20260427.1729
 // ════════════════════════════════════════════════════
