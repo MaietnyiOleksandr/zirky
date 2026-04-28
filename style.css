@@ -1,6 +1,6 @@
 /* ════════════════════════════════════════════════════
    Зірки Успіху — Стилі
-   Версія: v3.20260427.0915
+   Версія: v3.20260428.2159
    ════════════════════════════════════════════════════ */
 
         @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;900&display=swap');
@@ -1086,7 +1086,7 @@
         
         .chart-container {
             background: var(--bg);
-            padding: 20px;
+            padding: 2px;
             border-radius: 18px;
             margin-top: 20px;
             height: 320px;
