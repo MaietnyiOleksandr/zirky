@@ -1,6 +1,6 @@
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260427.0944';
+export const VERSION = 'v3.20260428.2124';
 // ⚙️   settings.js — Налаштування / Експорт / Імпорт
 //     Зірки Успіху | v3.20260427.0944
 // ════════════════════════════════════════════════════
@@ -171,6 +171,15 @@ export function exportData() {
 }
 
 export function importData(event) {
+    // Якщо дитячий профіль — потрібен PIN батьків
+    if (!state.data.isParent) {
+        const pin = prompt('🔐 Введіть PIN батьків для імпорту даних:');
+        if (pin !== String(state.data.pin)) {
+            alert('❌ Невірний PIN');
+            event.target.value = '';
+            return;
+        }
+    }
     const file = event.target.files[0];
     if (!file) return;
     
@@ -261,6 +270,14 @@ export function importData(event) {
 }
 
 export function resetAllData() {
+    // Якщо дитячий профіль — потрібен PIN батьків
+    if (!state.data.isParent) {
+        const pin = prompt('🔐 Введіть PIN батьків для скидання даних:');
+        if (pin !== String(state.data.pin)) {
+            alert('❌ Невірний PIN');
+            return;
+        }
+    }
     const confirm1 = confirm("⚠️ ВИ ВПЕВНЕНІ?\n\nЦе видалить ВСІ дані:\n• Всі оцінки та записи\n• Весь баланс зірок\n• Всі досягнення\n• Всі налаштування\n\nЦя дія НЕЗВОРОТНА!\n\nПродовжити?");
     if (!confirm1) return;
     
