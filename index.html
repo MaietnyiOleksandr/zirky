@@ -691,11 +691,7 @@
         import { state } from './state.js';
         import { firebaseConfig, ACHIEVEMENTS, rewards, gradeToStars } from './config.js';
         import { showPinInput, enterAsChild, addPin, clearPin, cancelPin, checkPin, changePin, showRewardPin, addRewardPin, clearRewardPin, cancelRewardPin, togglePeriod } from './auth.js';
-        import { recalculateAchievements, checkWeeklyAchievements,
-                 removeRewardsForLostAchievements, giveRewardsForNewAchievements,
-                 updateAchievementCounters, checkAndUnlockAchievements,
-                 renderAchievements, renderAchievementsHome,
-                 shouldSkipDayForStreak } from './achievements.js';
+        import { renderAchievements, renderAchievementsHome } from './achievements.js';
         import { renderGoal, showGoalModal, cancelGoal, saveGoal, deleteGoal } from './goals.js';
         import { addFreezePeriod, deleteFreezePeriod, editFreezePeriod,
                  renderFreezePeriods } from './freeze.js';
@@ -706,11 +702,10 @@
         import { switchTab, showForm } from './navigation.js';
         import { addGradeRecord, addDiagnosticWork, addBonusRecord,
                  addSpecialRecord, deleteRecord } from './records.js';
-        import { renderHistory, changeMonth, getSubjectEmoji } from './history.js';
-        import {  renderRewards, buyReward, buyCustomReward, doCustomReward,
+        import { renderHistory, changeMonth } from './history.js';
+        import {  renderRewards, buyReward, buyCustomReward,
                  buyRewardWithPin, checkRewardPin } from './rewards.js';
-        import { renderStats, updateChart, changeChartPeriod, changeChartOffset,
-                 checkStreakWarning } from './stats.js';
+        import { renderStats, updateChart, changeChartPeriod, changeChartOffset } from './stats.js';
         import { showDataInfo, exportData, importData, resetAllData,
                  adjustBalance } from './settings.js';
 
