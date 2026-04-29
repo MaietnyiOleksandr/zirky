@@ -1,12 +1,12 @@
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260429.1235';
+export const VERSION = 'v3.20260429.1244';
 // RECORDS  records.js — Records
-//     Зірки Успіху | v3.20260429.1235
+//     Зірки Успіху | v3.20260429.1244
 // ════════════════════════════════════════════════════
 
 import { state } from './state.js';
-import { ACHIEVEMENTS } from './config.js';
+import { gradeToStars } from './config.js';
 import { recalculateAchievements, checkWeeklyAchievements, checkGoalReached, giveRewardsForNewAchievements, removeRewardsForLostAchievements } from './achievements.js';
 import { saveData } from './firebase.js';
 import { updateUI } from './ui.js';
