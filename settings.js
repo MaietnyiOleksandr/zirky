@@ -1,8 +1,8 @@
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260429.2121';
+export const VERSION = 'v3.20260429.2150';
 // ⚙️   settings.js — Налаштування / Експорт / Імпорт
-//     Зірки Успіху | v3.20260429.2121
+//     Зірки Успіху | v3.20260429.2150
 // ════════════════════════════════════════════════════
 
 import { state } from './state.js';
@@ -148,6 +148,10 @@ export function showDataInfo() {
             const gEl = document.getElementById('moneyPerStar');
             if (mEl) mEl.value = rates.minutesPerStar;
             if (gEl) gEl.value = rates.moneyPerStar;
+            const mSpan = document.getElementById('currentMinutesRate');
+            const gSpan = document.getElementById('currentMoneyRate');
+            if (mSpan) mSpan.textContent = rates.minutesPerStar;
+            if (gSpan) gSpan.textContent = rates.moneyPerStar;
         }
     }
 }

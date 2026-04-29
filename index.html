@@ -2,7 +2,7 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <!-- version: v3.20260429.1741 -->
+    <!-- version: v3.20260429.2150 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>⭐ Зірки Успіху</title>
     <link rel="stylesheet" href="style.css">
@@ -704,6 +704,32 @@
                     </div>
                     <button class="btn btn-primary" onclick="adjustBalance()" style="width: 100%; padding: 12px 20px;">💰 Встановити баланс</button>
                 </div>
+
+                <!-- Курси конвертації (тільки для батьків) -->
+                <div id="conversionRatesBlock" style="display:none; background:linear-gradient(135deg,#E8F5E9,#C8E6C9); padding:18px; border-radius:15px; margin-top:15px; border:2px solid #4CAF50;">
+                    <h3 style="margin:0 0 15px 0; color:#2E7D32; font-size:16px;">⭐ Курси конвертації</h3>
+
+                    <div style="margin-bottom:12px;">
+                        <label style="display:block; font-size:13px; color:#1B5E20; margin-bottom:5px;">
+                            🎮 Хвилин за 1 зірку (зараз: <span id="currentMinutesRate">2</span> хв)
+                        </label>
+                        <input type="number" id="minutesPerStar" min="1" placeholder="2"
+                            style="width:100%; padding:12px; border:2px solid #4CAF50; border-radius:10px; font-size:15px; box-sizing:border-box;">
+                    </div>
+
+                    <div style="margin-bottom:15px;">
+                        <label style="display:block; font-size:13px; color:#1B5E20; margin-bottom:5px;">
+                            💵 Гривень за 1 зірку (зараз: <span id="currentMoneyRate">1</span> грн)
+                        </label>
+                        <input type="number" id="moneyPerStar" min="1" placeholder="1"
+                            style="width:100%; padding:12px; border:2px solid #4CAF50; border-radius:10px; font-size:15px; box-sizing:border-box;">
+                    </div>
+
+                    <button class="btn btn-primary" onclick="saveConversionRates()" style="width:100%;">
+                        💾 Зберегти курси
+                    </button>
+                </div>
+            
             </div>
 
         </div>
@@ -732,7 +758,7 @@
         import { renderRewards, buyTime, buyMoney, buyCustomReward, updateTimePreview, updateMoneyPreview, checkRewardPin } from './rewards.js';
         import { renderStats, updateChart, changeChartPeriod, changeChartOffset } from './stats.js';
         import { showDataInfo, exportData, importData, resetAllData,
-                 adjustBalance } from './settings.js';
+                 adjustBalance, saveConversionRates } from './settings.js';
 
         // Firebase ініціалізується у firebase.js
 
@@ -793,6 +819,7 @@
         window.importData = importData;
         window.resetAllData = resetAllData;
         window.adjustBalance = adjustBalance;
+        window.saveConversionRates = saveConversionRates;
         window.showDataInfo = showDataInfo;
         // achievements.js
         window.renderAchievements = renderAchievements;
