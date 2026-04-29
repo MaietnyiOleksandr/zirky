@@ -1,7 +1,7 @@
 // ════════════════════════════════════════════════════
-export const VERSION = 'v3.20260429.1730';
+export const VERSION = 'v3.20260429.1806';
 // REWARDS  rewards.js — Витрати / Конвертація
-//     Зірки Успіху | v3.20260429.1730
+//     Зірки Успіху | v3.20260429.1806
 // ════════════════════════════════════════════════════
 
 import { state } from './state.js';
@@ -32,7 +32,7 @@ function spendStars(stars, record) {
         return false;
     }
     state.data.balance = balance - stars;
-    state.data.records.push({ id: Date.now(), date: new Date().toISOString(), type: 'spend', ...record });
+    state.data.records.push({ id: Date.now(), date: new Date().toISOString(), type: 'spend', stars, ...record });
     const levelsBefore = { ...(state.data.achievements.levels || {}) };
     recalculateAchievements();
     giveRewardsForNewAchievements(levelsBefore);
@@ -72,9 +72,19 @@ export function updateTimePreview() {
     const el = document.getElementById('timeStarsPreview');
     if (!el) return;
     const rates = getRates();
-    el.textContent = minutes >= rates.minutesPerStar
-        ? `= ${minutes / rates.minutesPerStar} ⭐`
-        : '';
+    if (minutes <= 0) {
+        el.textContent = '';
+        return;
+    }
+    if (minutes % rates.minutesPerStar !== 0) {
+        el.style.color = '#f44336';
+        el.style.fontSize = '13px';
+        el.textContent = `⚠️ Введіть кратне ${rates.minutesPerStar}`;
+    } else {
+        el.style.color = 'var(--secondary)';
+        el.style.fontSize = '18px';
+        el.textContent = `= ${minutes / rates.minutesPerStar} ⭐`;
+    }
 }
 
 export function buyTime() {
