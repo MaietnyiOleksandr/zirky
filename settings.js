@@ -87,7 +87,7 @@ export function showDataInfo() {
         // JS файли — відсортовані за алфавітом
         const jsFiles = [
             'achievements.js','auth.js','config.js','firebase.js',
-            'freeze.js','goals.js','history.js','navigation.js',
+            'freeze.js','goals.js','help.js','history.js','navigation.js',
             'records.js','rewards.js','settings.js','state.js',
             'stats.js','ui.js','utils.js'
         ];
