@@ -1,8 +1,8 @@
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260426.1721';
+export const VERSION = 'v3.20260429.1205';
 // ⚙️  config.js — Конфігурація та константи
-//     Зірки Успіху | v3.20260426.1721
+//     Зірки Успіху | v3.20260429.1205
 // ════════════════════════════════════════════════════
 
 // ── Firebase ──────────────────────────────────────
@@ -14,23 +14,6 @@ export const firebaseConfig = {
     storageBucket: "zirky-uspihu.firebasestorage.app",
     messagingSenderId: "1034534533154",
     appId: "1:1034534533154:web:7bfefc2f6fbd1e782f727b"
-};
-
-// ── Початковий стан даних ─────────────────────────
-let data = {
-    records: [],
-    balance: 0,
-    pin: '1234',
-    isParent: false,
-    goal: null,  // { name: string, target: number, emoji: string }
-    achievements: {
-        counters: {},  // grades_12: 5, books: 2
-        streaks: {},   // earning: {current: 7, best: 12, lastDate: "2026-04-11"}
-        levels: {},    // {"відмінник": 2, "книголюб": 1} - поточний рівень
-        weekly: {},    // "2026-W15": {"швидкий_старт": 2}
-        repeatableHistory: {},  // {"чистюля": {1: 3, 2: 1}} - скільки разів отримано кожен рівень
-        freezePeriods: []  // [{ from: "2026-04-21", until: "2026-04-30" }] - всі періоди канікул
-    }
 };
 
 // ── Винагороди ────────────────────────────────────
@@ -158,12 +141,3 @@ export const gradeToStars = {
     '9': 2,
     '8': 1
 };
-
-// ── Змінні стану ─────────────────────────────────
-let currentViewMonth = new Date();
-let pinValue = '';
-let showPeriod = 'month'; // 'month' або 'all'
-let chartPeriod = 'week'; // 'week', 'month', 'year'
-let chartOffset = 0; // 0 = поточний період, -1 = попередній, і т.д.
-let dbRef = null;
-let pendingCustomReward = null;
