@@ -1,3 +1,13 @@
+// ════════════════════════════════════════════════════
+
+export const VERSION = 'v3.20260429.1300';
+// STATS  stats.js — Stats
+//     Зірки Успіху | v3.20260429.1300
+// ════════════════════════════════════════════════════
+
+import { state } from './state.js';
+
+// ════════════════════════════════════════════════════
 
 // ── Аналітика по предметах ────────────────────────────────
 export function renderSubjectAnalytics() {
@@ -239,22 +249,13 @@ export function drawSubjectChart(subjectName, subjects) {
 
     // Підпис якщо агрегація
     if (aggregated) {
-        svg += `<text x="${w - pad.right}" y="${h - 4}" font-size="8" fill="#bbb"
+        svg += `<text x="${w - pad.right}" y="${h - 40}" font-size="12" fill="#bbb"
             text-anchor="end">~ середнє по тижнях</text>`;
     }
 
     svg += '</svg>';
     container.innerHTML = svg;
 }
-
-// ════════════════════════════════════════════════════
-
-export const VERSION = 'v3.20260428.2124';
-// STATS  stats.js — Stats
-//     Зірки Успіху | v3.20260427.1729
-// ════════════════════════════════════════════════════
-
-import { state } from './state.js';
 
 // ════════════════════════════════════════════════════════════
 // 📊  БЛОК: Статистика / Графіки
