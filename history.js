@@ -6,7 +6,6 @@ export const VERSION = 'v3.20260426.1552';
 // ════════════════════════════════════════════════════
 
 import { state } from './state.js';
-import { saveData } from './firebase.js';
 import { deleteFreezePeriod, editFreezePeriod } from './freeze.js';
 import { deleteRecord } from './records.js';
 
