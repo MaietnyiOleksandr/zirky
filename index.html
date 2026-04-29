@@ -2,7 +2,7 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <!-- version: v3.20260429.1200 -->
+    <!-- version: v3.20260429.1741 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>⭐ Зірки Успіху</title>
     <link rel="stylesheet" href="style.css">
@@ -361,12 +361,37 @@
                                display:flex; align-items:center; justify-content:center;">?</button>
                 </div>
 
-                <h2 style="margin-bottom: 20px; color: var(--secondary);">Обміняти зірки</h2>
-                
-                <div class="rewards-grid" id="rewardsList"></div>
-                
-                <div style="margin-top: 30px; padding: 20px; background: var(--bg); border-radius: 18px;">
-                    <h3 style="color: var(--secondary); margin-bottom: 15px;">✨ Особливе списання</h3>
+                <!-- Час на смартфоні -->
+                <div style="background:var(--bg); border-radius:18px; padding:20px; margin-bottom:16px;">
+                    <h3 style="color:var(--secondary); margin:0 0 14px;">🎮 Час на смартфоні</h3>
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <input type="number" id="timeMinutes" min="2" step="2"
+                            oninput="updateTimePreview()"
+                            style="flex:1; padding:12px; border-radius:12px; border:2px solid var(--border);
+                                   background:var(--card); color:var(--text); font-size:18px;">
+                        <span id="timeStarsPreview"
+                            style="min-width:80px; font-size:18px; font-weight:700; color:var(--secondary); text-align:right;"></span>
+                    </div>
+                    <button class="btn" onclick="buyTime()" style="margin-top:12px; width:100%;">🎮 Обміняти</button>
+                </div>
+
+                <!-- Гроші -->
+                <div style="background:var(--bg); border-radius:18px; padding:20px; margin-bottom:16px;">
+                    <h3 style="color:var(--secondary); margin:0 0 14px;">💵 Гроші</h3>
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <input type="number" id="moneyAmount" min="50" step="1"
+                            oninput="updateMoneyPreview()"
+                            style="flex:1; padding:12px; border-radius:12px; border:2px solid var(--border);
+                                   background:var(--card); color:var(--text); font-size:18px;">
+                        <span id="moneyStarsPreview"
+                            style="min-width:80px; font-size:18px; font-weight:700; color:var(--secondary); text-align:right;"></span>
+                    </div>
+                    <button class="btn" onclick="buyMoney()" style="margin-top:12px; width:100%;">💵 Обміняти</button>
+                </div>
+
+                <!-- Особливе списання -->
+                <div style="background:var(--bg); border-radius:18px; padding:20px;">
+                    <h3 style="color:var(--secondary); margin:0 0 14px;">✨ Особливе списання</h3>
                     <div class="form-group">
                         <label>📅 Дата</label>
                         <input type="date" id="customRewardDate">
@@ -379,9 +404,10 @@
                         <label>⭐ Кількість зірок</label>
                         <input type="number" id="customRewardStars" min="1" placeholder="Скільки зірок?">
                     </div>
-                    <button class="btn" onclick="buyCustomReward()" style="background: linear-gradient(135deg, #FF6B6B, #ee5a52); color: white; border: 2px solid #FF6B6B; font-weight: 600;">💫 Списати</button>
+                    <button class="btn" onclick="buyCustomReward()"
+                        style="background:linear-gradient(135deg,#FF6B6B,#ee5a52); color:white;
+                               border:2px solid #FF6B6B; font-weight:600; width:100%;">💫 Списати</button>
                 </div>
-
             </div>
 
             <!-- Achievements section -->
@@ -689,7 +715,7 @@
 
         // ── Імпорти модулів ───────────────────────────────────────
         import { state } from './state.js';
-        import { firebaseConfig, ACHIEVEMENTS, rewards, gradeToStars } from './config.js';
+        import { firebaseConfig, ACHIEVEMENTS, gradeToStars } from './config.js';
         import { showPinInput, enterAsChild, addPin, clearPin, cancelPin, checkPin, changePin, showRewardPin, addRewardPin, clearRewardPin, cancelRewardPin, togglePeriod } from './auth.js';
         import { renderAchievements, renderAchievementsHome } from './achievements.js';
         import { renderGoal, showGoalModal, cancelGoal, saveGoal, deleteGoal } from './goals.js';
@@ -703,8 +729,7 @@
         import { addGradeRecord, addDiagnosticWork, addBonusRecord,
                  addSpecialRecord, deleteRecord } from './records.js';
         import { renderHistory, changeMonth } from './history.js';
-        import {  renderRewards, buyReward, buyCustomReward,
-                 buyRewardWithPin, checkRewardPin } from './rewards.js';
+        import { renderRewards, buyTime, buyMoney, buyCustomReward, updateTimePreview, updateMoneyPreview, checkRewardPin } from './rewards.js';
         import { renderStats, updateChart, changeChartPeriod, changeChartOffset } from './stats.js';
         import { showDataInfo, exportData, importData, resetAllData,
                  adjustBalance } from './settings.js';
@@ -753,9 +778,11 @@
         window.changeMonth = changeMonth;
         // rewards.js
         window.renderRewards = renderRewards;
-        window.buyReward = buyReward;
+        window.buyTime = buyTime;
+        window.buyMoney = buyMoney;
         window.buyCustomReward = buyCustomReward;
-        window.buyRewardWithPin = buyRewardWithPin;
+        window.updateTimePreview = updateTimePreview;
+        window.updateMoneyPreview = updateMoneyPreview;
         // stats.js
         window.renderStats = renderStats;
         window.updateChart = updateChart;

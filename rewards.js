@@ -1,122 +1,185 @@
 // ════════════════════════════════════════════════════
-
-export const VERSION = 'v3.20260427.0729';
-// REWARDS  rewards.js — Rewards
-//     Зірки Успіху | v3.20260427.0729
+export const VERSION = 'v3.20260429.1730';
+// REWARDS  rewards.js — Витрати / Конвертація
+//     Зірки Успіху | v3.20260429.1730
 // ════════════════════════════════════════════════════
 
 import { state } from './state.js';
-import { rewards } from './config.js';
+import { conversionRates } from './config.js';
 import { saveData } from './firebase.js';
 import { recalculateAchievements, giveRewardsForNewAchievements } from './achievements.js';
 import { updateUI } from './ui.js';
 
-// ════════════════════════════════════════════════════════════
-// 🎁  БЛОК: Витрати / Винагороди
-// ════════════════════════════════════════════════════════════
-export function renderRewards() {
-    const list = document.getElementById('rewardsList');
-    list.innerHTML = rewards.map((r, i) => {
-        const canAfford = Number(state.data.balance) >= r.cost;
-        return `
-            <div class="reward-item">
-                <div>
-                    <div class="reward-name">${r.name}</div>
-                    <div class="reward-cost">${r.cost}⭐</div>
-                </div>
-                <button class="reward-btn" onclick="${canAfford ? (state.data.isParent ? 'buyReward('+i+')' : 'buyRewardWithPin('+i+')') : ''}" ${!canAfford ? 'disabled' : ''}>
-                    ${canAfford ? '✅ Обміняти' : '🔒'}
-                </button>
-            </div>`;
-    }).join('');
+// ════════════════════════════════════════════════════
+// 🔧  Допоміжні
+// ════════════════════════════════════════════════════
+
+function getRates() {
+    return state.data.conversionRates || conversionRates;
 }
 
-export function buyReward(index) {
-    const reward = rewards[index];
-    if (Number(state.data.balance) >= reward.cost) {
-        if (confirm(`Обміняти ${reward.cost}⭐ на "${reward.name}"?`)) {
-            state.data.balance = Number(state.data.balance) - reward.cost;
-            state.data.records.push({
-                id: Date.now(),
-                date: new Date().toISOString(),
-                reward: reward.name,
-                stars: reward.cost,
-                type: 'spend'
-            });
-            const levelsBefore = {...(state.data.achievements.levels || {})};
-            recalculateAchievements();
-            giveRewardsForNewAchievements(levelsBefore);
-            saveData();
-            updateUI();
-            alert(`🎁 Вітаємо! Отримано: ${reward.name}`);
-        }
-    }
-}
-
-export function buyCustomReward() {
-    const date = document.getElementById('customRewardDate').value;
-    const desc = document.getElementById('customRewardDesc').value;
-    const stars = parseInt(document.getElementById('customRewardStars').value);
+function spendStars(stars, record) {
     const balance = Number(state.data.balance);
-
-    if (!date || !desc || !stars || stars < 1) { alert('❌ Заповніть всі поля!'); return; }
-
     if (balance < stars) {
         const missing = stars - balance;
         const msgs = [
-            `⭐ Ще ${missing} зірок — і мрія твоя! Продовжуй старатися!`,
-            `💪 Зовсім трохи залишилось! Ще ${missing}⭐ — і готово!`,
+            `⭐ Ще ${missing} зірок — і мрія твоя!`,
+            `💪 Зовсім трохи! Ще ${missing}⭐ — і готово!`,
             `🚀 До мрії ${missing} кроків-зірок. Ти впораєшся!`,
-            `🌟 Не вистачає ${missing}⭐. Кожна гарна оцінка наближає тебе!`
+            `🌟 Не вистачає ${missing}⭐. Кожна гарна оцінка наближає!`
         ];
         alert(msgs[Math.floor(Math.random() * msgs.length)]);
+        return false;
+    }
+    state.data.balance = balance - stars;
+    state.data.records.push({ id: Date.now(), date: new Date().toISOString(), type: 'spend', ...record });
+    const levelsBefore = { ...(state.data.achievements.levels || {}) };
+    recalculateAchievements();
+    giveRewardsForNewAchievements(levelsBefore);
+    saveData();
+    updateUI();
+    return true;
+}
+
+// ════════════════════════════════════════════════════
+// ⚙️  Ініціалізація полів при відкритті вкладки
+// ════════════════════════════════════════════════════
+
+export function renderRewards() {
+    const rates = getRates();
+    const timeInput = document.getElementById('timeMinutes');
+    const moneyInput = document.getElementById('moneyAmount');
+    if (timeInput) {
+        timeInput.step  = rates.minutesPerStar;
+        timeInput.min   = rates.minutesPerStar;
+        timeInput.placeholder = `Хвилин (мін. ${rates.minutesPerStar})`;
+    }
+    if (moneyInput) {
+        moneyInput.step  = rates.moneyPerStar;
+        moneyInput.min   = 50;
+        moneyInput.placeholder = `Гривень (мін. 50)`;
+    }
+    updateTimePreview();
+    updateMoneyPreview();
+}
+
+// ════════════════════════════════════════════════════
+// 🎮  Час на смартфоні
+// ════════════════════════════════════════════════════
+
+export function updateTimePreview() {
+    const minutes = parseInt(document.getElementById('timeMinutes')?.value) || 0;
+    const el = document.getElementById('timeStarsPreview');
+    if (!el) return;
+    const rates = getRates();
+    el.textContent = minutes >= rates.minutesPerStar
+        ? `= ${minutes / rates.minutesPerStar} ⭐`
+        : '';
+}
+
+export function buyTime() {
+    const input = document.getElementById('timeMinutes');
+    const minutes = parseInt(input.value);
+    const rates = getRates();
+    if (!minutes || minutes < rates.minutesPerStar) {
+        alert(`❌ Мінімум ${rates.minutesPerStar} хвилин!`);
         return;
     }
+    if (minutes % rates.minutesPerStar !== 0) {
+        alert(`❌ Кількість хвилин має бути кратна ${rates.minutesPerStar}!`);
+        return;
+    }
+    const stars = minutes / rates.minutesPerStar;
+    if (!confirm(`Обміняти ${stars}⭐ на ${minutes} хвилин смартфону?`)) return;
+    if (spendStars(stars, { category: 'time', minutes, description: `${minutes} хв смартфону` })) {
+        input.value = '';
+        document.getElementById('timeStarsPreview').textContent = '';
+        alert(`🎮 Отримано ${minutes} хвилин!`);
+    }
+}
 
+// ════════════════════════════════════════════════════
+// 💵  Гроші
+// ════════════════════════════════════════════════════
+
+export function updateMoneyPreview() {
+    const amount = parseInt(document.getElementById('moneyAmount')?.value) || 0;
+    const el = document.getElementById('moneyStarsPreview');
+    if (!el) return;
+    const rates = getRates();
+    el.textContent = amount >= 50
+        ? `= ${amount / rates.moneyPerStar} ⭐`
+        : '';
+}
+
+export function buyMoney() {
+    const input = document.getElementById('moneyAmount');
+    const amount = parseInt(input.value);
+    const rates = getRates();
+    if (!amount || amount < 50) {
+        alert('❌ Мінімальна сума — 50 грн!');
+        return;
+    }
+    const stars = amount / rates.moneyPerStar;
+    if (!confirm(`Обміняти ${stars}⭐ на ${amount} грн?`)) return;
+    if (spendStars(stars, { category: 'money', amount, description: `${amount} грн` })) {
+        input.value = '';
+        document.getElementById('moneyStarsPreview').textContent = '';
+        alert(`💵 Отримано ${amount} грн!`);
+    }
+}
+
+// ════════════════════════════════════════════════════
+// ✨  Особливе списання (тільки батьки / PIN)
+// ════════════════════════════════════════════════════
+
+export function buyCustomReward() {
+    const date  = document.getElementById('customRewardDate').value;
+    const desc  = document.getElementById('customRewardDesc').value;
+    const stars = parseInt(document.getElementById('customRewardStars').value);
+    if (!date || !desc || !stars || stars < 1) { alert('❌ Заповніть всі поля!'); return; }
     if (state.data.isParent) {
         doCustomReward(date, desc, stars);
     } else {
         state.pendingCustomReward = { date, desc, stars };
-        document.dispatchEvent(new CustomEvent('zirky:showRewardPin'));  // auth.js слухає
+        document.dispatchEvent(new CustomEvent('zirky:showRewardPin'));
     }
 }
 
 export function doCustomReward(date, desc, stars) {
-    if (confirm(`Списати ${stars}⭐ на "${desc}"?`)) {
-        state.data.balance = Number(state.data.balance) - stars;
-        state.data.records.push({
-            id: Date.now(),
-            date: date + 'T12:00:00',
-            description: desc, stars,
-            type: 'spend'
-        });
-        const levelsBefore = {...(state.data.achievements.levels || {})};
-        recalculateAchievements();
-        giveRewardsForNewAchievements(levelsBefore);
-        saveData();
-        updateUI();
-        document.getElementById('customRewardDate').value = '';
-        document.getElementById('customRewardDesc').value = '';
-        document.getElementById('customRewardStars').value = '';
-        alert(`🎁 Списано ${stars}⭐!`);
-    }
+    if (!confirm(`Списати ${stars}⭐ на "${desc}"?`)) return;
+    const balance = Number(state.data.balance);
+    if (balance < stars) { alert('❌ Недостатньо зірок!'); return; }
+    state.data.balance = balance - stars;
+    state.data.records.push({
+        id: Date.now(), date: date + 'T12:00:00',
+        type: 'spend', category: 'other',
+        description: desc, stars
+    });
+    const levelsBefore = { ...(state.data.achievements.levels || {}) };
+    recalculateAchievements();
+    giveRewardsForNewAchievements(levelsBefore);
+    saveData();
+    updateUI();
+    ['customRewardDate', 'customRewardDesc', 'customRewardStars'].forEach(id => {
+        document.getElementById(id).value = '';
+    });
+    alert(`🎁 Списано ${stars}⭐!`);
 }
 
-export function buyRewardWithPin(index) {
-    state.pendingRewardIndex = index;
-    state.pendingCustomReward = null;
-    document.dispatchEvent(new CustomEvent('zirky:showRewardPin'));  // auth.js слухає
-}
+// ════════════════════════════════════════════════════
+// 🔐  PIN для особливого списання
+// ════════════════════════════════════════════════════
 
-// ── Перенесено з auth.js (розрив циклічної залежності) ──
 export function checkRewardPin() {
     if (state.rewardPinValue === state.data.pin) {
         document.getElementById('rewardPinOverlay').style.display = 'none';
-        if (state.pendingRewardIndex !== null) {
-            buyReward(state.pendingRewardIndex);
-            state.pendingRewardIndex = null;
-        } else if (state.pendingCustomReward) {
-            doCustomReward(state.pendingCustomReward.date, state.pendingCustomReward.desc, state.pendingCustomReward.stars);
+        if (state.pendingCustomReward) {
+            doCustomReward(
+                state.pendingCustomReward.date,
+                state.pendingCustomReward.desc,
+                state.pendingCustomReward.stars
+            );
             state.pendingCustomReward = null;
         }
     } else {
