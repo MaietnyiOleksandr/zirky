@@ -1,18 +1,15 @@
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260426.1551';
+export const VERSION = 'v3.20260429.1236';
 // UI     ui.js — Ui
-//     Зірки Успіху | v3.20260426.1551
+//     Зірки Успіху | v3.20260429.1236
 // ════════════════════════════════════════════════════
 
 import { state } from './state.js';
 import { showForm, switchTab } from './navigation.js';
 export { showForm, switchTab };  // re-export — інші файли ще імпортують з ui.js
-import { renderAchievementsHome, renderAchievements } from './achievements.js';
+import { renderAchievementsHome } from './achievements.js';
 import { renderGoal } from './goals.js';
-import { renderFreezePeriods } from './freeze.js';
-import { showDataInfo } from './settings.js';
-import { getTodayDate } from './utils.js';
 
 // ════════════════════════════════════════════════════════════
 // 🗂️   БЛОК: Навігація по вкладках
