@@ -1,8 +1,8 @@
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260428.2124';
+export const VERSION = 'v3.20260429.2121';
 // ⚙️   settings.js — Налаштування / Експорт / Імпорт
-//     Зірки Успіху | v3.20260427.0944
+//     Зірки Успіху | v3.20260429.2121
 // ════════════════════════════════════════════════════
 
 import { state } from './state.js';
@@ -136,6 +136,18 @@ export function showDataInfo() {
         const balanceDisplay = document.getElementById('currentBalanceDisplay');
         if (balanceDisplay) {
             balanceDisplay.textContent = `${state.data.balance || 0}⭐`;
+        }
+    }
+
+    const ratesBlock = document.getElementById('conversionRatesBlock');
+    if (ratesBlock) {
+        ratesBlock.style.display = state.data.isParent ? 'block' : 'none';
+        if (state.data.isParent) {
+            const rates = state.data.conversionRates || { minutesPerStar: 2, moneyPerStar: 1 };
+            const mEl = document.getElementById('minutesPerStar');
+            const gEl = document.getElementById('moneyPerStar');
+            if (mEl) mEl.value = rates.minutesPerStar;
+            if (gEl) gEl.value = rates.moneyPerStar;
         }
     }
 }
@@ -339,4 +351,20 @@ export function adjustBalance() {
     input.value = '';
     
     alert(`✅ Баланс змінено!\n\nНовий баланс: ${newBalance}⭐`);
+}
+
+export function saveConversionRates() {
+    const minutesPerStar = parseInt(document.getElementById('minutesPerStar')?.value);
+    const moneyPerStar = parseInt(document.getElementById('moneyPerStar')?.value);
+
+    if (!minutesPerStar || minutesPerStar < 1) { alert('❌ Некоректне значення хвилин!'); return; }
+    if (!moneyPerStar || moneyPerStar < 1) { alert('❌ Некоректне значення гривень!'); return; }
+
+    state.data.conversionRates = { minutesPerStar, moneyPerStar };
+    saveData();
+
+    // Оновлюємо поля на вкладці Витрати
+    if (window.renderRewards) window.renderRewards();
+
+    alert(`✅ Курси збережено!\n🎮 1⭐ = ${minutesPerStar} хв\n💵 1⭐ = ${moneyPerStar} грн`);
 }
