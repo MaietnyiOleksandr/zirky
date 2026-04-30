@@ -1,7 +1,7 @@
 // ════════════════════════════════════════════════════
 export const VERSION = 'v3.20260430.0829';
 // HISTORY  history.js — History
-//     Зірки Успіху | v3.20260430.0850
+//     Зірки Успіху | v3.20260430.0858
 // ════════════════════════════════════════════════════
 
 import { state } from './state.js';
@@ -82,12 +82,12 @@ export function renderHistory() {
     if (filterType === 'achievement') records = records.filter(r => r.category === 'achievement');
     if (filterType === 'spend')       records = records.filter(r => r.type === 'spend');
     if (filterType === 'freeze')      records = records.filter(r => r.type === 'freeze');
-    
+
     // Предметний фільтр для оцінок/діагностувальних/всіх нарахувань
     if (filterSubject !== 'all' && (filterType === 'earn' || filterType === 'grade' || filterType === 'diagnostic')) {
         records = records.filter(r =>
             (r.category === 'grade' || r.category === 'diagnostic') &&
-            r.subject === filterSubject
+            (r.subject === filterSubject || r.subject?.includes(filterSubject))
         );
     }
 
