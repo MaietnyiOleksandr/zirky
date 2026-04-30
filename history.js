@@ -1,5 +1,5 @@
 // ════════════════════════════════════════════════════
-export const VERSION = 'v3.20260430.0905';
+export const VERSION = 'v3.20260430.1300';
 // HISTORY  history.js — History
 // ════════════════════════════════════════════════════
 
@@ -36,15 +36,22 @@ export function getSubjectEmoji(subject) {
 export function applyHistoryFilter() {
     const typeEl    = document.getElementById('filterType');
     const subjectEl = document.getElementById('filterSubject');
+    const spendEl   = document.getElementById('filterSpendCategory');
     if (!typeEl) return;
 
     const type = typeEl.value;
 
-    // Показуємо предметний фільтр тільки для оцінок або діагностувальних
+    // Предметний фільтр — для оцінок, діагностувальних, всіх нарахувань
     if (subjectEl) {
-        const showSubject = type === 'grade' || type === 'diagnostic' || type === 'earn';
+        const showSubject = type === 'earn' || type === 'grade' || type === 'diagnostic';
         subjectEl.style.display = showSubject ? 'block' : 'none';
         if (!showSubject) subjectEl.value = 'all';
+    }
+
+    // Фільтр категорії витрат
+    if (spendEl) {
+        spendEl.style.display = type === 'spend' ? 'block' : 'none';
+        if (type !== 'spend') spendEl.value = 'all';
     }
 
     renderHistory();
@@ -62,18 +69,18 @@ export function renderHistory() {
         `${monthNames[state.currentViewMonth.getMonth()]} ${state.currentViewMonth.getFullYear()}`;
 
     // Читаємо фільтри
-    const filterType    = document.getElementById('filterType')?.value    || 'all';
-    const filterSubject = document.getElementById('filterSubject')?.value || 'all';
+    const filterType          = document.getElementById('filterType')?.value          || 'all';
+    const filterSubject       = document.getElementById('filterSubject')?.value       || 'all';
     const filterSpendCategory = document.getElementById('filterSpendCategory')?.value || 'all';
 
-    // Фільтруємо по місяцю
+    // Фільтр по місяцю
     let records = (state.data.records || []).filter(r => {
         const d = new Date(r.date);
         return d.getMonth()    === state.currentViewMonth.getMonth() &&
                d.getFullYear() === state.currentViewMonth.getFullYear();
     });
 
-    // Фільтруємо по типу
+    // Фільтр по типу/категорії
     if (filterType === 'earn')        records = records.filter(r => r.type === 'earn');
     if (filterType === 'grade')       records = records.filter(r => r.category === 'grade');
     if (filterType === 'diagnostic')  records = records.filter(r => r.category === 'diagnostic');
@@ -83,12 +90,7 @@ export function renderHistory() {
     if (filterType === 'spend')       records = records.filter(r => r.type === 'spend');
     if (filterType === 'freeze')      records = records.filter(r => r.type === 'freeze');
 
-    // Фільтр категорії витрат
-    if (filterType === 'spend' && filterSpendCategory !== 'all') {
-        records = records.filter(r => r.category === filterSpendCategory);
-    }
-
-    // Предметний фільтр для оцінок/діагностувальних/всіх нарахувань
+    // Предметний фільтр
     if (filterSubject !== 'all' && (filterType === 'earn' || filterType === 'grade' || filterType === 'diagnostic')) {
         records = records.filter(r =>
             (r.category === 'grade' || r.category === 'diagnostic') &&
@@ -96,17 +98,20 @@ export function renderHistory() {
         );
     }
 
+    // Фільтр категорії витрат
+    if (filterType === 'spend' && filterSpendCategory !== 'all') {
+        records = records.filter(r => r.category === filterSpendCategory);
+    }
+
     records.sort((a, b) => new Date(b.date) - new Date(a.date));
 
     // Порожній стан
     if (records.length === 0) {
-        const isFiltered = filterType !== 'all' || filterSubject !== 'all';
+        const isFiltered = filterType !== 'all' || filterSubject !== 'all' || filterSpendCategory !== 'all';
         list.innerHTML = `
             <div class="empty-state">
                 <div class="empty-icon">${isFiltered ? '🔍' : '📝'}</div>
-                <p>${isFiltered
-                    ? 'Немає записів що відповідають фільтру'
-                    : 'Ще немає записів за цей місяць'}</p>
+                <p>${isFiltered ? 'Немає записів що відповідають фільтру' : 'Ще немає записів за цей місяць'}</p>
             </div>`;
         return;
     }
@@ -116,7 +121,7 @@ export function renderHistory() {
         const dateStr = `${date.getDate()}.${(date.getMonth()+1).toString().padStart(2,'0')}.${date.getFullYear()}`;
 
         let desc = r.category === 'grade'      ? `${getSubjectEmoji(r.subject)} — ${r.grade} балів`
-                 : r.category === 'diagnostic' ? `📝 ${getSubjectEmoji(r.subject)} — ${r.grade} балів`
+                 : r.category === 'diagnostic' ? `${getSubjectEmoji(r.subject)} — ${r.grade} балів`
                  : r.type === 'spend'          ? (r.description || r.reward)
                  : r.description;
 
