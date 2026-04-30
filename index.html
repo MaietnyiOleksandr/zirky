@@ -2,7 +2,7 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <!-- version: v3.20260430.0850 -->
+    <!-- version: v3.20260430.0905 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>⭐ Зірки Успіху</title>
     <link rel="stylesheet" href="style.css">
@@ -376,6 +376,14 @@
                         <option value="Мистецтво">🎨 Мистецтво</option>
                         <option value="Вірш">📝 Вірш</option>
                         <option value="Фізкультура">⚽ Фізкультура</option>
+                    </select>
+                    <select id="filterSpendCategory" onchange="applyHistoryFilter()"
+                        style="flex:1; padding:10px 12px; border-radius:12px; border:2px solid var(--border);
+                               background:var(--card); color:var(--text); font-size:14px; font-weight:600; display:none;">
+                        <option value="all">💳 Всі витрати</option>
+                        <option value="time">🎮 Час на смартфоні</option>
+                        <option value="money">💵 Гроші</option>
+                        <option value="other">✨ Особливе списання</option>
                     </select>
                 </div>
 

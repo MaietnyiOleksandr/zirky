@@ -1,5 +1,5 @@
 // ════════════════════════════════════════════════════
-export const VERSION = 'v3.20260430.0858';
+export const VERSION = 'v3.20260430.0905';
 // HISTORY  history.js — History
 // ════════════════════════════════════════════════════
 
@@ -64,6 +64,7 @@ export function renderHistory() {
     // Читаємо фільтри
     const filterType    = document.getElementById('filterType')?.value    || 'all';
     const filterSubject = document.getElementById('filterSubject')?.value || 'all';
+    const filterSpendCategory = document.getElementById('filterSpendCategory')?.value || 'all';
 
     // Фільтруємо по місяцю
     let records = (state.data.records || []).filter(r => {
@@ -81,6 +82,11 @@ export function renderHistory() {
     if (filterType === 'achievement') records = records.filter(r => r.category === 'achievement');
     if (filterType === 'spend')       records = records.filter(r => r.type === 'spend');
     if (filterType === 'freeze')      records = records.filter(r => r.type === 'freeze');
+
+    // Фільтр категорії витрат
+    if (filterType === 'spend' && filterSpendCategory !== 'all') {
+        records = records.filter(r => r.category === filterSpendCategory);
+    }
 
     // Предметний фільтр для оцінок/діагностувальних/всіх нарахувань
     if (filterSubject !== 'all' && (filterType === 'earn' || filterType === 'grade' || filterType === 'diagnostic')) {
