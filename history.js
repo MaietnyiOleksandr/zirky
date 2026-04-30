@@ -1,7 +1,7 @@
 // ════════════════════════════════════════════════════
 export const VERSION = 'v3.20260430.0829';
 // HISTORY  history.js — History
-//     Зірки Успіху | v3.20260430.0829
+//     Зірки Успіху | v3.20260430.0850
 // ════════════════════════════════════════════════════
 
 import { state } from './state.js';
@@ -41,10 +41,11 @@ export function applyHistoryFilter() {
 
     const type = typeEl.value;
 
-    // Показуємо предметний фільтр тільки для "Зароблено"
+    // Показуємо предметний фільтр тільки для оцінок або діагностувальних
     if (subjectEl) {
-        subjectEl.style.display = type === 'earn' ? 'block' : 'none';
-        if (type !== 'earn') subjectEl.value = 'all';
+        const showSubject = type === 'grade' || type === 'diagnostic' || type === 'earn';
+        subjectEl.style.display = showSubject ? 'block' : 'none';
+        if (!showSubject) subjectEl.value = 'all';
     }
 
     renderHistory();
@@ -73,12 +74,17 @@ export function renderHistory() {
     });
 
     // Фільтруємо по типу
-    if (filterType === 'earn')   records = records.filter(r => r.type === 'earn');
-    if (filterType === 'spend')  records = records.filter(r => r.type === 'spend');
-    if (filterType === 'freeze') records = records.filter(r => r.type === 'freeze');
-
-    // Фільтруємо по предмету (тільки для earn)
-    if (filterType === 'earn' && filterSubject !== 'all') {
+    if (filterType === 'earn')        records = records.filter(r => r.type === 'earn');
+    if (filterType === 'grade')       records = records.filter(r => r.category === 'grade');
+    if (filterType === 'diagnostic')  records = records.filter(r => r.category === 'diagnostic');
+    if (filterType === 'bonus')       records = records.filter(r => r.category === 'bonus');
+    if (filterType === 'special')     records = records.filter(r => r.category === 'special');
+    if (filterType === 'achievement') records = records.filter(r => r.category === 'achievement');
+    if (filterType === 'spend')       records = records.filter(r => r.type === 'spend');
+    if (filterType === 'freeze')      records = records.filter(r => r.type === 'freeze');
+    
+    // Предметний фільтр для оцінок/діагностувальних/всіх нарахувань
+    if (filterSubject !== 'all' && (filterType === 'earn' || filterType === 'grade' || filterType === 'diagnostic')) {
         records = records.filter(r =>
             (r.category === 'grade' || r.category === 'diagnostic') &&
             r.subject === filterSubject
