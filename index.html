@@ -2,7 +2,7 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <!-- version: v3.20260430.0728 -->
+    <!-- version: v3.20260430.0829 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>⭐ Зірки Успіху</title>
     <link rel="stylesheet" href="style.css">
@@ -347,6 +347,33 @@
                     <div class="month-display" id="currentMonth"></div>
                     <button class="month-btn" onclick="changeMonth(1)">▶</button>
                 </div>
+
+                <!-- Фільтри -->
+                <div id="historyFilters" style="display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap;">
+                    <select id="filterType" onchange="applyHistoryFilter()"
+                        style="flex:1; padding:10px 12px; border-radius:12px; border:2px solid var(--border);
+                               background:var(--card); color:var(--text); font-size:14px; font-weight:600;">
+                        <option value="all">📋 Всі типи</option>
+                        <option value="earn">🟢 Зароблено</option>
+                        <option value="spend">🔴 Витрачено</option>
+                        <option value="freeze">❄️ Канікули</option>
+                    </select>
+                    <select id="filterSubject" onchange="applyHistoryFilter()"
+                        style="flex:1; padding:10px 12px; border-radius:12px; border:2px solid var(--border);
+                               background:var(--card); color:var(--text); font-size:14px; font-weight:600; display:none;">
+                        <option value="all">📚 Всі предмети</option>
+                        <option value="Математика">📐 Математика</option>
+                        <option value="Українська мова">🇺🇦 Українська мова</option>
+                        <option value="Я пізнаю світ">🌍 Я пізнаю світ</option>
+                        <option value="Читання">📖 Читання</option>
+                        <option value="Англійська мова">🇬🇧 Англійська мова</option>
+                        <option value="Інформатика">💻 Інформатика</option>
+                        <option value="Мистецтво">🎨 Мистецтво</option>
+                        <option value="Вірш">📝 Вірш</option>
+                        <option value="Фізкультура">⚽ Фізкультура</option>
+                    </select>
+                </div>
+
                 <div class="history-list" id="historyList"></div>
             </div>
 
@@ -754,7 +781,7 @@
         import { switchTab, showForm } from './navigation.js';
         import { addGradeRecord, addDiagnosticWork, addBonusRecord,
                  addSpecialRecord, deleteRecord } from './records.js';
-        import { renderHistory, changeMonth } from './history.js';
+        import { renderHistory, changeMonth, applyHistoryFilter } from './history.js';
         import { renderRewards, buyTime, buyMoney, buyCustomReward, updateTimePreview, updateMoneyPreview, checkRewardPin } from './rewards.js';
         import { renderStats, updateChart, changeChartPeriod, changeChartOffset } from './stats.js';
         import { showDataInfo, exportData, importData, resetAllData,
@@ -802,6 +829,7 @@
         // history.js
         window.renderHistory = renderHistory;
         window.changeMonth = changeMonth;
+        window.applyHistoryFilter = applyHistoryFilter;
         // rewards.js
         window.renderRewards = renderRewards;
         window.buyTime = buyTime;

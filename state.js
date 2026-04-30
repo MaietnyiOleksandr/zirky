@@ -1,8 +1,8 @@
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260426.0900';
+export const VERSION = 'v3.20260430.0823';
 // 🗃️  state.js — Спільний стан застосунку
-//     Зірки Успіху | v3.20260426.0900
+//     Зірки Успіху | v3.20260430.0829
 //
 //     Всі модулі імпортують цей об'єкт і працюють
 //     з одним спільним посиланням (reference).
@@ -45,3 +45,5 @@ export const state = {
     editingFreezeIndex: undefined,
 
 };
+
+export const historyFilter = { type: 'all', subject: 'all' };
