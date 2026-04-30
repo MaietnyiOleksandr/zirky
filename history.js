@@ -1,5 +1,5 @@
 // ════════════════════════════════════════════════════
-export const VERSION = 'v3.20260430.1300';
+export const VERSION = 'v3.20260430.0933';
 // HISTORY  history.js — History
 // ════════════════════════════════════════════════════
 
@@ -100,7 +100,10 @@ export function renderHistory() {
 
     // Фільтр категорії витрат
     if (filterType === 'spend' && filterSpendCategory !== 'all') {
-        records = records.filter(r => r.category === filterSpendCategory);
+        records = records.filter(r => {
+            const cat = r.category || 'other'; // старі записи без категорії = other
+            return cat === filterSpendCategory;
+        });
     }
 
     records.sort((a, b) => new Date(b.date) - new Date(a.date));
