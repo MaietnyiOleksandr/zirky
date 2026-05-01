@@ -2,9 +2,10 @@
 // ❓  help.js — Інструкції по розділах
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260430.1528';
+export const VERSION = 'v3.20260501.2235';
 
 import { state } from './state.js';
+import { CHANGELOG } from './changelog.js';
 
 const TITLES = {
     addSection:          '➕ Додати',
@@ -14,6 +15,7 @@ const TITLES = {
     statsSection:        '📊 Статистика',
     settingsSection:     '⚙️ Налаштування',
     about:               'ℹ️ Про програму',
+    changelog:           '📝 Історія змін',
 };
 
 // ── Тексти для ДИТИНИ ─────────────────────────────
@@ -325,7 +327,7 @@ const HELP_PARENT = {
 
         <hr style="border:none;border-top:1px solid #eee;margin:12px 0">
         <p>🔥 <b>Fire Streak</b> — зірки щодня без пропусків у будні<br>
-        У вихідні пропуск не скидає серію — тільки у будні. Але якщо у вихідний чи на канікулах дитина отримає винагороду яка буде впливати на якусь із серій, то серія збільшиться<br>
+        У вихідні пропуск не скидає серію — тільки у будні. Але якщо у вихідний чи на канікулах дитина отримає винагороду, яка буде впливати на якусь із серій, то серія збільшиться.<br>
         ❄️ Канікули також не скидають серію.<br>
         Рівні: 7 / 14 / 30 днів поспіль</p>
 
@@ -443,7 +445,28 @@ export function showHelp(sectionId) {
     const texts = isParent ? HELP_PARENT : HELP_CHILD;
 
     title.textContent = TITLES[sectionId] || '❓ Довідка';
-    content.innerHTML = texts[sectionId] || '<p>Інформація відсутня</p>';
+
+    if (sectionId === 'changelog') {
+        content.innerHTML = CHANGELOG.map((entry, idx) => `
+            <div style="margin-bottom: 12px;">
+                <div style="display:flex; justify-content:space-between;
+                            align-items:center; margin-bottom:6px;">
+                    <span style="font-size:13px; font-weight:700;
+                                 color:var(--secondary); font-family:monospace;">${entry.version}</span>
+                    <span style="font-size:11px; color:#aaa;">${entry.date}</span>
+                </div>
+                ${entry.changes.map(c => `
+                    <div style="font-size:13px; color:var(--text); padding:4px 0;
+                                border-bottom:1px solid var(--border);">${c}</div>
+                `).join('')}
+            </div>
+            ${idx < CHANGELOG.length - 1
+                ? '<hr style="border:none; border-top:1px solid var(--border); margin:10px 0">'
+                : ''}
+        `).join('');
+    } else {
+        content.innerHTML = texts[sectionId] || '<p>Інформація відсутня</p>';
+    }
 
     modal.style.display = 'flex';
     document.body.style.overflow = 'hidden';
