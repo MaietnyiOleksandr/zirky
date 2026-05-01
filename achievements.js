@@ -1,6 +1,6 @@
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260501.1655';
+export const VERSION = 'v3.20260501.1728';
 // 🏆  achievements.js — Система досягнень
 // ════════════════════════════════════════════════════
 
@@ -381,9 +381,7 @@ export function checkWeeklyAchievements() {
         state.data.records.push({
             id: Date.now() + Math.random(),
             // +1с щоб досягнення завжди було ПІСЛЯ оцінки в історії
-            date: recordDate
-                ? new Date(new Date(recordDate).getTime() + 1000).toISOString()
-                : new Date().toISOString(),
+            date: new Date().toISOString(),
             description: fullName,
             stars: level.reward,
             type: 'earn',
@@ -495,8 +493,7 @@ export function giveRewardsForNewAchievements(levelsBefore) {
                     state.data.records.push({
                         id: Date.now() + Math.random(),
                         // +1с щоб досягнення завжди було ПІСЛЯ оцінки в історії
-            date: recordDate
-                        date: new Date().toISOString(),
+            date: new Date().toISOString(),
                         description: fullName + repeatText,
                         stars: level.reward,
                         type: 'earn',
@@ -617,9 +614,7 @@ export function checkAndUnlockAchievements(record) {
         state.data.records.push({
             id: Date.now() + Math.random(),
             // +1с щоб досягнення завжди було ПІСЛЯ оцінки в історії
-            date: recordDate
-                ? new Date(new Date(recordDate).getTime() + 1000).toISOString()
-                : new Date().toISOString(),
+            date: new Date().toISOString(),
             description: `${ach.name}`,
             stars: ach.reward,
             type: 'earn',
