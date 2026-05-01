@@ -1,13 +1,13 @@
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260429.2150';
+export const VERSION = 'v3.202605201.2230';
 // ⚙️   settings.js — Налаштування / Експорт / Імпорт
-//     Зірки Успіху | v3.20260429.2150
 // ════════════════════════════════════════════════════
 
 import { state } from './state.js';
 import { recalculateAchievements } from './achievements.js';
 import { saveData } from './firebase.js';
+import { CHANGELOG } from './changelog.js';
 
 // ════════════════════════════════════════════════════════════
 // // ⚙️   БЛОК: Налаштування / Експорт / Імпорт
@@ -45,6 +45,19 @@ export function showDataInfo() {
             </button>
             <div id="versionsBody" style="display: none; padding: 10px 14px; background: white;">
                 <div style="font-size: 12px; color: #aaa; text-align: center;">Завантаження...</div>
+            </div>
+        </div>
+
+        <div style="margin-top: 8px; border: 1px solid #A5D6A7; border-radius: 10px; overflow: hidden;">
+            <button id="changelogBtn"
+                style="width: 100%; padding: 11px 16px; background: #E8F5E9;
+                       border: none; cursor: pointer; display: flex;
+                       justify-content: space-between; align-items: center;
+                       font-size: 14px; font-weight: 600; color: #2E7D32;">
+                <span>📝 Історія змін</span>
+                <span id="changelogArrow" style="font-size: 11px;">▶</span>
+            </button>
+            <div id="changelogBody" style="display: none; padding: 12px 14px; background: white;">
             </div>
         </div>
     `;
@@ -86,7 +99,7 @@ export function showDataInfo() {
 
         // JS файли — відсортовані за алфавітом
         const jsFiles = [
-            'achievements.js','auth.js','config.js','firebase.js',
+            'achievements.js','auth.js','changelog.js','config.js','firebase.js',
             'freeze.js','goals.js','help.js','history.js','navigation.js',
             'records.js','rewards.js','settings.js','state.js',
             'stats.js','ui.js','utils.js'
@@ -123,6 +136,37 @@ export function showDataInfo() {
         body.innerHTML = rows.join('') + jsRows.join('');
     });
     
+    document.getElementById('changelogBtn').addEventListener('click', function() {
+        const body = document.getElementById('changelogBody');
+        const arrow = document.getElementById('changelogArrow');
+        const isOpen = body.style.display !== 'none';
+
+        if (isOpen) {
+            body.style.display = 'none';
+            arrow.textContent = '▶';
+            return;
+        }
+
+        body.style.display = 'block';
+        arrow.textContent = '▼';
+
+        body.innerHTML = CHANGELOG.map((entry, idx) => `
+            <div style="margin-bottom: 12px;">
+                <div style="display:flex; justify-content:space-between;
+                            align-items:center; margin-bottom:6px;">
+                    <span style="font-size:13px; font-weight:700;
+                                 color:#2E7D32; font-family:monospace;">${entry.version}</span>
+                    <span style="font-size:11px; color:#aaa;">${entry.date}</span>
+                </div>
+                ${entry.changes.map(c => `
+                    <div style="font-size:12px; color:#555; padding:3px 0;
+                                border-bottom:1px solid #f5f5f5;">${c}</div>
+                `).join('')}
+            </div>
+            ${idx < CHANGELOG.length - 1 ? '<hr style="border:none; border-top:1px solid #eee; margin:10px 0">' : ''}
+        `).join('');
+    });
+
     // Показуємо/ховаємо блоки для батьків
     const pinBlock = document.getElementById('pinSettingsBlock');
     if (pinBlock) {
