@@ -1,14 +1,10 @@
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260429.1238';
-// UTILS  utils.js — Utils
-//     Зірки Успіху | v3.20260429.1238
+export const VERSION = 'v3.20260502.0136';
+// UTILS  utils.js — 🔧 Утиліти
 // ════════════════════════════════════════════════════
 
 
-
-// ════════════════════════════════════════════════════════════
-// 🔧  БЛОК: Утиліти
 // ════════════════════════════════════════════════════════════
 export function getTodayDate() {
     const today = new Date();
@@ -22,6 +18,6 @@ export function setTodayDates() {
     document.getElementById('specialDate').value = today;
 }
 
-// Вхід
-
-// 🔐 AUTH функції → auth.js
+export function nowKyiv() {
+    return new Date().toLocaleString('sv-SE', { timeZone: 'Europe/Kyiv' }).replace(' ', 'T');
+}
