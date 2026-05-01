@@ -1,8 +1,7 @@
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260429.1724';
+export const VERSION = 'v3.20260501.1902';
 // ⚙️  config.js — Конфігурація та константи
-//     Зірки Успіху | v3.20260429.1724
 // ════════════════════════════════════════════════════
 
 // ── Firebase ──────────────────────────────────────
@@ -35,6 +34,30 @@ export const ACHIEVEMENTS = {
         ],
         type: "cumulative",
         counter: "grades_12"
+    },
+    "зіркова": {
+        name: "Зіркова",
+        icon: "💫",
+        desc: "Збирай оцінки «11» з будь-яких предметів",
+        levels: [
+            { tier: "bronze", target: 30,  reward: 10, desc: "30 одинадцяток" },
+            { tier: "silver", target: 60,  reward: 30, desc: "60 одинадцяток" },
+            { tier: "gold",   target: 120, reward: 50, desc: "120 одинадцяток" }
+        ],
+        type: "cumulative",
+        counter: "grades_11"
+    },
+    "тверда_десятка": {
+        name: "Тверда десятка",
+        icon: "🏅",
+        desc: "Збирай оцінки «10» з будь-яких предметів",
+        levels: [
+            { tier: "bronze", target: 50,  reward: 10, desc: "50 десяток" },
+            { tier: "silver", target: 100, reward: 20, desc: "100 десяток" },
+            { tier: "gold",   target: 200, reward: 30, desc: "200 десяток" }
+        ],
+        type: "cumulative",
+        counter: "grades_10"
     },
     "книголюб": {
         name: "Книголюб",

@@ -1,6 +1,6 @@
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260501.1728';
+export const VERSION = 'v3.20260501.1902';
 // 🏆  achievements.js — Система досягнень
 // ════════════════════════════════════════════════════
 
@@ -47,7 +47,15 @@ export function recalculateAchievements() {
         if (record.category === 'grade' && record.grade === '12') {
             state.data.achievements.counters.grades_12 = (state.data.achievements.counters.grades_12 || 0) + 1;
         }
-        
+
+        // Оцінки 11 і 10
+        if (record.category === 'grade' && record.grade === '11') {
+            state.data.achievements.counters.grades_11 = (state.data.achievements.counters.grades_11 || 0) + 1;
+        }
+        if (record.category === 'grade' && record.grade === '10') {
+            state.data.achievements.counters.grades_10 = (state.data.achievements.counters.grades_10 || 0) + 1;
+        }
+
         // Книги
         if (record.description && record.description.includes('Прочитав книгу')) {
             state.data.achievements.counters.books = (state.data.achievements.counters.books || 0) + 1;
@@ -547,7 +555,15 @@ export function updateAchievementCounters(record) {
     if (record.category === 'grade' && record.grade === '12') {
         state.data.achievements.counters.grades_12 = (state.data.achievements.counters.grades_12 || 0) + 1;
     }
-    
+
+    // Оцінки 11 і 10
+    if (record.category === 'grade' && record.grade === '11') {
+        state.data.achievements.counters.grades_11 = (state.data.achievements.counters.grades_11 || 0) + 1;
+    }
+    if (record.category === 'grade' && record.grade === '10') {
+        state.data.achievements.counters.grades_10 = (state.data.achievements.counters.grades_10 || 0) + 1;
+    }
+
     // Книги
     if (record.description && record.description.includes('Прочитав книгу')) {
         state.data.achievements.counters.books = (state.data.achievements.counters.books || 0) + 1;
