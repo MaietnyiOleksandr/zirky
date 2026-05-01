@@ -1,11 +1,12 @@
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260501.1902';
+export const VERSION = 'v3.20260502.0141';
 // 🏆  achievements.js — Система досягнень
 // ════════════════════════════════════════════════════
 
 import { state } from './state.js';
 import { ACHIEVEMENTS } from './config.js';
+import { nowKyiv } from './utils.js';
 
 // ════════════════════════════════════════════════════════════
 // 🏆  БЛОК: Досягнення
@@ -275,7 +276,7 @@ export function checkGoalReached(recordDate = null) {
             // +1с щоб досягнення завжди було ПІСЛЯ оцінки в історії
             date: recordDate
                 ? new Date(new Date(recordDate).getTime() + 1000).toISOString()
-                : new Date().toISOString(),
+                : nowKyiv(),
             description: fullName,
             stars: level.reward,
             type: 'earn',
@@ -389,7 +390,7 @@ export function checkWeeklyAchievements() {
         state.data.records.push({
             id: Date.now() + Math.random(),
             // +1с щоб досягнення завжди було ПІСЛЯ оцінки в історії
-            date: new Date().toISOString(),
+            date: nowKyiv(),
             description: fullName,
             stars: level.reward,
             type: 'earn',
@@ -501,7 +502,7 @@ export function giveRewardsForNewAchievements(levelsBefore) {
                     state.data.records.push({
                         id: Date.now() + Math.random(),
                         // +1с щоб досягнення завжди було ПІСЛЯ оцінки в історії
-            date: new Date().toISOString(),
+            date: nowKyiv(),
                         description: fullName + repeatText,
                         stars: level.reward,
                         type: 'earn',
@@ -523,7 +524,7 @@ ${level.desc}
                     
                     state.data.records.push({
                         id: Date.now() + Math.random(),
-                        date: new Date().toISOString(),
+                        date: nowKyiv(),
                         description: fullName,
                         stars: level.reward,
                         type: 'earn',
@@ -630,7 +631,7 @@ export function checkAndUnlockAchievements(record) {
         state.data.records.push({
             id: Date.now() + Math.random(),
             // +1с щоб досягнення завжди було ПІСЛЯ оцінки в історії
-            date: new Date().toISOString(),
+            date: nowKyiv(),
             description: `${ach.name}`,
             stars: ach.reward,
             type: 'earn',

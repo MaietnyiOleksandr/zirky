@@ -1,7 +1,6 @@
 // ════════════════════════════════════════════════════
-export const VERSION = 'v3.20260429.1806';
+export const VERSION = 'v3.20260502.0143';
 // REWARDS  rewards.js — Витрати / Конвертація
-//     Зірки Успіху | v3.20260429.1806
 // ════════════════════════════════════════════════════
 
 import { state } from './state.js';
@@ -9,6 +8,7 @@ import { conversionRates } from './config.js';
 import { saveData } from './firebase.js';
 import { recalculateAchievements, giveRewardsForNewAchievements } from './achievements.js';
 import { updateUI } from './ui.js';
+import { nowKyiv } from './utils.js';
 
 // ════════════════════════════════════════════════════
 // 🔧  Допоміжні
@@ -32,7 +32,7 @@ function spendStars(stars, record) {
         return false;
     }
     state.data.balance = balance - stars;
-    state.data.records.push({ id: Date.now(), date: new Date().toISOString(), type: 'spend', stars, ...record });
+    state.data.records.push({ id: Date.now(), date: nowKyiv(), type: 'spend', stars, ...record });
     const levelsBefore = { ...(state.data.achievements.levels || {}) };
     recalculateAchievements();
     giveRewardsForNewAchievements(levelsBefore);
