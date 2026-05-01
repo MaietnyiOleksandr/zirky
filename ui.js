@@ -1,8 +1,7 @@
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260429.1236';
+export const VERSION = 'v3.20260501.1624';
 // UI     ui.js — Ui
-//     Зірки Успіху | v3.20260429.1236
 // ════════════════════════════════════════════════════
 
 import { state } from './state.js';
@@ -49,6 +48,11 @@ export function updateUI() {
     }
     
     renderAchievementsHome();
+
+    if (document.getElementById('achievementsSection')?.classList.contains('active')) {
+        if (window.renderAchievements) window.renderAchievements();
+    }
+
     renderGoal();
 }
 

@@ -1,6 +1,6 @@
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260501.1441';
+export const VERSION = 'v3.20260501.1624';
 // 🏆  achievements.js — Система досягнень
 // ════════════════════════════════════════════════════
 
@@ -496,7 +496,6 @@ export function giveRewardsForNewAchievements(levelsBefore) {
                         id: Date.now() + Math.random(),
                         // +1с щоб досягнення завжди було ПІСЛЯ оцінки в історії
             date: recordDate
-                ? new Date(new Date(recordDate).getTime() + 1000).toISOString()
                 : new Date().toISOString(),
                         description: fullName + repeatText,
                         stars: level.reward,
