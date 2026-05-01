@@ -1,8 +1,7 @@
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260427.0742';
+export const VERSION = 'v3.20260501.1441';
 // 🏆  achievements.js — Система досягнень
-//     Зірки Успіху | v3.20260427.0742
 // ════════════════════════════════════════════════════
 
 import { state } from './state.js';
@@ -185,7 +184,7 @@ export function recalculateAchievements() {
         // Отримуємо поточне значення
         if (ach.type === 'cumulative') {
             currentValue = state.data.achievements.counters[ach.counter] || 0;
-        } else if (ach.type === 'streak') {
+        } else if (ach.type === 'streak' || ach.type === 'repeatable_streak') {
             const streak = state.data.achievements.streaks[ach.streak] || { current: 0 };
             currentValue = streak.current;
         } else if (ach.type === 'balance') {
@@ -659,7 +658,7 @@ export function renderAchievements() {
         if (ach.type === 'cumulative') {
             currentValue = state.data.achievements.counters[ach.counter] || 0;
             bestValue = currentValue;
-        } else if (ach.type === 'streak') {
+        } else if (ach.type === 'streak' || ach.type === 'repeatable_streak') {
             const streak = state.data.achievements.streaks[ach.streak] || { current: 0, best: 0 };
             currentValue = streak.current;
             bestValue = streak.best;
