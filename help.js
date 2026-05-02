@@ -2,7 +2,9 @@
 // ❓  help.js — Інструкції по розділах
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260502.0759';
+export const VERSION = 'v3.20260502.0850';
+
+// ════════════════════════════════════════════════════════════
 
 import { state } from './state.js';
 import { CHANGELOG } from './changelog.js';
@@ -204,7 +206,7 @@ const HELP_CHILD = {
     `,
 };
 
-// ── Тексти для БАТЬКІВ — заглушки (буде додано) ──
+// ── Тексти для БАТЬКІВ ──
 const HELP_PARENT = {
 
     addSection: `

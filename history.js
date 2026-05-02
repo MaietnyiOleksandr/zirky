@@ -1,7 +1,10 @@
 // ════════════════════════════════════════════════════
-export const VERSION = 'v3.20260430.0933';
 // HISTORY  history.js — History
 // ════════════════════════════════════════════════════
+
+export const VERSION = 'v3.20260502.0850';
+
+// ════════════════════════════════════════════════════════════
 
 import { state } from './state.js';
 import { deleteFreezePeriod, editFreezePeriod } from './freeze.js';

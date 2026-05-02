@@ -1,8 +1,10 @@
 // ════════════════════════════════════════════════════
-
-export const VERSION = 'v3.20260501.1624';
 // UI     ui.js — Ui
 // ════════════════════════════════════════════════════
+
+export const VERSION = 'v3.20260502.0850';
+
+// ════════════════════════════════════════════════════════════
 
 import { state } from './state.js';
 import { showForm, switchTab } from './navigation.js';
