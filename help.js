@@ -2,7 +2,7 @@
 // ❓  help.js — Інструкції по розділах
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260502.1523';
+export const VERSION = 'v3.20260502.2240';
 
 // ════════════════════════════════════════════════════════════
 
@@ -85,7 +85,7 @@ const HELP_CHILD = {
 
         <hr style="border:none;border-top:1px solid #eee;margin:12px 0">
         <p>🎓 <b>Відмінниця</b> — накопичуй дванадцятки з будь-яких предметів<br>
-        Рівні: 5 / 15 / 30 відмінних оцінок</p>
+        Рівні: 5 / 20 / 100 відмінних оцінок</p>
 
         <hr style="border:none;border-top:1px solid #eee;margin:12px 0">
         <p>💫 <b>Зіркова</b> — накопичуй одинадцятки з будь-яких предметів<br>
@@ -321,7 +321,7 @@ const HELP_PARENT = {
 
         <hr style="border:none;border-top:1px solid #eee;margin:12px 0">
         <p>🎓 <b>Відмінниця</b> — кількість оцінок 12 балів<br>
-        Рівні: 5 / 15 / 30 дванадцяток</p>
+        Рівні: 5 / 20 / 100 дванадцяток</p>
         
         <hr style="border:none;border-top:1px solid #eee;margin:12px 0">
         <p>💫 <b>Зіркова</b> — оцінки «11» з будь-яких предметів<br>
