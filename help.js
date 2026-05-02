@@ -2,7 +2,7 @@
 // ❓  help.js — Інструкції по розділах
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260501.2235';
+export const VERSION = 'v3.20260502.0759';
 
 import { state } from './state.js';
 import { CHANGELOG } from './changelog.js';
@@ -436,35 +436,33 @@ const HELP_PARENT = {
     `,
 };
 
+function renderChangelogHTML() {
+    return CHANGELOG.map((entry, i) => `
+        ${i > 0 ? '<hr style="border:none;border-top:1px solid #eee;margin:0 0 14px;">' : ''}
+        <div style="margin-bottom:14px;">
+            <div style="font-weight:700; color:var(--secondary); margin-bottom:5px;">
+                ${entry.version}
+                <span style="font-size:12px; color:#999; font-weight:400; margin-left:6px;">${entry.date}</span>
+            </div>
+            <ul style="margin:0; padding-left:18px; line-height:1.75; font-size:13px;">
+                ${entry.changes.map(c => `<li>${c}</li>`).join('')}
+            </ul>
+        </div>
+    `).join('');
+}
+
 export function showHelp(sectionId) {
     const modal = document.getElementById('helpModal');
     const title = document.getElementById('helpModalTitle');
     const content = document.getElementById('helpModalContent');
 
-    const isParent = state.data.isParent;
-    const texts = isParent ? HELP_PARENT : HELP_CHILD;
-
     title.textContent = TITLES[sectionId] || '❓ Довідка';
 
     if (sectionId === 'changelog') {
-        content.innerHTML = CHANGELOG.map((entry, idx) => `
-            <div style="margin-bottom: 12px;">
-                <div style="display:flex; justify-content:space-between;
-                            align-items:center; margin-bottom:6px;">
-                    <span style="font-size:13px; font-weight:700;
-                                 color:var(--secondary); font-family:monospace;">${entry.version}</span>
-                    <span style="font-size:11px; color:#aaa;">${entry.date}</span>
-                </div>
-                ${entry.changes.map(c => `
-                    <div style="font-size:13px; color:var(--text); padding:4px 0;
-                                border-bottom:1px solid var(--border);">${c}</div>
-                `).join('')}
-            </div>
-            ${idx < CHANGELOG.length - 1
-                ? '<hr style="border:none; border-top:1px solid var(--border); margin:10px 0">'
-                : ''}
-        `).join('');
+        content.innerHTML = renderChangelogHTML();
     } else {
+        const isParent = state.data.isParent;
+        const texts = isParent ? HELP_PARENT : HELP_CHILD;
         content.innerHTML = texts[sectionId] || '<p>Інформація відсутня</p>';
     }
 

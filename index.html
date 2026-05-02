@@ -2,7 +2,7 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <!-- version: v3.20260502.0130 -->
+    <!-- version: v3.20260502.0759 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>⭐ Зірки Успіху</title>
     <link rel="stylesheet" href="style.css">
@@ -649,32 +649,26 @@
             <div class="section" id="settingsSection">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
                     <h2 style="margin:0; color:var(--secondary);">⚙️ Налаштування</h2>
-                    <button onclick="showHelp('settingsSection')"
-                        style="background:none; border:2px solid var(--secondary); border-radius:50%;
-                               width:32px; height:32px; font-size:16px; cursor:pointer;
-                               color:var(--secondary); font-weight:700; line-height:1;
-                               display:flex; align-items:center; justify-content:center;">?</button>
-                </div>
-
-                
-                <!-- Про програму -->
-                <div style="margin-bottom: 15px;">
-                    <button onclick="showHelp('about')"
-                        style="width:100%; padding:14px; background:linear-gradient(135deg, #E3F2FD, #BBDEFB);
-                               border:2px solid #2196F3; border-radius:15px; cursor:pointer;
-                               font-size:15px; font-weight:600; color:#1565C0; text-align:left;">
-                        ℹ️ Про програму "Зірки Успіху"
-                    </button>
-                </div>
-
-                <!-- Історія змін -->
-                <div style="margin-bottom: 15px;">
-                    <button onclick="showHelp('changelog')"
-                        style="width:100%; padding:14px; background:linear-gradient(135deg, #F3E5F5, #E1BEE7);
-                               border:2px solid #9C27B0; border-radius:15px; cursor:pointer;
-                               font-size:15px; font-weight:600; color:#4A148C; text-align:left;">
-                        📝 Історія змін
-                    </button>
+                    <div style="display:flex; gap:8px; align-items:center;">
+                        <button onclick="showHelp('about')"
+                            title="Про програму"
+                            style="background:none; border:2px solid var(--secondary); border-radius:50%;
+                                   width:32px; height:32px; font-size:16px; cursor:pointer;
+                                   color:var(--secondary); font-weight:700; line-height:1;
+                                   display:flex; align-items:center; justify-content:center;">ℹ️</button>
+                        <button onclick="showHelp('changelog')"
+                            title="Історія змін"
+                            style="background:none; border:2px solid var(--secondary); border-radius:50%;
+                                   width:32px; height:32px; font-size:16px; cursor:pointer;
+                                   color:var(--secondary); font-weight:700; line-height:1;
+                                   display:flex; align-items:center; justify-content:center;">📝</button>
+                        <button onclick="showHelp('settingsSection')"
+                            title="Довідка"
+                            style="background:none; border:2px solid var(--secondary); border-radius:50%;
+                                   width:32px; height:32px; font-size:16px; cursor:pointer;
+                                   color:var(--secondary); font-weight:700; line-height:1;
+                                   display:flex; align-items:center; justify-content:center;">?</button>
+                    </div>
                 </div>
 
                 <!-- Інфо про дані -->
