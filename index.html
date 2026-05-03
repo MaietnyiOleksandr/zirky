@@ -3,17 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⭐</text></svg>">
-    <!-- version: v3.20260503.2253 -->
+    <!-- version: v3.20260503.2351 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>⭐ Зірки Успіху</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
     <!-- Початковий екран входу -->
     <div class="login-overlay" id="loginOverlay">
         <div class="login-box">
             <h2>⭐ Зірки Успіху ⭐</h2>
-            <p style="margin-bottom: 30px; color: #666;">Виберіть хто ви:</p>
+            <p class="login-subtitle">Виберіть хто ви:</p>
             <div class="login-buttons">
                 <button class="login-btn" onclick="showPinInput()">
                     👨‍👩‍👧 Батьки
@@ -48,16 +49,16 @@
     </div>
 
     <!-- Індикатор завантаження -->
-    <div id="loadingOverlay" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);display:flex;flex-direction:column;justify-content:center;align-items:center;z-index:2000;">
-        <div style="font-size:64px;animation:pulse 1s ease-in-out infinite;">⭐</div>
-        <div style="color:white;font-family:'Nunito',sans-serif;font-size:20px;font-weight:700;margin-top:20px;">Завантаження...</div>
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-star">⭐</div>
+        <div class="loading-text">Завантаження...</div>
     </div>
 
     <!-- PIN підтвердження для дитини при обміні -->
-    <div class="pin-overlay" id="rewardPinOverlay" style="display: none;">
+    <div class="pin-overlay" id="rewardPinOverlay">
         <div class="pin-box">
             <h2>🔐 Підтвердіть PIN</h2>
-            <p style="color: #666; margin-bottom: 10px;">Попросіть батьків підтвердити обмін</p>
+            <p class="pin-hint">Попросіть батьків підтвердити обмін</p>
             <input type="password" class="pin-input" id="rewardPinInput" maxlength="4">
             <div class="pin-buttons">
                 <button class="pin-btn" onclick="addRewardPin('1')">1</button>
@@ -77,35 +78,36 @@
     </div>
 
     <!-- Модальне вікно мети -->
-    <div class="pin-overlay" id="goalModal" style="display: none;">
-        <div class="pin-box" style="max-width: 450px;">
-            <h2 style="margin-bottom: 20px;">🎯 Встановити мету</h2>
-            
+    <div class="pin-overlay" id="goalModal">
+        <div class="pin-box pin-box--wide">
+            <h2>🎯 Встановити мету</h2>
+
             <div class="form-group">
                 <label>📝 Назва мети</label>
                 <input type="text" id="goalName" placeholder="Наприклад: Новий велосипед" maxlength="40">
             </div>
-            
+
             <div class="form-group">
                 <label>⭐ Скільки зірок потрібно</label>
                 <input type="number" id="goalTarget" min="1" placeholder="200">
             </div>
-            
+
             <div class="form-group">
                 <label>😀 Емодзі (опційно)</label>
-                <input type="text" id="goalEmoji" placeholder="🚲" maxlength="2" style="font-size: 32px; text-align: center;">
+                <input type="text" id="goalEmoji" placeholder="🚲" maxlength="2" class="emoji-input">
             </div>
-            
-            <div style="display: flex; gap: 10px; margin-top: 20px;">
-                <button class="btn btn-secondary" style="flex: 1;" id="cancelGoalBtn">Скасувати</button>
-                <button class="btn btn-primary" style="flex: 1;" id="saveGoalBtn">Зберегти</button>
+
+            <div class="modal-actions">
+                <button class="btn btn-secondary" id="cancelGoalBtn">Скасувати</button>
+                <button class="btn btn-primary" id="saveGoalBtn">Зберегти</button>
             </div>
-            
-            <button class="btn btn-danger" style="margin-top: 10px;" id="deleteGoalBtn">Видалити мету</button>
+
+            <button class="btn btn-danger mt-sm" id="deleteGoalBtn">Видалити мету</button>
         </div>
     </div>
 
-    <div class="container" id="mainApp" style="display: none;">
+    <div class="container" id="mainApp">
+
         <!-- Header -->
         <div class="header">
             <div class="logo">⭐ Зірки Успіху ⭐</div>
@@ -124,10 +126,10 @@
                         Використано: <strong id="spentStats">0⭐</strong>
                     </div>
                 </div>
-                
+
                 <!-- Досягнення на головній -->
                 <div id="achievementsHome"></div>
-                
+
                 <!-- Блок мети -->
                 <div id="goalContainer"></div>
             </div>
@@ -140,47 +142,33 @@
             <button class="tab" onclick="switchTab('rewards', true)">🎁 Витрати</button>
             <button class="tab" onclick="switchTab('achievements', true)">🏆 Досягнення</button>
             <button class="tab" onclick="switchTab('stats', true)">📊 Статистика</button>
-            <button class="tab" onclick="switchTab('settings', true)">⚙️ Налаштування<span id="feedbackBadge" style="display:none; background:#f44336; color:white; border-radius:50%; width:17px; height:17px; font-size:10px; font-weight:700; margin-left:4px; align-items:center; justify-content:center; vertical-align:middle;">0</span></button>
+            <button class="tab" onclick="switchTab('settings', true)">⚙️ Налаштування<span id="feedbackBadge" class="feedback-badge">0</span></button>
         </div>
 
         <!-- Content -->
         <div class="content">
-            <!-- Add section -->
+
+            <!-- ══ Додати ══════════════════════════════════════ -->
             <div class="section active" id="addSection">
-                <div style="display:flex; justify-content:flex-end; margin-bottom:8px;">
-                    <button onclick="showHelp('addSection')"
-                        style="background:none; border:2px solid var(--secondary); border-radius:50%;
-                               width:32px; height:32px; font-size:16px; cursor:pointer;
-                               color:var(--secondary); font-weight:700; line-height:1;
-                               display:flex; align-items:center; justify-content:center;">?</button>
+                <div class="help-btn-row">
+                    <button class="btn-icon" onclick="showHelp('addSection')">?</button>
                 </div>
+
                 <div class="quick-actions">
-                    <button class="quick-action-btn active" onclick="showForm('grade')">
-                        📚 Додати оцінку
-                    </button>
-                    <button class="quick-action-btn" onclick="showForm('diagnostic')">
-                        📝 Діагностувальна робота
-                    </button>
-                    <button class="quick-action-btn" onclick="showForm('bonus')">
-                        🌟 Додати бонус
-                    </button>
-                    <button class="quick-action-btn" onclick="showForm('special')">
-                        ✨ Особливе нарахування
-                    </button>
-                    <button class="quick-action-btn" onclick="showForm('freeze')">
-                        ❄️ Канікули
-                    </button>
+                    <button class="quick-action-btn active" onclick="showForm('grade')">📚 Додати оцінку</button>
+                    <button class="quick-action-btn" onclick="showForm('diagnostic')">📝 Діагностувальна робота</button>
+                    <button class="quick-action-btn" onclick="showForm('bonus')">🌟 Додати бонус</button>
+                    <button class="quick-action-btn" onclick="showForm('special')">✨ Особливе нарахування</button>
+                    <button class="quick-action-btn" onclick="showForm('freeze')">❄️ Канікули</button>
                 </div>
 
                 <!-- Форма оцінки -->
                 <div id="gradeForm">
-                    <h2 style="margin-bottom: 20px; color: var(--secondary);">Додати оцінку</h2>
-                    
+                    <h2 class="form-title">Додати оцінку</h2>
                     <div class="form-group">
                         <label>📅 Дата</label>
                         <input type="date" id="gradeDate">
                     </div>
-
                     <div class="form-group">
                         <label>📚 Предмет</label>
                         <select id="subject">
@@ -196,7 +184,6 @@
                             <option value="Фізкультура">⚽ Фізкультура</option>
                         </select>
                     </div>
-
                     <div class="form-group">
                         <label>🎯 Оцінка</label>
                         <select id="grade">
@@ -208,27 +195,23 @@
                             <option value="8">8 балів (1⭐)</option>
                         </select>
                     </div>
-
                     <button class="btn btn-primary" onclick="addGradeRecord()">✨ Додати оцінку</button>
                 </div>
 
                 <!-- Форма діагностувальної роботи -->
-                <div id="diagnosticForm" style="display: none;">
-                    <h2 style="margin-bottom: 20px; color: var(--secondary);">📝 Діагностувальна робота</h2>
-                    
-                    <div style="background: linear-gradient(135deg, #E3F2FD, #BBDEFB); padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 2px solid #2196F3;">
-                        <p style="margin: 0; font-size: 13px; color: #1976D2; line-height: 1.6;">
+                <div id="diagnosticForm">
+                    <h2 class="form-title">📝 Діагностувальна робота</h2>
+                    <div class="card-info">
+                        <p>
                             <strong>🎯 Бонуси за діагностувальні роботи:</strong><br>
                             • Всі предмети: <strong>×3 зірки</strong><br>
                             • Математика: <strong>×6 зірок</strong> (подвійний бонус!)
                         </p>
                     </div>
-                    
                     <div class="form-group">
                         <label>📅 Дата</label>
                         <input type="date" id="diagnosticDate">
                     </div>
-
                     <div class="form-group">
                         <label>📚 Предмет</label>
                         <select id="diagnosticSubject">
@@ -241,7 +224,6 @@
                             <option value="Інформатика">💻 Інформатика</option>
                         </select>
                     </div>
-
                     <div class="form-group">
                         <label>🎯 Оцінка</label>
                         <select id="diagnosticGrade">
@@ -253,19 +235,16 @@
                             <option value="8">8 балів (1⭐)</option>
                         </select>
                     </div>
-
                     <button class="btn btn-primary" onclick="addDiagnosticWork()">📝 Додати діагностувальну роботу</button>
                 </div>
 
                 <!-- Форма бонусу -->
-                <div id="bonusForm" style="display: none;">
-                    <h2 style="margin-bottom: 20px; color: var(--secondary);">Додати бонус</h2>
-                    
+                <div id="bonusForm">
+                    <h2 class="form-title">Додати бонус</h2>
                     <div class="form-group">
                         <label>📅 Дата</label>
                         <input type="date" id="bonusDate">
                     </div>
-
                     <div class="form-group">
                         <label>🌟 Бонус</label>
                         <select id="bonusType">
@@ -279,68 +258,54 @@
                             <option value="🪥 Почистити зуби|2">🪥 Почистити зуби (+2⭐)</option>
                         </select>
                     </div>
-
                     <button class="btn btn-primary" onclick="addBonusRecord()">✨ Додати бонус</button>
                 </div>
 
                 <!-- Форма особливого нарахування -->
-                <div id="specialForm" style="display: none;">
-                    <h2 style="margin-bottom: 20px; color: var(--secondary);">Особливе нарахування</h2>
-                    
+                <div id="specialForm">
+                    <h2 class="form-title">Особливе нарахування</h2>
                     <div class="form-group">
                         <label>📅 Дата</label>
                         <input type="date" id="specialDate">
                     </div>
-
                     <div class="form-group">
                         <label>📝 Опис</label>
                         <input type="text" id="specialDesc" placeholder="За що нараховуються зірки?">
                     </div>
-
                     <div class="form-group">
                         <label>⭐ Кількість зірок</label>
                         <input type="number" id="specialStars" min="1" placeholder="Скільки зірок?">
                     </div>
-
                     <button class="btn btn-primary" onclick="addSpecialRecord()">✨ Додати</button>
                 </div>
 
                 <!-- Форма канікул -->
-                <div id="freezeForm" style="display: none;">
-                    <h2 style="margin-bottom: 20px; color: var(--secondary);">❄️ Періоди канікул</h2>
-                    
-                    <div style="margin-bottom: 25px; padding: 15px; background: linear-gradient(135deg, #E3F2FD, #BBDEFB); border-radius: 12px; border: 2px solid #2196F3;">
-                        <p style="font-size: 14px; color: #1976D2; margin: 0; line-height: 1.5;">
+                <div id="freezeForm">
+                    <h2 class="form-title">❄️ Періоди канікул</h2>
+                    <div class="card-info mb-md">
+                        <p>
                             <strong>Що заморожується:</strong> Fire Streak та серії з оцінок<br>
                             <strong>Працює як зазвичай:</strong> Чистюля та Красуня
                         </p>
                     </div>
-                    
                     <div class="form-group">
                         <label>📅 Дата початку</label>
                         <input type="date" id="freezeFromDate">
                     </div>
-
                     <div class="form-group">
                         <label>📅 Дата закінчення</label>
                         <input type="date" id="freezeUntilDate">
                     </div>
-
                     <button class="btn btn-primary" onclick="addFreezePeriod()">❄️ Додати період</button>
-                    
-                    <div id="freezePeriodsList" style="margin-top: 25px;"></div>
+                    <div id="freezePeriodsList" class="mt-lg"></div>
                 </div>
             </div>
 
-            <!-- History section -->
+            <!-- ══ Історія ════════════════════════════════════ -->
             <div class="section" id="historySection">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-                    <h2 style="margin:0; color:var(--secondary);">📜 Історія</h2>
-                    <button onclick="showHelp('historySection')"
-                        style="background:none; border:2px solid var(--secondary); border-radius:50%;
-                               width:32px; height:32px; font-size:16px; cursor:pointer;
-                               color:var(--secondary); font-weight:700; line-height:1;
-                               display:flex; align-items:center; justify-content:center;">?</button>
+                <div class="section-header">
+                    <h2 class="section-title">📜 Історія</h2>
+                    <button class="btn-icon" onclick="showHelp('historySection')">?</button>
                 </div>
 
                 <div class="month-selector">
@@ -349,11 +314,8 @@
                     <button class="month-btn" onclick="changeMonth(1)">▶</button>
                 </div>
 
-                <!-- Фільтри -->
-                <div id="historyFilters" style="display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap;">
-                    <select id="filterType" onchange="applyHistoryFilter()"
-                        style="flex:1; padding:10px 12px; border-radius:12px; border:2px solid var(--border);
-                               background:var(--card); color:var(--text); font-size:14px; font-weight:600;">
+                <div class="history-filters" id="historyFilters">
+                    <select id="filterType" class="filter-select" onchange="applyHistoryFilter()">
                         <option value="all">📋 Всі типи</option>
                         <option value="earn">🟢 Всі нарахування</option>
                         <option value="grade">📚 Оцінки</option>
@@ -364,9 +326,7 @@
                         <option value="spend">🔴 Витрати</option>
                         <option value="freeze">❄️ Канікули</option>
                     </select>
-                    <select id="filterSubject" onchange="applyHistoryFilter()"
-                        style="flex:1; padding:10px 12px; border-radius:12px; border:2px solid var(--border);
-                               background:var(--card); color:var(--text); font-size:14px; font-weight:600; display:none;">
+                    <select id="filterSubject" class="filter-select" onchange="applyHistoryFilter()">
                         <option value="all">📚 Всі предмети</option>
                         <option value="Математика">📐 Математика</option>
                         <option value="Українська мова">🇺🇦 Українська мова</option>
@@ -378,9 +338,7 @@
                         <option value="Вірш">📝 Вірш</option>
                         <option value="Фізкультура">⚽ Фізкультура</option>
                     </select>
-                    <select id="filterSpendCategory" onchange="applyHistoryFilter()"
-                        style="flex:1; padding:10px 12px; border-radius:12px; border:2px solid var(--border);
-                               background:var(--card); color:var(--text); font-size:14px; font-weight:600; display:none;">
+                    <select id="filterSpendCategory" class="filter-select" onchange="applyHistoryFilter()">
                         <option value="all">💳 Всі витрати</option>
                         <option value="time">🎮 Час на смартфоні</option>
                         <option value="money">💵 Гроші</option>
@@ -391,48 +349,38 @@
                 <div class="history-list" id="historyList"></div>
             </div>
 
-            <!-- Rewards section -->
+            <!-- ══ Витрати ════════════════════════════════════ -->
             <div class="section" id="rewardsSection">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-                    <h2 style="margin:0; color:var(--secondary);">🎁 Витрати</h2>
-                    <button onclick="showHelp('rewardsSection')"
-                        style="background:none; border:2px solid var(--secondary); border-radius:50%;
-                               width:32px; height:32px; font-size:16px; cursor:pointer;
-                               color:var(--secondary); font-weight:700; line-height:1;
-                               display:flex; align-items:center; justify-content:center;">?</button>
+                <div class="section-header">
+                    <h2 class="section-title">🎁 Витрати</h2>
+                    <button class="btn-icon" onclick="showHelp('rewardsSection')">?</button>
                 </div>
 
                 <!-- Час на смартфоні -->
-                <div style="background:var(--bg); border-radius:18px; padding:20px; margin-bottom:16px;">
-                    <h3 style="color:var(--secondary); margin:0 0 14px;">🎮 Час на смартфоні</h3>
-                    <div style="display:flex; align-items:center; gap:12px;">
+                <div class="reward-card">
+                    <h3 class="reward-card-title">🎮 Час на смартфоні</h3>
+                    <div class="reward-input-row">
                         <input type="number" id="timeMinutes" min="2" step="2"
-                            oninput="updateTimePreview()"
-                            style="flex:1; padding:12px; border-radius:12px; border:2px solid var(--border);
-                                   background:var(--card); color:var(--text); font-size:18px;">
-                        <span id="timeStarsPreview"
-                            style="min-width:80px; font-size:18px; font-weight:700; color:var(--secondary); text-align:right;"></span>
+                            oninput="updateTimePreview()" class="reward-input">
+                        <span id="timeStarsPreview" class="reward-preview"></span>
                     </div>
-                    <button class="btn btn-primary" onclick="buyTime()" style="margin-top:12px; width:100%;">🎮 Обміняти</button>
+                    <button class="btn btn-primary mt-sm" onclick="buyTime()">🎮 Обміняти</button>
                 </div>
 
                 <!-- Гроші -->
-                <div style="background:var(--bg); border-radius:18px; padding:20px; margin-bottom:16px;">
-                    <h3 style="color:var(--secondary); margin:0 0 14px;">💵 Гроші</h3>
-                    <div style="display:flex; align-items:center; gap:12px;">
+                <div class="reward-card">
+                    <h3 class="reward-card-title">💵 Гроші</h3>
+                    <div class="reward-input-row">
                         <input type="number" id="moneyAmount" min="50" step="1"
-                            oninput="updateMoneyPreview()"
-                            style="flex:1; padding:12px; border-radius:12px; border:2px solid var(--border);
-                                   background:var(--card); color:var(--text); font-size:18px;">
-                        <span id="moneyStarsPreview"
-                            style="min-width:80px; font-size:18px; font-weight:700; color:var(--secondary); text-align:right;"></span>
+                            oninput="updateMoneyPreview()" class="reward-input">
+                        <span id="moneyStarsPreview" class="reward-preview"></span>
                     </div>
-                    <button class="btn btn-primary" onclick="buyMoney()" style="margin-top:12px; width:100%;">💵 Обміняти</button>
+                    <button class="btn btn-primary mt-sm" onclick="buyMoney()">💵 Обміняти</button>
                 </div>
 
                 <!-- Особливе списання -->
-                <div style="background:var(--bg); border-radius:18px; padding:20px;">
-                    <h3 style="color:var(--secondary); margin:0 0 14px;">✨ Особливе списання</h3>
+                <div class="reward-card">
+                    <h3 class="reward-card-title">✨ Особливе списання</h3>
                     <div class="form-group">
                         <label>📅 Дата</label>
                         <input type="date" id="customRewardDate">
@@ -445,38 +393,28 @@
                         <label>⭐ Кількість зірок</label>
                         <input type="number" id="customRewardStars" min="1" placeholder="Скільки зірок?">
                     </div>
-                    <button class="btn btn-primary" onclick="buyCustomReward()"
-                        style="background:linear-gradient(135deg,#FF6B6B,#ee5a52); color:white;
-                               border:2px solid #FF6B6B; font-weight:600; width:100%;">💫 Списати</button>
+                    <button class="btn btn-spend" onclick="buyCustomReward()">💫 Списати</button>
                 </div>
             </div>
 
-            <!-- Achievements section -->
+            <!-- ══ Досягнення ══════════════════════════════════ -->
             <div class="section" id="achievementsSection">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-                    <h2 style="margin:0; color:var(--secondary);">🏆 Досягнення</h2>
-                    <button onclick="showHelp('achievementsSection')"
-                        style="background:none; border:2px solid var(--secondary); border-radius:50%;
-                               width:32px; height:32px; font-size:16px; cursor:pointer;
-                               color:var(--secondary); font-weight:700; line-height:1;
-                               display:flex; align-items:center; justify-content:center;">?</button>
-                </div>              
+                <div class="section-header">
+                    <h2 class="section-title">🏆 Досягнення</h2>
+                    <button class="btn-icon" onclick="showHelp('achievementsSection')">?</button>
+                </div>
                 <div id="achievementsInProgress"></div>
                 <div id="achievementsUnlocked"></div>
             </div>
 
-            <!-- Stats section -->
+            <!-- ══ Статистика ══════════════════════════════════ -->
             <div class="section" id="statsSection">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-                    <h2 style="margin:0; color:var(--secondary);">📊 Статистика</h2>
-                    <button onclick="showHelp('statsSection')"
-                        style="background:none; border:2px solid var(--secondary); border-radius:50%;
-                               width:32px; height:32px; font-size:16px; cursor:pointer;
-                               color:var(--secondary); font-weight:700; line-height:1;
-                               display:flex; align-items:center; justify-content:center;">?</button>
+                <div class="section-header">
+                    <h2 class="section-title">📊 Статистика</h2>
+                    <button class="btn-icon" onclick="showHelp('statsSection')">?</button>
                 </div>
 
-                <div style="background: var(--bg); padding: 20px; border-radius: 18px;">
+                <div class="stats-card stats-card--first">
                     <div class="stats-controls">
                         <div class="period-toggle">
                             <button class="period-btn active" onclick="changeChartPeriod('week')">Тиждень</button>
@@ -494,59 +432,53 @@
                             </div>
                         </div>
                     </div>
-                    <div class="month-selector" style="margin-top: 15px;">
+                    <div class="month-selector mt-md">
                         <button class="month-btn" onclick="changeChartOffset(-1)">◀</button>
-                        <div class="month-display" id="chartPeriodDisplay" style="font-size: 13px; font-weight: 700;"></div>
+                        <div class="month-display month-display--sm" id="chartPeriodDisplay"></div>
                         <button class="month-btn" onclick="changeChartOffset(1)" id="chartNextBtn">▶</button>
                     </div>
                     <div class="chart-container">
                         <div class="chart" id="chart"></div>
                     </div>
                 </div>
-                
-                <div style="background: var(--bg); padding: 14px 18px; border-radius: 18px; margin-top: 20px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;">
-                        <div style="text-align: center; flex: 1;">
-                            <div style="font-size: 11px; color: #999;">Зароблено</div>
-                            <strong id="totalEarned" style="font-size: 16px; color: #4CAF50;">0⭐</strong>
-                        </div>
-                        <div style="width: 1px; height: 30px; background: #eee;"></div>
-                        <div style="text-align: center; flex: 1;">
-                            <div style="font-size: 11px; color: #999;">Витрачено</div>
-                            <strong id="totalSpent" style="font-size: 16px; color: #f44336;">0⭐</strong>
-                        </div>
-                        <div style="width: 1px; height: 30px; background: #eee;"></div>
-                        <div style="text-align: center; flex: 1;">
-                            <div style="font-size: 11px; color: #999;">Записів/міс.</div>
-                            <strong id="recordsCount" style="font-size: 16px; color: var(--secondary);">0</strong>
-                        </div>
+
+                <!-- Summary bar -->
+                <div class="stats-summary">
+                    <div class="stats-summary-item">
+                        <div class="stat-label">Зароблено</div>
+                        <strong id="totalEarned" class="stat-value stat-value--earned">0⭐</strong>
+                    </div>
+                    <div class="stats-summary-divider"></div>
+                    <div class="stats-summary-item">
+                        <div class="stat-label">Витрачено</div>
+                        <strong id="totalSpent" class="stat-value stat-value--spent">0⭐</strong>
+                    </div>
+                    <div class="stats-summary-divider"></div>
+                    <div class="stats-summary-item">
+                        <div class="stat-label">Записів/міс.</div>
+                        <strong id="recordsCount" class="stat-value">0</strong>
                     </div>
                 </div>
 
                 <!-- Аналітика по предметах -->
-                <div style="background: var(--bg); padding: 20px; border-radius: 18px; margin-top: 20px;">
-                    <h3 style="color: var(--secondary); margin-bottom: 15px; font-size: 16px;">📊 Середня оцінка</h3>
+                <div class="stats-card">
+                    <h3 class="stats-card-title">📊 Середня оцінка</h3>
                     <div id="subjectAnalytics">
-                        <div style="color: #999; font-size: 14px; text-align: center;">Завантаження...</div>
+                        <div class="text-hint font-sm text-center">Завантаження...</div>
                     </div>
                 </div>
             </div>
 
-            <!-- Instructions section -->
+            <!-- ══ Інструкції ══════════════════════════════════ -->
             <div class="section" id="instructionsSection">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-                    <h2 style="margin:0; color:var(--secondary);">❓ Інструкції</h2>
-                    <button onclick="showHelp('instructionsSection')"
-                        style="background:none; border:2px solid var(--secondary); border-radius:50%;
-                               width:32px; height:32px; font-size:16px; cursor:pointer;
-                               color:var(--secondary); font-weight:700; line-height:1;
-                               display:flex; align-items:center; justify-content:center;">?</button>
+                <div class="section-header">
+                    <h2 class="section-title">❓ Інструкції</h2>
+                    <button class="btn-icon" onclick="showHelp('instructionsSection')">?</button>
                 </div>
-
 
                 <!-- Батьківська інструкція -->
                 <div class="instructions" id="parentInstructions">
-                    <h2 style="color: var(--secondary); margin-bottom: 20px;">📖 Інструкції для батьків</h2>
+                    <h2>📖 Інструкції для батьків</h2>
 
                     <h3>🎯 Як користуватися:</h3>
                     <ul>
@@ -586,13 +518,11 @@
                         <li>Працює на всіх пристроях одночасно</li>
                         <li>Щонеділі обговорюйте успіхи разом</li>
                     </ul>
-
-
                 </div>
 
                 <!-- Дитяча інструкція -->
-                <div class="instructions" id="childInstructions" style="display: none;">
-                    <h2 style="color: var(--secondary); margin-bottom: 20px;">⭐ Як це працює?</h2>
+                <div class="instructions" id="childInstructions">
+                    <h2>⭐ Як це працює?</h2>
 
                     <h3>🏆 Ти зароблюєш зірки!</h3>
                     <ul>
@@ -638,151 +568,130 @@
                         <li>Щонеділі разом з батьками дивіться на свій прогрес 📊</li>
                     </ul>
 
-                    <div style="margin-top: 30px; padding: 20px; background: var(--bg); border-radius: 18px; text-align: center; font-size: 18px; font-weight: 700; color: var(--secondary);">
-                        🌟 Кожна зірка — це твій справжній результат!<br>
-                        <span style="font-size: 14px; font-weight: 400; color: #666; display: block; margin-top: 10px;">Ти сам(а) вирішуєш, як швидко досягнеш своєї мети.</span>
+                    <div class="motivation-block">
+                        🌟 Кожна зірка — це твій справжній результат!
+                        <span class="motivation-subtitle">Ти сам(а) вирішуєш, як швидко досягнеш своєї мети.</span>
                     </div>
                 </div>
-
             </div>
 
-            <!-- Settings section -->
+            <!-- ══ Налаштування ════════════════════════════════ -->
             <div class="section" id="settingsSection">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-                    <h2 style="margin:0; color:var(--secondary);">⚙️ Налаштування</h2>
-                    <div style="display:flex; gap:8px; align-items:center;">
-                        <button onclick="showHelp('about')"
-                            title="Про програму"
-                            style="background:none; border:2px solid var(--secondary); border-radius:50%;
-                                   width:32px; height:32px; font-size:16px; cursor:pointer;
-                                   color:var(--secondary); font-weight:700; line-height:1;
-                                   display:flex; align-items:center; justify-content:center;">ℹ️</button>
-                        <button onclick="showHelp('changelog')"
-                            title="Історія змін"
-                            style="background:none; border:2px solid var(--secondary); border-radius:50%;
-                                   width:32px; height:32px; font-size:16px; cursor:pointer;
-                                   color:var(--secondary); font-weight:700; line-height:1;
-                                   display:flex; align-items:center; justify-content:center;">📝</button>
-                        <button onclick="showHelp('settingsSection')"
-                            title="Довідка"
-                            style="background:none; border:2px solid var(--secondary); border-radius:50%;
-                                   width:32px; height:32px; font-size:16px; cursor:pointer;
-                                   color:var(--secondary); font-weight:700; line-height:1;
-                                   display:flex; align-items:center; justify-content:center;">?</button>
+                <div class="section-header">
+                    <h2 class="section-title">⚙️ Налаштування</h2>
+                    <div class="section-header-actions">
+                        <button class="btn-icon" onclick="showHelp('about')" title="Про програму">ℹ️</button>
+                        <button class="btn-icon" onclick="showHelp('changelog')" title="Історія змін">📝</button>
+                        <button class="btn-icon" onclick="showHelp('settingsSection')" title="Довідка">?</button>
                     </div>
                 </div>
 
                 <!-- Зворотній зв'язок -->
-                <div style="background:linear-gradient(135deg,#EDE7F6,#D1C4E9); padding:18px; border-radius:15px; margin-bottom:20px; border:2px solid #9C27B0;">
-                    <h3 style="margin:0 0 14px; color:#6A1B9A; font-size:16px;">💬 Зворотній зв'язок</h3>
+                <div class="card-purple">
+                    <h3 class="card-title">💬 Зворотній зв'язок</h3>
                     <div id="feedbackBlock">
-                        <div style="color:#aaa; font-size:13px; text-align:center; padding:8px;">Завантаження...</div>
+                        <div class="text-hint font-sm text-center p-sm">Завантаження...</div>
                     </div>
                 </div>
 
                 <!-- Інфо про дані -->
-                <div style="background: linear-gradient(135deg, #E8F5E9, #C8E6C9); padding: 18px; border-radius: 15px; margin-bottom: 20px;">
-                    <h3 style="margin: 0 0 15px 0; color: #2E7D32; font-size: 16px;">📊 Інформація про дані</h3>
-                    <div id="dataInfo" style="font-size: 14px; color: #1B5E20; line-height: 1.8;"></div>
+                <div class="card-success">
+                    <h3 class="card-title">📊 Інформація про дані</h3>
+                    <div id="dataInfo" class="card-text"></div>
                 </div>
-                
+
                 <!-- Експорт -->
-                <div style="background: var(--bg); padding: 18px; border-radius: 15px; margin-bottom: 15px;">
-                    <h3 style="margin: 0 0 10px 0; color: var(--secondary); font-size: 16px;">📤 Експорт даних</h3>
-                    <p style="font-size: 13px; color: #666; margin-bottom: 15px;">
+                <div class="card-bg">
+                    <h3 class="card-title">📤 Експорт даних</h3>
+                    <p class="text-muted font-sm mb-md">
                         Зберігає всі дані (оцінки, винагороди, досягнення) в файл JSON.<br>
                         <strong>Рекомендується робити резервну копію щотижня!</strong>
                     </p>
-                    <button class="btn btn-primary" onclick="exportData()" style="width: 100%;">
+                    <button class="btn btn-primary" onclick="exportData()">
                         📤 Завантажити резервну копію
                     </button>
                 </div>
-                
+
                 <!-- Імпорт -->
-                <div style="background: var(--bg); padding: 18px; border-radius: 15px; margin-bottom: 15px;">
-                    <h3 style="margin: 0 0 10px 0; color: var(--secondary); font-size: 16px;">📥 Імпорт даних</h3>
-                    <p style="font-size: 13px; color: #666; margin-bottom: 15px;">
+                <div class="card-bg">
+                    <h3 class="card-title">📥 Імпорт даних</h3>
+                    <p class="text-muted font-sm mb-md">
                         Відновлює дані з раніше збереженого файлу.<br>
-                        <strong style="color: #f44336;">⚠️ УВАГА: Замінить всі поточні дані!</strong>
+                        <strong class="text-danger">⚠️ УВАГА: Замінить всі поточні дані!</strong>
                     </p>
-                    <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
-                    <button class="btn" onclick="document.getElementById('importFile').click()" style="width: 100%; background: linear-gradient(135deg, #4CAF50, #45a049); color: white; border: 2px solid #4CAF50; font-weight: 600;">
+                    <input type="file" id="importFile" accept=".json" class="hidden" onchange="importData(event)">
+                    <button class="btn btn-import" onclick="document.getElementById('importFile').click()">
                         📥 Завантажити з файлу
                     </button>
                 </div>
-                
+
                 <!-- Скидання -->
-                <div style="background: linear-gradient(135deg, #FFEBEE, #FFCDD2); padding: 18px; border-radius: 15px; border: 2px solid #f44336;">
-                    <h3 style="margin: 0 0 10px 0; color: #c62828; font-size: 16px;">🗑️ Небезпечна зона</h3>
-                    <p style="font-size: 13px; color: #b71c1c; margin-bottom: 15px;">
+                <div class="card-danger">
+                    <h3 class="card-title">🗑️ Небезпечна зона</h3>
+                    <p class="card-text mb-md">
                         Видаляє ВСІ дані назавжди. Ця дія незворотна!
                     </p>
-                    <button class="btn" onclick="resetAllData()" style="width: 100%; background: #f44336; color: white;">
+                    <button class="btn btn-reset" onclick="resetAllData()">
                         🗑️ Скинути всі дані
                     </button>
                 </div>
-                
-                <!-- Блок зміни PIN (тільки для батьків) -->
-                <div id="pinSettingsBlock" style="display: none; background: linear-gradient(135deg, #FFF3E0, #FFE0B2); padding: 18px; border-radius: 15px; margin-top: 15px; border: 2px solid #FF9800;">
-                    <h3 style="margin: 0 0 15px 0; color: #E65100; font-size: 16px;">🔐 Налаштування PIN-коду</h3>
-                    <div style="background: white; padding: 10px 12px; border-radius: 10px; margin-bottom: 12px;">
-                        <div style="font-size: 12px; color: #999; margin-bottom: 4px;">Поточний PIN:</div>
-                        <div style="font-size: 15px; font-weight: 600; color: #666; letter-spacing: 2px;" id="currentPin">1234</div>
+
+                <!-- PIN (тільки для батьків) -->
+                <div id="pinSettingsBlock" class="card-warning hidden">
+                    <h3 class="card-title">🔐 Налаштування PIN-коду</h3>
+                    <div class="card-inner">
+                        <div class="card-label">Поточний PIN:</div>
+                        <div class="card-value" id="currentPin">1234</div>
                     </div>
-                    <div style="font-size: 13px; color: #E65100; margin-bottom: 12px;">
+                    <p class="card-note card-note--warning">
                         <strong>⚠️ Увага:</strong> PIN-код потрібен для доступу до батьківського режиму
-                    </div>
-                    <div style="display: flex; gap: 10px;">
-                        <input type="password" id="newPin" placeholder="Новий PIN (4 цифри)" maxlength="4" style="flex: 1; padding: 12px; border: 2px solid #FF9800; border-radius: 10px; font-size: 15px;">
-                        <button class="btn btn-primary" onclick="changePin()" style="width: auto; padding: 12px 20px; white-space: nowrap;">🔐 Змінити PIN</button>
+                    </p>
+                    <div class="flex-row">
+                        <input type="password" id="newPin" placeholder="Новий PIN (4 цифри)" maxlength="4" class="flex-fill">
+                        <button class="btn btn-primary btn-compact" onclick="changePin()">🔐 Змінити PIN</button>
                     </div>
                 </div>
-                
-                <!-- Блок корекції балансу (тільки для батьків) -->
-                <div id="balanceCorrectionBlock" style="display: none; background: linear-gradient(135deg, #FFF9C4, #FFF59D); padding: 18px; border-radius: 15px; margin-top: 15px; border: 2px solid #FBC02D;">
-                    <h3 style="margin: 0 0 15px 0; color: #F57F17; font-size: 16px;">💰 Корекція балансу</h3>
-                    
-                    <div style="background: white; padding: 12px; border-radius: 10px; margin-bottom: 15px;">
-                        <div style="font-size: 14px; color: #666; margin-bottom: 8px;">Поточний баланс:</div>
-                        <div style="font-size: 24px; font-weight: 700; color: var(--secondary);" id="currentBalanceDisplay">0⭐</div>
+
+                <!-- Корекція балансу (тільки для батьків) -->
+                <div id="balanceCorrectionBlock" class="card-balance hidden">
+                    <h3 class="card-title">💰 Корекція балансу</h3>
+                    <div class="card-inner card-inner--lg">
+                        <div class="card-label--lg">Поточний баланс:</div>
+                        <div class="card-value--lg" id="currentBalanceDisplay">0⭐</div>
                     </div>
-                    
-                    <div style="font-size: 13px; color: #F57F17; margin-bottom: 12px;">
+                    <p class="card-note card-note--balance">
                         <strong>⚠️ Увага:</strong> Використовуйте тільки для виправлення помилок або відновлення даних
+                    </p>
+                    <div class="form-group mb-sm">
+                        <label class="card-label--md">Новий баланс:</label>
+                        <input type="number" id="newBalanceInput" min="0" placeholder="Введіть новий баланс">
                     </div>
-                    
-                    <div style="margin-bottom: 10px;">
-                        <label style="display: block; font-size: 13px; color: #666; margin-bottom: 5px;">Новий баланс:</label>
-                        <input type="number" id="newBalanceInput" min="0" placeholder="Введіть новий баланс" style="width: 100%; padding: 12px; border: 2px solid #FBC02D; border-radius: 10px; font-size: 15px; box-sizing: border-box;">
-                    </div>
-                    <button class="btn btn-primary" onclick="adjustBalance()" style="width: 100%; padding: 12px 20px;">💰 Встановити баланс</button>
+                    <button class="btn btn-primary" onclick="adjustBalance()">💰 Встановити баланс</button>
                 </div>
 
                 <!-- Курси конвертації (тільки для батьків) -->
-                <div id="conversionRatesBlock" style="display:none; background:linear-gradient(135deg,#E8F5E9,#C8E6C9); padding:18px; border-radius:15px; margin-top:15px; border:2px solid #4CAF50;">
-                    <h3 style="margin:0 0 15px 0; color:#2E7D32; font-size:16px;">⭐ Курси конвертації</h3>
+                <div id="conversionRatesBlock" class="card-success hidden">
+                    <h3 class="card-title">⭐ Курси конвертації</h3>
 
-                    <div style="margin-bottom:12px;">
-                        <label style="display:block; font-size:13px; color:#1B5E20; margin-bottom:5px;">
+                    <div class="form-group mb-sm">
+                        <label class="card-note card-note--success">
                             🎮 Хвилин за 1 зірку (зараз: <span id="currentMinutesRate">2</span> хв)
                         </label>
-                        <input type="number" id="minutesPerStar" min="1" placeholder="2"
-                            style="width:100%; padding:12px; border:2px solid #4CAF50; border-radius:10px; font-size:15px; box-sizing:border-box;">
+                        <input type="number" id="minutesPerStar" min="1" placeholder="2">
                     </div>
 
-                    <div style="margin-bottom:15px;">
-                        <label style="display:block; font-size:13px; color:#1B5E20; margin-bottom:5px;">
+                    <div class="form-group mb-md">
+                        <label class="card-note card-note--success">
                             💵 Гривень за 1 зірку (зараз: <span id="currentMoneyRate">1</span> грн)
                         </label>
-                        <input type="number" id="moneyPerStar" min="1" placeholder="1"
-                            style="width:100%; padding:12px; border:2px solid #4CAF50; border-radius:10px; font-size:15px; box-sizing:border-box;">
+                        <input type="number" id="moneyPerStar" min="1" placeholder="1">
                     </div>
 
-                    <button class="btn btn-primary" onclick="saveConversionRates()" style="width:100%;">
+                    <button class="btn btn-primary" onclick="saveConversionRates()">
                         💾 Зберегти курси
                     </button>
                 </div>
-            
+
             </div>
 
         </div>
@@ -790,16 +699,12 @@
 
     <!-- Firebase SDK -->
     <script type="module">
-        // ── Імпорти Firebase ──────────────────────────────────────
-
-        // ── Імпорти модулів ───────────────────────────────────────
         import { state } from './state.js';
         import { firebaseConfig, ACHIEVEMENTS, gradeToStars } from './config.js';
         import { showPinInput, enterAsChild, addPin, clearPin, cancelPin, checkPin, changePin, showRewardPin, addRewardPin, clearRewardPin, cancelRewardPin, togglePeriod } from './auth.js';
         import { renderAchievements, renderAchievementsHome } from './achievements.js';
         import { renderGoal, showGoalModal, cancelGoal, saveGoal, deleteGoal } from './goals.js';
-        import { addFreezePeriod, deleteFreezePeriod, editFreezePeriod,
-                 renderFreezePeriods } from './freeze.js';
+        import { addFreezePeriod, deleteFreezePeriod, editFreezePeriod, renderFreezePeriods } from './freeze.js';
         import { initFirebase, saveData, initFeedbackListener } from './firebase.js';
         import { initFeedbackData, renderFeedback, updateFeedbackBadge,
                  selectFeedbackCategory, submitFeedback,
@@ -818,10 +723,7 @@
         import { showDataInfo, exportData, importData, resetAllData,
                  adjustBalance, saveConversionRates } from './settings.js';
 
-        // Firebase ініціалізується у firebase.js
-
         // ── Глобальні функції для onclick ─────────────────────
-        // auth.js
         window.showPinInput = showPinInput;
         window.enterAsChild = enterAsChild;
         window.addPin = addPin;
@@ -837,50 +739,41 @@
         window.togglePeriod = togglePeriod;
         window.showHelp = showHelp;
         window.closeHelp = closeHelp;
-        // goals.js
         window.showGoalModal = showGoalModal;
         window.cancelGoal = cancelGoal;
         window.saveGoal = saveGoal;
         window.deleteGoal = deleteGoal;
         window.renderGoal = renderGoal;
-        // freeze.js
         window.addFreezePeriod = addFreezePeriod;
         window.deleteFreezePeriod = deleteFreezePeriod;
         window.editFreezePeriod = editFreezePeriod;
         window.renderFreezePeriods = renderFreezePeriods;
-        // ui.js
         window.switchTab = switchTab;
         window.showForm = showForm;
-        // records.js
         window.addGradeRecord = addGradeRecord;
         window.addDiagnosticWork = addDiagnosticWork;
         window.addBonusRecord = addBonusRecord;
         window.addSpecialRecord = addSpecialRecord;
         window.deleteRecord = deleteRecord;
-        // history.js
         window.renderHistory = renderHistory;
         window.changeMonth = changeMonth;
         window.applyHistoryFilter = applyHistoryFilter;
-        // rewards.js
         window.renderRewards = renderRewards;
         window.buyTime = buyTime;
         window.buyMoney = buyMoney;
         window.buyCustomReward = buyCustomReward;
         window.updateTimePreview = updateTimePreview;
         window.updateMoneyPreview = updateMoneyPreview;
-        // stats.js
         window.renderStats = renderStats;
         window.updateChart = updateChart;
         window.changeChartPeriod = changeChartPeriod;
         window.changeChartOffset = changeChartOffset;
-        // settings.js
         window.exportData = exportData;
         window.importData = importData;
         window.resetAllData = resetAllData;
         window.adjustBalance = adjustBalance;
         window.saveConversionRates = saveConversionRates;
         window.showDataInfo = showDataInfo;
-        // feedback.js
         window.selectFeedbackCategory = selectFeedbackCategory;
         window.submitFeedback = submitFeedback;
         window.startEditFeedback = startEditFeedback;
@@ -892,18 +785,17 @@
         window.toggleChildComment = toggleChildComment;
         window.cancelChildComment = cancelChildComment;
         window.saveChildComment = saveChildComment;
-        // achievements.js
         window.renderAchievements = renderAchievements;
         window.renderAchievementsHome = renderAchievementsHome;
 
-        // ── Event listeners ───────────────────────────────────────
+        // ── Event listeners ───────────────────────────────────
         document.addEventListener('click', (e) => {
             if (e.target.id === 'setGoalBtn' || e.target.id === 'editGoalBtn') {
                 showGoalModal();
             }
         });
 
-        // ── Ініціалізація ─────────────────────────────────────────
+        // ── Ініціалізація ─────────────────────────────────────
         setTodayDates();
         initFirebase();
         initFeedbackListener((rawData) => {
@@ -914,21 +806,16 @@
 
     </script>
 
-
-
-        <!-- Модальне вікно інструкцій -->
-        <div id="helpModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
-             background:rgba(0,0,0,0.5); z-index:1000; justify-content:center; align-items:flex-end;">
-            <div style="background:white; width:100%; max-width:600px; max-height:85vh;
-                        border-radius:24px 24px 0 0; overflow-y:auto; padding:24px;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-                    <h3 id="helpModalTitle" style="margin:0; color:var(--secondary); font-size:18px;"></h3>
-                    <button onclick="closeHelp()"
-                        style="background:none; border:none; font-size:24px; cursor:pointer; color:#999;">✕</button>
-                </div>
-                <div id="helpModalContent" style="font-size:14px; line-height:1.7; color:#444;"></div>
+    <!-- Help Modal -->
+    <div id="helpModal" class="help-modal">
+        <div class="help-modal-inner">
+            <div class="help-modal-header">
+                <h3 id="helpModalTitle" class="help-modal-title"></h3>
+                <button onclick="closeHelp()" class="help-close-btn">✕</button>
             </div>
+            <div id="helpModalContent" class="help-modal-content"></div>
         </div>
+    </div>
 
 </body>
 </html>
