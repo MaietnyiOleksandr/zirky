@@ -2,13 +2,14 @@
 // ⚙️   settings.js — Налаштування / Експорт / Імпорт
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260502.0850';
+export const VERSION = 'v3.20260503.2236';
 
 // ════════════════════════════════════════════════════════════
 
 import { state } from './state.js';
 import { recalculateAchievements } from './achievements.js';
-import { saveData } from './firebase.js';
+import { saveData, saveAllFeedback } from './firebase.js';
+import { getFeedbackItems } from './feedback.js';
 
 // ════════════════════════════════════════════════════════════
 // // ⚙️   БЛОК: Налаштування / Експорт / Імпорт
@@ -146,6 +147,7 @@ export function exportData() {
         // Додаємо метадані
         const dataToExport = {
             ...state.data,
+            feedback: getFeedbackItems(),
             version: 1,
             exportDate: new Date().toISOString(),
             appName: "Зірки Успіху"
@@ -210,11 +212,13 @@ export function importData(event) {
             const recordsCount = imported.records?.length || 0;
             const balance = imported.balance || 0;
             const exportDate = imported.exportDate ? new Date(imported.exportDate).toLocaleDateString('uk-UA') : 'невідомо';
+            const feedbackCount = imported.feedback?.length || 0;
             
             const confirmMsg = `📁 Файл: ${file.name}\n\n` +
                 `📊 Що буде імпортовано:\n` +
                 `• Записів: ${recordsCount}\n` +
                 `• Баланс: ${balance}⭐\n` +
+                `• Повідомлень зворотнього зв'язку: ${feedbackCount}\n` +
                 `• Дата експорту: ${exportDate}\n\n` +
                 `⚠️ УВАГА: Це замінить всі поточні дані!\n\n` +
                 `Продовжити?`;
@@ -239,10 +243,14 @@ export function importData(event) {
                 freezePeriods: []
             };
             
+            // Витягуємо feedback перед тим як мутувати state.data
+            const feedbackToRestore = Array.isArray(imported.feedback) ? imported.feedback : [];
+
             // Очищаємо метадані експорту
             delete imported.version;
             delete imported.exportDate;
             delete imported.appName;
+            delete imported.feedback;
             
             // Замінюємо data
             // Мутуємо існуючий об'єкт щоб зберегти посилання
@@ -251,8 +259,11 @@ export function importData(event) {
             // Перераховуємо досягнення
             recalculateAchievements();
             
-            // Зберігаємо в Firebase
+            // Зберігаємо основні дані в Firebase
             saveData();
+
+            // Відновлюємо feedback в Firebase
+            saveAllFeedback(feedbackToRestore);
             
             // Перезавантажуємо сторінку
             alert("✅ Дані успішно імпортовано!\n\nСторінка перезавантажиться.");

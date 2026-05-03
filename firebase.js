@@ -3,7 +3,7 @@
 //     Зірки Успіху | v3.20260427.0709
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260503.2158';
+export const VERSION = 'v3.20260503.2236';
 
 import { state } from './state.js';
 import { firebaseConfig } from './config.js';
@@ -67,6 +67,16 @@ export function saveFeedbackItem(item) {
 
 export function deleteFeedbackItem(id) {
     remove(ref(db, `zirky-feedback/${id}`));
+}
+
+export function saveAllFeedback(items) {
+    if (!items || items.length === 0) {
+        set(ref(db, 'zirky-feedback'), null);
+        return;
+    }
+    const obj = {};
+    items.forEach(item => { obj[item.id] = item; });
+    set(ref(db, 'zirky-feedback'), obj);
 }
 
 // Firebase: зберігаємо дані

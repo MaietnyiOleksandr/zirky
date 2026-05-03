@@ -3,7 +3,7 @@
 //     Зірки Успіху
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260503.2210';
+export const VERSION = 'v3.20260503.2236';
 
 import { state } from './state.js';
 import { nowKyiv } from './utils.js';
@@ -38,6 +38,10 @@ export function initFeedbackData(rawData) {
 // ── Кількість нових повідомлень (для бейджу) ─────────────────
 export function getFeedbackNewCount() {
     return _items.filter(i => i.status === '⏳').length;
+}
+
+export function getFeedbackItems() {
+    return _items;
 }
 
 // ── Головний рендер ───────────────────────────────────────────
