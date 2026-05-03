@@ -139,7 +139,7 @@
             <button class="tab" onclick="switchTab('rewards', true)">🎁 Витрати</button>
             <button class="tab" onclick="switchTab('achievements', true)">🏆 Досягнення</button>
             <button class="tab" onclick="switchTab('stats', true)">📊 Статистика</button>
-            <button class="tab" onclick="switchTab('settings', true)">⚙️ Налаштування</button>
+            <button class="tab" onclick="switchTab('settings', true)">⚙️ Налаштування<span id="feedbackBadge" style="display:none; background:#f44336; color:white; border-radius:50%; width:17px; height:17px; font-size:10px; font-weight:700; margin-left:4px; align-items:center; justify-content:center; vertical-align:middle;">0</span></button>
         </div>
 
         <!-- Content -->
@@ -671,6 +671,14 @@
                     </div>
                 </div>
 
+                <!-- Зворотній зв'язок -->
+                <div style="background:linear-gradient(135deg,#EDE7F6,#D1C4E9); padding:18px; border-radius:15px; margin-bottom:20px; border:2px solid #9C27B0;">
+                    <h3 style="margin:0 0 14px; color:#6A1B9A; font-size:16px;">💬 Зворотній зв'язок</h3>
+                    <div id="feedbackBlock">
+                        <div style="color:#aaa; font-size:13px; text-align:center; padding:8px;">Завантаження...</div>
+                    </div>
+                </div>
+
                 <!-- Інфо про дані -->
                 <div style="background: linear-gradient(135deg, #E8F5E9, #C8E6C9); padding: 18px; border-radius: 15px; margin-bottom: 20px;">
                     <h3 style="margin: 0 0 15px 0; color: #2E7D32; font-size: 16px;">📊 Інформація про дані</h3>
@@ -791,7 +799,11 @@
         import { renderGoal, showGoalModal, cancelGoal, saveGoal, deleteGoal } from './goals.js';
         import { addFreezePeriod, deleteFreezePeriod, editFreezePeriod,
                  renderFreezePeriods } from './freeze.js';
-        import { initFirebase, saveData } from './firebase.js';
+        import { initFirebase, saveData, initFeedbackListener } from './firebase.js';
+        import { initFeedbackData, renderFeedback, updateFeedbackBadge,
+                 selectFeedbackCategory, submitFeedback,
+                 startEditFeedback, cancelEditFeedback, saveEditFeedback,
+                 deleteFeedback, setFeedbackStatus, saveParentComment } from './feedback.js';
         import { getTodayDate, setTodayDates } from './utils.js';
         import { showLoading, updateUI } from './ui.js';
         import { showHelp, closeHelp } from './help.js';
@@ -866,6 +878,15 @@
         window.adjustBalance = adjustBalance;
         window.saveConversionRates = saveConversionRates;
         window.showDataInfo = showDataInfo;
+        // feedback.js
+        window.selectFeedbackCategory = selectFeedbackCategory;
+        window.submitFeedback = submitFeedback;
+        window.startEditFeedback = startEditFeedback;
+        window.cancelEditFeedback = cancelEditFeedback;
+        window.saveEditFeedback = saveEditFeedback;
+        window.deleteFeedback = deleteFeedback;
+        window.setFeedbackStatus = setFeedbackStatus;
+        window.saveParentComment = saveParentComment;
         // achievements.js
         window.renderAchievements = renderAchievements;
         window.renderAchievementsHome = renderAchievementsHome;
@@ -880,6 +901,11 @@
         // ── Ініціалізація ─────────────────────────────────────────
         setTodayDates();
         initFirebase();
+        initFeedbackListener((rawData) => {
+            initFeedbackData(rawData);
+            renderFeedback();
+            updateFeedbackBadge();
+        });
 
     </script>
 

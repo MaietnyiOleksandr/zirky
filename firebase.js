@@ -8,7 +8,7 @@ export const VERSION = 'v3.20260427.0709';
 import { state } from './state.js';
 import { firebaseConfig } from './config.js';
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-import { getDatabase, ref, set, onValue } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+import { getDatabase, ref, set, remove, onValue } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 import { recalculateAchievements } from './achievements.js';
 import { checkStreakWarning } from './stats.js';
 import { showLoading, updateUI } from './ui.js';
@@ -52,6 +52,21 @@ export function initFirebase() {
         // Сигналізуємо що дані завантажені — ui.js сам оновить активну секцію
         document.dispatchEvent(new CustomEvent('zirky:dataLoaded'));
     });
+}
+
+// ── Firebase: функції для зворотнього зв'язку ────────────────
+export function initFeedbackListener(callback) {
+    onValue(ref(db, 'zirky-feedback'), (snapshot) => {
+        callback(snapshot.val());
+    });
+}
+
+export function saveFeedbackItem(item) {
+    set(ref(db, `zirky-feedback/${item.id}`), item);
+}
+
+export function deleteFeedbackItem(id) {
+    remove(ref(db, `zirky-feedback/${id}`));
 }
 
 // Firebase: зберігаємо дані

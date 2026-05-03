@@ -18,6 +18,7 @@ import { renderHistory } from './history.js';
 import { renderRewards } from './rewards.js';
 import { renderStats, checkStreakWarning } from './stats.js';
 import { showDataInfo } from './settings.js';
+import { renderFeedback } from './feedback.js';
 
 export function showForm(type) {
     document.querySelectorAll('.quick-action-btn').forEach(btn => btn.classList.remove('active'));
@@ -78,7 +79,7 @@ export function switchTab(tab, fromClick = false) {
     }
     else if (tab === 'achievements') renderAchievements();
     else if (tab === 'stats') renderStats();
-    else if (tab === 'settings') showDataInfo();
+    else if (tab === 'settings') { showDataInfo(); renderFeedback(); }
 
     if (!state.data.isParent && tab === 'add') {
         switchTab('instructions');
