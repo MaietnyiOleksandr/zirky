@@ -3,7 +3,7 @@
 //     Зірки Успіху
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260503.2158';
+export const VERSION = 'v3.20260503.2210';
 
 import { state } from './state.js';
 import { nowKyiv } from './utils.js';
@@ -278,6 +278,15 @@ function _renderParentCard(item) {
             <div style="font-size:14px; color:var(--text); line-height:1.5; margin-bottom:12px;">
                 ${item.text}
             </div>
+
+            <!-- Коментар дитини (якщо є) -->
+            ${item.childComment ? `
+                <div style="background:#EDE7F6; border-radius:10px; padding:10px;
+                            margin-bottom:10px; font-size:13px; color:#4A148C;
+                            border-left:3px solid #9C27B0;">
+                    <strong>✏️ Коментар дитини:</strong><br>${item.childComment}
+                </div>
+            ` : ''}
 
             <!-- Кнопки статусів -->
             <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px;">
