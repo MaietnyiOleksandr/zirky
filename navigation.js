@@ -1,13 +1,12 @@
 // ════════════════════════════════════════════════════
-
-export const VERSION = 'v3.20260429.1234';
 // 🗂️  navigation.js — Навігація між вкладками та формами
-//     Зірки Успіху | v3.20260429.1234
 //
 //     Виокремлено для розриву циклічних залежностей:
 //     history.js, stats.js, freeze.js потребували
 //     showForm/switchTab, а ui.js потребував їх модулів
 // ════════════════════════════════════════════════════
+
+export const VERSION = 'v3.20260503.2158';
 
 import { state } from './state.js';
 import { getTodayDate } from './utils.js';

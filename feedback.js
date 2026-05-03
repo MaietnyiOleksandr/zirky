@@ -3,7 +3,7 @@
 //     Зірки Успіху
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260503.1200';
+export const VERSION = 'v3.20260503.2158';
 
 import { state } from './state.js';
 import { nowKyiv } from './utils.js';
@@ -163,6 +163,50 @@ function _renderChildCard(item) {
                 </div>
             ` : ''}
 
+            <!-- Коментар дитини (для карток що не можна редагувати) -->
+            ${!canEdit ? `
+                <div style="margin-bottom:4px;">
+                    ${item.childComment ? `
+                        <div id="childCommentDisplay_${item.id}"
+                            style="background:#EDE7F6; border-radius:10px; padding:10px;
+                                   margin-bottom:8px; font-size:13px; color:#4A148C;
+                                   border-left:3px solid #9C27B0;">
+                            <strong>✏️ Мій коментар:</strong><br>${item.childComment}
+                        </div>
+                    ` : `<div id="childCommentDisplay_${item.id}"></div>`}
+                    <div id="childCommentEdit_${item.id}" style="display:none;">
+                        <textarea id="childCommentInput_${item.id}"
+                            placeholder="Твій коментар..."
+                            style="width:100%; min-height:60px; padding:10px; border-radius:10px;
+                                   border:2px solid #9C27B0; background:white; color:var(--text);
+                                   font-size:13px; font-family:inherit; resize:none;
+                                   box-sizing:border-box; margin-bottom:6px;"
+                        >${item.childComment || ''}</textarea>
+                        <div style="display:flex; gap:8px;">
+                            <button onclick="saveChildComment('${item.id}')"
+                                style="flex:1; padding:7px; border-radius:10px; border:none;
+                                       background:#9C27B0; color:white; font-size:13px;
+                                       font-weight:600; cursor:pointer;">
+                                💾 Зберегти
+                            </button>
+                            <button onclick="cancelChildComment('${item.id}')"
+                                style="flex:1; padding:7px; border-radius:10px;
+                                       border:2px solid #ddd; background:none;
+                                       font-size:13px; cursor:pointer; color:#666;">
+                                ✕ Скасувати
+                            </button>
+                        </div>
+                    </div>
+                    <button onclick="toggleChildComment('${item.id}')"
+                        id="childCommentBtn_${item.id}"
+                        style="width:100%; padding:6px; border-radius:8px;
+                               border:1px solid #CE93D8; background:none;
+                               font-size:12px; cursor:pointer; color:#9C27B0; margin-top:4px;">
+                        ${item.childComment ? '✏️ Редагувати коментар' : '💬 Додати коментар'}
+                    </button>
+                </div>
+            ` : ''}
+
             <!-- Кнопки дій (тільки для нових) -->
             ${canEdit ? `
                 <div style="display:flex; gap:8px;">
@@ -301,9 +345,10 @@ export function submitFeedback() {
         date:      nowKyiv(),
         category:  _selectedCategory,
         text,
-        status:    '⏳',
-        comment:   '',
-        updatedAt: null,
+        status:       '⏳',
+        comment:      '',
+        childComment: '',
+        updatedAt:    null,
     };
 
     _items.unshift(item);
@@ -336,6 +381,33 @@ export function deleteFeedback(id) {
     if (!confirm('Видалити це повідомлення?')) return;
     _items = _items.filter(i => i.id !== id);
     deleteFeedbackItem(id);
+    renderFeedback();
+}
+
+export function toggleChildComment(id) {
+    const editBlock = document.getElementById(`childCommentEdit_${id}`);
+    const btn       = document.getElementById(`childCommentBtn_${id}`);
+    const isOpen    = editBlock.style.display !== 'none';
+    editBlock.style.display = isOpen ? 'none' : 'block';
+    btn.textContent = isOpen
+        ? (_items.find(i => i.id === id)?.childComment ? '✏️ Редагувати коментар' : '💬 Додати коментар')
+        : '▲ Сховати';
+}
+
+export function cancelChildComment(id) {
+    const item = _items.find(i => i.id === id);
+    document.getElementById(`childCommentEdit_${id}`).style.display = 'none';
+    const btn = document.getElementById(`childCommentBtn_${id}`);
+    if (btn) btn.textContent = item?.childComment ? '✏️ Редагувати коментар' : '💬 Додати коментар';
+}
+
+export function saveChildComment(id) {
+    const input = document.getElementById(`childCommentInput_${id}`);
+    const item  = _items.find(i => i.id === id);
+    if (!item || !input) return;
+    item.childComment = input.value.trim();
+    item.updatedAt    = nowKyiv();
+    saveFeedbackItem(item);
     renderFeedback();
 }
 

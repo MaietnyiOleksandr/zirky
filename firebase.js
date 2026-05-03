@@ -1,9 +1,9 @@
 // ════════════════════════════════════════════════════
-
-export const VERSION = 'v3.20260427.0709';
 // FIREBASE  firebase.js — Firebase
 //     Зірки Успіху | v3.20260427.0709
 // ════════════════════════════════════════════════════
+
+export const VERSION = 'v3.20260503.2158';
 
 import { state } from './state.js';
 import { firebaseConfig } from './config.js';
