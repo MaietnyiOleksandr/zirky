@@ -2,7 +2,7 @@
 // ⚙️   settings.js — Налаштування / Експорт / Імпорт
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260503.2246';
+export const VERSION = 'v3.20260503.0910';
 
 // ════════════════════════════════════════════════════════════
 
@@ -125,7 +125,21 @@ export function showDataInfo() {
         body.innerHTML = rows.join('') + jsRows.join('');
     });
     
-    const ratesBlock = document.getElementById('conversionRatesBlock');
+    // Батьківські блоки — показуємо тільки для батьків
+    const pinBlock     = document.getElementById('pinSettingsBlock');
+    const balanceBlock = document.getElementById('balanceCorrectionBlock');
+    const ratesBlock   = document.getElementById('conversionRatesBlock');
+
+    if (pinBlock) pinBlock.style.display = state.data.isParent ? 'block' : 'none';
+
+    if (balanceBlock) {
+        balanceBlock.style.display = state.data.isParent ? 'block' : 'none';
+        if (state.data.isParent) {
+            const balDisplay = document.getElementById('currentBalanceDisplay');
+            if (balDisplay) balDisplay.textContent = (state.data.balance || 0) + '⭐';
+        }
+    }
+
     if (ratesBlock) {
         ratesBlock.style.display = state.data.isParent ? 'block' : 'none';
         if (state.data.isParent) {
@@ -138,6 +152,8 @@ export function showDataInfo() {
             const gSpan = document.getElementById('currentMoneyRate');
             if (mSpan) mSpan.textContent = rates.minutesPerStar;
             if (gSpan) gSpan.textContent = rates.moneyPerStar;
+            const pinEl = document.getElementById('currentPin');
+            if (pinEl) pinEl.textContent = state.data.pin;
         }
     }
 }
