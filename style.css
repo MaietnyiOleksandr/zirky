@@ -1,6 +1,6 @@
 /* ════════════════════════════════════════════════════
    Зірки Успіху — Стилі
-   Версія: v3.20260504.1426
+   Версія: v3.20260504.1849
    ════════════════════════════════════════════════════ */
 
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;900&family=Comfortaa:wght@400;700&family=Fredoka+One&display=swap');
@@ -97,32 +97,6 @@
    Перевизнач лише змінні що змінюються.
    ════════════════════════════════════════════════════ */
 
-/*
-:root[data-theme="space"] {
-    --primary:            #7B2FBE;
-    --secondary:          #00d4ff;
-    --bg:                 #1a0a2e;
-    --card:               #2d1b4e;
-    --text:               #e0d4f7;
-    --bg-gradient:        linear-gradient(135deg, #0d0221 0%, #1a0a2e 50%, #2d0057 100%);
-    --btn-primary-from:   #7B2FBE;
-    --btn-primary-to:     #9c44d4;
-    --btn-primary-color:  #ffffff;
-    --btn-primary-shadow: rgba(123, 47, 190, 0.5);
-    --tab-active-from:    #7B2FBE;
-    --tab-active-to:      #9c44d4;
-    --tab-active-color:   #ffffff;
-    --tab-active-shadow:  rgba(123, 47, 190, 0.5);
-    --goal-from:          #7B2FBE;
-    --goal-to:            #2d0057;
-    --goal-text:          #ffffff;
-    --progress-from:      #00d4ff;
-    --progress-to:        #7B2FBE;
-    --border-input:       #4a2575;
-    --text-muted:         #b090d4;
-    --text-hint:          #8060a8;
-}
-*/
 
 /* ════════════════════════════════════════════════════
    ШРИФТИ — альтернативні
@@ -1931,8 +1905,6 @@ select:focus, input:focus {
     --c-fb-light:   rgba(168,85,247,0.15);
     --c-fb-lighter: rgba(168,85,247,0.1);
 
-    /* Versions accordion */
-    --c-success-bg: linear-gradient(135deg, rgba(76,175,80,0.2), rgba(76,175,80,0.1));
 }
 
 /* ── Режим розробника ───────────────────────────── */

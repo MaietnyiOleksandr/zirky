@@ -12,7 +12,7 @@
 //       3. Додай CSS vars у style.css (опційно)
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260504.1434';
+export const VERSION = 'v3.20260504.1849';
 
 import { state } from './state.js';
 import { saveData } from './firebase.js';
@@ -229,13 +229,17 @@ export const DEFAULT_APPEARANCE = {
 // ════════════════════════════════════════════════════
 function _resetAppearanceVars() {
     const html = document.documentElement;
-    // Скидаємо всі CSS змінні що могли бути встановлені попередньою темою
+    // Скидаємо CSS змінні
     const allVarNames = Object.values(COMPONENTS.palettes)
         .flatMap(p => Object.keys(p.vars || {}));
     [...new Set(allVarNames)].forEach(v => html.style.removeProperty(v));
     html.style.removeProperty('--font-main');
     html.style.removeProperty('--radius-btn');
+    // Скидаємо data-атрибути
     html.removeAttribute('data-bg');
+    html.removeAttribute('data-palette');
+    html.removeAttribute('data-font');
+    html.removeAttribute('data-buttons');
 }
 
 function _applyComponents(active) {
@@ -244,16 +248,19 @@ function _applyComponents(active) {
     const font    = COMPONENTS.fonts[active.font]       || COMPONENTS.fonts.default;
     const buttons = COMPONENTS.buttons[active.buttons]  || COMPONENTS.buttons.default;
 
-    // Палітра
+    // Палітра — CSS змінні + data-palette для CSS :root[data-palette="X"] селекторів
     Object.entries(palette.vars || {}).forEach(([k, v]) => html.style.setProperty(k, v));
+    html.dataset.palette = active.palette || 'default';
 
-    // Шрифт
+    // Шрифт — data-font для можливих CSS селекторів
     html.style.setProperty('--font-main', font.value);
+    html.dataset.font = active.font || 'default';
 
-    // Кнопки
+    // Кнопки — data-buttons для можливих CSS селекторів
     Object.entries(buttons.vars || {}).forEach(([k, v]) => html.style.setProperty(k, v));
+    html.dataset.buttons = active.buttons || 'default';
 
-    // Фон (CSS data-атрибут — стилі в style.css)
+    // Фон
     html.dataset.bg = active.background || 'default';
 }
 
@@ -333,8 +340,9 @@ export function activateTheme(themeId, devOnly = false) {
 
     // У devMode — застосовуємо компоненти але не зберігаємо в state.data і не викликаємо saveData
     if (devOnly || _devMode) {
+        _devActive = { theme: themeId, ...theme.components };
         _resetAppearanceVars();
-        _applyComponents(theme.components);
+        _applyComponents(_devActive);
         return;
     }
 
@@ -348,11 +356,12 @@ export function setComponent(type, id) {
     if (!state.data.appearance) state.data.appearance = { ...DEFAULT_APPEARANCE, owned: [...DEFAULT_APPEARANCE.owned] };
     if (!state.data.appearance.active) state.data.appearance.active = { ...DEFAULT_APPEARANCE.active };
 
-    // У devMode — не зберігаємо в state.data, тільки застосовуємо візуально
+    // У devMode — зберігаємо в _devActive (не в state.data), не викликаємо saveData
     if (_devMode) {
-        const tempActive = { ...(state.data.appearance?.active || DEFAULT_APPEARANCE.active), [type]: id };
+        const base = _devActive || state.data.appearance?.active || DEFAULT_APPEARANCE.active;
+        _devActive = { ...base, [type]: id, theme: 'custom' };
         _resetAppearanceVars();
-        _applyComponents(tempActive);
+        _applyComponents(_devActive);
         renderThemeShop();
         return;
     }
@@ -371,6 +380,7 @@ export function setComponent(type, id) {
 // ════════════════════════════════════════════════════
 let _previewTimer    = null;
 let _previewOriginal = null;
+let _devActive       = null;  // Поточний стан у devMode (тільки в пам'яті)
 
 // ── Режим розробника — тільки в пам'яті, ніколи не зберігається ──
 let _devMode = false;
@@ -379,6 +389,12 @@ export function isDevMode() { return _devMode; }
 
 export function toggleDevMode() {
     _devMode = !_devMode;
+    if (!_devMode) {
+        // Повертаємо реальну тему при вимиканні devMode
+        _devActive = null;
+        _resetAppearanceVars();
+        _applyComponents(state.data.appearance?.active || DEFAULT_APPEARANCE.active);
+    }
     renderThemeShop();
 
     const banner = document.getElementById('devModeBanner');
@@ -462,7 +478,8 @@ export function renderThemeShop() {
     const owned      = _devMode
         ? THEMES.map(t => t.id)
         : (appearance.owned || ['default']);
-    const active     = appearance.active || DEFAULT_APPEARANCE.active;
+    // У devMode active береться з _devActive (відображає поточний вибір без збереження)
+    const active     = (_devMode && _devActive) ? _devActive : (appearance.active || DEFAULT_APPEARANCE.active);
     const balance    = state.data.balance || 0;
     const inPreview  = !!_previewTimer;
 
