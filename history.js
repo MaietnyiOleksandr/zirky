@@ -2,7 +2,7 @@
 // HISTORY  history.js — History
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260502.0850';
+export const VERSION = 'v3.20260504.2258';
 
 // ════════════════════════════════════════════════════════════
 
@@ -128,8 +128,8 @@ export function renderHistory() {
 
         let desc = r.category === 'grade'      ? `${getSubjectEmoji(r.subject)} — ${r.grade} балів`
                  : r.category === 'diagnostic' ? `${getSubjectEmoji(r.subject)} — ${r.grade} балів`
-                 : r.type === 'spend'          ? (r.description || r.reward)
-                 : r.description;
+                 : r.type === 'spend'          ? (r.desc || r.description || r.reward || '—')
+                 : (r.desc || r.description || '—');
 
         const starClass = r.type === 'earn' ? 'positive'
                         : (r.type === 'info' || r.type === 'freeze') ? 'info'
