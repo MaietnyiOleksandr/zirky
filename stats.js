@@ -2,7 +2,7 @@
 // 📊  stats.js — Статистика та графіки
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260504.1041';
+export const VERSION = 'v3.20260504.1434';
 
 import { state } from './state.js';
 
@@ -444,6 +444,11 @@ export function changeChartOffset(delta) {
 export function checkStreakWarning() {
     const today = new Date();
     if (today.getDay() !== 1) return;
+
+    // Показуємо не більше одного разу за сесію (захист від повторних Firebase onValue)
+    const sessionKey = 'streakWarnShown_' + today.toISOString().split('T')[0];
+    if (sessionStorage.getItem(sessionKey)) return;
+    sessionStorage.setItem(sessionKey, '1');
 
     const friday = new Date(today);
     friday.setDate(today.getDate() - 3);

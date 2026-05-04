@@ -12,7 +12,7 @@
 //       3. Додай CSS vars у style.css (опційно)
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260504.1426';
+export const VERSION = 'v3.20260504.1434';
 
 import { state } from './state.js';
 import { saveData } from './firebase.js';
@@ -347,6 +347,15 @@ export function activateTheme(themeId, devOnly = false) {
 export function setComponent(type, id) {
     if (!state.data.appearance) state.data.appearance = { ...DEFAULT_APPEARANCE, owned: [...DEFAULT_APPEARANCE.owned] };
     if (!state.data.appearance.active) state.data.appearance.active = { ...DEFAULT_APPEARANCE.active };
+
+    // У devMode — не зберігаємо в state.data, тільки застосовуємо візуально
+    if (_devMode) {
+        const tempActive = { ...(state.data.appearance?.active || DEFAULT_APPEARANCE.active), [type]: id };
+        _resetAppearanceVars();
+        _applyComponents(tempActive);
+        renderThemeShop();
+        return;
+    }
 
     state.data.appearance.active[type] = id;
     state.data.appearance.active.theme = 'custom';
