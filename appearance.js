@@ -12,7 +12,7 @@
 //       3. Додай CSS vars у style.css (опційно)
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260504.2138';
+export const VERSION = 'v3.20260504.2258';
 
 import { state } from './state.js';
 import { saveData } from './firebase.js';
@@ -540,14 +540,16 @@ export function renderThemeShop() {
         const isParent = !!state.data.isParent;
         let actionsHTML = '';
         if (isOwned) {
-            const activateBtn = isActive
-                ? `<button class="btn btn-primary btn-compact" disabled>✓ Активна</button>`
-                : `<button class="btn btn-primary btn-compact" onclick="window.__zActivateTheme('${theme.id}')">🎨 Активувати</button>
-                   <button class="btn btn-secondary btn-compact" onclick="window.__zStartPreview('${theme.id}')">👀 Спробувати</button>`;
-            const refundBtn = (isParent && theme.price > 0 && !isActive)
-                ? `<button class="btn btn-refund btn-compact" onclick="window.__zRefundTheme('${theme.id}')" title="Повернути ${theme.price}⭐">↩ ${theme.price}⭐</button>`
-                : '';
-            actionsHTML = activateBtn + refundBtn;
+            if (isActive) {
+                // Активна тема — лише мітка
+                actionsHTML = `<button class="btn btn-primary btn-compact" disabled>✓ Активна</button>`;
+            } else {
+                // Куплена, але не активна — активувати + (батькам) повернути
+                const refundBtn = (isParent && theme.price > 0)
+                    ? `<button class="btn btn-refund btn-compact" onclick="window.__zRefundTheme('${theme.id}')" title="Повернути ${theme.price}⭐">↩ ${theme.price}⭐</button>`
+                    : '';
+                actionsHTML = `<button class="btn btn-primary btn-compact" onclick="window.__zActivateTheme('${theme.id}')">🎨 Активувати</button>${refundBtn}`;
+            }
         } else {
             actionsHTML = `
                 <button class="btn btn-primary btn-compact ${!canAfford ? 'btn-cant-afford' : ''}"
