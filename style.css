@@ -1,6 +1,6 @@
 /* ════════════════════════════════════════════════════
    Зірки Успіху — Стилі
-   Версія: v3.20260504.1419
+   Версія: v3.20260504.1426
    ════════════════════════════════════════════════════ */
 
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;900&family=Comfortaa:wght@400;700&family=Fredoka+One&display=swap');
@@ -1934,3 +1934,41 @@ select:focus, input:focus {
     /* Versions accordion */
     --c-success-bg: linear-gradient(135deg, rgba(76,175,80,0.2), rgba(76,175,80,0.1));
 }
+
+/* ── Режим розробника ───────────────────────────── */
+.dev-mode-banner {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    z-index: 9998;
+    background: rgba(30, 10, 60, 0.95);
+    color: #d8b4fe;
+    padding: 8px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    text-align: center;
+    font-family: var(--font-main);
+    border-top: 2px solid #7B2FBE;
+    backdrop-filter: blur(4px);
+}
+
+.btn-dev-mode {
+    background: none;
+    border: 2px dashed var(--c-purple-border, #9C27B0);
+    color: var(--c-purple-text, #6A1B9A);
+    font-size: 13px;
+    border-radius: 10px;
+    padding: 10px 16px;
+    cursor: pointer;
+    font-family: var(--font-main);
+    font-weight: 700;
+    width: 100%;
+    margin-top: 10px;
+    transition: all 0.2s;
+}
+
+.btn-dev-mode:hover { background: var(--c-purple-bg); }
+.btn-dev-mode.active {
+    background: var(--c-purple-bg);
+    border-style: solid;
+}
+#devModeBlock { display: none; }

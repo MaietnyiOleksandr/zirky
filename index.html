@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⭐</text></svg>">
-    <!-- version: v3.20260504.1400 -->
+    <!-- version: v3.20260504.1426 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>⭐ Зірки Успіху</title>
     <link rel="stylesheet" href="style.css">
@@ -698,6 +698,12 @@
                     <p class="text-muted font-sm mb-md">Купуй теми за зірки та змінюй вигляд застосунку. Після покупки можна міксувати компоненти різних тем.</p>
                     <div id="themeShopContainer"></div>
                     <div id="themeCustomizeContainer"></div>
+                    <div id="devModeBlock">
+                        <button class="btn-dev-mode" id="devModeBtn"
+                            onclick="window.__zToggleDevMode()">
+                            🛠️ Режим розробника (тест тем)
+                        </button>
+                    </div>
                 </div>
 
             </div>
@@ -731,7 +737,8 @@
         import { showDataInfo, exportData, importData, resetAllData,
                  adjustBalance, saveConversionRates } from './settings.js';
         import { applyAppearance, renderThemeShop, buyTheme,
-                 activateTheme, setComponent, startPreview, stopPreview, refundTheme } from './appearance.js';
+                 activateTheme, setComponent, startPreview, stopPreview, refundTheme,
+                 toggleDevMode, isDevMode } from './appearance.js';
 
         // ── Глобальні функції для onclick ─────────────────────
         window.showPinInput = showPinInput;
@@ -793,6 +800,8 @@
         window.startPreview    = startPreview;
         window.stopPreview     = stopPreview;
         window.refundTheme    = refundTheme;
+        window.toggleDevMode  = toggleDevMode;
+        window.isDevMode      = isDevMode;
         window.selectFeedbackCategory = selectFeedbackCategory;
         window.submitFeedback = submitFeedback;
         window.startEditFeedback = startEditFeedback;

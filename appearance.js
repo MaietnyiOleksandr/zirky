@@ -12,7 +12,7 @@
 //       3. Додай CSS vars у style.css (опційно)
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260504.1400';
+export const VERSION = 'v3.20260504.1426';
 
 import { state } from './state.js';
 import { saveData } from './firebase.js';
@@ -271,6 +271,13 @@ export function buyTheme(themeId) {
     const theme = THEMES.find(t => t.id === themeId);
     if (!theme) return;
 
+    // У режимі розробника — активуємо без купівлі і без збереження
+    if (_devMode) {
+        activateTheme(themeId, true);
+        renderThemeShop();
+        return;
+    }
+
     if (!state.data.appearance) state.data.appearance = { ...DEFAULT_APPEARANCE, owned: [...DEFAULT_APPEARANCE.owned] };
     const owned = state.data.appearance.owned || ['default'];
 
@@ -318,11 +325,18 @@ export function buyTheme(themeId) {
 // ════════════════════════════════════════════════════
 // 🎨  АКТИВАЦІЯ ТЕМИ / КОМПОНЕНТА
 // ════════════════════════════════════════════════════
-export function activateTheme(themeId) {
+export function activateTheme(themeId, devOnly = false) {
     const theme = THEMES.find(t => t.id === themeId);
     if (!theme) return;
 
     if (!state.data.appearance) state.data.appearance = { ...DEFAULT_APPEARANCE, owned: [...DEFAULT_APPEARANCE.owned] };
+
+    // У devMode — застосовуємо компоненти але не зберігаємо в state.data і не викликаємо saveData
+    if (devOnly || _devMode) {
+        _resetAppearanceVars();
+        _applyComponents(theme.components);
+        return;
+    }
 
     state.data.appearance.active = { theme: themeId, ...theme.components };
     _resetAppearanceVars();
@@ -348,6 +362,27 @@ export function setComponent(type, id) {
 // ════════════════════════════════════════════════════
 let _previewTimer    = null;
 let _previewOriginal = null;
+
+// ── Режим розробника — тільки в пам'яті, ніколи не зберігається ──
+let _devMode = false;
+
+export function isDevMode() { return _devMode; }
+
+export function toggleDevMode() {
+    _devMode = !_devMode;
+    renderThemeShop();
+
+    const banner = document.getElementById('devModeBanner');
+    if (_devMode && !banner) {
+        const div = document.createElement('div');
+        div.id = 'devModeBanner';
+        div.className = 'dev-mode-banner';
+        div.innerHTML = '🛠️ Режим розробника — всі теми доступні без покупки. Не зберігається у Firebase.';
+        document.body.prepend(div);
+    } else if (!_devMode && banner) {
+        banner.remove();
+    }
+}
 
 export function startPreview(themeId) {
     const theme = THEMES.find(t => t.id === themeId);
@@ -414,7 +449,10 @@ export function renderThemeShop() {
     if (!container) return;
 
     const appearance = state.data.appearance || DEFAULT_APPEARANCE;
-    const owned      = appearance.owned  || ['default'];
+    // У режимі розробника всі теми вважаються купленими (тільки в пам'яті)
+    const owned      = _devMode
+        ? THEMES.map(t => t.id)
+        : (appearance.owned || ['default']);
     const active     = appearance.active || DEFAULT_APPEARANCE.active;
     const balance    = state.data.balance || 0;
     const inPreview  = !!_previewTimer;
@@ -485,6 +523,13 @@ export function renderThemeShop() {
     window.__zBuyTheme       = buyTheme;
     window.__zStartPreview   = startPreview;
     window.__zRefundTheme    = refundTheme;
+    window.__zToggleDevMode  = toggleDevMode;
+
+    // Кнопка devMode — тільки для батьків
+    const devBlock = document.getElementById('devModeBlock');
+    const devBtn   = document.getElementById('devModeBtn');
+    if (devBlock) devBlock.style.display = state.data.isParent ? 'block' : 'none';
+    if (devBtn)   devBtn.classList.toggle('active', _devMode);
 }
 
 function _renderCustomize(container, owned, active) {
