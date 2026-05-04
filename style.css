@@ -1,6 +1,6 @@
 /* ════════════════════════════════════════════════════
    Зірки Успіху — Стилі
-   Версія: v3.20260504.1400
+   Версія: v3.20260504.1419
    ════════════════════════════════════════════════════ */
 
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;900&family=Comfortaa:wght@400;700&family=Fredoka+One&display=swap');
@@ -327,7 +327,7 @@ body::after {
 .goal-emoji { font-size: 24px; }
 
 .goal-edit-btn {
-    background: rgba(255,255,255,0.9);
+    background: rgba(255,255,255,0.15);
     border: 2px solid var(--secondary);
     border-radius: 10px;
     padding: 6px 12px;
@@ -338,10 +338,10 @@ body::after {
     color: var(--secondary);
 }
 
-.goal-edit-btn:hover { transform: scale(1.05); background: white; }
+.goal-edit-btn:hover { transform: scale(1.05); background: rgba(255,255,255,0.3); }
 
 .progress-bar-container {
-    background: rgba(0,87,183,0.15);
+    background: rgba(0,0,0,0.15);
     border-radius: 12px;
     height: 32px;
     position: relative;
@@ -440,7 +440,7 @@ body::after {
     justify-content: center;
     font-size: 24px;
     font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
-    background: linear-gradient(135deg, #FFF9E6 0%, #FFE5B4 100%);
+    background: var(--bg);
     border: 2px solid transparent;
     transition: all 0.3s;
     box-shadow: 0 2px 6px rgba(0,0,0,0.1);
@@ -666,7 +666,7 @@ select:focus, input:focus {
    ════════════════════════════════════════════════════ */
 .card-bg { background: var(--bg); padding: 18px; border-radius: 15px; margin-bottom: 15px; }
 
-.card-inner { background: white; padding: 10px 12px; border-radius: 10px; margin-bottom: 12px; }
+.card-inner { background: var(--card); padding: 10px 12px; border-radius: 10px; margin-bottom: 12px; }
 .card-inner--lg { padding: 12px; margin-bottom: 15px; }
 
 .card-title { margin: 0 0 10px 0; color: var(--secondary); font-size: 16px; }
@@ -1893,4 +1893,44 @@ select:focus, input:focus {
 .btn-refund:hover {
     background: var(--c-warning-bg);
     transform: translateY(-1px);
+}
+
+/* ════════════════════════════════════════════════════
+   ТЕМНІ ТЕМИ — адаптація кольорових карток
+   Для data-palette="space" (та інших темних палітр)
+   ════════════════════════════════════════════════════ */
+:root[data-palette="space"] {
+    /* Картки — темні напівпрозорі замість світлих градієнтів */
+    --c-info-bg:     linear-gradient(135deg, rgba(33,150,243,0.2), rgba(33,150,243,0.1));
+    --c-info-border: rgba(33,150,243,0.6);
+    --c-info-text:   #90CAF9;
+
+    --c-success-bg:        linear-gradient(135deg, rgba(76,175,80,0.2), rgba(76,175,80,0.1));
+    --c-success-border:    rgba(76,175,80,0.6);
+    --c-success-text:      #A5D6A7;
+    --c-success-text-deep: #C8E6C9;
+
+    --c-warning-bg:     linear-gradient(135deg, rgba(255,152,0,0.2), rgba(255,152,0,0.1));
+    --c-warning-border: rgba(255,152,0,0.6);
+    --c-warning-text:   #FFCC80;
+
+    --c-danger-bg:        linear-gradient(135deg, rgba(244,67,54,0.2), rgba(244,67,54,0.1));
+    --c-danger-border:    rgba(244,67,54,0.6);
+    --c-danger-text:      #EF9A9A;
+    --c-danger-text-deep: #FFCDD2;
+
+    --c-purple-bg:     linear-gradient(135deg, rgba(156,39,176,0.25), rgba(156,39,176,0.15));
+    --c-purple-border: rgba(156,39,176,0.6);
+    --c-purple-text:   #CE93D8;
+
+    --c-balance-bg:     linear-gradient(135deg, rgba(251,192,45,0.2), rgba(251,192,45,0.1));
+    --c-balance-border: rgba(251,192,45,0.6);
+    --c-balance-text:   #FFF176;
+
+    /* Feedback */
+    --c-fb-light:   rgba(168,85,247,0.15);
+    --c-fb-lighter: rgba(168,85,247,0.1);
+
+    /* Versions accordion */
+    --c-success-bg: linear-gradient(135deg, rgba(76,175,80,0.2), rgba(76,175,80,0.1));
 }
