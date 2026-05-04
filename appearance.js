@@ -12,7 +12,7 @@
 //       3. Додай CSS vars у style.css (опційно)
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260504.1939';
+export const VERSION = 'v3.20260504.2138';
 
 import { state } from './state.js';
 import { saveData } from './firebase.js';
@@ -466,10 +466,10 @@ export function startPreview(themeId) {
     _applyComponents(theme.components);
 
     // Банер
-    _showBanner(theme, 60);
+    _showBanner(theme, 30);
 
     // Таймер
-    let s = 60;
+    let s = 30;
     _previewTimer = setInterval(() => {
         s--;
         const el = document.getElementById('previewTimerVal');
