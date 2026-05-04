@@ -2,7 +2,7 @@
 // ⚙️   settings.js — Налаштування / Експорт / Імпорт
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260503.2246';
+export const VERSION = 'v3.20260504.1320';
 
 // ════════════════════════════════════════════════════════════
 
@@ -28,25 +28,20 @@ export function showDataInfo() {
     const sizeKB = (dataSize / 1024).toFixed(2);
     
     container.innerHTML = `
-        <div style="display: grid; gap: 8px;">
+        <div style="display:grid;gap:8px;">
             <div>📝 Записів в історії: <strong>${recordsCount}</strong></div>
             <div>⭐ Поточний баланс: <strong>${balance} зірок</strong></div>
             <div>🏆 Досягнень отримано: <strong>${achievementsCount}</strong></div>
             <div>❄️ Періодів канікул: <strong>${freezePeriodsCount}</strong></div>
             <div>💾 Розмір даних: <strong>${sizeKB} KB</strong></div>
         </div>
-
-        <div style="margin-top: 12px; border: 1px solid #A5D6A7; border-radius: 10px; overflow: hidden;">
-            <button id="versionsBtn"
-                style="width: 100%; padding: 11px 16px; background: #E8F5E9;
-                       border: none; cursor: pointer; display: flex;
-                       justify-content: space-between; align-items: center;
-                       font-size: 14px; font-weight: 600; color: #2E7D32;">
+        <div class="versions-accordion">
+            <button id="versionsBtn" class="versions-accordion-btn">
                 <span>📋 Інформація про версії</span>
-                <span id="versionsArrow" style="font-size: 11px;">▶</span>
+                <span id="versionsArrow" class="versions-accordion-arrow">▶</span>
             </button>
-            <div id="versionsBody" style="display: none; padding: 10px 14px; background: white;">
-                <div style="font-size: 12px; color: #aaa; text-align: center;">Завантаження...</div>
+            <div id="versionsBody" class="versions-accordion-body">
+                <div class="text-hint font-xs text-center">Завантаження...</div>
             </div>
         </div>
     `;
@@ -95,13 +90,11 @@ export function showDataInfo() {
         ];
 
         const makeRow = (name, ver, isHeader = false) => {
-            const bg = isHeader ? 'background:#f5f5f5; font-weight:700;' : '';
-            const color = ver !== '—' ? '#2E7D32' : '#aaa';
-            return `<div style="display:flex; justify-content:space-between;
-                                padding:5px 0; border-bottom:1px solid #f0f0f0;
-                                font-size:12px; font-family:monospace; ${bg}">
-                <span style="color:#555;">${name}</span>
-                <span style="color:${color}; font-weight:600;">${ver}</span>
+            const rowClass = isHeader ? 'versions-row versions-row--header' : 'versions-row';
+            const verClass = ver !== '—' ? 'versions-row-ver versions-row-ver--ok' : 'versions-row-ver versions-row-ver--none';
+            return `<div class="${rowClass}">
+                <span class="versions-row-name">${name}</span>
+                <span class="${verClass}">${ver}</span>
             </div>`;
         };
 
@@ -125,7 +118,21 @@ export function showDataInfo() {
         body.innerHTML = rows.join('') + jsRows.join('');
     });
     
-    const ratesBlock = document.getElementById('conversionRatesBlock');
+    // Батьківські блоки — показуємо тільки для батьків
+    const pinBlock     = document.getElementById('pinSettingsBlock');
+    const balanceBlock = document.getElementById('balanceCorrectionBlock');
+    const ratesBlock   = document.getElementById('conversionRatesBlock');
+
+    if (pinBlock) pinBlock.style.display = state.data.isParent ? 'block' : 'none';
+
+    if (balanceBlock) {
+        balanceBlock.style.display = state.data.isParent ? 'block' : 'none';
+        if (state.data.isParent) {
+            const balDisplay = document.getElementById('currentBalanceDisplay');
+            if (balDisplay) balDisplay.textContent = (state.data.balance || 0) + '⭐';
+        }
+    }
+
     if (ratesBlock) {
         ratesBlock.style.display = state.data.isParent ? 'block' : 'none';
         if (state.data.isParent) {
@@ -138,6 +145,8 @@ export function showDataInfo() {
             const gSpan = document.getElementById('currentMoneyRate');
             if (mSpan) mSpan.textContent = rates.minutesPerStar;
             if (gSpan) gSpan.textContent = rates.moneyPerStar;
+            const pinEl = document.getElementById('currentPin');
+            if (pinEl) pinEl.textContent = state.data.pin;
         }
     }
 }

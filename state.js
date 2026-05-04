@@ -6,7 +6,7 @@
 //     Зміни в будь-якому модулі видні всюди.
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260502.0850';
+export const VERSION = 'v3.20260504.1013';
 
 // ════════════════════════════════════════════════════════════
 
@@ -26,7 +26,11 @@ export const state = {
             weekly: {},
             repeatableHistory: {},
             freezePeriods: []
-        }
+        },
+        appearance: {
+            owned:  ['default'],
+            active: { theme: 'default', palette: 'default', font: 'default', buttons: 'default', background: 'default' },
+        },
     },
 
     // ── Firebase ──────────────────────────────────
