@@ -2,7 +2,7 @@
 // ⚙️   settings.js — Налаштування / Експорт / Імпорт
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260504.2308';
+export const VERSION = 'v3.20260504.2323';
 
 // ════════════════════════════════════════════════════════════
 
@@ -83,7 +83,7 @@ export function showDataInfo() {
 
         // JS файли — відсортовані за алфавітом
         const jsFiles = [
-            'achievements.js','auth.js','changelog.js','config.js','feedback.js','firebase.js',
+            'achievements.js','appearance.js','auth.js','changelog.js','config.js','feedback.js','firebase.js',
             'freeze.js','goals.js','help.js','history.js','navigation.js',
             'records.js','rewards.js','settings.js','state.js',
             'stats.js','ui.js','utils.js'

@@ -12,11 +12,11 @@
 //       3. Додай CSS vars у style.css (опційно)
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260504.2307';
+export const VERSION = 'v3.20260504.2323';
 
 import { state } from './state.js';
 import { saveData } from './firebase.js';
-import { recalculateAchievements, giveRewardsForNewAchievements } from './achievements.js';
+import { spendStars } from './rewards.js';
 
 // ════════════════════════════════════════════════════
 // 📦  КАТАЛОГ КОМПОНЕНТІВ
@@ -346,29 +346,16 @@ export function buyTheme(themeId) {
 
     if (!confirm(`Купити тему "${theme.name}" за ${theme.price}⭐?`)) return;
 
-    // Списуємо зірки
-    state.data.balance = (state.data.balance || 0) - theme.price;
-
-    // Запис в owned і в історію
+    // Додаємо тему в owned перед списанням
     state.data.appearance.owned.push(themeId);
 
-    if (!state.data.records) state.data.records = [];
-    state.data.records.push({
-        id:       Date.now(),
-        date:     new Date().toISOString().split('T')[0],
-        type:     'spend',
-        category: 'theme',
+    // spendStars: списує зірки, додає запис, recalculate + giveRewards, saveData, updateUI
+    spendStars(theme.price, {
+        category:    'theme',
         description: `🎨 Тема "${theme.name}"`,
         desc:        `🎨 Тема "${theme.name}"`,
-        stars:    theme.price,
     });
 
-    // Перевіряємо досягнення (Транжира) після списання зірок
-    const levelsBefore = { ...(state.data.achievements?.levels || {}) };
-    recalculateAchievements();
-    giveRewardsForNewAchievements(levelsBefore);
-
-    saveData();
     activateTheme(themeId);
     renderThemeShop();
 
@@ -702,14 +689,14 @@ export function refundTheme(themeId) {
         stars:    theme.price,
     });
 
-    // Перевіряємо досягнення (Ощадлива) після повернення зірок
-    const levelsBefore2 = { ...(state.data.achievements?.levels || {}) };
-    recalculateAchievements();
-    giveRewardsForNewAchievements(levelsBefore2);
-
-    saveData();
-    renderThemeShop();
-    import('./ui.js').then(m => m.updateUI());
-
-    alert(`✅ Тему "${theme.name}" повернуто.\n+${theme.price}⭐ повернуто на рахунок.`);
+    // recalculate + giveRewards (Ощадлива може спрацювати після повернення зірок)
+    import('./achievements.js').then(({ recalculateAchievements, giveRewardsForNewAchievements }) => {
+        const levelsBefore = { ...(state.data.achievements?.levels || {}) };
+        recalculateAchievements();
+        giveRewardsForNewAchievements(levelsBefore);
+        saveData();
+        renderThemeShop();
+        import('./ui.js').then(m => m.updateUI());
+        alert(`✅ Тему "${theme.name}" повернуто.\n+${theme.price}⭐ повернуто на рахунок.`);
+    });
 }

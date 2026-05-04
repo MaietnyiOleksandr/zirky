@@ -2,7 +2,7 @@
 // REWARDS  rewards.js — Витрати / Конвертація
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260502.0850';
+export const VERSION = 'v3.20260504.2323';
 
 // ════════════════════════════════════════════════════════════
 
@@ -21,7 +21,7 @@ function getRates() {
     return state.data.conversionRates || conversionRates;
 }
 
-function spendStars(stars, record) {
+export function spendStars(stars, record) {
     const balance = Number(state.data.balance);
     if (balance < stars) {
         const missing = stars - balance;
