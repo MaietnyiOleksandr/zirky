@@ -6,7 +6,7 @@
 //     showForm/switchTab, а ui.js потребував їх модулів
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260503.2158';
+export const VERSION = 'v3.20260504.1013';
 
 import { state } from './state.js';
 import { getTodayDate } from './utils.js';
@@ -18,6 +18,7 @@ import { renderRewards } from './rewards.js';
 import { renderStats, checkStreakWarning } from './stats.js';
 import { showDataInfo } from './settings.js';
 import { renderFeedback } from './feedback.js';
+import { applyAppearance, renderThemeShop } from './appearance.js';
 
 export function showForm(type) {
     document.querySelectorAll('.quick-action-btn').forEach(btn => btn.classList.remove('active'));
@@ -78,7 +79,7 @@ export function switchTab(tab, fromClick = false) {
     }
     else if (tab === 'achievements') renderAchievements();
     else if (tab === 'stats') renderStats();
-    else if (tab === 'settings') { showDataInfo(); renderFeedback(); }
+    else if (tab === 'settings') { showDataInfo(); renderFeedback(); renderThemeShop(); }
 
     if (!state.data.isParent && tab === 'add') {
         switchTab('instructions');
@@ -87,6 +88,7 @@ export function switchTab(tab, fromClick = false) {
 
 // ── Слухаємо події від firebase.js та freeze.js ──────────────
 document.addEventListener('zirky:dataLoaded', () => {
+    applyAppearance();
     const activeSection = document.querySelector('.section.active');
     if (activeSection) {
         if (activeSection.id === 'historySection') renderHistory();

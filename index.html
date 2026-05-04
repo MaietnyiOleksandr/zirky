@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⭐</text></svg>">
-    <!-- version: v3.20260504.0927 -->
+    <!-- version: v3.20260504.1013 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>⭐ Зірки Успіху</title>
     <link rel="stylesheet" href="style.css">
@@ -692,6 +692,14 @@
                     </button>
                 </div>
 
+                <!-- Теми оформлення -->
+                <div class="card-bg mt-md">
+                    <h3 class="card-title">🎨 Теми оформлення</h3>
+                    <p class="text-muted font-sm mb-md">Купуй теми за зірки та змінюй вигляд застосунку. Після покупки можна міксувати компоненти різних тем.</p>
+                    <div id="themeShopContainer"></div>
+                    <div id="themeCustomizeContainer"></div>
+                </div>
+
             </div>
 
         </div>
@@ -722,6 +730,8 @@
         import { renderStats, updateChart, changeChartPeriod, changeChartOffset } from './stats.js';
         import { showDataInfo, exportData, importData, resetAllData,
                  adjustBalance, saveConversionRates } from './settings.js';
+        import { applyAppearance, renderThemeShop, buyTheme,
+                 activateTheme, setComponent, startPreview, stopPreview } from './appearance.js';
 
         // ── Глобальні функції для onclick ─────────────────────
         window.showPinInput = showPinInput;
@@ -774,6 +784,14 @@
         window.adjustBalance = adjustBalance;
         window.saveConversionRates = saveConversionRates;
         window.showDataInfo = showDataInfo;
+        // appearance.js
+        window.applyAppearance = applyAppearance;
+        window.renderThemeShop = renderThemeShop;
+        window.buyTheme        = buyTheme;
+        window.activateTheme   = activateTheme;
+        window.setComponent    = setComponent;
+        window.startPreview    = startPreview;
+        window.stopPreview     = stopPreview;
         window.selectFeedbackCategory = selectFeedbackCategory;
         window.submitFeedback = submitFeedback;
         window.startEditFeedback = startEditFeedback;

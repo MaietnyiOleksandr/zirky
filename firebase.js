@@ -1,9 +1,8 @@
 // ════════════════════════════════════════════════════
 // FIREBASE  firebase.js — Firebase
-//     Зірки Успіху | v3.20260427.0709
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260503.2236';
+export const VERSION = 'v3.20260504.1013';
 
 import { state } from './state.js';
 import { firebaseConfig } from './config.js';
@@ -88,11 +87,13 @@ export function saveData() {
     }
     
     const toSave = {
-        records: state.data.records || [],
-        balance: state.data.balance || 0,
-        pin: state.data.pin || '1234',
-        goal: state.data.goal || null,
-        achievements: state.data.achievements || { counters: {}, streaks: {}, levels: {}, weekly: {}, repeatableHistory: {}, freezePeriods: [] }
+        records:         state.data.records || [],
+        balance:         state.data.balance || 0,
+        pin:             state.data.pin || '1234',
+        goal:            state.data.goal || null,
+        achievements:    state.data.achievements || { counters: {}, streaks: {}, levels: {}, weekly: {}, repeatableHistory: {}, freezePeriods: [] },
+        conversionRates: state.data.conversionRates || null,
+        appearance:      state.data.appearance || null,
     };
     set(ref(db, 'zirky'), toSave);
 }
