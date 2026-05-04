@@ -12,7 +12,7 @@
 //       3. Додай CSS vars у style.css (опційно)
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260504.1849';
+export const VERSION = 'v3.20260504.1939';
 
 import { state } from './state.js';
 import { saveData } from './firebase.js';
@@ -147,12 +147,45 @@ export const COMPONENTS = {
                 '--shadow':            '0 8px 24px rgba(41,182,246,0.2)',
             }
         },
+        retro: {
+            name: '📷 Ретро',
+            vars: {
+                '--primary':           '#C8A96E',
+                '--secondary':         '#4A3728',
+                '--accent':            '#8B4513',
+                '--bg':                '#F5EDD6',
+                '--card':              '#FAF3E0',
+                '--text':              '#2C1F0F',
+                '--bg-gradient':       'linear-gradient(135deg, #3D2B1F 0%, #6B4C35 50%, #C8A96E 100%)',
+                '--btn-primary-from':  '#C8A96E',
+                '--btn-primary-to':    '#A0825A',
+                '--btn-primary-color': '#2C1F0F',
+                '--btn-primary-shadow':'rgba(200,169,110,0.4)',
+                '--tab-active-from':   '#C8A96E',
+                '--tab-active-to':     '#A0825A',
+                '--tab-active-color':  '#2C1F0F',
+                '--tab-active-shadow': 'rgba(200,169,110,0.4)',
+                '--goal-from':         '#C8A96E',
+                '--goal-to':           '#8B6347',
+                '--goal-text':         '#FAF3E0',
+                '--goal-shadow':       'rgba(200,169,110,0.3)',
+                '--progress-from':     '#4A3728',
+                '--progress-to':       '#C8A96E',
+                '--border-light':      '#D4B896',
+                '--border-input':      '#C4A882',
+                '--text-muted':        '#7A5C3E',
+                '--text-hint':         '#9E7A5A',
+                '--shadow':            '0 8px 24px rgba(74,55,40,0.2)',
+            }
+        },
     },
 
     fonts: {
         default:   { name: '✏️ Nunito',    value: "'Nunito', sans-serif"       },
         comfortaa: { name: '✏️ Comfortaa', value: "'Comfortaa', cursive"       },
         fredoka:   { name: '✏️ Fredoka',   value: "'Fredoka One', cursive"     },
+        ubuntu:    { name: '✏️ Ubuntu',    value: "'Ubuntu', sans-serif"       },
+        playfair:  { name: '✏️ Playfair',  value: "'Playfair Display', serif"  },
     },
 
     buttons: {
@@ -167,6 +200,7 @@ export const COMPONENTS = {
         forest:  { name: '🌿 Ліс',      emoji: '🌿' },
         sakura:  { name: '🌸 Сакура',   emoji: '🌸' },
         snow:    { name: '❄️ Сніг',     emoji: '❄️' },
+        retro:   { name: '📷 Ретро',    emoji: '📷' },
     },
 };
 
@@ -213,8 +247,16 @@ export const THEMES = [
         name:       '❄️ Зима',
         desc:       'Холодний кристально-синій стиль',
         price:      100,
-        components: { palette: 'winter',   font: 'default',    buttons: 'sharp',   background: 'snow'   },
+        components: { palette: 'winter',   font: 'ubuntu',     buttons: 'sharp',   background: 'snow'   },
         preview:    { colors: ['#0D47A1', '#1565C0', '#29B6F6', '#E3F2FD'] },
+    },
+    {
+        id:         'retro',
+        name:       '📷 Ретро',
+        desc:       'Вінтажний стиль у теплих коричневих та сепія тонах',
+        price:      25,
+        components: { palette: 'retro',    font: 'playfair',   buttons: 'sharp',   background: 'retro'  },
+        preview:    { colors: ['#4A3728', '#8B6347', '#C8A96E', '#F5EDD6'] },
     },
 ];
 
@@ -561,13 +603,14 @@ export function renderThemeShop() {
 function _renderCustomize(container, owned, active) {
     // Збираємо доступні компоненти з куплених тем
     const available = { palettes: new Set(['default']), fonts: new Set(['default']), buttons: new Set(['default']), backgrounds: new Set(['default']) };
+    // type → ключ у available (buttons вже множина, не додаємо 's')
+    const typeToKey = { palette: 'palettes', font: 'fonts', buttons: 'buttons', background: 'backgrounds' };
     owned.forEach(themeId => {
         const theme = THEMES.find(t => t.id === themeId);
         if (!theme) return;
-        available.palettes.backgrounds?.add(theme.components.background);
         Object.entries(theme.components).forEach(([type, id]) => {
-            const key = type + 's';
-            if (available[key]) available[key].add(id);
+            const key = typeToKey[type];
+            if (key && available[key]) available[key].add(id);
         });
     });
 

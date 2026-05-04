@@ -1,9 +1,9 @@
 /* ════════════════════════════════════════════════════
    Зірки Успіху — Стилі
-   Версія: v3.20260504.1849
+   Версія: v3.20260504.1939
    ════════════════════════════════════════════════════ */
 
-@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;900&family=Comfortaa:wght@400;700&family=Fredoka+One&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;900&family=Comfortaa:wght@400;700&family=Fredoka+One&family=Ubuntu:wght@400;700&family=Playfair+Display:wght@400;700&display=swap');
 
 * {
     margin: 0;
@@ -1944,3 +1944,44 @@ select:focus, input:focus {
     border-style: solid;
 }
 #devModeBlock { display: none; }
+
+/* ── Ретро фон ──────────────────────────────────── */
+:root[data-bg="retro"] body::before { content: '📷'; opacity: 0.06; }
+:root[data-bg="retro"] body::after  { content: '🕰️'; opacity: 0.06; }
+
+/* ── Ретро тема — адаптація карток ─────────────── */
+:root[data-palette="retro"] {
+    --c-info-bg:     linear-gradient(135deg, #E8D5B0, #DFC99A);
+    --c-info-border: #B8956A;
+    --c-info-text:   #4A3728;
+
+    --c-success-bg:        linear-gradient(135deg, #D4E8C2, #C2D9A8);
+    --c-success-border:    #7A9E5A;
+    --c-success-text:      #3A5A28;
+    --c-success-text-deep: #2A4A1A;
+
+    --c-warning-bg:     linear-gradient(135deg, #F0DDB0, #E8CF98);
+    --c-warning-border: #C4982A;
+    --c-warning-text:   #6A4A10;
+
+    --c-danger-bg:        linear-gradient(135deg, #E8C4B0, #DDB098);
+    --c-danger-border:    #A05030;
+    --c-danger-text:      #5A2A18;
+    --c-danger-text-deep: #4A1A08;
+
+    --c-purple-bg:     linear-gradient(135deg, #D8C8E8, #C8B8D8);
+    --c-purple-border: #806890;
+    --c-purple-text:   #483060;
+
+    --c-balance-bg:     linear-gradient(135deg, #F0E4C0, #E8D8A8);
+    --c-balance-border: #C0982A;
+    --c-balance-text:   #6A5010;
+
+    --c-fb-primary:  #8B6347;
+    --c-fb-dark:     #6A4A30;
+    --c-fb-light:    rgba(139,99,71,0.15);
+    --c-fb-lighter:  rgba(139,99,71,0.1);
+    --c-fb-text:     #4A3728;
+    --c-fb-text-deep:#3A2A1A;
+    --c-fb-border:   rgba(139,99,71,0.4);
+}
