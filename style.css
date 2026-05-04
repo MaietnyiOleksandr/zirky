@@ -1,6 +1,6 @@
 /* ════════════════════════════════════════════════════
    Зірки Успіху — Стилі
-   Версія: v3.20260504.1041
+   Версія: v3.20260504.1320
    ════════════════════════════════════════════════════ */
 
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;900&family=Comfortaa:wght@400;700&family=Fredoka+One&display=swap');
@@ -1581,3 +1581,302 @@ select:focus, input:focus {
     color: var(--secondary);
     margin-bottom: 8px;
 }
+
+/* ════════════════════════════════════════════════════
+   FEEDBACK — змінні акцентного кольору
+   Перевизнач у темі щоб змінити колір feedback блоку
+   ════════════════════════════════════════════════════ */
+:root {
+    --c-fb-primary:  #9C27B0;
+    --c-fb-dark:     #7B1FA2;
+    --c-fb-light:    #F3E5F5;
+    --c-fb-lighter:  #EDE7F6;
+    --c-fb-text:     #6A1B9A;
+    --c-fb-text-deep:#4A148C;
+    --c-fb-border:   #CE93D8;
+}
+
+/* Для темних тем — feedback набуває іншого відтінку */
+:root[data-palette="space"] {
+    --c-fb-primary:  #a855f7;
+    --c-fb-dark:     #9333ea;
+    --c-fb-light:    rgba(168,85,247,0.15);
+    --c-fb-lighter:  rgba(168,85,247,0.1);
+    --c-fb-text:     #d8b4fe;
+    --c-fb-text-deep:#c084fc;
+    --c-fb-border:   rgba(168,85,247,0.4);
+}
+
+/* ════════════════════════════════════════════════════
+   FEEDBACK — компоненти
+   ════════════════════════════════════════════════════ */
+.fb-intro {
+    font-size: 13px;
+    color: var(--c-fb-text);
+    margin: 0 0 10px;
+    line-height: 1.5;
+}
+
+.fb-categories {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+}
+
+.fb-cat-btn {
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 2px solid var(--c-fb-primary);
+    background: none;
+    font-size: 13px;
+    cursor: pointer;
+    color: var(--c-fb-primary);
+    font-weight: 600;
+    font-family: var(--font-main);
+    transition: all 0.2s;
+}
+
+.fb-cat-btn:hover  { background: var(--c-fb-light); }
+.fb-cat-btn.active { background: var(--c-fb-primary); color: white; }
+
+.fb-textarea {
+    width: 100%;
+    min-height: 85px;
+    padding: 12px;
+    border-radius: 12px;
+    border: 2px solid var(--c-fb-border);
+    background: var(--card);
+    color: var(--text);
+    font-size: 14px;
+    font-family: var(--font-main);
+    resize: none;
+    box-sizing: border-box;
+}
+
+.fb-textarea--sm {
+    min-height: 70px;
+    border-radius: 10px;
+    font-size: 13px;
+}
+
+.fb-textarea--xs {
+    min-height: 60px;
+    border-radius: 10px;
+    font-size: 13px;
+}
+
+.fb-submit-btn {
+    width: 100%;
+    margin-top: 8px;
+    padding: 12px;
+    border-radius: 12px;
+    border: none;
+    background: linear-gradient(135deg, var(--c-fb-primary), var(--c-fb-dark));
+    color: white;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: var(--font-main);
+    transition: all 0.2s;
+}
+
+.fb-submit-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+
+.fb-list-title {
+    color: var(--c-fb-text);
+    margin: 0 0 10px;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.fb-empty {
+    text-align: center;
+    color: var(--text-hint);
+    font-size: 13px;
+    padding: 16px 0;
+}
+
+/* Картка feedback */
+.fb-card {
+    background: var(--card);
+    border-radius: 14px;
+    padding: 14px;
+    margin-bottom: 10px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+    border-left: 4px solid var(--border-light);
+}
+
+.fb-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 8px;
+}
+
+.fb-card-category {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-subtle, var(--text-muted));
+}
+
+.fb-card-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 3px;
+}
+
+.fb-card-date { font-size: 11px; color: var(--text-hint); }
+
+.fb-status-badge {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 600;
+}
+
+.fb-card-text {
+    font-size: 14px;
+    color: var(--text);
+    line-height: 1.5;
+    margin-bottom: 8px;
+}
+
+/* Відповідь батьків */
+.fb-parent-reply {
+    background: var(--c-fb-light);
+    border-radius: 10px;
+    padding: 10px;
+    margin-bottom: 8px;
+    font-size: 13px;
+    color: var(--c-fb-text-deep);
+    border-left: 3px solid var(--c-fb-border);
+}
+
+/* Коментар дитини */
+.fb-child-comment {
+    background: var(--c-fb-lighter);
+    border-radius: 10px;
+    padding: 10px;
+    margin-bottom: 8px;
+    font-size: 13px;
+    color: var(--c-fb-text-deep);
+    border-left: 3px solid var(--c-fb-primary);
+}
+
+/* Кнопки дій у картці */
+.fb-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 6px;
+}
+
+.fb-action-btn {
+    flex: 1;
+    padding: 7px;
+    border-radius: 10px;
+    font-size: 12px;
+    cursor: pointer;
+    font-family: var(--font-main);
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.fb-action-btn--purple {
+    border: 1px solid var(--c-fb-border);
+    background: none;
+    color: var(--c-fb-primary);
+}
+
+.fb-action-btn--purple:hover { background: var(--c-fb-light); }
+
+.fb-action-btn--save {
+    border: none;
+    background: linear-gradient(135deg, var(--c-fb-primary), var(--c-fb-dark));
+    color: white;
+    padding: 8px 9px;
+    font-size: 13px;
+}
+
+.fb-action-btn--save:hover { opacity: 0.9; }
+
+.fb-action-btn--danger {
+    flex: none;
+    padding: 7px 14px;
+    border: 1px solid var(--c-danger-border);
+    background: none;
+    color: var(--c-danger-text);
+}
+
+.fb-action-btn--cancel {
+    border: 2px solid var(--border-light);
+    background: none;
+    color: var(--text-muted);
+}
+
+/* Статус-кнопки батьків */
+.fb-status-btns {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+}
+
+.fb-status-btn {
+    padding: 5px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    cursor: pointer;
+    font-weight: 600;
+    font-family: var(--font-main);
+    transition: all 0.2s;
+}
+
+/* Versions accordion у settings */
+.versions-accordion {
+    margin-top: 12px;
+    border: 1px solid var(--c-success-border);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.versions-accordion-btn {
+    width: 100%;
+    padding: 11px 16px;
+    background: var(--c-success-bg);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--c-success-text);
+    font-family: var(--font-main);
+    transition: background 0.2s;
+}
+
+.versions-accordion-btn:hover { filter: brightness(0.97); }
+.versions-accordion-arrow { font-size: 11px; }
+
+.versions-accordion-body {
+    display: none;
+    padding: 10px 14px;
+    background: var(--card);
+}
+
+.versions-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px 0;
+    border-bottom: 1px solid var(--border-light);
+    font-size: 12px;
+    font-family: monospace;
+}
+
+.versions-row--header { font-weight: 700; background: var(--bg); }
+.versions-row-name    { color: var(--text-muted); }
+.versions-row-ver     { font-weight: 600; }
+.versions-row-ver--ok   { color: var(--c-success-text); }
+.versions-row-ver--none { color: var(--text-hint); }
