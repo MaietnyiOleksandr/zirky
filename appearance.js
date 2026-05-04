@@ -12,7 +12,7 @@
 //       3. Додай CSS vars у style.css (опційно)
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260504.1849';
+export const VERSION = 'v3.20260504.1902';
 
 import { state } from './state.js';
 import { saveData } from './firebase.js';
