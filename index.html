@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⭐</text></svg>">
-    <!-- version: v3.20260504.1013 -->
+    <!-- version: v3.20260504.1400 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>⭐ Зірки Успіху</title>
     <link rel="stylesheet" href="style.css">
@@ -731,7 +731,7 @@
         import { showDataInfo, exportData, importData, resetAllData,
                  adjustBalance, saveConversionRates } from './settings.js';
         import { applyAppearance, renderThemeShop, buyTheme,
-                 activateTheme, setComponent, startPreview, stopPreview } from './appearance.js';
+                 activateTheme, setComponent, startPreview, stopPreview, refundTheme } from './appearance.js';
 
         // ── Глобальні функції для onclick ─────────────────────
         window.showPinInput = showPinInput;
@@ -792,6 +792,7 @@
         window.setComponent    = setComponent;
         window.startPreview    = startPreview;
         window.stopPreview     = stopPreview;
+        window.refundTheme    = refundTheme;
         window.selectFeedbackCategory = selectFeedbackCategory;
         window.submitFeedback = submitFeedback;
         window.startEditFeedback = startEditFeedback;

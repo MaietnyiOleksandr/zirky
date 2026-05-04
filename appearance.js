@@ -12,7 +12,7 @@
 //       3. Додай CSS vars у style.css (опційно)
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260504.1013';
+export const VERSION = 'v3.20260504.1400';
 
 import { state } from './state.js';
 import { saveData } from './firebase.js';
@@ -431,12 +431,17 @@ export function renderThemeShop() {
         ).join('');
 
         // Кнопки
+        const isParent = !!state.data.isParent;
         let actionsHTML = '';
         if (isOwned) {
-            actionsHTML = isActive
+            const activateBtn = isActive
                 ? `<button class="btn btn-primary btn-compact" disabled>✓ Активна</button>`
                 : `<button class="btn btn-primary btn-compact" onclick="window.__zActivateTheme('${theme.id}')">🎨 Активувати</button>
                    <button class="btn btn-secondary btn-compact" onclick="window.__zStartPreview('${theme.id}')">👀 Спробувати</button>`;
+            const refundBtn = (isParent && theme.price > 0 && !isActive)
+                ? `<button class="btn btn-refund btn-compact" onclick="window.__zRefundTheme('${theme.id}')" title="Повернути ${theme.price}⭐">↩ ${theme.price}⭐</button>`
+                : '';
+            actionsHTML = activateBtn + refundBtn;
         } else {
             actionsHTML = `
                 <button class="btn btn-primary btn-compact ${!canAfford ? 'btn-cant-afford' : ''}"
@@ -479,6 +484,7 @@ export function renderThemeShop() {
     window.__zActivateTheme  = activateTheme;
     window.__zBuyTheme       = buyTheme;
     window.__zStartPreview   = startPreview;
+    window.__zRefundTheme    = refundTheme;
 }
 
 function _renderCustomize(container, owned, active) {
@@ -517,4 +523,64 @@ function _renderCustomize(container, owned, active) {
     `;
 
     window.__zSetComponent = setComponent;
+}
+
+// ════════════════════════════════════════════════════
+// ↩  ПОВЕРНЕННЯ ТЕМИ — тільки батьки через PIN
+// ════════════════════════════════════════════════════
+export function refundTheme(themeId) {
+    const theme = THEMES.find(t => t.id === themeId);
+    if (!theme || theme.price === 0) return;
+
+    if (!state.data.isParent) {
+        alert('❌ Повернення теми доступне тільки батькам');
+        return;
+    }
+
+    const appearance = state.data.appearance || DEFAULT_APPEARANCE;
+    const owned = appearance.owned || ['default'];
+
+    if (!owned.includes(themeId)) {
+        alert('❌ Ця тема не куплена');
+        return;
+    }
+
+    // Не можна повернути активну тему
+    if (appearance.active?.theme === themeId) {
+        alert('❌ Не можна повернути активну тему.\nСпочатку активуйте іншу тему.');
+        return;
+    }
+
+    // PIN підтвердження
+    const pin = prompt(`🔐 Введіть PIN для повернення теми "${theme.name}" (+${theme.price}⭐):`);
+    if (pin === null) return; // скасовано
+    if (String(pin) !== String(state.data.pin)) {
+        alert('❌ Невірний PIN');
+        return;
+    }
+
+    if (!confirm(`Повернути тему "${theme.name}"?\n\nНа рахунок буде повернуто: +${theme.price}⭐\nТема зникне зі списку куплених.`)) return;
+
+    // Видаляємо з owned
+    state.data.appearance.owned = owned.filter(id => id !== themeId);
+
+    // Повертаємо зірки
+    state.data.balance = (state.data.balance || 0) + theme.price;
+
+    // Запис в історію
+    if (!state.data.records) state.data.records = [];
+    state.data.records.push({
+        id:       Date.now(),
+        date:     new Date().toISOString().split('T')[0],
+        type:     'earn',
+        category: 'special',
+        desc:     `↩ Повернення теми "${theme.name}"`,
+        stars:    theme.price,
+    });
+
+    saveData();
+    renderThemeShop();
+    import('./ui.js').then(m => m.updateUI());
+
+    alert(`✅ Тему "${theme.name}" повернуто.\n+${theme.price}⭐ повернуто на рахунок.`);
 }
