@@ -1,9 +1,8 @@
 // ════════════════════════════════════════════════════
-
-export const VERSION = 'v3.20260429.1244';
 // RECORDS  records.js — Records
-//     Зірки Успіху | v3.20260429.1244
 // ════════════════════════════════════════════════════
+
+export const VERSION = 'v3.20260504.2308';
 
 import { state } from './state.js';
 import { gradeToStars } from './config.js';
@@ -219,10 +218,15 @@ export function deleteRecord(id) {
 
     state.data.records = state.data.records.filter(r => r.id !== id);
     recalculateAchievements();  // Перераховуємо після видалення
-    
-    // Видаляємо бонуси за втрачені досягнення
+
+    // Якщо видалили витрату — баланс виріс, перевіряємо Ощадливу
+    if (record.type === 'spend') {
+        giveRewardsForNewAchievements(levelsBefore);
+    }
+
+    // Видаляємо бонуси за втрачені досягнення (якщо видалили нарахування)
     removeRewardsForLostAchievements(levelsBefore);
-    
+
     // Перераховуємо weekly (може знизитись рівень після видалення)
     checkWeeklyAchievements();
     

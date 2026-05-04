@@ -2,12 +2,12 @@
 // ⚙️   settings.js — Налаштування / Експорт / Імпорт
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260504.1320';
+export const VERSION = 'v3.20260504.2308';
 
 // ════════════════════════════════════════════════════════════
 
 import { state } from './state.js';
-import { recalculateAchievements } from './achievements.js';
+import { recalculateAchievements, giveRewardsForNewAchievements } from './achievements.js';
 import { saveData, saveAllFeedback } from './firebase.js';
 import { getFeedbackItems } from './feedback.js';
 
@@ -349,7 +349,12 @@ export function adjustBalance() {
     
     // Змінюємо баланс
     state.data.balance = newBalance;
-    
+
+    // Перевіряємо досягнення (Ощадлива змінюється при зміні балансу)
+    const levelsBefore = { ...(state.data.achievements?.levels || {}) };
+    recalculateAchievements();
+    giveRewardsForNewAchievements(levelsBefore);
+
     // Зберігаємо
     saveData();
     

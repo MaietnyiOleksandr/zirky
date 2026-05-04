@@ -12,10 +12,11 @@
 //       3. Додай CSS vars у style.css (опційно)
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260504.2258';
+export const VERSION = 'v3.20260504.2307';
 
 import { state } from './state.js';
 import { saveData } from './firebase.js';
+import { recalculateAchievements, giveRewardsForNewAchievements } from './achievements.js';
 
 // ════════════════════════════════════════════════════
 // 📦  КАТАЛОГ КОМПОНЕНТІВ
@@ -357,9 +358,15 @@ export function buyTheme(themeId) {
         date:     new Date().toISOString().split('T')[0],
         type:     'spend',
         category: 'theme',
-        desc:     `🎨 Тема "${theme.name}"`,
+        description: `🎨 Тема "${theme.name}"`,
+        desc:        `🎨 Тема "${theme.name}"`,
         stars:    theme.price,
     });
+
+    // Перевіряємо досягнення (Транжира) після списання зірок
+    const levelsBefore = { ...(state.data.achievements?.levels || {}) };
+    recalculateAchievements();
+    giveRewardsForNewAchievements(levelsBefore);
 
     saveData();
     activateTheme(themeId);
@@ -690,9 +697,15 @@ export function refundTheme(themeId) {
         date:     new Date().toISOString().split('T')[0],
         type:     'earn',
         category: 'special',
-        desc:     `↩ Повернення теми "${theme.name}"`,
+        description: `↩ Повернення теми "${theme.name}"`,
+        desc:        `↩ Повернення теми "${theme.name}"`,
         stars:    theme.price,
     });
+
+    // Перевіряємо досягнення (Ощадлива) після повернення зірок
+    const levelsBefore2 = { ...(state.data.achievements?.levels || {}) };
+    recalculateAchievements();
+    giveRewardsForNewAchievements(levelsBefore2);
 
     saveData();
     renderThemeShop();
