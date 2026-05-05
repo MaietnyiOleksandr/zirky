@@ -2,7 +2,7 @@
 // 🏆  achievements.js — Система досягнень
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260502.0850';
+export const VERSION = 'v3.20260505.2312';
 
 // ════════════════════════════════════════════════════════════
 
@@ -926,13 +926,15 @@ export function renderAchievementsHome() {
                 const tooltip = document.createElement('div');
                 tooltip.className = 'achievement-tooltip';
                 tooltip.innerHTML = `${ach.name}<br><small style="font-size: 11px; opacity: 0.9;">${ach.desc}</small>`;
-                document.body.appendChild(tooltip);
-                
-                // Позиціонуємо по центру екрану
+                // Ставимо горизонтальну позицію ДО appendChild — без мерехтіння
                 const rect = this.getBoundingClientRect();
-                tooltip.style.left = '50%';
-                tooltip.style.top = (rect.top - tooltip.offsetHeight - 10) + 'px';
+                tooltip.style.left      = (rect.left + rect.width / 2) + 'px';
                 tooltip.style.transform = 'translateX(-50%)';
+                tooltip.style.top       = '-9999px';
+                document.body.appendChild(tooltip);
+                // Після вставки знаємо висоту — позиціонуємо і плавно показуємо
+                tooltip.style.top = Math.max(8, rect.top - tooltip.offsetHeight - 10) + 'px';
+                requestAnimationFrame(() => { tooltip.style.opacity = '1'; });
                 
                 // Автоматично прибираємо через 3 секунди
                 setTimeout(() => tooltip.remove(), 3000);
