@@ -1,6 +1,6 @@
 /* ════════════════════════════════════════════════════
    Зірки Успіху — Стилі
-   Версія: vv3.20260505.2222
+   Версія: v3.20260505.2250
    ════════════════════════════════════════════════════ */
 
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;900&family=Comfortaa:wght@400;700&family=Fredoka+One&family=Ubuntu:wght@400;700&family=Playfair+Display:wght@400;700&display=swap');
@@ -638,7 +638,7 @@ select:focus, input:focus {
 /* ════════════════════════════════════════════════════
    УТИЛІТАРНІ КЛАСИ — Кольорові картки
    ════════════════════════════════════════════════════ */
-.card-bg { background: var(--bg); padding: 18px; border-radius: 15px; margin-bottom: 15px; }
+.card-bg { background: var(--bg); padding: 18px; border-radius: 15px; }
 
 .card-inner { background: var(--card); padding: 10px 12px; border-radius: 10px; margin-bottom: 12px; }
 .card-inner--lg { padding: 12px; margin-bottom: 15px; }
@@ -658,17 +658,17 @@ select:focus, input:focus {
 .card-success .card-title { color: var(--c-success-text); }
 .card-success .card-text  { color: var(--c-success-text-deep); font-size: 14px; line-height: 1.8; }
 
-.card-warning { background: var(--c-warning-bg); border: 2px solid var(--c-warning-border); border-radius: 15px; padding: 18px; margin-top: 15px; }
+.card-warning { background: var(--c-warning-bg); border-radius: 15px; padding: 18px; margin-top: 15px; }
 .card-warning .card-title { color: var(--c-warning-text); }
 
-.card-danger { background: var(--c-danger-bg); border: 2px solid var(--c-danger-border); border-radius: 15px; padding: 18px; }
+.card-danger { background: var(--c-danger-bg); border-radius: 15px; padding: 18px; }
 .card-danger .card-title { color: var(--c-danger-text); }
 .card-danger .card-text  { color: var(--c-danger-text-deep); }
 
-.card-purple { background: var(--c-purple-bg); border: 2px solid var(--c-purple-border); border-radius: 15px; padding: 18px; margin-bottom: 20px; }
+.card-purple { background: var(--c-purple-bg); border-radius: 15px; padding: 18px; margin-bottom: 20px; }
 .card-purple .card-title { color: var(--c-purple-text); }
 
-.card-balance { background: var(--c-balance-bg); border: 2px solid var(--c-balance-border); border-radius: 15px; padding: 18px; margin-top: 15px; }
+.card-balance { background: var(--c-balance-bg); border-radius: 15px; padding: 18px; margin-top: 15px; }
 .card-balance .card-title { color: var(--c-balance-text); }
 
 .card-note { font-size: 13px; margin-bottom: 12px; }
@@ -1261,7 +1261,7 @@ select:focus, input:focus {
 #childInstructions { display: none; }
 
 /* Батьківські блоки в налаштуваннях — показуються через settings.js */
-#pinSettingsBlock, #balanceCorrectionBlock, #conversionRatesBlock { display: none; }
+#pinSettingsBlock, #balanceCorrectionBlock, #conversionRatesBlock { display: none; margin-top: 15px; }
 
 /* ════════════════════════════════════════════════════
    ТЕМИ — фони через data-bg атрибут на <html>
@@ -1356,7 +1356,7 @@ select:focus, input:focus {
 }
 
 .theme-card {
-    background: var(--bg);
+    background: var(--card);
     border-radius: 18px;
     overflow: hidden;
     border: 3px solid transparent;
