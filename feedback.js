@@ -2,7 +2,7 @@
 // 💬  feedback.js — Зворотній зв'язок
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260505.1618';
+export const VERSION = 'v3.20260505.1630';
 
 import { state } from './state.js';
 import { nowKyiv } from './utils.js';
@@ -79,6 +79,7 @@ function _renderChildCard(item) {
     const cfg     = STATUS_CONFIG[item.status] || STATUS_CONFIG['⏳'];
     const dateStr = new Date(item.date).toLocaleDateString('uk-UA',
         { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+    // canEdit — тільки для ⏳ (дитина може редагувати/видаляти лише нові)
     const canEdit = item.status === '⏳';
 
     return `
@@ -118,38 +119,39 @@ function _renderChildCard(item) {
                     <div class="fb-comment-body">${item.comment}</div>
                 </div>` : ''}
 
-            ${!canEdit ? `
-                <div>
-                    ${item.childComment
-                        ? `<div id="childCommentDisplay_${item.id}" class="fb-child-comment">
-                               <div class="fb-comment-header">
-                                   <strong>✏️ Мій коментар</strong>
-                                   ${item.childCommentAt ? `<span class="fb-comment-date">${_formatCommentDate(item.childCommentAt)}</span>` : ''}
-                               </div>
-                               <div class="fb-comment-body">${item.childComment}</div>
-                           </div>`
-                        : `<div id="childCommentDisplay_${item.id}"></div>`}
-                    <div id="childCommentEdit_${item.id}" style="display:none;">
-                        <textarea id="childCommentInput_${item.id}"
-                            placeholder="Твій коментар..."
-                            class="fb-textarea fb-textarea--xs mb-sm"
-                        >${item.childComment || ''}</textarea>
-                        <div class="fb-actions">
-                            <button onclick="saveChildComment('${item.id}')"
-                                class="fb-action-btn fb-action-btn--save">💾 Зберегти</button>
-                            <button onclick="cancelChildComment('${item.id}')"
-                                class="fb-action-btn fb-action-btn--cancel">✕ Скасувати</button>
-                        </div>
+            <!-- Коментар дитини — доступний при будь-якому статусі -->
+            <div>
+                ${item.childComment
+                    ? `<div id="childCommentDisplay_${item.id}" class="fb-child-comment">
+                           <div class="fb-comment-header">
+                               <strong>✏️ Мій коментар</strong>
+                               ${item.childCommentAt ? `<span class="fb-comment-date">${_formatCommentDate(item.childCommentAt)}</span>` : ''}
+                           </div>
+                           <div class="fb-comment-body">${item.childComment}</div>
+                       </div>`
+                    : `<div id="childCommentDisplay_${item.id}"></div>`}
+                <div id="childCommentEdit_${item.id}" style="display:none;">
+                    <textarea id="childCommentInput_${item.id}"
+                        placeholder="Твій коментар..."
+                        class="fb-textarea fb-textarea--xs mb-sm"
+                    >${item.childComment || ''}</textarea>
+                    <div class="fb-actions">
+                        <button onclick="saveChildComment('${item.id}')"
+                            class="fb-action-btn fb-action-btn--save">💾 Зберегти</button>
+                        <button onclick="cancelChildComment('${item.id}')"
+                            class="fb-action-btn fb-action-btn--cancel">✕ Скасувати</button>
                     </div>
-                    <button onclick="toggleChildComment('${item.id}')"
-                        id="childCommentBtn_${item.id}"
-                        class="fb-action-btn fb-action-btn--purple w-full mt-sm">
-                        ${item.childComment ? '✏️ Редагувати коментар' : '💬 Додати коментар'}
-                    </button>
-                </div>` : ''}
+                </div>
+                <button onclick="toggleChildComment('${item.id}')"
+                    id="childCommentBtn_${item.id}"
+                    class="fb-action-btn fb-action-btn--purple w-full mt-sm">
+                    ${item.childComment ? '✏️ Редагувати коментар' : '💬 Додати коментар'}
+                </button>
+            </div>
 
+            <!-- Редагувати/видалити повідомлення — тільки для ⏳ -->
             ${canEdit ? `
-                <div class="fb-actions">
+                <div class="fb-actions mt-sm">
                     <button onclick="startEditFeedback('${item.id}')"
                         class="fb-action-btn fb-action-btn--purple">✏️ Редагувати</button>
                     <button onclick="deleteFeedbackConfirm('${item.id}')"
