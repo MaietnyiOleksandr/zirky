@@ -2,7 +2,7 @@
 // 🔔  notifications.js — Центр сповіщень
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260505.1905';
+export const VERSION = 'v3.20260505.2155';
 
 import { state }    from './state.js';
 import { saveData } from './firebase.js';
@@ -250,24 +250,6 @@ function _buildNotifications() {
 
     }
 
-    // ── 5. Останній вхід дитини ───────────────────────────
-    // (окремо від showCond — своя мітка прочитання)
-    if (isParent) {
-        const childLogin    = state.data.notifications?.child?.lastLoginAt;
-        const loginType     = state.data.notifications?.child?.lastLoginType;
-        const loginSeenAt   = p.childLoginSeenAt || '1970-01-01T00:00';
-        if (childLogin && childLogin > loginSeenAt) {
-            const typeLabel = loginType === 'direct' ? 'прямий вхід' : 'вхід після невірного PIN батьків';
-            items.push({
-                id:   'info_child_login',
-                icon: '👧',
-                title: 'Останній вхід дитини',
-                body:  `${_fmt(childLogin)} (${typeLabel})`,
-                time:  childLogin,
-                type:  'info',
-            });
-        }
-    }
 
     // Сортуємо: подійні по часу, умовні в кінці
     const order = { feedback: 0, achievement: 1, version: 2, warning: 3, progress: 4, praise: 5, reminder: 6, info: 7 };
@@ -369,7 +351,6 @@ function _markAllRead() {
         p.achievementSeenAt    = now;
         p.changelogSeen        = CHANGELOG[0]?.version || '';
         p.conditionsSeenDate   = today;
-        p.childLoginSeenAt     = _kyivNow();  // позначаємо вхід дитини прочитаним
         localStorage.setItem('backupReminderSeenDate', today);
     }
 

@@ -2,7 +2,7 @@
 // ⚙️   settings.js — Налаштування / Експорт / Імпорт
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260505.1805';
+export const VERSION = 'v3.20260505.2155';
 
 // ════════════════════════════════════════════════════════════
 
@@ -10,6 +10,7 @@ import { state } from './state.js';
 import { recalculateAchievements, giveRewardsForNewAchievements } from './achievements.js';
 import { saveData, saveAllFeedback } from './firebase.js';
 import { getFeedbackItems } from './feedback.js';
+import { THEMES } from './appearance.js';
 
 // ════════════════════════════════════════════════════════════
 // // ⚙️   БЛОК: Налаштування / Експорт / Імпорт
@@ -18,23 +19,71 @@ export function showDataInfo() {
     const container = document.getElementById('dataInfo');
     if (!container) return;
     
-    const recordsCount = state.data.records?.length || 0;
-    const balance = state.data.balance || 0;
-    const achievementsCount = Object.keys(state.data.achievements?.levels || {}).length;
+    const recordsCount      = state.data.records?.length || 0;
+    const balance            = state.data.balance || 0;
+    const achievementsCount  = Object.keys(state.data.achievements?.levels || {}).length;
     const freezePeriodsCount = state.data.achievements?.freezePeriods?.length || 0;
-    
+
+    // Feedback
+    const feedbackItems    = getFeedbackItems();
+    const feedbackCount    = feedbackItems.length;
+    const feedbackNew      = feedbackItems.filter(i => i.status === '⏳').length;
+    const feedbackDone     = feedbackItems.filter(i => i.status === '✅').length;
+
+    // Теми
+    const appearance     = state.data.appearance;
+    const ownedThemes    = appearance?.child?.owned || ['default'];
+    const activeThemeId  = appearance?.child?.active?.theme || 'default';
+    const parentThemeId  = appearance?.parent?.active?.theme || 'default';
+    const ownedNames     = ownedThemes
+        .map(id => THEMES.find(t => t.id === id)?.name || id)
+        .join(', ');
+    const activeThemeName  = THEMES.find(t => t.id === activeThemeId)?.name  || activeThemeId;
+    const parentThemeName  = THEMES.find(t => t.id === parentThemeId)?.name  || parentThemeId;
+
+    // Останній вхід дитини
+    const childLogin    = state.data.notifications?.child?.lastLoginAt;
+    const loginType     = state.data.notifications?.child?.lastLoginType;
+    const loginLabel    = loginType === 'direct' ? 'прямий вхід' : 'після невірного PIN';
+    const loginStr      = childLogin
+        ? `${new Date(childLogin).toLocaleString('uk-UA', { timeZone:'Europe/Kyiv', day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' })} (${loginLabel})`
+        : 'ще не заходила';
+
     // Розмір даних
     const dataSize = new Blob([JSON.stringify(state.data)]).size;
-    const sizeKB = (dataSize / 1024).toFixed(2);
-    
+    const sizeKB   = (dataSize / 1024).toFixed(2);
+
+    const isParent = !!state.data.isParent;
+
     container.innerHTML = `
         <div style="display:grid;gap:8px;">
             <div>📝 Записів в історії: <strong>${recordsCount}</strong></div>
-            <div>⭐ Поточний баланс: <strong>${balance} зірок</strong></div>
+            <div>⭐ Поточний баланс: <strong>${balance}⭐</strong></div>
             <div>🏆 Досягнень отримано: <strong>${achievementsCount}</strong></div>
-            <div>❄️ Періодів канікул: <strong>${freezePeriodsCount}</strong></div>
-            <div>💾 Розмір даних: <strong>${sizeKB} KB</strong></div>
+            <div>❄️ Канікул: <strong>${freezePeriodsCount} ${freezePeriodsCount === 1 ? 'період' : 'періодів'}</strong></div>
         </div>
+
+        <div class="card-inner mt-sm" style="display:grid;gap:6px;">
+            <div style="font-size:12px;font-weight:700;color:var(--text-muted);margin-bottom:2px;">💬 Зворотній зв'язок</div>
+            <div class="font-sm">Всього повідомлень: <strong>${feedbackCount}</strong></div>
+            ${feedbackNew  > 0 ? `<div class="font-sm text-danger">⏳ Нових (непрочитаних): <strong>${feedbackNew}</strong></div>` : ''}
+            <div class="font-sm">✅ Виконаних: <strong>${feedbackDone}</strong></div>
+        </div>
+
+        <div class="card-inner mt-sm" style="display:grid;gap:6px;">
+            <div style="font-size:12px;font-weight:700;color:var(--text-muted);margin-bottom:2px;">🎨 Теми оформлення</div>
+            <div class="font-sm">Куплено: <strong>${ownedThemes.length}</strong> — ${ownedNames}</div>
+            <div class="font-sm">Активна у дитини: <strong>${activeThemeName}</strong></div>
+            <div class="font-sm">Активна у батьків: <strong>${parentThemeName}</strong></div>
+        </div>
+
+        ${isParent ? `
+        <div class="card-inner mt-sm" style="display:grid;gap:6px;">
+            <div style="font-size:12px;font-weight:700;color:var(--text-muted);margin-bottom:2px;">👧 Активність дитини</div>
+            <div class="font-sm">Останній вхід: <strong>${loginStr}</strong></div>
+        </div>` : ''}
+
+        <div class="font-xs text-hint mt-sm">💾 Розмір даних: ${sizeKB} KB</div>
         <div class="versions-accordion">
             <button id="versionsBtn" class="versions-accordion-btn">
                 <span>📋 Інформація про версії</span>
@@ -83,8 +132,8 @@ export function showDataInfo() {
 
         // JS файли — відсортовані за алфавітом
         const jsFiles = [
-            'achievements.js','appearance.js','auth.js','changelog.js','config.js','feedback.js','firebase.js',
-            'freeze.js','goals.js','help.js','history.js','navigation.js','notifications.js',
+            'achievements.js','auth.js','changelog.js','config.js','feedback.js','firebase.js',
+            'freeze.js','goals.js','help.js','history.js','navigation.js',
             'records.js','rewards.js','settings.js','state.js',
             'stats.js','ui.js','utils.js'
         ];
