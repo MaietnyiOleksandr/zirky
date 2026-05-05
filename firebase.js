@@ -1,14 +1,16 @@
 // ════════════════════════════════════════════════════
 // FIREBASE  firebase.js — Firebase
+//     Зірки Успіху | v3.20260427.0709
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260504.1013';
+export const VERSION = 'v3.20260505.1335';
 
 import { state } from './state.js';
 import { firebaseConfig } from './config.js';
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
 import { getDatabase, ref, set, remove, onValue } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 import { recalculateAchievements } from './achievements.js';
+import { migrateAppearance } from './utils.js';
 import { checkStreakWarning } from './stats.js';
 import { showLoading, updateUI } from './ui.js';
 
@@ -43,6 +45,8 @@ export function initFirebase() {
             if (state.data.balance === undefined) state.data.balance = 0;
             if (!state.data.records) state.data.records = [];
             if (!state.data.achievements) state.data.achievements = { counters: {}, streaks: {}, levels: {}, weekly: {}, repeatableHistory: {}, freezePeriods: [] };
+            // Міграція appearance до формату {child, parent}
+            state.data.appearance = migrateAppearance(state.data.appearance);
         }
         showLoading(false);
         recalculateAchievements();  // Перераховуємо досягнення з усіх записів
@@ -93,7 +97,7 @@ export function saveData() {
         goal:            state.data.goal || null,
         achievements:    state.data.achievements || { counters: {}, streaks: {}, levels: {}, weekly: {}, repeatableHistory: {}, freezePeriods: [] },
         conversionRates: state.data.conversionRates || null,
-        appearance:      state.data.appearance || null,
+        appearance:      state.data.appearance || { child: { owned: ['default'], active: { theme: 'default', palette: 'default', font: 'default', buttons: 'default', background: 'default' } }, parent: { active: { theme: 'default', palette: 'default', font: 'default', buttons: 'default', background: 'default' } } },
     };
     set(ref(db, 'zirky'), toSave);
 }

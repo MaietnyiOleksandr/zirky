@@ -12,11 +12,12 @@
 //       3. Додай CSS vars у style.css (опційно)
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260504.2323';
+export const VERSION = 'v3.20260505.1335';
 
 import { state } from './state.js';
 import { saveData } from './firebase.js';
 import { spendStars } from './rewards.js';
+import { DEFAULT_ACTIVE, migrateAppearance } from './utils.js';
 
 // ════════════════════════════════════════════════════
 // 📦  КАТАЛОГ КОМПОНЕНТІВ
@@ -261,15 +262,30 @@ export const THEMES = [
     },
 ];
 
-// Дефолтний стан appearance (для нових користувачів)
+// Дефолтний стан для кожного профілю
 export const DEFAULT_APPEARANCE = {
-    owned: ['default'],
-    active: { theme: 'default', palette: 'default', font: 'default', buttons: 'default', background: 'default' },
+    child:  { owned: ['default'], active: { ...DEFAULT_ACTIVE } },
+    parent: { active: { ...DEFAULT_ACTIVE } },
 };
 
 // ════════════════════════════════════════════════════
 // 🔧  ЗАСТОСУВАННЯ КОМПОНЕНТІВ
 // ════════════════════════════════════════════════════
+// Повертає appearance-профіль поточного користувача (child або parent)
+function _getProfile() {
+    const app = state.data.appearance || DEFAULT_APPEARANCE;
+    return state.data.isParent ? (app.parent || DEFAULT_APPEARANCE.parent) : (app.child || DEFAULT_APPEARANCE.child);
+}
+
+// Забезпечує що appearance ініціалізований у новому форматі
+function _ensureAppearance() {
+    if (!state.data.appearance || state.data.appearance.owned || (state.data.appearance.active && !state.data.appearance.child)) {
+        state.data.appearance = migrateAppearance(state.data.appearance);
+    }
+    if (!state.data.appearance.child)  state.data.appearance.child  = { owned: ['default'], active: { ...DEFAULT_ACTIVE } };
+    if (!state.data.appearance.parent) state.data.appearance.parent = { active: { ...DEFAULT_ACTIVE } };
+}
+
 function _resetAppearanceVars() {
     const html = document.documentElement;
     // Скидаємо CSS змінні
@@ -307,9 +323,11 @@ function _applyComponents(active) {
     html.dataset.bg = active.background || 'default';
 }
 
-// Публічна функція — викликається при завантаженні
+// Публічна функція — викликається при завантаженні та при зміні профілю
 export function applyAppearance() {
-    const active = state.data.appearance?.active || DEFAULT_APPEARANCE.active;
+    _ensureAppearance();
+    const profile = _getProfile();
+    const active  = profile.active || DEFAULT_ACTIVE;
     _resetAppearanceVars();
     _applyComponents(active);
 }
@@ -328,8 +346,8 @@ export function buyTheme(themeId) {
         return;
     }
 
-    if (!state.data.appearance) state.data.appearance = { ...DEFAULT_APPEARANCE, owned: [...DEFAULT_APPEARANCE.owned] };
-    const owned = state.data.appearance.owned || ['default'];
+    _ensureAppearance();
+    const owned = state.data.appearance.child.owned || ['default'];
 
     // Вже куплена — просто активуємо
     if (owned.includes(themeId)) {
@@ -346,8 +364,8 @@ export function buyTheme(themeId) {
 
     if (!confirm(`Купити тему "${theme.name}" за ${theme.price}⭐?`)) return;
 
-    // Додаємо тему в owned перед списанням
-    state.data.appearance.owned.push(themeId);
+    // Додаємо тему в owned дитячого профілю
+    state.data.appearance.child.owned.push(themeId);
 
     // spendStars: списує зірки, додає запис, recalculate + giveRewards, saveData, updateUI
     spendStars(theme.price, {
@@ -372,19 +390,21 @@ export function activateTheme(themeId, devOnly = false) {
     const theme = THEMES.find(t => t.id === themeId);
     if (!theme) return;
 
-    if (!state.data.appearance) state.data.appearance = { ...DEFAULT_APPEARANCE, owned: [...DEFAULT_APPEARANCE.owned] };
+    _ensureAppearance();
 
-    // У devMode — застосовуємо компоненти але не зберігаємо в state.data і не викликаємо saveData
+    // У devMode — зберігаємо в _devActive для поточного профілю
     if (devOnly || _devMode) {
-        _devActive = { theme: themeId, ...theme.components };
+        const role = state.data.isParent ? 'parent' : 'child';
+        _devActive[role] = { theme: themeId, ...theme.components };
         _resetAppearanceVars();
-        _applyComponents(_devActive);
+        _applyComponents(_devActive[role]);
         return;
     }
 
-    state.data.appearance.active = { theme: themeId, ...theme.components };
+    const profile = _getProfile();
+    profile.active = { theme: themeId, ...theme.components };
     _resetAppearanceVars();
-    _applyComponents(state.data.appearance.active);
+    _applyComponents(profile.active);
     saveData();
 }
 
@@ -392,21 +412,26 @@ export function setComponent(type, id) {
     if (!state.data.appearance) state.data.appearance = { ...DEFAULT_APPEARANCE, owned: [...DEFAULT_APPEARANCE.owned] };
     if (!state.data.appearance.active) state.data.appearance.active = { ...DEFAULT_APPEARANCE.active };
 
-    // У devMode — зберігаємо в _devActive (не в state.data), не викликаємо saveData
+    _ensureAppearance();
+
+    // У devMode — зберігаємо в _devActive для поточного профілю
     if (_devMode) {
-        const base = _devActive || state.data.appearance?.active || DEFAULT_APPEARANCE.active;
-        _devActive = { ...base, [type]: id, theme: 'custom' };
+        const role = state.data.isParent ? 'parent' : 'child';
+        const base = _devActive[role] || _getProfile().active || DEFAULT_ACTIVE;
+        _devActive[role] = { ...base, [type]: id, theme: 'custom' };
         _resetAppearanceVars();
-        _applyComponents(_devActive);
+        _applyComponents(_devActive[role]);
         renderThemeShop();
         return;
     }
 
-    state.data.appearance.active[type] = id;
-    state.data.appearance.active.theme = 'custom';
+    const profile = _getProfile();
+    if (!profile.active) profile.active = { ...DEFAULT_ACTIVE };
+    profile.active[type] = id;
+    profile.active.theme = 'custom';
 
     _resetAppearanceVars();
-    _applyComponents(state.data.appearance.active);
+    _applyComponents(profile.active);
     saveData();
     renderThemeShop();
 }
@@ -416,7 +441,7 @@ export function setComponent(type, id) {
 // ════════════════════════════════════════════════════
 let _previewTimer    = null;
 let _previewOriginal = null;
-let _devActive       = null;  // Поточний стан у devMode (тільки в пам'яті)
+let _devActive       = { child: null, parent: null };  // devMode стан для кожного профілю
 
 // ── Режим розробника — тільки в пам'яті, ніколи не зберігається ──
 let _devMode = false;
@@ -426,10 +451,12 @@ export function isDevMode() { return _devMode; }
 export function toggleDevMode() {
     _devMode = !_devMode;
     if (!_devMode) {
-        // Повертаємо реальну тему при вимиканні devMode
-        _devActive = null;
+        // Скидаємо devActive для поточного профілю і відновлюємо реальну тему
+        const role = state.data.isParent ? 'parent' : 'child';
+        _devActive[role] = null;
+        _ensureAppearance();
         _resetAppearanceVars();
-        _applyComponents(state.data.appearance?.active || DEFAULT_APPEARANCE.active);
+        _applyComponents(_getProfile().active || DEFAULT_ACTIVE);
     }
     renderThemeShop();
 
@@ -509,13 +536,14 @@ export function renderThemeShop() {
     const container = document.getElementById('themeShopContainer');
     if (!container) return;
 
-    const appearance = state.data.appearance || DEFAULT_APPEARANCE;
-    // У режимі розробника всі теми вважаються купленими (тільки в пам'яті)
-    const owned      = _devMode
-        ? THEMES.map(t => t.id)
-        : (appearance.owned || ['default']);
-    // У devMode active береться з _devActive (відображає поточний вибір без збереження)
-    const active     = (_devMode && _devActive) ? _devActive : (appearance.active || DEFAULT_APPEARANCE.active);
+    _ensureAppearance();
+    const childProfile  = state.data.appearance.child;
+    const role = state.data.isParent ? 'parent' : 'child';
+    // owned завжди з дитячого профілю (теми купуються дитиною)
+    const owned = _devMode ? THEMES.map(t => t.id) : (childProfile.owned || ['default']);
+    // active з поточного профілю або з devActive
+    const devA  = _devActive[role];
+    const active = (devA) ? devA : (_getProfile().active || DEFAULT_ACTIVE);
     const balance    = state.data.balance || 0;
     const inPreview  = !!_previewTimer;
 
@@ -597,6 +625,7 @@ export function renderThemeShop() {
 }
 
 function _renderCustomize(container, owned, active) {
+    // owned — завжди список дитячих куплених тем
     // Збираємо доступні компоненти з куплених тем
     const available = { palettes: new Set(['default']), fonts: new Set(['default']), buttons: new Set(['default']), backgrounds: new Set(['default']) };
     // type → ключ у available (buttons вже множина, не додаємо 's')
@@ -648,7 +677,7 @@ export function refundTheme(themeId) {
     }
 
     const appearance = state.data.appearance || DEFAULT_APPEARANCE;
-    const owned = appearance.owned || ['default'];
+    const owned = appearance.child?.owned || ['default'];
 
     if (!owned.includes(themeId)) {
         alert('❌ Ця тема не куплена');
@@ -656,7 +685,7 @@ export function refundTheme(themeId) {
     }
 
     // Не можна повернути активну тему
-    if (appearance.active?.theme === themeId) {
+    if (state.data.appearance?.child?.active?.theme === themeId || state.data.appearance?.parent?.active?.theme === themeId) {
         alert('❌ Не можна повернути активну тему.\nСпочатку активуйте іншу тему.');
         return;
     }
@@ -672,7 +701,7 @@ export function refundTheme(themeId) {
     if (!confirm(`Повернути тему "${theme.name}"?\n\nНа рахунок буде повернуто: +${theme.price}⭐\nТема зникне зі списку куплених.`)) return;
 
     // Видаляємо з owned
-    state.data.appearance.owned = owned.filter(id => id !== themeId);
+    state.data.appearance.child.owned = owned.filter(id => id !== themeId);
 
     // Повертаємо зірки
     state.data.balance = (state.data.balance || 0) + theme.price;

@@ -2,12 +2,13 @@
 
 export const VERSION = 'v3.20260427.0821';
 // 🔐  auth.js — Авторизація та PIN-код
-//     Зірки Успіху | v3.20260427.0821
+//     Зірки Успіху | v3.20260505.1335
 // ════════════════════════════════════════════════════
 
 import { state } from './state.js';
 import { saveData } from './firebase.js';
 import { switchTab, updateUI } from './ui.js';
+import { applyAppearance } from './appearance.js';
 
 // ════════════════════════════════════════════════════════════
 // 🔐  БЛОК: Авторизація / PIN
@@ -21,6 +22,7 @@ export function enterAsChild() {
     state.data.isParent = false;
     document.getElementById('loginOverlay').style.display = 'none';
     document.getElementById('mainApp').style.display = 'block';
+    applyAppearance();  // Застосовуємо тему дитячого профілю
     updateUI();
     switchTab('achievements');
 }
@@ -50,6 +52,7 @@ export function checkPin() {
         state.data.isParent = true;
         document.getElementById('pinOverlay').style.display = 'none';
         document.getElementById('mainApp').style.display = 'block';
+        applyAppearance();  // Застосовуємо тему батьківського профілю
         updateUI();
     } else {
         alert('❌ Невірний PIN! Вхід як Дитина.');
