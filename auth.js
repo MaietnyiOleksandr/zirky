@@ -1,9 +1,9 @@
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260427.0821';
 // 🔐  auth.js — Авторизація та PIN-код
-//     Зірки Успіху | v3.20260505.1335
 // ════════════════════════════════════════════════════
+
+export const VERSION = 'v3.20260505.1758';
 
 import { state } from './state.js';
 import { saveData } from './firebase.js';
@@ -58,6 +58,7 @@ export function checkPin() {
         alert('❌ Невірний PIN! Вхід як Дитина.');
         state.pinValue = '';
         document.getElementById('pinInput').value = '';
+        document.getElementById('pinOverlay').style.display = 'none';
         enterAsChild();
     }
 }
