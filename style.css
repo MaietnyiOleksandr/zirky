@@ -1,6 +1,6 @@
 /* ════════════════════════════════════════════════════
    Зірки Успіху — Стилі
-   Версія: v3.20260505.2312
+   Версія: v3.20260505.2331
    ════════════════════════════════════════════════════ */
 
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;900&family=Comfortaa:wght@400;700&family=Fredoka+One&family=Ubuntu:wght@400;700&family=Playfair+Display:wght@400;700&display=swap');
@@ -90,6 +90,11 @@
 
     --shadow: 0 8px 24px rgba(0, 87, 183, 0.15);
     --radius: 24px;
+
+    /* Текст у модальних вікнах (завжди темний на світлому фоні картки) */
+    --modal-text:         #2C3E50;
+    --modal-text-muted:   #666;
+    --modal-text-hint:    #999;
 }
 
 /* ════════════════════════════════════════════════════
@@ -143,7 +148,7 @@ body::after {
     50% { transform: translateY(-30px) rotate(10deg); }
 }
 
-.container { max-width: 800px; margin: 0 auto; padding: 20px; }
+.container { max-width: 800px; margin: 0 auto; padding: 20px; overflow-x: clip; }
 
 /* ════════════════════════════════════════════════════
    HEADER
@@ -728,6 +733,7 @@ select:focus, input:focus {
     width: 90%;
     text-align: center;
     animation: scaleIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    color: var(--modal-text);
 }
 
 @keyframes scaleIn {
@@ -736,7 +742,7 @@ select:focus, input:focus {
 }
 
 .login-box h2 { font-family: var(--font-accent); font-size: 36px; color: var(--secondary); margin-bottom: 30px; }
-.login-subtitle { margin-bottom: 30px; color: var(--text-muted); }
+.login-subtitle { margin-bottom: 30px; color: var(--modal-text-muted); }
 .login-buttons { display: grid; gap: 15px; }
 
 .login-btn {
@@ -771,11 +777,12 @@ select:focus, input:focus {
     max-width: 400px;
     width: 90%;
     text-align: center;
+    color: var(--modal-text);
 }
 
 .pin-box--wide { max-width: 450px; }
 .pin-box h2 { font-family: var(--font-accent); font-size: 36px; color: var(--secondary); margin-bottom: 20px; }
-.pin-hint { color: var(--text-muted); margin-bottom: 10px; }
+.pin-hint { color: var(--modal-text-muted); margin-bottom: 10px; }
 
 .pin-input {
     font-size: 32px;
@@ -791,12 +798,13 @@ select:focus, input:focus {
     padding: 20px;
     font-size: 24px;
     font-weight: 900;
-    background: var(--bg);
+    background: var(--card);
     border: 3px solid var(--primary);
     border-radius: 15px;
     cursor: pointer;
     transition: all 0.2s;
     font-family: var(--font-main);
+    color: var(--modal-text);
 }
 
 .pin-btn:hover  { background: var(--primary); transform: scale(1.05); }
@@ -1192,12 +1200,13 @@ select:focus, input:focus {
     border-radius: 24px 24px 0 0;
     overflow-y: auto;
     padding: 24px;
+    color: var(--modal-text);
 }
 
 .help-modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
 .help-modal-title { margin: 0; color: var(--secondary); font-size: 18px; }
 .help-close-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: var(--text-hint); }
-.help-modal-content { font-size: 14px; line-height: 1.7; color: #444; }
+.help-modal-content { font-size: 14px; line-height: 1.7; color: var(--modal-text-muted); }
 
 /* ════════════════════════════════════════════════════
    ПОРОЖНІЙ СТАН
@@ -1878,6 +1887,10 @@ select:focus, input:focus {
    Для data-palette="space" (та інших темних палітр)
    ════════════════════════════════════════════════════ */
 :root[data-palette="space"] {
+    /* Модалки на темній картці — світлий текст */
+    --modal-text:        #e0d4f7;
+    --modal-text-muted:  #b090d4;
+    --modal-text-hint:   #8060a8;
     /* Картки — темні напівпрозорі замість світлих градієнтів */
     --c-info-bg:     linear-gradient(135deg, rgba(33,150,243,0.2), rgba(33,150,243,0.1));
     --c-info-border: rgba(33,150,243,0.6);
@@ -2142,7 +2155,7 @@ select:focus, input:focus {
 .notif-empty {
     text-align: center;
     padding: 40px 20px;
-    color: var(--text-hint);
+    color: var(--modal-text-hint);
 }
 
 .notif-empty-icon {
@@ -2177,13 +2190,13 @@ select:focus, input:focus {
 
 .notif-item-text {
     font-size: 13px;
-    color: var(--text-muted);
+    color: var(--modal-text-muted);
     line-height: 1.5;
 }
 
 .notif-item-time {
     font-size: 11px;
-    color: var(--text-hint);
+    color: var(--modal-text-hint);
     margin-top: 5px;
 }
 
