@@ -1,6 +1,6 @@
 /* ════════════════════════════════════════════════════
    Зірки Успіху — Стилі
-   Версія: v3.20260505.1805
+   Версія: v3.20260505.1905
    ════════════════════════════════════════════════════ */
 
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;900&family=Comfortaa:wght@400;700&family=Fredoka+One&family=Ubuntu:wght@400;700&family=Playfair+Display:wght@400;700&display=swap');
@@ -2085,36 +2085,35 @@ select:focus, input:focus {
    NOTIFICATIONS — дзвіночок та панель
    ════════════════════════════════════════════════════ */
 
-/* Хедер top row — логотип + дзвіночок */
+/* Хедер — дзвіночок абсолютно позиціонований, не зміщує логотип */
 .header-top {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
     position: relative;
     z-index: 1;
 }
 
 /* Кнопка дзвіночка */
 .notif-bell {
+    position: absolute;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%);
     background: var(--bg);
     border: 2px solid var(--border-light);
     border-radius: 50%;
-    width: 42px;
-    height: 42px;
-    font-size: 20px;
+    width: 40px;
+    height: 40px;
+    font-size: 19px;
     cursor: pointer;
-    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.2s;
-    flex-shrink: 0;
+    transition: border-color 0.2s, background 0.2s;
+    z-index: 2;
 }
 
 .notif-bell:hover {
-    transform: scale(1.1);
     border-color: var(--primary);
+    background: var(--card);
 }
 
 /* Червона крапка */
