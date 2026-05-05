@@ -2,7 +2,7 @@
 // 🔔  notifications.js — Центр сповіщень
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260505.2356';
+export const VERSION = 'v3.20260506.0009';
 
 import { state }    from './state.js';
 import { saveData } from './firebase.js';
@@ -50,14 +50,16 @@ function _buildNotifications() {
     const items    = [];
 
     // ── 1. Changelog ─────────────────────────────────────
+    // Показується у сповіщеннях АЛЕ не позначається прочитаним тут —
+    // тільки через markChangelogRead() при відкритті модалки changelog
     const currentVer = CHANGELOG[0]?.version || '';
     if (p.changelogSeen !== currentVer) {
         items.push({
-            id:       'changelog',
-            icon:     '📝',
-            title:    'Нова версія програми',
-            body:     `Доступна версія ${currentVer}`,
-            type:     'version',
+            id:    'changelog',
+            icon:  '📝',
+            title: 'Нова версія програми',
+            body:  `Доступна версія ${currentVer}`,
+            type:  'version',
         });
     }
 
@@ -353,7 +355,7 @@ export function closeNotifications() {
     if (modal) modal.style.display = 'none';
     document.body.style.overflow = '';
     updateNotificationBadge();
-    updateChangelogBadge();
+    // updateChangelogBadge — не чіпаємо, changelog прибирається тільки через markChangelogRead
 }
 
 function _markAllRead() {
