@@ -6,7 +6,7 @@
 //     showForm/switchTab, а ui.js потребував їх модулів
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260504.1013';
+export const VERSION = 'v3.20260505.1805';
 
 import { state } from './state.js';
 import { getTodayDate } from './utils.js';
@@ -19,6 +19,7 @@ import { renderStats, checkStreakWarning } from './stats.js';
 import { showDataInfo } from './settings.js';
 import { renderFeedback } from './feedback.js';
 import { applyAppearance, renderThemeShop } from './appearance.js';
+import { updateNotificationBadge, openNotifications, closeNotifications } from './notifications.js';
 
 export function showForm(type) {
     document.querySelectorAll('.quick-action-btn').forEach(btn => btn.classList.remove('active'));
@@ -89,6 +90,7 @@ export function switchTab(tab, fromClick = false) {
 // ── Слухаємо події від firebase.js та freeze.js ──────────────
 document.addEventListener('zirky:dataLoaded', () => {
     applyAppearance();
+    updateNotificationBadge();  // Перевіряємо нові сповіщення
     const activeSection = document.querySelector('.section.active');
     if (activeSection) {
         if (activeSection.id === 'historySection') renderHistory();
@@ -107,3 +109,5 @@ document.addEventListener('zirky:goalReached', () => {
     renderAchievementsHome();
     renderGoal();
 });
+
+export { updateNotificationBadge, openNotifications, closeNotifications };

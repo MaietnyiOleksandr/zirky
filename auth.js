@@ -1,12 +1,12 @@
 // ════════════════════════════════════════════════════
-
 // 🔐  auth.js — Авторизація та PIN-код
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260505.1758';
+export const VERSION = 'v3.20260505.1805';
 
 import { state } from './state.js';
 import { saveData } from './firebase.js';
+import { nowKyiv } from './utils.js';
 import { switchTab, updateUI } from './ui.js';
 import { applyAppearance } from './appearance.js';
 
@@ -18,11 +18,18 @@ export function showPinInput() {
     document.getElementById('pinOverlay').style.display = 'flex';
 }
 
-export function enterAsChild() {
+export function enterAsChild(loginType = 'direct') {
     state.data.isParent = false;
+    // Зберігаємо час входу дитини (для батьківських сповіщень)
+    if (!state.data.notifications) state.data.notifications = {};
+    if (!state.data.notifications.child) state.data.notifications.child = {};
+    state.data.notifications.child.lastLoginAt   = nowKyiv();
+    state.data.notifications.child.lastLoginType = loginType;
+    saveData();
+
     document.getElementById('loginOverlay').style.display = 'none';
     document.getElementById('mainApp').style.display = 'block';
-    applyAppearance();  // Застосовуємо тему дитячого профілю
+    applyAppearance();
     updateUI();
     switchTab('achievements');
 }
@@ -59,7 +66,7 @@ export function checkPin() {
         state.pinValue = '';
         document.getElementById('pinInput').value = '';
         document.getElementById('pinOverlay').style.display = 'none';
-        enterAsChild();
+        enterAsChild('pin_failed');
     }
 }
 

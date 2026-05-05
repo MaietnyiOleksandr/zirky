@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⭐</text></svg>">
-    <!-- version: v3.20260505.1618 -->
+    <!-- version: v3.20260505.1805 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>⭐ Зірки Успіху</title>
     <link rel="stylesheet" href="style.css">
@@ -110,7 +110,13 @@
 
         <!-- Header -->
         <div class="header">
-            <div class="logo">⭐ Зірки Успіху ⭐</div>
+            <div class="header-top">
+                <div class="logo">⭐ Зірки Успіху ⭐</div>
+                <button class="notif-bell" id="notifBellBtn" onclick="openNotifications()" title="Сповіщення">
+                    🔔
+                    <span class="notif-badge" id="notifBadge" style="display:none;"></span>
+                </button>
+            </div>
             <div class="balance-container">
                 <div class="balance-label">Поточний баланс</div>
                 <div class="balance" id="balance">0⭐</div>
@@ -739,6 +745,7 @@
         import { renderStats, updateChart, changeChartPeriod, changeChartOffset } from './stats.js';
         import { showDataInfo, exportData, importData, resetAllData,
                  adjustBalance, saveConversionRates } from './settings.js';
+        import { updateNotificationBadge, openNotifications, closeNotifications } from './notifications.js';
         import { applyAppearance, renderThemeShop, buyTheme,
                  activateTheme, setComponent, startPreview, stopPreview, refundTheme,
                  toggleDevMode, isDevMode } from './appearance.js';
@@ -801,7 +808,10 @@
         window.activateTheme   = activateTheme;
         window.setComponent    = setComponent;
         window.startPreview    = startPreview;
-        window.stopPreview     = stopPreview;
+        window.stopPreview              = stopPreview;
+        window.updateNotificationBadge  = updateNotificationBadge;
+        window.openNotifications        = openNotifications;
+        window.closeNotifications       = closeNotifications;
         window.refundTheme    = refundTheme;
         window.toggleDevMode  = toggleDevMode;
         window.isDevMode      = isDevMode;
@@ -849,6 +859,17 @@
         });
 
     </script>
+
+    <!-- Notifications Modal -->
+    <div id="notifModal" class="help-modal" style="display:none;">
+        <div class="help-modal-inner">
+            <div class="help-modal-header">
+                <h3 class="help-modal-title">🔔 Сповіщення</h3>
+                <button onclick="closeNotifications()" class="help-close-btn">✕</button>
+            </div>
+            <div id="notifContent"></div>
+        </div>
+    </div>
 
     <!-- Help Modal -->
     <div id="helpModal" class="help-modal">

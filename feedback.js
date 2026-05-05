@@ -2,7 +2,7 @@
 // 💬  feedback.js — Зворотній зв'язок
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260505.1630';
+export const VERSION = 'v3.20260505.1805';
 
 import { state } from './state.js';
 import { nowKyiv } from './utils.js';
@@ -341,14 +341,19 @@ export function saveChildComment(id) {
     item.updatedAt      = nowKyiv();
     saveFeedbackItem(item);
     renderFeedback();
+    if (window.updateNotificationBadge) window.updateNotificationBadge();
 }
 
 export function setFeedbackStatus(id, status) {
     const item = _items.find(i => i.id === id);
     if (!item) return;
-    item.status = status; item.updatedAt = nowKyiv();
+    item.prevStatus       = item.status;
+    item.status           = status;
+    item.statusChangedAt  = nowKyiv();
+    item.updatedAt        = nowKyiv();
     saveFeedbackItem(item);
     renderFeedback();
+    if (window.updateNotificationBadge) window.updateNotificationBadge();
 }
 
 export function saveParentComment(id) {

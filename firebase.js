@@ -1,9 +1,8 @@
 // ════════════════════════════════════════════════════
 // FIREBASE  firebase.js — Firebase
-//     Зірки Успіху | v3.20260427.0709
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260505.1335';
+export const VERSION = 'v3.20260505.1805';
 
 import { state } from './state.js';
 import { firebaseConfig } from './config.js';
@@ -45,6 +44,10 @@ export function initFirebase() {
             if (state.data.balance === undefined) state.data.balance = 0;
             if (!state.data.records) state.data.records = [];
             if (!state.data.achievements) state.data.achievements = { counters: {}, streaks: {}, levels: {}, weekly: {}, repeatableHistory: {}, freezePeriods: [] };
+            // Ініціалізація notifications
+            if (!state.data.notifications) state.data.notifications = {};
+            if (!state.data.notifications.child)  state.data.notifications.child  = {};
+            if (!state.data.notifications.parent) state.data.notifications.parent = {};
             // Міграція appearance до формату {child, parent}
             state.data.appearance = migrateAppearance(state.data.appearance);
         }
@@ -96,7 +99,8 @@ export function saveData() {
         pin:             state.data.pin || '1234',
         goal:            state.data.goal || null,
         achievements:    state.data.achievements || { counters: {}, streaks: {}, levels: {}, weekly: {}, repeatableHistory: {}, freezePeriods: [] },
-        conversionRates: state.data.conversionRates || null,
+        conversionRates:  state.data.conversionRates || null,
+        notifications:    state.data.notifications || null,
         appearance:      state.data.appearance || { child: { owned: ['default'], active: { theme: 'default', palette: 'default', font: 'default', buttons: 'default', background: 'default' } }, parent: { active: { theme: 'default', palette: 'default', font: 'default', buttons: 'default', background: 'default' } } },
     };
     set(ref(db, 'zirky'), toSave);
