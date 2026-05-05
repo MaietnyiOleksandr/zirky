@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⭐</text></svg>">
-    <!-- version: v3.20260505.1600 -->
+    <!-- version: v3.20260505.1618 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>⭐ Зірки Успіху</title>
     <link rel="stylesheet" href="style.css">
@@ -727,7 +727,7 @@
                  deleteFeedback, deleteFeedbackConfirm, setFeedbackStatus,
                  saveParentComment, startEditParentComment, cancelEditParentComment,
                  deleteParentComment, toggleChildComment, cancelChildComment,
-                 saveChildComment } from './feedback.js';
+                 saveChildComment, toggleFbDropdown, closeFbDropdown } from './feedback.js';
         import { getTodayDate, setTodayDates } from './utils.js';
         import { showLoading, updateUI } from './ui.js';
         import { showHelp, closeHelp } from './help.js';
@@ -817,6 +817,8 @@
         window.startEditParentComment    = startEditParentComment;
         window.cancelEditParentComment   = cancelEditParentComment;
         window.deleteParentComment       = deleteParentComment;
+        window.toggleFbDropdown          = toggleFbDropdown;
+        window.closeFbDropdown           = closeFbDropdown;
         window.toggleChildComment = toggleChildComment;
         window.cancelChildComment = cancelChildComment;
         window.saveChildComment = saveChildComment;
@@ -827,6 +829,13 @@
         document.addEventListener('click', (e) => {
             if (e.target.id === 'setGoalBtn' || e.target.id === 'editGoalBtn') {
                 showGoalModal();
+            }
+        });
+
+        // ── Закриваємо fb-dropdown при кліку поза ним ──────────
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.fb-status-dropdown-wrap')) {
+                document.querySelectorAll('.fb-dropdown').forEach(d => d.style.display = 'none');
             }
         });
 

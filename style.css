@@ -1,6 +1,6 @@
 /* ════════════════════════════════════════════════════
    Зірки Успіху — Стилі
-   Версія: v3.20260505.1441
+   Версія: v3.20260505.1618
    ════════════════════════════════════════════════════ */
 
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;900&family=Comfortaa:wght@400;700&family=Fredoka+One&family=Ubuntu:wght@400;700&family=Playfair+Display:wght@400;700&display=swap');
@@ -2007,4 +2007,76 @@ select:focus, input:focus {
 .fb-comment-body {
     font-size: 13px;
     line-height: 1.5;
+}
+
+/* ── Статус як кнопка з dropdown ────────────────── */
+.fb-status-dropdown-wrap {
+    position: relative;
+}
+
+.fb-status-badge--btn {
+    cursor: pointer;
+    border: none;
+    font-family: var(--font-main);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: filter 0.15s;
+    white-space: nowrap;
+}
+
+.fb-status-badge--btn:hover { filter: brightness(0.93); }
+
+.fb-dropdown-arrow {
+    font-size: 10px;
+    opacity: 0.8;
+}
+
+.fb-dropdown {
+    position: absolute;
+    top: calc(100% + 4px);
+    right: 0;
+    background: var(--card);
+    border: 1.5px solid var(--border-light);
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+    z-index: 200;
+    min-width: 170px;
+    overflow: hidden;
+    animation: fadeIn 0.15s;
+}
+
+.fb-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 10px 14px;
+    border: none;
+    background: none;
+    font-family: var(--font-main);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.15s;
+}
+
+.fb-dropdown-item:hover { background: var(--bg); }
+
+.fb-dropdown-item--active {
+    background: var(--bg);
+    position: relative;
+}
+
+.fb-dropdown-item--active::after {
+    content: '✓';
+    position: absolute;
+    right: 12px;
+    font-size: 12px;
+    opacity: 0.7;
 }

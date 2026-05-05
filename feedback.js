@@ -2,7 +2,7 @@
 // 💬  feedback.js — Зворотній зв'язок
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260505.1600';
+export const VERSION = 'v3.20260505.1618';
 
 import { state } from './state.js';
 import { nowKyiv } from './utils.js';
@@ -181,12 +181,11 @@ function _renderParentCard(item) {
     const dateStr = new Date(item.date).toLocaleDateString('uk-UA',
         { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
 
-    const statusBtns = Object.entries(STATUS_CONFIG).map(([status, scfg]) => `
-        <button onclick="setFeedbackStatus('${item.id}', '${status}')"
-            class="fb-status-btn"
-            style="border:2px solid ${scfg.border};
-                   background:${item.status===status ? scfg.bg : 'transparent'};
-                   color:${scfg.color};">
+    // Опції dropdown — всі статуси крім поточного
+    const dropdownItems = Object.entries(STATUS_CONFIG).map(([status, scfg]) => `
+        <button onclick="setFeedbackStatus('${item.id}','${status}');closeFbDropdown()"
+            class="fb-dropdown-item ${item.status === status ? 'fb-dropdown-item--active' : ''}"
+            style="color:${scfg.color};">
             ${status} ${scfg.label}
         </button>`).join('');
 
@@ -198,10 +197,16 @@ function _renderParentCard(item) {
                 <span class="fb-card-category">${item.category}</span>
                 <div class="fb-card-meta">
                     <span class="fb-card-date">${dateStr}</span>
-                    <span class="fb-status-badge"
-                        style="background:${cfg.bg};color:${cfg.color};">
-                        ${item.status} ${cfg.label}
-                    </span>
+                    <div class="fb-status-dropdown-wrap">
+                        <button class="fb-status-badge fb-status-badge--btn"
+                            style="background:${cfg.bg};color:${cfg.color};"
+                            onclick="toggleFbDropdown('fbDrop_${item.id}')">
+                            ${item.status} ${cfg.label} <span class="fb-dropdown-arrow">▾</span>
+                        </button>
+                        <div id="fbDrop_${item.id}" class="fb-dropdown" style="display:none;">
+                            ${dropdownItems}
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -215,8 +220,6 @@ function _renderParentCard(item) {
                     </div>
                     <div class="fb-comment-body">${item.childComment}</div>
                 </div>` : ''}
-
-            <div class="fb-status-btns">${statusBtns}</div>
 
             ${item.comment ? `
                 <div id="parentCommentDisplay_block_${item.id}" class="fb-parent-reply mb-sm">
@@ -358,6 +361,19 @@ export function saveParentComment(id) {
 }
 
 
+
+export function toggleFbDropdown(id) {
+    // Закриваємо всі інші dropdown
+    document.querySelectorAll('.fb-dropdown').forEach(d => {
+        if (d.id !== id) d.style.display = 'none';
+    });
+    const el = document.getElementById(id);
+    if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+export function closeFbDropdown() {
+    document.querySelectorAll('.fb-dropdown').forEach(d => d.style.display = 'none');
+}
 export function deleteFeedbackConfirm(id) {
     const item = _items.find(i => i.id === id);
     if (!item) return;
