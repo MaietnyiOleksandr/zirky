@@ -2,13 +2,22 @@
 // 💬  feedback.js — Зворотній зв'язок
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260504.1319';
+export const VERSION = 'v3.20260505.1441';
 
 import { state } from './state.js';
 import { nowKyiv } from './utils.js';
 import { saveFeedbackItem, deleteFeedbackItem } from './firebase.js';
 
 const CATEGORIES = ['💬 Побажання', '⚠️ Зауваження', '❓ Питання'];
+
+function _formatCommentDate(iso) {
+    if (!iso) return '';
+    return new Date(iso).toLocaleDateString('uk-UA', {
+        day: 'numeric', month: 'short',
+        hour: '2-digit', minute: '2-digit'
+    });
+}
+
 
 // Кольори статусів — через CSS змінні де можливо,
 // хард-коди тільки для семантичних (ці кольори НЕ мають змінюватись з темою)
@@ -102,14 +111,22 @@ function _renderChildCard(item) {
 
             ${item.comment ? `
                 <div class="fb-parent-reply">
-                    <strong>💬 Відповідь батьків:</strong><br>${item.comment}
+                    <div class="fb-comment-header">
+                        <strong>💬 Відповідь батьків</strong>
+                        ${item.commentAt ? `<span class="fb-comment-date">${_formatCommentDate(item.commentAt)}</span>` : ''}
+                    </div>
+                    <div class="fb-comment-body">${item.comment}</div>
                 </div>` : ''}
 
             ${!canEdit ? `
                 <div>
                     ${item.childComment
                         ? `<div id="childCommentDisplay_${item.id}" class="fb-child-comment">
-                               <strong>✏️ Мій коментар:</strong><br>${item.childComment}
+                               <div class="fb-comment-header">
+                                   <strong>✏️ Мій коментар</strong>
+                                   ${item.childCommentAt ? `<span class="fb-comment-date">${_formatCommentDate(item.childCommentAt)}</span>` : ''}
+                               </div>
+                               <div class="fb-comment-body">${item.childComment}</div>
                            </div>`
                         : `<div id="childCommentDisplay_${item.id}"></div>`}
                     <div id="childCommentEdit_${item.id}" style="display:none;">
@@ -192,7 +209,11 @@ function _renderParentCard(item) {
 
             ${item.childComment ? `
                 <div class="fb-child-comment mb-sm">
-                    <strong>✏️ Коментар дитини:</strong><br>${item.childComment}
+                    <div class="fb-comment-header">
+                        <strong>✏️ Коментар дитини</strong>
+                        ${item.childCommentAt ? `<span class="fb-comment-date">${_formatCommentDate(item.childCommentAt)}</span>` : ''}
+                    </div>
+                    <div class="fb-comment-body">${item.childComment}</div>
                 </div>` : ''}
 
             <div class="fb-status-btns">${statusBtns}</div>
@@ -282,8 +303,9 @@ export function saveChildComment(id) {
     const input = document.getElementById(`childCommentInput_${id}`);
     const item  = _items.find(i => i.id === id);
     if (!item || !input) return;
-    item.childComment = input.value.trim();
-    item.updatedAt    = nowKyiv();
+    item.childComment   = input.value.trim();
+    item.childCommentAt = nowKyiv();
+    item.updatedAt      = nowKyiv();
     saveFeedbackItem(item);
     renderFeedback();
 }
@@ -301,6 +323,7 @@ export function saveParentComment(id) {
     const item  = _items.find(i => i.id === id);
     if (!item || !input) return;
     item.comment   = input.value.trim();
+    item.commentAt = nowKyiv();
     item.updatedAt = nowKyiv();
     saveFeedbackItem(item);
     renderFeedback();

@@ -1,6 +1,6 @@
 /* ════════════════════════════════════════════════════
    Зірки Успіху — Стилі
-   Версія: v3.20260504.1939
+   Версія: v3.20260505.1441
    ════════════════════════════════════════════════════ */
 
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;900&family=Comfortaa:wght@400;700&family=Fredoka+One&family=Ubuntu:wght@400;700&family=Playfair+Display:wght@400;700&display=swap');
@@ -1984,4 +1984,27 @@ select:focus, input:focus {
     --c-fb-text:     #4A3728;
     --c-fb-text-deep:#3A2A1A;
     --c-fb-border:   rgba(139,99,71,0.4);
+}
+
+/* Заголовок коментаря з датою */
+.fb-comment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+    gap: 8px;
+}
+
+.fb-comment-header strong { font-size: 12px; color: inherit; }
+
+.fb-comment-date {
+    font-size: 11px;
+    color: var(--text-hint);
+    font-weight: 400;
+    white-space: nowrap;
+}
+
+.fb-comment-body {
+    font-size: 13px;
+    line-height: 1.5;
 }
