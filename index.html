@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⭐</text></svg>">
-    <!-- version: v3.20260504.2258 -->
+    <!-- version: v3.20260505.1600 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>⭐ Зірки Успіху</title>
     <link rel="stylesheet" href="style.css">
@@ -724,8 +724,10 @@
         import { initFeedbackData, renderFeedback, updateFeedbackBadge,
                  selectFeedbackCategory, submitFeedback,
                  startEditFeedback, cancelEditFeedback, saveEditFeedback,
-                 deleteFeedback, setFeedbackStatus, saveParentComment,
-                 toggleChildComment, cancelChildComment, saveChildComment } from './feedback.js';
+                 deleteFeedback, deleteFeedbackConfirm, setFeedbackStatus,
+                 saveParentComment, startEditParentComment, cancelEditParentComment,
+                 deleteParentComment, toggleChildComment, cancelChildComment,
+                 saveChildComment } from './feedback.js';
         import { getTodayDate, setTodayDates } from './utils.js';
         import { showLoading, updateUI } from './ui.js';
         import { showHelp, closeHelp } from './help.js';
@@ -810,7 +812,11 @@
         window.saveEditFeedback = saveEditFeedback;
         window.deleteFeedback = deleteFeedback;
         window.setFeedbackStatus = setFeedbackStatus;
-        window.saveParentComment = saveParentComment;
+        window.saveParentComment        = saveParentComment;
+        window.deleteFeedbackConfirm     = deleteFeedbackConfirm;
+        window.startEditParentComment    = startEditParentComment;
+        window.cancelEditParentComment   = cancelEditParentComment;
+        window.deleteParentComment       = deleteParentComment;
         window.toggleChildComment = toggleChildComment;
         window.cancelChildComment = cancelChildComment;
         window.saveChildComment = saveChildComment;

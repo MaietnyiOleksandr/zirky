@@ -2,7 +2,7 @@
 // 💬  feedback.js — Зворотній зв'язок
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260505.1441';
+export const VERSION = 'v3.20260505.1600';
 
 import { state } from './state.js';
 import { nowKyiv } from './utils.js';
@@ -152,7 +152,7 @@ function _renderChildCard(item) {
                 <div class="fb-actions">
                     <button onclick="startEditFeedback('${item.id}')"
                         class="fb-action-btn fb-action-btn--purple">✏️ Редагувати</button>
-                    <button onclick="deleteFeedback('${item.id}')"
+                    <button onclick="deleteFeedbackConfirm('${item.id}')"
                         class="fb-action-btn fb-action-btn--danger">🗑️ Видалити</button>
                 </div>` : ''}
         </div>`;
@@ -218,16 +218,44 @@ function _renderParentCard(item) {
 
             <div class="fb-status-btns">${statusBtns}</div>
 
-            <textarea id="parentCommentInput_${item.id}"
-                placeholder="Коментар для дитини (опційно)..."
-                class="fb-textarea fb-textarea--xs mb-sm"
-            >${item.comment || ''}</textarea>
+            ${item.comment ? `
+                <div id="parentCommentDisplay_block_${item.id}" class="fb-parent-reply mb-sm">
+                    <div class="fb-comment-header">
+                        <strong>💬 Ваш коментар</strong>
+                        ${item.commentAt ? '<span class="fb-comment-date">' + _formatCommentDate(item.commentAt) + '</span>' : ''}
+                    </div>
+                    <div class="fb-comment-body">${item.comment}</div>
+                    <div class="fb-actions mt-sm">
+                        <button onclick="startEditParentComment('${item.id}')"
+                            class="fb-action-btn fb-action-btn--purple">✏️ Редагувати</button>
+                        <button onclick="deleteParentComment('${item.id}')"
+                            class="fb-action-btn fb-action-btn--danger">🗑️ Видалити коментар</button>
+                    </div>
+                </div>
+                <div id="parentCommentEdit_block_${item.id}" style="display:none;">
+                    <textarea id="parentCommentInput_${item.id}"
+                        placeholder="Коментар для дитини..."
+                        class="fb-textarea fb-textarea--xs mb-sm"
+                    >${item.comment || ''}</textarea>
+                    <div class="fb-actions">
+                        <button onclick="saveParentComment('${item.id}')"
+                            class="fb-action-btn fb-action-btn--save">💾 Зберегти</button>
+                        <button onclick="cancelEditParentComment('${item.id}')"
+                            class="fb-action-btn fb-action-btn--cancel">✕ Скасувати</button>
+                    </div>
+                </div>` : `
+                <div id="parentCommentEdit_block_${item.id}">
+                    <textarea id="parentCommentInput_${item.id}"
+                        placeholder="Коментар для дитини (опційно)..."
+                        class="fb-textarea fb-textarea--xs mb-sm"
+                    ></textarea>
+                    <button onclick="saveParentComment('${item.id}')"
+                        class="fb-action-btn fb-action-btn--save w-full">💾 Зберегти коментар</button>
+                </div>`}
 
-            <div class="fb-actions">
-                <button onclick="saveParentComment('${item.id}')"
-                    class="fb-action-btn fb-action-btn--save">💾 Зберегти коментар</button>
-                <button onclick="deleteFeedback('${item.id}')"
-                    class="fb-action-btn fb-action-btn--danger">🗑️</button>
+            <div class="fb-actions mt-sm">
+                <button onclick="deleteFeedbackConfirm('${item.id}')"
+                    class="fb-action-btn fb-action-btn--danger">🗑️ Видалити повідомлення</button>
             </div>
         </div>`;
 }
@@ -329,6 +357,39 @@ export function saveParentComment(id) {
     renderFeedback();
 }
 
+
+export function deleteFeedbackConfirm(id) {
+    const item = _items.find(i => i.id === id);
+    if (!item) return;
+    const preview = item.text.length > 60 ? item.text.slice(0, 60) + '...' : item.text;
+    if (!confirm(`Видалити це повідомлення?\n\n"${preview}"\n\nДія незворотна.`)) return;
+    deleteFeedback(id);
+}
+
+export function startEditParentComment(id) {
+    const displayBlock = document.getElementById(`parentCommentDisplay_block_${id}`);
+    const editBlock    = document.getElementById(`parentCommentEdit_block_${id}`);
+    if (displayBlock) displayBlock.style.display = 'none';
+    if (editBlock)    editBlock.style.display    = 'block';
+}
+
+export function cancelEditParentComment(id) {
+    const displayBlock = document.getElementById(`parentCommentDisplay_block_${id}`);
+    const editBlock    = document.getElementById(`parentCommentEdit_block_${id}`);
+    if (displayBlock) displayBlock.style.display = 'block';
+    if (editBlock)    editBlock.style.display    = 'none';
+}
+
+export function deleteParentComment(id) {
+    if (!confirm('Видалити ваш коментар до цього повідомлення?')) return;
+    const item = _items.find(i => i.id === id);
+    if (!item) return;
+    item.comment   = '';
+    item.commentAt = null;
+    item.updatedAt = nowKyiv();
+    saveFeedbackItem(item);
+    renderFeedback();
+}
 export function updateFeedbackBadge() {
     const badge = document.getElementById('feedbackBadge');
     if (!badge) return;
