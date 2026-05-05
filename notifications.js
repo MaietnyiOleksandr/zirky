@@ -2,7 +2,7 @@
 // 🔔  notifications.js — Центр сповіщень
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260506.0009';
+export const VERSION = 'v3.20260506.0027';
 
 import { state }    from './state.js';
 import { saveData } from './firebase.js';
@@ -27,16 +27,23 @@ function _fmt(iso) {
     });
 }
 
-function _notif() {
+// ── localStorage ключі (синхронні, без race conditions) ───────
+function _lsKey(name) {
+    const role = state.data.isParent ? 'parent' : 'child';
+    return `zirky_notif_${role}_${name}`;
+}
+
+function _lsGet(name)        { return localStorage.getItem(_lsKey(name)) || ''; }
+function _lsSet(name, value) { localStorage.setItem(_lsKey(name), value); }
+
+// ── Firebase-частина: тільки для подійних сповіщень ──────────
+// (щоб синхронізувати між пристроями)
+function _fbProfile() {
     if (!state.data.notifications) state.data.notifications = {};
     const n = state.data.notifications;
     if (!n.child)  n.child  = {};
     if (!n.parent) n.parent = {};
-    return n;
-}
-
-function _profile() {
-    return state.data.isParent ? _notif().parent : _notif().child;
+    return state.data.isParent ? n.parent : n.child;
 }
 
 // ════════════════════════════════════════════════════
@@ -45,15 +52,14 @@ function _profile() {
 
 function _buildNotifications() {
     const isParent = !!state.data.isParent;
-    const p        = _profile();
     const today    = _kyivToday();
     const items    = [];
 
     // ── 1. Changelog ─────────────────────────────────────
-    // Показується у сповіщеннях АЛЕ не позначається прочитаним тут —
-    // тільки через markChangelogRead() при відкритті модалки changelog
-    const currentVer = CHANGELOG[0]?.version || '';
-    if (p.changelogSeen !== currentVer) {
+    // localStorage: незалежно від Firebase onValue race conditions
+    const currentVer      = CHANGELOG[0]?.version || '';
+    const changelogSeen   = _lsGet('changelogSeen');
+    if (changelogSeen !== currentVer) {
         items.push({
             id:    'changelog',
             icon:  '📝',
@@ -64,85 +70,78 @@ function _buildNotifications() {
     }
 
     // ── 2. Feedback ───────────────────────────────────────
+    // Firebase: має синхронізуватись між пристроями
     const feedbackItems = getFeedbackItems();
+    const fbP = _fbProfile();
 
     if (!isParent) {
-        // Дитина: нові/змінені відповіді батьків та зміни статусу
-        const seenAt = p.feedbackReplySeenAt || '1970-01-01T00:00';
+        const seenAt = fbP.feedbackReplySeenAt || '1970-01-01T00:00';
         feedbackItems.forEach(item => {
-            // Нова або змінена відповідь батьків
             if (item.commentAt && item.commentAt > seenAt) {
-                const isNew = !item.prevCommentAt || item.commentAt === item.prevCommentAt;
                 items.push({
-                    id:   `fb_reply_${item.id}`,
-                    icon: '💬',
-                    title: isNew ? 'Нова відповідь батьків' : 'Змінено відповідь батьків',
-                    body: `${item.category}: "${item.text.slice(0, 50)}${item.text.length > 50 ? '…' : ''}"`,
-                    time: item.commentAt,
-                    type: 'feedback',
+                    id:    `fb_reply_${item.id}`,
+                    icon:  '💬',
+                    title: 'Нова або змінена відповідь батьків',
+                    body:  `${item.category}: "${item.text.slice(0, 50)}${item.text.length > 50 ? '…' : ''}"`,
+                    time:  item.commentAt,
+                    type:  'feedback',
                 });
             }
-            // Зміна статусу
             if (item.statusChangedAt && item.statusChangedAt > seenAt) {
-                const STATUS_NAMES = { '⏳': 'Нове', '🔄': 'В опрацюванні', '✅': 'Виконано', '❌': 'Відхилено' };
+                const NAMES = { '⏳': 'Нове', '🔄': 'В опрацюванні', '✅': 'Виконано', '❌': 'Відхилено' };
                 items.push({
-                    id:   `fb_status_${item.id}`,
-                    icon: '✅',
+                    id:    `fb_status_${item.id}`,
+                    icon:  '✅',
                     title: 'Оновлено статус запиту',
-                    body: `${item.category} → ${item.status} ${STATUS_NAMES[item.status] || ''}`,
-                    time: item.statusChangedAt,
-                    type: 'feedback',
+                    body:  `${item.category} → ${item.status} ${NAMES[item.status] || ''}`,
+                    time:  item.statusChangedAt,
+                    type:  'feedback',
                 });
             }
         });
     } else {
-        // Батьки: нові фідбеки та коментарі дитини
-        const newSeenAt     = p.feedbackNewSeenAt     || '1970-01-01T00:00';
-        const commentSeenAt = p.childCommentSeenAt    || '1970-01-01T00:00';
+        const newSeenAt     = fbP.feedbackNewSeenAt   || '1970-01-01T00:00';
+        const commentSeenAt = fbP.childCommentSeenAt  || '1970-01-01T00:00';
         feedbackItems.forEach(item => {
             if (item.date > newSeenAt) {
                 items.push({
-                    id:   `fb_new_${item.id}`,
-                    icon: '💬',
+                    id:    `fb_new_${item.id}`,
+                    icon:  '💬',
                     title: 'Нове повідомлення від дитини',
-                    body: `${item.category}: "${item.text.slice(0, 50)}${item.text.length > 50 ? '…' : ''}"`,
-                    time: item.date,
-                    type: 'feedback',
+                    body:  `${item.category}: "${item.text.slice(0, 50)}${item.text.length > 50 ? '…' : ''}"`,
+                    time:  item.date,
+                    type:  'feedback',
                 });
             }
             if (item.childCommentAt && item.childCommentAt > commentSeenAt) {
-                const isEdit = item.prevChildCommentAt && item.childCommentAt !== item.prevChildCommentAt;
                 items.push({
-                    id:   `fb_comment_${item.id}`,
-                    icon: '✏️',
-                    title: isEdit ? 'Дитина змінила коментар' : 'Дитина додала коментар',
-                    body: `До запиту: "${item.text.slice(0, 50)}${item.text.length > 50 ? '…' : ''}"`,
-                    time: item.childCommentAt,
-                    type: 'feedback',
+                    id:    `fb_comment_${item.id}`,
+                    icon:  '✏️',
+                    title: 'Дитина додала або змінила коментар',
+                    body:  `До запиту: "${item.text.slice(0, 50)}${item.text.length > 50 ? '…' : ''}"`,
+                    time:  item.childCommentAt,
+                    type:  'feedback',
                 });
             }
         });
     }
 
     // ── 3. Досягнення ─────────────────────────────────────
-    const achSeenAt = p.achievementSeenAt || '1970-01-01T00:00';
-    const newAch = (state.data.records || []).filter(r =>
-        r.category === 'achievement' && r.type === 'earn' &&
-        r.date > achSeenAt
-    );
-    newAch.forEach(r => {
-        items.push({
-            id:   `ach_${r.id}`,
-            icon: '🏆',
+    // Firebase: синхронізуємо між пристроями
+    const achSeenAt = fbP.achievementSeenAt || '1970-01-01T00:00';
+    (state.data.records || [])
+        .filter(r => r.category === 'achievement' && r.type === 'earn' && r.date > achSeenAt)
+        .forEach(r => items.push({
+            id:    `ach_${r.id}`,
+            icon:  '🏆',
             title: 'Нове досягнення',
             body:  `${r.description || r.desc} +${r.stars}⭐`,
             time:  r.date,
             type:  'achievement',
-        });
-    });
+        }));
 
-    // ── 4. Умовні (перевіряємо щодня) ────────────────────
-    const condSeen = p.conditionsSeenDate;
+    // ── 4. Умовні (localStorage — суто локальні) ─────────
+    const condSeen = _lsGet('conditionsSeenDate');
     const showCond = condSeen !== today;
 
     if (showCond) {
@@ -154,15 +153,13 @@ function _buildNotifications() {
             ? earnRecs.reduce((a, b) => a.date > b.date ? a : b)
             : null;
         if (lastEarn) {
-            const lastDate = new Date(lastEarn.date);
-            const now      = new Date(_kyivNow());
-            const diffH    = (now - lastDate) / 3_600_000;
+            const diffH = (new Date(_kyivNow()) - new Date(lastEarn.date)) / 3_600_000;
             if (diffH >= 24) {
                 items.push({
                     id:   'cond_no_stars',
                     icon: '⭐',
                     title: 'Зірки не додавались',
-                    body:  `Більше доби без нових зірок. Час щось заробити!`,
+                    body:  'Більше доби без нових зірок. Час щось заробити!',
                     type:  'reminder',
                 });
             }
@@ -176,14 +173,13 @@ function _buildNotifications() {
             });
         }
 
-        // Ризик серії: сьогодні будній день і ще немає записів
+        // Ризик серії
         const todayEarn = earnRecs.filter(r => _kyivDate(r.date) === today);
         const nowDate   = new Date(_kyivNow());
-        const dayOfWeek = nowDate.getDay(); // 0=нд, 6=сб
+        const dayOfWeek = nowDate.getDay();
         const hour      = nowDate.getHours();
-        const isWeekday = dayOfWeek >= 1 && dayOfWeek <= 5;
         const streak    = state.data.achievements?.streaks?.earning?.current || 0;
-        if (isWeekday && hour >= 16 && todayEarn.length === 0 && streak > 0) {
+        if (dayOfWeek >= 1 && dayOfWeek <= 5 && hour >= 16 && todayEarn.length === 0 && streak > 0) {
             items.push({
                 id:   'cond_streak_risk',
                 icon: '🔥',
@@ -193,21 +189,20 @@ function _buildNotifications() {
             });
         }
 
-        // Ціль близько (≥ 90%)
+        // Ціль близько
         const goal    = state.data.goal;
         const balance = state.data.balance || 0;
         if (goal?.target && balance >= goal.target * 0.9 && balance < goal.target) {
-            const left = goal.target - balance;
             items.push({
                 id:   'cond_goal_close',
                 icon: '🎯',
                 title: 'Ціль майже досягнута!',
-                body:  `Ще ${left}⭐ до "${goal.name || 'мети'}"`,
+                body:  `Ще ${goal.target - balance}⭐ до "${goal.name || 'мети'}"`,
                 type:  'progress',
             });
         }
 
-        // Хороша динаміка (цей тиждень > минулий на ≥ 20%)
+        // Хороша динаміка
         const getWeekEarned = (weeksAgo) => {
             const now = new Date(_kyivNow());
             const day = now.getDay() || 7;
@@ -228,14 +223,14 @@ function _buildNotifications() {
                 id:   'cond_good_dynamics',
                 icon: '📈',
                 title: 'Чудова динаміка!',
-                body:  `Цього тижня ${thisWeek}⭐ — на ${Math.round((thisWeek/lastWeek - 1)*100)}% більше ніж минулого`,
+                body:  `Цього тижня ${thisWeek}⭐ — на ${Math.round((thisWeek / lastWeek - 1) * 100)}% більше ніж минулого`,
                 type:  'praise',
             });
         }
 
-        // Резервна копія (тільки батькам, через localStorage)
+        // Резервна копія (тільки батькам)
         if (isParent) {
-            const lastBackup = localStorage.getItem('backupReminderSeenDate');
+            const lastBackup = localStorage.getItem('backupReminderSeenDate') || '';
             const daysSince  = lastBackup
                 ? Math.floor((new Date(today) - new Date(lastBackup)) / 86_400_000)
                 : 999;
@@ -249,12 +244,10 @@ function _buildNotifications() {
                 });
             }
         }
-
     }
 
-
-    // Сортуємо: подійні по часу, умовні в кінці
-    const order = { feedback: 0, achievement: 1, version: 2, warning: 3, progress: 4, praise: 5, reminder: 6, info: 7 };
+    // Сортування
+    const order = { feedback: 0, achievement: 1, version: 2, warning: 3, progress: 4, praise: 5, reminder: 6 };
     items.sort((a, b) => {
         const od = (order[a.type] ?? 9) - (order[b.type] ?? 9);
         if (od !== 0) return od;
@@ -266,39 +259,27 @@ function _buildNotifications() {
 }
 
 // ════════════════════════════════════════════════════
-// 🔴  БЕЙДЖ — червона крапка
+// 🔴  БЕЙДЖІ
 // ════════════════════════════════════════════════════
 
 export function updateNotificationBadge() {
     const badge = document.getElementById('notifBadge');
     if (!badge) return;
     const items = _buildNotifications();
-    if (items.length > 0) {
-        badge.style.display = 'block';
-    } else {
-        badge.style.display = 'none';
-    }
+    badge.style.display = items.length > 0 ? 'block' : 'none';
 }
 
-// ════════════════════════════════════════════════════
-// 📝  БЕЙДЖ CHANGELOG
-// ════════════════════════════════════════════════════
-
 export function updateChangelogBadge() {
-    const badge      = document.getElementById('changelogBadge');
+    const badge = document.getElementById('changelogBadge');
     if (!badge) return;
     const currentVer = CHANGELOG[0]?.version || '';
-    const seenVer    = _profile().changelogSeen || '';
-    badge.style.display = seenVer !== currentVer ? 'block' : 'none';
+    badge.style.display = _lsGet('changelogSeen') !== currentVer ? 'block' : 'none';
 }
 
 export function markChangelogRead() {
-    const p   = _profile();
-    const ver = CHANGELOG[0]?.version || '';
-    p.changelogSeen = ver;
-    saveData();
+    _lsSet('changelogSeen', CHANGELOG[0]?.version || '');
     updateChangelogBadge();
-    updateNotificationBadge();  // синхронізуємо обидва бейджі
+    updateNotificationBadge();
 }
 
 // ════════════════════════════════════════════════════
@@ -310,7 +291,18 @@ export function openNotifications() {
     const content = document.getElementById('notifContent');
     if (!modal || !content) return;
 
+    // Будуємо список ДО markAllRead — snapshot поточного стану
     const items = _buildNotifications();
+
+    const TYPE_COLORS = {
+        feedback:    { bg: 'var(--c-purple-bg)',  border: 'var(--c-purple-border)',  text: 'var(--c-purple-text)'  },
+        achievement: { bg: 'var(--c-balance-bg)', border: 'var(--c-balance-border)', text: 'var(--c-balance-text)' },
+        version:     { bg: 'var(--c-info-bg)',    border: 'var(--c-info-border)',    text: 'var(--c-info-text)'    },
+        warning:     { bg: 'var(--c-danger-bg)',  border: 'var(--c-danger-border)',  text: 'var(--c-danger-text)'  },
+        progress:    { bg: 'var(--c-success-bg)', border: 'var(--c-success-border)', text: 'var(--c-success-text)' },
+        praise:      { bg: 'var(--c-success-bg)', border: 'var(--c-success-border)', text: 'var(--c-success-text)' },
+        reminder:    { bg: 'var(--c-warning-bg)', border: 'var(--c-warning-border)', text: 'var(--c-warning-text)' },
+    };
 
     if (items.length === 0) {
         content.innerHTML = `<div class="notif-empty">
@@ -318,19 +310,8 @@ export function openNotifications() {
             <div>Нових сповіщень немає</div>
         </div>`;
     } else {
-        const TYPE_COLORS = {
-            feedback:    { bg: 'var(--c-purple-bg)',  border: 'var(--c-purple-border)',  text: 'var(--c-purple-text)'  },
-            achievement: { bg: 'var(--c-balance-bg)', border: 'var(--c-balance-border)', text: 'var(--c-balance-text)' },
-            version:     { bg: 'var(--c-info-bg)',    border: 'var(--c-info-border)',    text: 'var(--c-info-text)'    },
-            warning:     { bg: 'var(--c-danger-bg)',  border: 'var(--c-danger-border)',  text: 'var(--c-danger-text)'  },
-            progress:    { bg: 'var(--c-success-bg)', border: 'var(--c-success-border)', text: 'var(--c-success-text)' },
-            praise:      { bg: 'var(--c-success-bg)', border: 'var(--c-success-border)', text: 'var(--c-success-text)' },
-            reminder:    { bg: 'var(--c-warning-bg)', border: 'var(--c-warning-border)', text: 'var(--c-warning-text)' },
-            info:        { bg: 'var(--c-info-bg)',    border: 'var(--c-info-border)',    text: 'var(--c-info-text)'    },
-        };
-
         content.innerHTML = items.map(item => {
-            const c = TYPE_COLORS[item.type] || TYPE_COLORS.info;
+            const c = TYPE_COLORS[item.type] || TYPE_COLORS.reminder;
             return `
             <div class="notif-item" style="background:${c.bg};border-color:${c.border};">
                 <div class="notif-item-icon">${item.icon}</div>
@@ -346,7 +327,7 @@ export function openNotifications() {
     modal.style.display = 'flex';
     document.body.style.overflow = 'hidden';
 
-    // Позначаємо як прочитані
+    // Позначаємо прочитаними — синхронно в localStorage + Firebase для подійних
     _markAllRead();
 }
 
@@ -355,42 +336,33 @@ export function closeNotifications() {
     if (modal) modal.style.display = 'none';
     document.body.style.overflow = '';
     updateNotificationBadge();
-    // updateChangelogBadge — не чіпаємо, changelog прибирається тільки через markChangelogRead
+    // changelog badge — не чіпаємо, прибирається тільки через markChangelogRead()
 }
 
 function _markAllRead() {
-    const p       = _profile();
-    const now     = _kyivNow();
-    const today   = _kyivToday();
-    const isParent = !!state.data.isParent;
+    const now   = _kyivNow();
+    const today = _kyivToday();
 
-    if (!isParent) {
-        p.feedbackReplySeenAt  = now;
-        p.achievementSeenAt    = now;
-        p.conditionsSeenDate   = today;
-        // changelogSeen — не торкаємось, позначається тільки через markChangelogRead()
-    } else {
-        p.feedbackNewSeenAt    = now;
-        p.childCommentSeenAt   = now;
-        p.achievementSeenAt    = now;
-        p.conditionsSeenDate   = today;
-        // changelogSeen — не торкаємось, позначається тільки через markChangelogRead()
+    // Умовні та changelog — localStorage (синхронно)
+    _lsSet('conditionsSeenDate', today);
+
+    // Подійні — Firebase (для синхронізації між пристроями)
+    const fbP = _fbProfile();
+    if (state.data.isParent) {
+        fbP.feedbackNewSeenAt   = now;
+        fbP.childCommentSeenAt  = now;
+        fbP.achievementSeenAt   = now;
         localStorage.setItem('backupReminderSeenDate', today);
+    } else {
+        fbP.feedbackReplySeenAt = now;
+        fbP.achievementSeenAt   = now;
     }
-
     saveData();
 }
 
 // ════════════════════════════════════════════════════
-// 📌  ЗОВНІШНІЙ API для інших модулів
+// 📌  API
 // ════════════════════════════════════════════════════
 
-// Викликати після отримання нового досягнення
-export function notifyAchievementEarned() {
-    updateNotificationBadge();
-}
-
-// Викликати після збереження/зміни статусу feedback
-export function notifyFeedbackChanged() {
-    updateNotificationBadge();
-}
+export function notifyAchievementEarned() { updateNotificationBadge(); }
+export function notifyFeedbackChanged()   { updateNotificationBadge(); }
