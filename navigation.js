@@ -6,7 +6,7 @@
 //     showForm/switchTab, а ui.js потребував їх модулів
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'vv3.20260505.2222';
+export const VERSION = 'v3.20260505.2343';
 
 import { state } from './state.js';
 import { getTodayDate } from './utils.js';
@@ -91,6 +91,7 @@ export function switchTab(tab, fromClick = false) {
 document.addEventListener('zirky:dataLoaded', () => {
     applyAppearance();
     updateNotificationBadge();  // Перевіряємо нові сповіщення
+    if (window.updateChangelogBadge) window.updateChangelogBadge();
     const activeSection = document.querySelector('.section.active');
     if (activeSection) {
         if (activeSection.id === 'historySection') renderHistory();

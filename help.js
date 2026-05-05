@@ -2,12 +2,13 @@
 // ❓  help.js — Інструкції по розділах
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260505.2320';
+export const VERSION = 'v3.20260505.2350';
 
 import { state } from './state.js';
 import { CHANGELOG } from './changelog.js';
 
 const HR = '<hr style="border:none;border-top:1px solid #eee;margin:12px 0">';
+
 
 const TITLES = {
     addSection:          '➕ Додати',
@@ -426,6 +427,8 @@ export function showHelp(sectionId) {
 
     if (sectionId === 'changelog') {
         content.innerHTML = renderChangelogHTML();
+        // Позначаємо changelog прочитаним через notifications.js
+        if (window.markChangelogRead) window.markChangelogRead();
     } else {
         const texts = state.data.isParent ? HELP_PARENT : HELP_CHILD;
         content.innerHTML = texts[sectionId] || '<p>Інформація відсутня</p>';

@@ -2,7 +2,7 @@
 // 🔔  notifications.js — Центр сповіщень
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260505.2155';
+export const VERSION = 'v3.20260505.2350';
 
 import { state }    from './state.js';
 import { saveData } from './firebase.js';
@@ -279,6 +279,26 @@ export function updateNotificationBadge() {
 }
 
 // ════════════════════════════════════════════════════
+// 📝  БЕЙДЖ CHANGELOG
+// ════════════════════════════════════════════════════
+
+export function updateChangelogBadge() {
+    const badge      = document.getElementById('changelogBadge');
+    if (!badge) return;
+    const currentVer = CHANGELOG[0]?.version || '';
+    const seenVer    = _profile().changelogSeen || '';
+    badge.style.display = seenVer !== currentVer ? 'block' : 'none';
+}
+
+export function markChangelogRead() {
+    const p      = _profile();
+    const ver    = CHANGELOG[0]?.version || '';
+    p.changelogSeen = ver;
+    saveData();
+    updateChangelogBadge();
+}
+
+// ════════════════════════════════════════════════════
 // 📬  ВІДКРИТТЯ ПАНЕЛІ
 // ════════════════════════════════════════════════════
 
@@ -332,6 +352,7 @@ export function closeNotifications() {
     if (modal) modal.style.display = 'none';
     document.body.style.overflow = '';
     updateNotificationBadge();
+    updateChangelogBadge();
 }
 
 function _markAllRead() {
