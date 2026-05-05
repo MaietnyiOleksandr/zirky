@@ -2,7 +2,7 @@
 // 🔔  notifications.js — Центр сповіщень
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260505.2350';
+export const VERSION = 'v3.20260505.2356';
 
 import { state }    from './state.js';
 import { saveData } from './firebase.js';
@@ -291,11 +291,12 @@ export function updateChangelogBadge() {
 }
 
 export function markChangelogRead() {
-    const p      = _profile();
-    const ver    = CHANGELOG[0]?.version || '';
+    const p   = _profile();
+    const ver = CHANGELOG[0]?.version || '';
     p.changelogSeen = ver;
     saveData();
     updateChangelogBadge();
+    updateNotificationBadge();  // синхронізуємо обидва бейджі
 }
 
 // ════════════════════════════════════════════════════
@@ -364,14 +365,14 @@ function _markAllRead() {
     if (!isParent) {
         p.feedbackReplySeenAt  = now;
         p.achievementSeenAt    = now;
-        p.changelogSeen        = CHANGELOG[0]?.version || '';
         p.conditionsSeenDate   = today;
+        // changelogSeen — не торкаємось, позначається тільки через markChangelogRead()
     } else {
         p.feedbackNewSeenAt    = now;
         p.childCommentSeenAt   = now;
         p.achievementSeenAt    = now;
-        p.changelogSeen        = CHANGELOG[0]?.version || '';
         p.conditionsSeenDate   = today;
+        // changelogSeen — не торкаємось, позначається тільки через markChangelogRead()
         localStorage.setItem('backupReminderSeenDate', today);
     }
 
