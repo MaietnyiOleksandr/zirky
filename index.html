@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⭐</text></svg>">
-    <!-- version: v3.20260505.1905 -->
+    <!-- version: vv3.20260505.2222 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>⭐ Зірки Успіху</title>
     <link rel="stylesheet" href="style.css">
@@ -586,6 +586,7 @@
                 <div class="section-header">
                     <h2 class="section-title">⚙️ Налаштування</h2>
                     <div class="section-header-actions">
+                        <button class="btn-icon" onclick="showDataInfoModal()" title="Інформація про дані">📊</button>
                         <button class="btn-icon" onclick="showHelp('about')" title="Про програму">ℹ️</button>
                         <button class="btn-icon" onclick="showHelp('changelog')" title="Історія змін">📝</button>
                         <button class="btn-icon" onclick="showHelp('settingsSection')" title="Довідка">?</button>
@@ -600,11 +601,7 @@
                     </div>
                 </div>
 
-                <!-- Інфо про дані -->
-                <div class="card-success">
-                    <h3 class="card-title">📊 Інформація про дані</h3>
-                    <div id="dataInfo" class="card-text"></div>
-                </div>
+                <!-- Кнопка "Інформація про дані" тепер у заголовку секції -->
 
                 <!-- Експорт -->
                 <div class="card-bg">
@@ -742,8 +739,8 @@
         import { renderHistory, changeMonth, applyHistoryFilter } from './history.js';
         import { renderRewards, buyTime, buyMoney, buyCustomReward, updateTimePreview, updateMoneyPreview, checkRewardPin } from './rewards.js';
         import { renderStats, updateChart, changeChartPeriod, changeChartOffset } from './stats.js';
-        import { showDataInfo, exportData, importData, resetAllData,
-                 adjustBalance, saveConversionRates } from './settings.js';
+        import { showDataInfoModal, closeDataInfoModal, exportData, importData,
+                 resetAllData, adjustBalance, saveConversionRates } from './settings.js';
         import { updateNotificationBadge, openNotifications, closeNotifications } from './notifications.js';
         import { applyAppearance, renderThemeShop, buyTheme,
                  activateTheme, setComponent, startPreview, stopPreview, refundTheme,
@@ -799,7 +796,8 @@
         window.resetAllData = resetAllData;
         window.adjustBalance = adjustBalance;
         window.saveConversionRates = saveConversionRates;
-        window.showDataInfo = showDataInfo;
+        window.showDataInfoModal   = showDataInfoModal;
+        window.closeDataInfoModal  = closeDataInfoModal;
         // appearance.js
         window.applyAppearance = applyAppearance;
         window.renderThemeShop = renderThemeShop;
@@ -867,6 +865,17 @@
                 <button onclick="closeNotifications()" class="help-close-btn">✕</button>
             </div>
             <div id="notifContent"></div>
+        </div>
+    </div>
+
+    <!-- Data Info Modal -->
+    <div id="dataInfoModal" class="help-modal" style="display:none;">
+        <div class="help-modal-inner">
+            <div class="help-modal-header">
+                <h3 class="help-modal-title">📊 Інформація про дані</h3>
+                <button onclick="closeDataInfoModal()" class="help-close-btn">✕</button>
+            </div>
+            <div id="dataInfo" class="help-modal-content"></div>
         </div>
     </div>
 

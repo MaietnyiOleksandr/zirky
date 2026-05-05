@@ -6,7 +6,7 @@
 //     showForm/switchTab, а ui.js потребував їх модулів
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260505.1805';
+export const VERSION = 'vv3.20260505.2222';
 
 import { state } from './state.js';
 import { getTodayDate } from './utils.js';
@@ -16,7 +16,7 @@ import { renderFreezePeriods } from './freeze.js';
 import { renderHistory } from './history.js';
 import { renderRewards } from './rewards.js';
 import { renderStats, checkStreakWarning } from './stats.js';
-import { showDataInfo } from './settings.js';
+// showDataInfo більше не викликається автоматично — тільки через кнопку
 import { renderFeedback } from './feedback.js';
 import { applyAppearance, renderThemeShop } from './appearance.js';
 import { updateNotificationBadge, openNotifications, closeNotifications } from './notifications.js';
@@ -80,7 +80,7 @@ export function switchTab(tab, fromClick = false) {
     }
     else if (tab === 'achievements') renderAchievements();
     else if (tab === 'stats') renderStats();
-    else if (tab === 'settings') { showDataInfo(); renderFeedback(); renderThemeShop(); }
+    else if (tab === 'settings') { renderFeedback(); renderThemeShop(); }
 
     if (!state.data.isParent && tab === 'add') {
         switchTab('instructions');

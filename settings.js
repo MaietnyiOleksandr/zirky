@@ -2,7 +2,7 @@
 // ⚙️   settings.js — Налаштування / Експорт / Імпорт
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260505.2155';
+export const VERSION = 'v3.20260505.2222';
 
 // ════════════════════════════════════════════════════════════
 
@@ -15,7 +15,68 @@ import { THEMES } from './appearance.js';
 // ════════════════════════════════════════════════════════════
 // // ⚙️   БЛОК: Налаштування / Експорт / Імпорт
 // ════════════════════════════════════════════════════════════
-export function showDataInfo() {
+
+async function _loadVersionsTable() {
+    const body = document.getElementById('versionsTableBody');
+    if (!body) return;
+
+    const htmlVer = (() => {
+        const c = document.documentElement.outerHTML;
+        return c.match(/version:\s*(v3\.\d+\.\d+)/)?.[1] || '—';
+    })();
+
+    let cssVer = '—';
+    try {
+        const cssText = Array.from(document.styleSheets).find(s => s.href?.includes('style.css'));
+        if (cssText) {
+            const resp = await fetch(cssText.href);
+            const text = await resp.text();
+            cssVer = text.match(/v3\.\d+\.\d+/)?.[0] || '—';
+        }
+    } catch(e) {}
+
+    const jsFiles = [
+        'achievements.js','appearance.js','auth.js','changelog.js','config.js',
+        'feedback.js','firebase.js','freeze.js','goals.js','help.js','history.js',
+        'navigation.js','notifications.js','records.js','rewards.js',
+        'settings.js','state.js','stats.js','ui.js','utils.js'
+    ];
+
+    const makeRow = (name, ver) => {
+        const verClass = ver !== '—' && ver !== 'помилка'
+            ? 'versions-row-ver versions-row-ver--ok'
+            : 'versions-row-ver versions-row-ver--none';
+        return `<div class="versions-row">
+            <span class="versions-row-name">${name}</span>
+            <span class="${verClass}">${ver}</span>
+        </div>`;
+    };
+
+    let rows = [
+        makeRow('🌐 index.html', htmlVer),
+        makeRow('🎨 style.css', cssVer),
+        `<div style="height:4px;"></div>`,
+    ];
+
+    const jsRows = await Promise.all(jsFiles.map(async fname => {
+        try {
+            const mod = await import('./' + fname + '?v=' + Date.now());
+            return makeRow('📄 ' + fname, mod.VERSION || '—');
+        } catch(e) {
+            return makeRow('📄 ' + fname, '—');
+        }
+    }));
+
+    body.innerHTML = rows.join('') + jsRows.join('');
+}
+
+export function closeDataInfoModal() {
+    const modal = document.getElementById('dataInfoModal');
+    if (modal) modal.style.display = 'none';
+    document.body.style.overflow = '';
+}
+
+export async function showDataInfoModal() {
     const container = document.getElementById('dataInfo');
     if (!container) return;
     
@@ -41,13 +102,13 @@ export function showDataInfo() {
     const activeThemeName  = THEMES.find(t => t.id === activeThemeId)?.name  || activeThemeId;
     const parentThemeName  = THEMES.find(t => t.id === parentThemeId)?.name  || parentThemeId;
 
-    // Останній вхід дитини
-    const childLogin    = state.data.notifications?.child?.lastLoginAt;
-    const loginType     = state.data.notifications?.child?.lastLoginType;
-    const loginLabel    = loginType === 'direct' ? 'прямий вхід' : 'після невірного PIN';
-    const loginStr      = childLogin
-        ? `${new Date(childLogin).toLocaleString('uk-UA', { timeZone:'Europe/Kyiv', day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' })} (${loginLabel})`
-        : 'ще не заходила';
+    // Активність дитини — два типи входу окремо
+    const fmtLoginDate = iso => iso
+        ? new Date(iso).toLocaleString('uk-UA', { timeZone:'Europe/Kyiv', day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' })
+        : null;
+    const childNotif       = state.data.notifications?.child || {};
+    const directLoginStr   = fmtLoginDate(childNotif.lastDirectLoginAt)  || 'ще не було';
+    const pinFailLoginStr  = fmtLoginDate(childNotif.lastPinFailLoginAt) || 'ще не було';
 
     // Розмір даних
     const dataSize = new Blob([JSON.stringify(state.data)]).size;
@@ -80,97 +141,31 @@ export function showDataInfo() {
         ${isParent ? `
         <div class="card-inner mt-sm" style="display:grid;gap:6px;">
             <div style="font-size:12px;font-weight:700;color:var(--text-muted);margin-bottom:2px;">👧 Активність дитини</div>
-            <div class="font-sm">Останній вхід: <strong>${loginStr}</strong></div>
+            <div class="font-sm">🔑 Прямий вхід: <strong>${directLoginStr}</strong></div>
+            <div class="font-sm">❌ Вхід після невірного PIN: <strong>${pinFailLoginStr}</strong></div>
         </div>` : ''}
 
         <div class="font-xs text-hint mt-sm">💾 Розмір даних: ${sizeKB} KB</div>
-        <div class="versions-accordion">
-            <button id="versionsBtn" class="versions-accordion-btn">
-                <span>📋 Інформація про версії</span>
-                <span id="versionsArrow" class="versions-accordion-arrow">▶</span>
-            </button>
-            <div id="versionsBody" class="versions-accordion-body">
-                <div class="text-hint font-xs text-center">Завантаження...</div>
-            </div>
+        <div class="versions-table-block mt-sm">
+            <div style="font-size:12px;font-weight:700;color:var(--text-muted);margin-bottom:6px;">📋 Версії файлів</div>
+            <div id="versionsTableBody" class="font-xs text-hint text-center">Завантаження...</div>
         </div>
     `;
 
-    // Accordion — зчитує VERSION динамічно з вже завантажених модулів
-    document.getElementById('versionsBtn').addEventListener('click', async function() {
-        const body = document.getElementById('versionsBody');
-        const arrow = document.getElementById('versionsArrow');
-        const isOpen = body.style.display !== 'none';
-
-        if (isOpen) {
-            body.style.display = 'none';
-            arrow.textContent = '▶';
-            return;
-        }
-
-        body.style.display = 'block';
-        arrow.textContent = '▼';
-
-        // HTML та CSS — читаємо з DOM
-        const htmlVer = document.querySelector('meta[charset]')?.nextElementSibling
-            ?.previousSibling?.textContent?.match(/v3\.\d+\.\d+/)?.[0]
-            || (() => {
-                const c = document.documentElement.outerHTML;
-                return c.match(/version:\s*(v3\.\d+\.\d+)/)?.[1] || '—';
-            })();
-
-        // Читаємо версію CSS з завантаженого stylesheet
-        let cssVer = '—';
-        try {
-            const cssText = Array.from(document.styleSheets)
-                .find(s => s.href?.includes('style.css'));
-            if (cssText) {
-                const resp = await fetch(cssText.href);
-                const text = await resp.text();
-                cssVer = text.match(/v3\.\d+\.\d+/)?.[0] || '—';
-            }
-        } catch(e) {}
-
-        // JS файли — відсортовані за алфавітом
-        const jsFiles = [
-            'achievements.js','auth.js','changelog.js','config.js','feedback.js','firebase.js',
-            'freeze.js','goals.js','help.js','history.js','navigation.js',
-            'records.js','rewards.js','settings.js','state.js',
-            'stats.js','ui.js','utils.js'
-        ];
-
-        const makeRow = (name, ver, isHeader = false) => {
-            const rowClass = isHeader ? 'versions-row versions-row--header' : 'versions-row';
-            const verClass = ver !== '—' ? 'versions-row-ver versions-row-ver--ok' : 'versions-row-ver versions-row-ver--none';
-            return `<div class="${rowClass}">
-                <span class="versions-row-name">${name}</span>
-                <span class="${verClass}">${ver}</span>
-            </div>`;
-        };
-
-        // Збираємо рядки HTML+CSS
-        let rows = [
-            makeRow('🌐 index.html', htmlVer),
-            makeRow('🎨 style.css', cssVer),
-            `<div style="height:6px;"></div>`,
-        ];
-
-        // Додаємо JS файли
-        const jsRows = await Promise.all(jsFiles.map(async fname => {
-            try {
-                const mod = await import('./' + fname);
-                return makeRow('📄 ' + fname, mod.VERSION || '—');
-            } catch(e) {
-                return makeRow(fname, 'помилка');
-            }
-        }));
-
-        body.innerHTML = rows.join('') + jsRows.join('');
-    });
+    // Завантажуємо версії файлів одразу
+    _loadVersionsTable();
     
     // Батьківські блоки — показуємо тільки для батьків
     const pinBlock     = document.getElementById('pinSettingsBlock');
     const balanceBlock = document.getElementById('balanceCorrectionBlock');
     const ratesBlock   = document.getElementById('conversionRatesBlock');
+
+    // Відкриваємо модальне вікно
+    const modal = document.getElementById('dataInfoModal');
+    if (modal) {
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
 
     if (pinBlock) pinBlock.style.display = state.data.isParent ? 'block' : 'none';
 

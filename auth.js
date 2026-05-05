@@ -2,7 +2,7 @@
 // 🔐  auth.js — Авторизація та PIN-код
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260505.1805';
+export const VERSION = 'v3.20260505.2222';
 
 import { state } from './state.js';
 import { saveData } from './firebase.js';
@@ -23,8 +23,15 @@ export function enterAsChild(loginType = 'direct') {
     // Зберігаємо час входу дитини (для батьківських сповіщень)
     if (!state.data.notifications) state.data.notifications = {};
     if (!state.data.notifications.child) state.data.notifications.child = {};
-    state.data.notifications.child.lastLoginAt   = nowKyiv();
+    const ts = nowKyiv();
+    state.data.notifications.child.lastLoginAt   = ts;
     state.data.notifications.child.lastLoginType = loginType;
+    // Окремо зберігаємо кожен тип входу
+    if (loginType === 'direct') {
+        state.data.notifications.child.lastDirectLoginAt  = ts;
+    } else {
+        state.data.notifications.child.lastPinFailLoginAt = ts;
+    }
     saveData();
 
     document.getElementById('loginOverlay').style.display = 'none';
