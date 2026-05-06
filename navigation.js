@@ -6,7 +6,7 @@
 //     showForm/switchTab, а ui.js потребував їх модулів
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260505.2343';
+export const VERSION = 'v3.20260506.0745';
 
 import { state } from './state.js';
 import { getTodayDate } from './utils.js';
@@ -90,8 +90,8 @@ export function switchTab(tab, fromClick = false) {
 // ── Слухаємо події від firebase.js та freeze.js ──────────────
 document.addEventListener('zirky:dataLoaded', () => {
     applyAppearance();
-    updateNotificationBadge();  // Перевіряємо нові сповіщення
-    if (window.updateChangelogBadge) window.updateChangelogBadge();
+    // Бейджі оновлюються після авторизації у auth.js — не тут,
+    // бо при dataLoaded ще невідомо хто заходить (isParent = false)
     const activeSection = document.querySelector('.section.active');
     if (activeSection) {
         if (activeSection.id === 'historySection') renderHistory();

@@ -2,7 +2,7 @@
 // 🔔  notifications.js — Центр сповіщень
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260506.0056';
+export const VERSION = 'v3.20260506.0745';
 
 import { state }    from './state.js';
 import { saveData } from './firebase.js';
@@ -53,13 +53,14 @@ function _dismissId(id) {
 }
 
 // Changelog — окремий ключ без прив'язки до профілю або дати
-function _getChangelogSeen(role) {
-    return localStorage.getItem(`zirky_changelog_${role}`) || '';
-}
-function _setChangelogSeen(role, ver) {
-    localStorage.setItem(`zirky_changelog_${role}`, ver);
-}
 function _currentRole() { return state.data.isParent ? 'parent' : 'child'; }
+
+function _getChangelogSeen() {
+    return localStorage.getItem(`zirky_changelog_${_currentRole()}`) || '';
+}
+function _setChangelogSeen(ver) {
+    localStorage.setItem(`zirky_changelog_${_currentRole()}`, ver);
+}
 
 // ── Firebase-профіль (тільки для подійних сповіщень) ─────────
 function _fbProfile() {
@@ -76,13 +77,12 @@ function _fbProfile() {
 
 function _buildNotifications() {
     const isParent = !!state.data.isParent;
-    const role     = _currentRole();
     const today    = _kyivToday();
     const items    = [];
 
     // ── 1. Changelog ─────────────────────────────────────
     const currentVer = CHANGELOG[0]?.version || '';
-    if (_getChangelogSeen(role) !== currentVer) {
+    if (_getChangelogSeen() !== currentVer) {
         items.push({
             id:    'changelog',
             icon:  '📝',
@@ -283,11 +283,11 @@ export function updateChangelogBadge() {
     const badge = document.getElementById('changelogBadge');
     if (!badge) return;
     const currentVer = CHANGELOG[0]?.version || '';
-    badge.style.display = _getChangelogSeen(_currentRole()) !== currentVer ? 'block' : 'none';
+    badge.style.display = _getChangelogSeen() !== currentVer ? 'block' : 'none';
 }
 
 export function markChangelogRead() {
-    _setChangelogSeen(_currentRole(), CHANGELOG[0]?.version || '');
+    _setChangelogSeen(CHANGELOG[0]?.version || '');
     updateChangelogBadge();
     updateNotificationBadge();
 }
