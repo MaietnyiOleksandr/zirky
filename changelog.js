@@ -8,7 +8,7 @@ export const VERSION = 'v3.20260506.2200';
 
 export const CHANGELOG = [
     {
-        version: 'v3.20260505',
+        version: 'v3.20260506',
         date: '05.05.2026',
         changes: [
             `🔔 Додано центр сповіщень`,
