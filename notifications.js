@@ -3,7 +3,7 @@
 //     Етап 1: Фундамент — структура + Firebase
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260506.1130';
+export const VERSION = 'v3.20260506.1135';
 
 import { state }    from './state.js';
 import { saveData } from './firebase.js';
@@ -99,11 +99,11 @@ export const NOTIF_TYPES = {
 let _db = null;
 let _items = {};   // поточний стан: { id: NotifItem }
 
+// Викликається з firebase.js після ініціалізації
+export function setNotifDb(db) { _db = db; }
+
 function _getDb() {
-    if (!_db) {
-        const app = initializeApp(firebaseConfig, 'notif-app');
-        _db = getDatabase(app);
-    }
+    if (!_db) throw new Error('🔔 NotifDB не ініціалізовано — setNotifDb() не викликано');
     return _db;
 }
 
