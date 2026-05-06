@@ -3,17 +3,14 @@
 //     Етап 1: Фундамент — структура + Firebase
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260506.1135';
+export const VERSION = 'v3.20260506.2211';
 
 import { state }    from './state.js';
-import { saveData } from './firebase.js';
 import { nowKyiv }  from './utils.js';
 import { CHANGELOG } from './changelog.js';
 import { getFeedbackItems } from './feedback.js';
 import { getDatabase, ref, set, remove, onValue }
     from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-import { firebaseConfig } from './config.js';
 
 // ════════════════════════════════════════════════════
 // 📋  КАТАЛОГ ТИПІВ СПОВІЩЕНЬ
@@ -109,20 +106,25 @@ function _getDb() {
 
 // Зберегти один запис
 function _saveItem(item) {
-    set(ref(_getDb(), `zirky-notifications/${item.id}`), item);
+    set(ref(_getDb(), `zirky-notifications/${_fbKey(item.id)}`), item);
 }
+
+// Firebase не дозволяє крапки в ключах — замінюємо на тире
+function _fbKey(id) { return id.replace(/\./g, '-'); }
 
 // Видалити один запис
 function _removeItem(id) {
-    remove(ref(_getDb(), `zirky-notifications/${id}`));
+    remove(ref(_getDb(), `zirky-notifications/${_fbKey(id)}`));
     delete _items[id];
 }
 
 // Ініціалізація слухача Firebase
 export function initNotificationsListener() {
     onValue(ref(_getDb(), 'zirky-notifications'), (snapshot) => {
-        _items = snapshot.val() || {};
-        // Після отримання даних — оновлюємо бейджі для поточного профілю
+        // Відновлюємо _items за item.id (не Firebase-ключем, бо в ключах крапки замінені)
+        const raw = snapshot.val() || {};
+        _items = {};
+        Object.values(raw).forEach(item => { _items[item.id] = item; });
         if (window.updateBadges) window.updateBadges();
     });
 }
