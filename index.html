@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⭐</text></svg>">
-    <!-- version: v3.20260505.2350 -->
+    <!-- version: v3.20260506.1130 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>⭐ Зірки Успіху</title>
     <link rel="stylesheet" href="style.css">
@@ -142,12 +142,12 @@
 
         <!-- Tabs -->
         <div class="tabs">
-            <button class="tab active" onclick="switchTab('add', true)">➕ Додати</button>
-            <button class="tab" onclick="switchTab('history', true)">📜 Історія</button>
-            <button class="tab" onclick="switchTab('rewards', true)">🎁 Витрати</button>
-            <button class="tab" onclick="switchTab('achievements', true)">🏆 Досягнення</button>
-            <button class="tab" onclick="switchTab('stats', true)">📊 Статистика</button>
-            <button class="tab" onclick="switchTab('settings', true)">⚙️ Налаштування<span id="feedbackBadge" class="feedback-badge">0</span></button>
+            <button class="tab active" data-tab="add"          onclick="switchTab('add', true)">➕ Додати</button>
+            <button class="tab"        data-tab="history"       onclick="switchTab('history', true)">📜 Історія</button>
+            <button class="tab"        data-tab="rewards"       onclick="switchTab('rewards', true)">🎁 Витрати</button>
+            <button class="tab"        data-tab="achievements"  onclick="switchTab('achievements', true)">🏆 Досягнення<span class="tab-badge" id="tabBadge_achievements" style="display:none;"></span></button>
+            <button class="tab"        data-tab="stats"         onclick="switchTab('stats', true)">📊 Статистика<span class="tab-badge" id="tabBadge_stats" style="display:none;"></span></button>
+            <button class="tab"        data-tab="settings"      onclick="switchTab('settings', true)">⚙️ Налаштування<span class="tab-badge" id="tabBadge_settings" style="display:none;"></span></button>
         </div>
 
         <!-- Content -->
@@ -723,7 +723,7 @@
         import { renderGoal, showGoalModal, cancelGoal, saveGoal, deleteGoal } from './goals.js';
         import { addFreezePeriod, deleteFreezePeriod, editFreezePeriod, renderFreezePeriods } from './freeze.js';
         import { initFirebase, saveData, initFeedbackListener } from './firebase.js';
-        import { initFeedbackData, renderFeedback, updateFeedbackBadge,
+        import { initFeedbackData, renderFeedback,
                  selectFeedbackCategory, submitFeedback,
                  startEditFeedback, cancelEditFeedback, saveEditFeedback,
                  deleteFeedback, deleteFeedbackConfirm, setFeedbackStatus,
@@ -741,8 +741,9 @@
         import { renderStats, updateChart, changeChartPeriod, changeChartOffset } from './stats.js';
         import { showDataInfoModal, closeDataInfoModal, exportData, importData,
                  resetAllData, adjustBalance, saveConversionRates } from './settings.js';
-        import { updateNotificationBadge, openNotifications, closeNotifications,
-                 updateChangelogBadge, markChangelogRead } from './notifications.js';
+        import { openNotifications, closeNotifications, updateNotificationBadge,
+                 updateChangelogBadge, markChangelogRead, dismissNotification,
+                 dismissByAction, getUnreadItems, generateNotifications } from './notifications.js';
         import { applyAppearance, renderThemeShop, buyTheme,
                  activateTheme, setComponent, startPreview, stopPreview, refundTheme,
                  toggleDevMode, isDevMode } from './appearance.js';
@@ -810,8 +811,42 @@
         window.startPreview    = startPreview;
         window.stopPreview              = stopPreview;
         window.updateNotificationBadge  = updateNotificationBadge;
+        window.updateChangelogBadge     = updateChangelogBadge;
         window.openNotifications        = openNotifications;
         window.closeNotifications       = closeNotifications;
+        window.dismissNotification      = dismissNotification;
+        window.dismissByAction          = dismissByAction;
+        window.getUnreadItems           = getUnreadItems;
+        window.generateNotifications    = generateNotifications;
+
+        // ── updateBadges — центральна функція крапок ──────
+        window.updateBadges = function() {
+            const role = state.data.isParent ? 'parent' : 'child';
+            const unread = window.getUnreadItems ? window.getUnreadItems(role) : [];
+
+            // Типи що мають сповіщення
+            const types = new Set(unread.map(i => i.type));
+            const badgeTargets = new Set(unread.flatMap(i => i.badges || []));
+
+            // 🔔 Дзвіночок
+            const bell = document.getElementById('notifBadge');
+            if (bell) bell.style.display = badgeTargets.has('bell') ? 'block' : 'none';
+
+            // 📝 Changelog кнопка
+            const cl = document.getElementById('changelogBadge');
+            if (cl) cl.style.display = badgeTargets.has('changelog') ? 'block' : 'none';
+
+            // Таби — крапки
+            const tabMap = {
+                achievements: 'tabBadge_achievements',
+                stats:        'tabBadge_stats',
+                settings:     'tabBadge_settings',
+            };
+            Object.entries(tabMap).forEach(([badgeKey, elId]) => {
+                const el = document.getElementById(elId);
+                if (el) el.style.display = badgeTargets.has(badgeKey) ? 'inline-block' : 'none';
+            });
+        };
         window.refundTheme    = refundTheme;
         window.toggleDevMode  = toggleDevMode;
         window.isDevMode      = isDevMode;
@@ -850,6 +885,8 @@
             // Закриваємо dataInfoModal при кліку на фон
             const dim = document.getElementById('dataInfoModal');
             if (dim && e.target === dim) closeDataInfoModal();
+            const nim = document.getElementById('notifModal');
+            if (nim && e.target === nim) closeNotifications();
         });
 
         // ── Ініціалізація ─────────────────────────────────────
@@ -858,7 +895,7 @@
         initFeedbackListener((rawData) => {
             initFeedbackData(rawData);
             renderFeedback();
-            updateFeedbackBadge();
+            if (window.updateBadges) window.updateBadges();
         });
 
     </script>

@@ -2,7 +2,7 @@
 // 🏆  achievements.js — Система досягнень
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260505.2312';
+export const VERSION = 'v3.20260506.1130';
 
 // ════════════════════════════════════════════════════════════
 
@@ -519,6 +519,7 @@ ${fullName}${repeatText}
 ${level.desc}
 
 +${level.reward}⭐ нараховано!`);
+                        if (window.generateNotifications) window.generateNotifications();
                     }, 300);
                 } else {
                     // Звичайні досягнення - як раніше
@@ -540,6 +541,7 @@ ${fullName}
 ${level.desc}
 
 +${level.reward}⭐ нараховано!`);
+                            if (window.generateNotifications) window.generateNotifications();
                     }, 300);
                 }
             }

@@ -2,7 +2,7 @@
 // 🔐  auth.js — Авторизація та PIN-код
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260505.2222';
+export const VERSION = 'v3.20260506.1130';
 
 import { state } from './state.js';
 import { saveData } from './firebase.js';
@@ -37,6 +37,7 @@ export function enterAsChild(loginType = 'direct') {
     document.getElementById('loginOverlay').style.display = 'none';
     document.getElementById('mainApp').style.display = 'block';
     applyAppearance();
+    if (window.updateBadges) window.updateBadges();
     updateUI();
     switchTab('achievements');
 }
@@ -67,6 +68,7 @@ export function checkPin() {
         document.getElementById('pinOverlay').style.display = 'none';
         document.getElementById('mainApp').style.display = 'block';
         applyAppearance();  // Застосовуємо тему батьківського профілю
+        if (window.updateBadges) window.updateBadges();
         updateUI();
     } else {
         alert('❌ Невірний PIN! Вхід як Дитина.');

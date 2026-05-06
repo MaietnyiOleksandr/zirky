@@ -2,13 +2,14 @@
 // FIREBASE  firebase.js — Firebase
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260505.1805';
+export const VERSION = 'v3.20260506.1130';
 
 import { state } from './state.js';
 import { firebaseConfig } from './config.js';
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
 import { getDatabase, ref, set, remove, onValue } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 import { recalculateAchievements } from './achievements.js';
+import { setNotifDb, initNotificationsListener, generateNotifications } from './notifications.js';
 import { migrateAppearance } from './utils.js';
 import { checkStreakWarning } from './stats.js';
 import { showLoading, updateUI } from './ui.js';
@@ -20,6 +21,10 @@ import { showLoading, updateUI } from './ui.js';
 // Ініціалізуємо Firebase тут — db потрібен локально
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
+
+// Передаємо db у notifications.js та запускаємо listener
+setNotifDb(db);
+initNotificationsListener();
 
 export function initFirebase() {
     showLoading(true);
@@ -44,10 +49,6 @@ export function initFirebase() {
             if (state.data.balance === undefined) state.data.balance = 0;
             if (!state.data.records) state.data.records = [];
             if (!state.data.achievements) state.data.achievements = { counters: {}, streaks: {}, levels: {}, weekly: {}, repeatableHistory: {}, freezePeriods: [] };
-            // Ініціалізація notifications
-            if (!state.data.notifications) state.data.notifications = {};
-            if (!state.data.notifications.child)  state.data.notifications.child  = {};
-            if (!state.data.notifications.parent) state.data.notifications.parent = {};
             // Міграція appearance до формату {child, parent}
             state.data.appearance = migrateAppearance(state.data.appearance);
         }
@@ -56,6 +57,7 @@ export function initFirebase() {
         updateUI();
         checkStreakWarning();  // Перевіряємо чи треба нагадати про канікули
         // Сигналізуємо що дані завантажені — ui.js сам оновить активну секцію
+        generateNotifications();  // Генеруємо/оновлюємо сповіщення
         document.dispatchEvent(new CustomEvent('zirky:dataLoaded'));
     });
 }
@@ -100,7 +102,7 @@ export function saveData() {
         goal:            state.data.goal || null,
         achievements:    state.data.achievements || { counters: {}, streaks: {}, levels: {}, weekly: {}, repeatableHistory: {}, freezePeriods: [] },
         conversionRates:  state.data.conversionRates || null,
-        notifications:    state.data.notifications || null,
+        // notifications — окрема гілка zirky-notifications
         appearance:      state.data.appearance || { child: { owned: ['default'], active: { theme: 'default', palette: 'default', font: 'default', buttons: 'default', background: 'default' } }, parent: { active: { theme: 'default', palette: 'default', font: 'default', buttons: 'default', background: 'default' } } },
     };
     set(ref(db, 'zirky'), toSave);

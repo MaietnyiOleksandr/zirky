@@ -2,7 +2,7 @@
 // 💬  feedback.js — Зворотній зв'язок
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260505.1805';
+export const VERSION = 'v3.20260506.1130';
 
 import { state } from './state.js';
 import { nowKyiv } from './utils.js';
@@ -285,6 +285,7 @@ export function submitFeedback() {
     _items.unshift(item);
     saveFeedbackItem(item);
     _selectedCategory = null;
+    if (window.generateNotifications) window.generateNotifications();
     renderFeedback();
 }
 
@@ -340,6 +341,7 @@ export function saveChildComment(id) {
     item.childCommentAt = nowKyiv();
     item.updatedAt      = nowKyiv();
     saveFeedbackItem(item);
+    if (window.generateNotifications) window.generateNotifications();
     renderFeedback();
     if (window.updateNotificationBadge) window.updateNotificationBadge();
 }
@@ -352,8 +354,9 @@ export function setFeedbackStatus(id, status) {
     item.statusChangedAt  = nowKyiv();
     item.updatedAt        = nowKyiv();
     saveFeedbackItem(item);
+    if (window.generateNotifications) window.generateNotifications();
     renderFeedback();
-    if (window.updateNotificationBadge) window.updateNotificationBadge();
+    if (window.updateBadges) window.updateBadges();
 }
 
 export function saveParentComment(id) {
@@ -413,14 +416,7 @@ export function deleteParentComment(id) {
     saveFeedbackItem(item);
     renderFeedback();
 }
+// updateFeedbackBadge — тепер керується через updateBadges() у notifications
 export function updateFeedbackBadge() {
-    const badge = document.getElementById('feedbackBadge');
-    if (!badge) return;
-    const count = getFeedbackNewCount();
-    if (count > 0 && state.data.isParent) {
-        badge.textContent   = count > 9 ? '9+' : count;
-        badge.style.display = 'inline-flex';
-    } else {
-        badge.style.display = 'none';
-    }
+    if (window.updateBadges) window.updateBadges();
 }

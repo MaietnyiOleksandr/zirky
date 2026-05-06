@@ -1,6 +1,6 @@
 /* ════════════════════════════════════════════════════
    Зірки Успіху — Стилі
-   Версія: v3.20260506.0039
+   Версія: v3.20260506.1130
    ════════════════════════════════════════════════════ */
 
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;900&family=Comfortaa:wght@400;700&family=Fredoka+One&family=Ubuntu:wght@400;700&family=Playfair+Display:wght@400;700&display=swap');
@@ -2231,3 +2231,19 @@ select:focus, input:focus {
     background: rgba(255,255,255,0.45);
     transform: scale(1.1);
 }
+
+/* ── Крапка-бейдж на табах ──────────────────────── */
+.tab-badge {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background: #f44336;
+    border-radius: 50%;
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    border: 1.5px solid var(--card);
+    animation: notifPulse 2s infinite;
+}
+
+.tab { position: relative; }
