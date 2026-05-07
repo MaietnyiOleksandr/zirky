@@ -2,7 +2,7 @@
 // UI     ui.js — Ui
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260502.0850';
+export const VERSION = 'v3.20260507.2304';
 
 // ════════════════════════════════════════════════════════════
 
@@ -48,7 +48,35 @@ export function updateUI() {
         document.getElementById('childInstructions').style.display = 'none';
         document.getElementById('currentPin').textContent = state.data.pin;
     }
-    
+
+    // Батьківські блоки в налаштуваннях
+    const _isParent = !!state.data.isParent;
+    const pinBlock     = document.getElementById('pinSettingsBlock');
+    const balanceBlock = document.getElementById('balanceCorrectionBlock');
+    const ratesBlock   = document.getElementById('conversionRatesBlock');
+    if (pinBlock)     pinBlock.style.display     = _isParent ? 'block' : 'none';
+    if (balanceBlock) {
+        balanceBlock.style.display = _isParent ? 'block' : 'none';
+        if (_isParent) {
+            const el = document.getElementById('currentBalanceDisplay');
+            if (el) el.textContent = (state.data.balance || 0) + '⭐';
+        }
+    }
+    if (ratesBlock) {
+        ratesBlock.style.display = _isParent ? 'block' : 'none';
+        if (_isParent) {
+            const rates = state.data.conversionRates || { minutesPerStar: 2, moneyPerStar: 1 };
+            const mEl = document.getElementById('minutesPerStar');
+            const gEl = document.getElementById('moneyPerStar');
+            if (mEl) mEl.value = rates.minutesPerStar;
+            if (gEl) gEl.value = rates.moneyPerStar;
+            const mSpan = document.getElementById('currentMinutesRate');
+            const gSpan = document.getElementById('currentMoneyRate');
+            if (mSpan) mSpan.textContent = rates.minutesPerStar;
+            if (gSpan) gSpan.textContent = rates.moneyPerStar;
+        }
+    }
+
     renderAchievementsHome();
 
     if (document.getElementById('achievementsSection')?.classList.contains('active')) {

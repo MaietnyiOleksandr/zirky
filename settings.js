@@ -2,7 +2,7 @@
 // ⚙️   settings.js — Налаштування / Експорт / Імпорт
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260505.2222';
+export const VERSION = 'v3.20260507.2304';
 
 // ════════════════════════════════════════════════════════════
 
@@ -155,43 +155,11 @@ export async function showDataInfoModal() {
     // Завантажуємо версії файлів одразу
     _loadVersionsTable();
     
-    // Батьківські блоки — показуємо тільки для батьків
-    const pinBlock     = document.getElementById('pinSettingsBlock');
-    const balanceBlock = document.getElementById('balanceCorrectionBlock');
-    const ratesBlock   = document.getElementById('conversionRatesBlock');
-
     // Відкриваємо модальне вікно
     const modal = document.getElementById('dataInfoModal');
     if (modal) {
         modal.style.display = 'flex';
         document.body.style.overflow = 'hidden';
-    }
-
-    if (pinBlock) pinBlock.style.display = state.data.isParent ? 'block' : 'none';
-
-    if (balanceBlock) {
-        balanceBlock.style.display = state.data.isParent ? 'block' : 'none';
-        if (state.data.isParent) {
-            const balDisplay = document.getElementById('currentBalanceDisplay');
-            if (balDisplay) balDisplay.textContent = (state.data.balance || 0) + '⭐';
-        }
-    }
-
-    if (ratesBlock) {
-        ratesBlock.style.display = state.data.isParent ? 'block' : 'none';
-        if (state.data.isParent) {
-            const rates = state.data.conversionRates || { minutesPerStar: 2, moneyPerStar: 1 };
-            const mEl = document.getElementById('minutesPerStar');
-            const gEl = document.getElementById('moneyPerStar');
-            if (mEl) mEl.value = rates.minutesPerStar;
-            if (gEl) gEl.value = rates.moneyPerStar;
-            const mSpan = document.getElementById('currentMinutesRate');
-            const gSpan = document.getElementById('currentMoneyRate');
-            if (mSpan) mSpan.textContent = rates.minutesPerStar;
-            if (gSpan) gSpan.textContent = rates.moneyPerStar;
-            const pinEl = document.getElementById('currentPin');
-            if (pinEl) pinEl.textContent = state.data.pin;
-        }
     }
 }
 
