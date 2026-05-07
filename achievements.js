@@ -2,7 +2,7 @@
 // 🏆  achievements.js — Система досягнень
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260506.1130';
+export const VERSION = 'v3.20260507.2300';
 
 // ════════════════════════════════════════════════════════════
 
@@ -39,9 +39,14 @@ export function recalculateAchievements() {
     );
     
     sortedRecords.forEach(record => {
-        // Лічильник досягнутих цілей — з записів типу achievement
-        if (record.category === 'achievement' && record.description &&
-            record.description.includes('Ціленаправлений')) {
+        // Лічильник досягнутих цілей — через achId (нові записи) або через назву (старі)
+        if (record.category === 'achievement' && (
+            record.achId === 'цілеспрямована' ||
+            (record.description && (
+                record.description.includes('Цілеспрямована') ||
+                record.description.includes('Ціленаправлений')  // сумісність зі старими записами
+            ))
+        )) {
             state.data.achievements.counters.goalsReached =
                 (state.data.achievements.counters.goalsReached || 0) + 1;
         }
@@ -68,6 +73,19 @@ export function recalculateAchievements() {
         if (record.type === 'spend') {
             state.data.achievements.counters.total_spent = (state.data.achievements.counters.total_spent || 0) + record.stars;
         }
+
+        // Максимальний баланс (для Ощадливий) — відстежуємо пік, не реагуємо на витрати
+        if (record.type === 'earn' && record.category !== 'achievement') {
+            state.data.achievements.counters._runningBalance =
+                (state.data.achievements.counters._runningBalance || 0) + record.stars;
+        } else if (record.type === 'spend') {
+            state.data.achievements.counters._runningBalance =
+                (state.data.achievements.counters._runningBalance || 0) - record.stars;
+        }
+        state.data.achievements.counters.maxBalance = Math.max(
+            state.data.achievements.counters.maxBalance || 0,
+            state.data.achievements.counters._runningBalance || 0
+        );
         
         // Earning streak
         if (record.type === 'earn' && record.category !== 'achievement') {
@@ -199,7 +217,7 @@ export function recalculateAchievements() {
             const streak = state.data.achievements.streaks[ach.streak] || { current: 0 };
             currentValue = streak.current;
         } else if (ach.type === 'balance') {
-            currentValue = Number(state.data.balance) || 0;
+            currentValue = state.data.achievements.counters.maxBalance || 0;
         } else if (ach.type === 'goal_counter') {
             // Читаємо лічильник досягнутих цілей
             // (збільшується тільки в checkGoalReached, не тут!)
@@ -263,7 +281,7 @@ export function checkGoalReached(recordDate = null) {
     // Рівень оновиться автоматично через recalculateAchievements після цього виклику
     
     // Знаходимо нагороду для поточного рівня
-    const goalAch = ACHIEVEMENTS['ціленаправлений'];
+    const goalAch = ACHIEVEMENTS['цілеспрямована'];
     const levelIndex = newCount - 1; // 0-based
     
     if (levelIndex < goalAch.levels.length) {
@@ -282,7 +300,8 @@ export function checkGoalReached(recordDate = null) {
             description: fullName,
             stars: level.reward,
             type: 'earn',
-            category: 'achievement'
+            category: 'achievement',
+            achId: 'цілеспрямована'
         });
         
         // Показуємо сповіщення
@@ -421,9 +440,10 @@ export function removeRewardsForLostAchievements(levelsBefore) {
         const ach = ACHIEVEMENTS[achId];
         if (!ach) return;
         
-        // Для repeatable та goal_counter НЕ забираємо бонуси при втраті рівня
+        // Для streak, repeatable та goal_counter НЕ забираємо бонуси при втраті рівня
+        if (ach.type === 'streak') return;          // серія — зірки не забираємо при перериванні
         if (ach.type === 'repeatable_streak') return;
-        if (ach.type === 'goal_counter') return;  // мета — незворотня
+        if (ach.type === 'goal_counter') return;   // мета — незворотня
         
         const levelBefore = levelsBefore[achId] || 0;
         const levelAfter = levelsAfter[achId] || 0;
@@ -552,110 +572,6 @@ ${level.desc}
     renderAchievementsHome();
 }
 
-// Оновлення лічильників після додавання запису
-export function updateAchievementCounters(record) {
-    initAchievements();
-    
-    // Оцінка 12
-    if (record.category === 'grade' && record.grade === '12') {
-        state.data.achievements.counters.grades_12 = (state.data.achievements.counters.grades_12 || 0) + 1;
-    }
-
-    // Оцінки 11 і 10
-    if (record.category === 'grade' && record.grade === '11') {
-        state.data.achievements.counters.grades_11 = (state.data.achievements.counters.grades_11 || 0) + 1;
-    }
-    if (record.category === 'grade' && record.grade === '10') {
-        state.data.achievements.counters.grades_10 = (state.data.achievements.counters.grades_10 || 0) + 1;
-    }
-
-    // Книги
-    if (record.description && record.description.includes('Прочитав книгу')) {
-        state.data.achievements.counters.books = (state.data.achievements.counters.books || 0) + 1;
-    }
-    
-    // Earning streak - оновлюємо при кожному заробленні зірок
-    if (record.type === 'earn' && record.category !== 'achievement') {
-        const today = new Date(record.date).toDateString();
-        const streak = state.data.achievements.streaks.earning || { current: 0, best: 0, lastDate: null };
-        
-        if (streak.lastDate === today) {
-            // Сьогодні вже заробляв - нічого не робимо
-        } else {
-            const yesterday = new Date(record.date);
-            yesterday.setDate(yesterday.getDate() - 1);
-            const yesterdayStr = yesterday.toDateString();
-            
-            if (streak.lastDate === yesterdayStr || streak.current === 0) {
-                // Продовжуємо серію
-                streak.current += 1;
-                streak.best = Math.max(streak.best, streak.current);
-            } else {
-                // Перерва - починаємо заново
-                streak.current = 1;
-            }
-            streak.lastDate = today;
-        }
-        
-        state.data.achievements.streaks.earning = streak;
-    }
-}
-
-// Перевірка та видача досягнень
-export function checkAndUnlockAchievements(record) {
-    initAchievements();
-    const newUnlocks = [];
-    
-    Object.keys(ACHIEVEMENTS).forEach(id => {
-        // Якщо вже отримано - пропускаємо
-        if (state.data.achievements.unlocked.includes(id)) return;
-        
-        const ach = ACHIEVEMENTS[id];
-        let unlocked = false;
-        
-        if (ach.type === 'cumulative') {
-            const current = state.data.achievements.counters[ach.counter] || 0;
-            if (current >= ach.target) unlocked = true;
-        }
-        
-        if (ach.type === 'streak') {
-            const streak = state.data.achievements.streaks[ach.streak] || { current: 0 };
-            if (streak.current >= ach.target) unlocked = true;
-        }
-        
-        if (unlocked) {
-            state.data.achievements.unlocked.push(id);
-            newUnlocks.push({ id, ach });
-        }
-    });
-    
-    // Видаємо бонуси за нові досягнення
-    newUnlocks.forEach(({ id, ach }) => {
-        state.data.balance = Number(state.data.balance) + ach.reward;
-        state.data.records.push({
-            id: Date.now() + Math.random(),
-            // +1с щоб досягнення завжди було ПІСЛЯ оцінки в історії
-            date: nowKyiv(),
-            description: `${ach.name}`,
-            stars: ach.reward,
-            type: 'earn',
-            category: 'achievement'
-        });
-        
-        // Показуємо popup
-        setTimeout(() => {
-            alert(`🎉 Нове досягнення!
-
-${ach.name}
-${ach.desc}
-
-+${ach.reward}⭐ нараховано!`);
-        }, 500);
-    });
-    
-    return newUnlocks.length > 0;
-}
-
 // Рендеринг досягнень
 export function renderAchievements() {
     initAchievements();
@@ -678,7 +594,7 @@ export function renderAchievements() {
             currentValue = streak.current;
             bestValue = streak.best;
         } else if (ach.type === 'balance') {
-            currentValue = Number(state.data.balance) || 0;
+            currentValue = state.data.achievements.counters.maxBalance || 0;
             bestValue = currentValue;
         } else if (ach.type === 'weekly') {
             // Рахуємо за поточний тиждень
@@ -795,7 +711,7 @@ export function renderAchievements() {
             const timesWord = bestValue === 1 ? 'раз' : bestValue < 5 ? 'рази' : 'разів';
             bestText = bestValue > 0 ? `Досягнуто мети: ${bestValue} ${timesWord}` : '';
         } else if (ach.type === 'balance') {
-            bestText = `Баланс: ${bestValue}⭐`;
+            bestText = `Максимум: ${bestValue}⭐`;
         } else if (ach.type === 'weekly') {
             bestText = `За тиждень: ${bestValue}⭐`;
         } else if (ach.type === 'goal_counter') {
