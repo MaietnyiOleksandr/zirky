@@ -2,7 +2,7 @@
 // 🏆  achievements.js — Система досягнень
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260508.0630';
+export const VERSION = 'v3.20260508.0642';
 
 // ════════════════════════════════════════════════════════════
 
@@ -75,7 +75,8 @@ export function recalculateAchievements() {
         }
 
         // Максимальний баланс (для Ощадливий) — відстежуємо пік, не реагуємо на витрати
-        if (record.type === 'earn' && record.category !== 'achievement') {
+        // Рахуємо ВСІ earn (включаючи бонуси досягнень) — інакше витрати бонусних зірок занижують пік
+        if (record.type === 'earn') {
             state.data.achievements.counters._runningBalance =
                 (state.data.achievements.counters._runningBalance || 0) + Number(record.stars || 0);
         } else if (record.type === 'spend') {
