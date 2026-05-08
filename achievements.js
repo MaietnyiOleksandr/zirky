@@ -2,7 +2,7 @@
 // 🏆  achievements.js — Система досягнень
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260508.0642';
+export const VERSION = 'v3.20260508.0838';
 
 // ════════════════════════════════════════════════════════════
 
@@ -441,8 +441,9 @@ export function removeRewardsForLostAchievements(levelsBefore) {
         const ach = ACHIEVEMENTS[achId];
         if (!ach) return;
         
-        // Для streak, repeatable та goal_counter НЕ забираємо бонуси при втраті рівня
+        // Для streak, balance, repeatable та goal_counter НЕ забираємо бонуси при втраті рівня
         if (ach.type === 'streak') return;          // серія — зірки не забираємо при перериванні
+        if (ach.type === 'balance') return;         // максимум незворотній — зірки не знімаємо
         if (ach.type === 'repeatable_streak') return;
         if (ach.type === 'goal_counter') return;   // мета — незворотня
         
@@ -543,7 +544,13 @@ ${level.desc}
                         if (window.generateNotifications) window.generateNotifications();
                     }, 300);
                 } else {
-                    // Звичайні досягнення - як раніше
+                    // Звичайні досягнення — перевіряємо чи бонус вже є в records
+                    // (захист від ситуації коли levels є але запис був видалений старим removeRewards)
+                    const alreadyRewarded = state.data.records.some(r =>
+                        r.category === 'achievement' && r.description === fullName
+                    );
+                    if (alreadyRewarded) continue;
+
                     state.data.balance = Number(state.data.balance) + level.reward;
                     
                     state.data.records.push({
