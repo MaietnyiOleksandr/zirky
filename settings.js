@@ -2,7 +2,7 @@
 // ⚙️   settings.js — Налаштування / Експорт / Імпорт
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260508.1402';
+export const VERSION = 'v3.20260508.1411';
 
 // ════════════════════════════════════════════════════════════
 
@@ -343,19 +343,43 @@ export function resetAllData() {
     setTimeout(() => location.reload(), 500);
 }
 
+export function applyManualRecordPreset() {
+    const sel = document.getElementById('manualRecordPreset');
+    const opt = sel.options[sel.selectedIndex];
+    const isCustom = opt.value === 'custom';
+
+    const descEl  = document.getElementById('manualRecordDesc');
+    const starsEl = document.getElementById('manualRecordStars');
+    const typeEl  = document.getElementById('manualRecordType');
+    const readOnly = !isCustom;
+
+    descEl.value  = opt.dataset.desc  || '';
+    starsEl.value = opt.dataset.stars || '';
+    typeEl.value  = opt.dataset.type  || 'earn';
+
+    // Для власного — поля редагуються, для пресету — заблоковані
+    [descEl, starsEl, typeEl].forEach(el => {
+        el.readOnly = readOnly;
+        el.style.opacity = readOnly ? '0.7' : '1';
+        el.style.background = readOnly ? 'var(--bg-secondary)' : 'var(--bg-card)';
+    });
+}
+
 export function addManualRecord() {
-    const type    = document.getElementById('manualRecordType').value;
-    const cat     = document.getElementById('manualRecordCategory').value;
+    const sel     = document.getElementById('manualRecordPreset');
+    const opt     = sel.options[sel.selectedIndex];
     const desc    = document.getElementById('manualRecordDesc').value.trim();
     const stars   = parseInt(document.getElementById('manualRecordStars').value);
+    const type    = document.getElementById('manualRecordType').value.trim() || 'earn';
+    const cat     = opt.dataset.cat || 'achievement';
     const dateVal = document.getElementById('manualRecordDate').value;
     const adjustBal = document.getElementById('manualRecordAdjustBalance').checked;
 
-    if (!desc) { alert('⚠️ Введіть опис запису'); return; }
+    if (!sel.value) { alert('⚠️ Оберіть досягнення зі списку'); return; }
+    if (!desc)      { alert('⚠️ Введіть опис запису'); return; }
     if (!stars || stars < 1) { alert('⚠️ Введіть кількість зірок'); return; }
-    if (!dateVal) { alert('⚠️ Оберіть дату'); return; }
+    if (!dateVal)   { alert('⚠️ Оберіть дату'); return; }
 
-    // Перетворюємо дату (локальну) у ISO з київським часом 12:00
     const isoDate = new Date(`${dateVal}T12:00:00+03:00`).toISOString();
 
     const record = {
@@ -382,9 +406,11 @@ export function addManualRecord() {
     if (window.updateUI) window.updateUI();
     if (window.renderHistory) window.renderHistory();
 
-    // Очищуємо форму
+    // Скидаємо форму
+    sel.selectedIndex = 0;
     document.getElementById('manualRecordDesc').value = '';
     document.getElementById('manualRecordStars').value = '';
+    document.getElementById('manualRecordType').value = '';
     document.getElementById('manualRecordDate').value = '';
 
     alert(`✅ Запис додано!\n\n"${desc}" — ${stars}⭐\nДата: ${dateVal}${adjustBal ? '\nБаланс оновлено' : ''}`);

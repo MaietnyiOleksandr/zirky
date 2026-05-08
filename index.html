@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⭐</text></svg>">
-    <!-- version: v3.20260508.1402 -->
+    <!-- version: v3.20260508.1411 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>⭐ Зірки Успіху</title>
     <link rel="stylesheet" href="style.css">
@@ -681,31 +681,90 @@
                     </p>
 
                     <div class="form-group mb-sm">
-                        <label class="card-label--md">Тип запису:</label>
-                        <select id="manualRecordType" style="width:100%;padding:8px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-card);color:var(--text-primary)">
-                            <option value="earn">earn — нарахування</option>
-                            <option value="spend">spend — витрата</option>
+                        <label class="card-label--md">Оберіть досягнення:</label>
+                        <select id="manualRecordPreset" onchange="applyManualRecordPreset()"
+                            style="width:100%;padding:8px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-card);color:var(--text-primary)">
+                            <option value="">— Оберіть досягнення —</option>
+                            <optgroup label="🎓 Відмінник">
+                                <option data-desc="🎓 Відмінник I"   data-stars="50"   data-type="earn" data-cat="achievement">🎓 Відмінник I (+50⭐)</option>
+                                <option data-desc="🎓 Відмінник II"  data-stars="200"  data-type="earn" data-cat="achievement">🎓 Відмінник II (+200⭐)</option>
+                                <option data-desc="🎓 Відмінник III" data-stars="1000" data-type="earn" data-cat="achievement">🎓 Відмінник III (+1000⭐)</option>
+                            </optgroup>
+                            <optgroup label="💫 Зіркова">
+                                <option data-desc="💫 Зіркова I"   data-stars="10" data-type="earn" data-cat="achievement">💫 Зіркова I (+10⭐)</option>
+                                <option data-desc="💫 Зіркова II"  data-stars="30" data-type="earn" data-cat="achievement">💫 Зіркова II (+30⭐)</option>
+                                <option data-desc="💫 Зіркова III" data-stars="50" data-type="earn" data-cat="achievement">💫 Зіркова III (+50⭐)</option>
+                            </optgroup>
+                            <optgroup label="🏅 Тверда десятка">
+                                <option data-desc="🏅 Тверда десятка I"   data-stars="10" data-type="earn" data-cat="achievement">🏅 Тверда десятка I (+10⭐)</option>
+                                <option data-desc="🏅 Тверда десятка II"  data-stars="20" data-type="earn" data-cat="achievement">🏅 Тверда десятка II (+20⭐)</option>
+                                <option data-desc="🏅 Тверда десятка III" data-stars="30" data-type="earn" data-cat="achievement">🏅 Тверда десятка III (+30⭐)</option>
+                            </optgroup>
+                            <optgroup label="📚 Книголюб">
+                                <option data-desc="📚 Книголюб I"   data-stars="20"  data-type="earn" data-cat="achievement">📚 Книголюб I (+20⭐)</option>
+                                <option data-desc="📚 Книголюб II"  data-stars="40"  data-type="earn" data-cat="achievement">📚 Книголюб II (+40⭐)</option>
+                                <option data-desc="📚 Книголюб III" data-stars="100" data-type="earn" data-cat="achievement">📚 Книголюб III (+100⭐)</option>
+                            </optgroup>
+                            <optgroup label="🔥 Fire Streak">
+                                <option data-desc="🔥 Fire Streak I"   data-stars="50"  data-type="earn" data-cat="achievement">🔥 Fire Streak I (+50⭐)</option>
+                                <option data-desc="🔥 Fire Streak II"  data-stars="100" data-type="earn" data-cat="achievement">🔥 Fire Streak II (+100⭐)</option>
+                                <option data-desc="🔥 Fire Streak III" data-stars="300" data-type="earn" data-cat="achievement">🔥 Fire Streak III (+300⭐)</option>
+                            </optgroup>
+                            <optgroup label="💰 Ощадливий">
+                                <option data-desc="💰 Ощадливий I"   data-stars="10" data-type="earn" data-cat="achievement">💰 Ощадливий I (+10⭐)</option>
+                                <option data-desc="💰 Ощадливий II"  data-stars="30" data-type="earn" data-cat="achievement">💰 Ощадливий II (+30⭐)</option>
+                                <option data-desc="💰 Ощадливий III" data-stars="50" data-type="earn" data-cat="achievement">💰 Ощадливий III (+50⭐)</option>
+                            </optgroup>
+                            <optgroup label="💸 Транжира">
+                                <option data-desc="💸 Транжира I"   data-stars="10" data-type="earn" data-cat="achievement">💸 Транжира I (+10⭐)</option>
+                                <option data-desc="💸 Транжира II"  data-stars="20" data-type="earn" data-cat="achievement">💸 Транжира II (+20⭐)</option>
+                                <option data-desc="💸 Транжира III" data-stars="40" data-type="earn" data-cat="achievement">💸 Транжира III (+40⭐)</option>
+                            </optgroup>
+                            <optgroup label="🦷 Чистюля">
+                                <option data-desc="🦷 Чистюля I"   data-stars="20"  data-type="earn" data-cat="achievement">🦷 Чистюля I (+20⭐)</option>
+                                <option data-desc="🦷 Чистюля II"  data-stars="50"  data-type="earn" data-cat="achievement">🦷 Чистюля II (+50⭐)</option>
+                                <option data-desc="🦷 Чистюля III" data-stars="100" data-type="earn" data-cat="achievement">🦷 Чистюля III (+100⭐)</option>
+                            </optgroup>
+                            <optgroup label="🪮 Красуня">
+                                <option data-desc="🪮 Красуня I"   data-stars="10" data-type="earn" data-cat="achievement">🪮 Красуня I (+10⭐)</option>
+                                <option data-desc="🪮 Красуня II"  data-stars="20" data-type="earn" data-cat="achievement">🪮 Красуня II (+20⭐)</option>
+                                <option data-desc="🪮 Красуня III" data-stars="30" data-type="earn" data-cat="achievement">🪮 Красуня III (+30⭐)</option>
+                            </optgroup>
+                            <optgroup label="🚀 Швидкий старт">
+                                <option data-desc="🚀 Швидкий старт I"   data-stars="5"  data-type="earn" data-cat="achievement">🚀 Швидкий старт I (+5⭐)</option>
+                                <option data-desc="🚀 Швидкий старт II"  data-stars="10" data-type="earn" data-cat="achievement">🚀 Швидкий старт II (+10⭐)</option>
+                                <option data-desc="🚀 Швидкий старт III" data-stars="20" data-type="earn" data-cat="achievement">🚀 Швидкий старт III (+20⭐)</option>
+                            </optgroup>
+                            <optgroup label="🎯 Цілеспрямована">
+                                <option data-desc="🎯 Цілеспрямована I"   data-stars="20" data-type="earn" data-cat="achievement">🎯 Цілеспрямована I (+20⭐)</option>
+                                <option data-desc="🎯 Цілеспрямована II"  data-stars="40" data-type="earn" data-cat="achievement">🎯 Цілеспрямована II (+40⭐)</option>
+                                <option data-desc="🎯 Цілеспрямована III" data-stars="60" data-type="earn" data-cat="achievement">🎯 Цілеспрямована III (+60⭐)</option>
+                            </optgroup>
+                            <optgroup label="✏️ Власний запис">
+                                <option value="custom" data-desc="" data-stars="" data-type="earn" data-cat="bonus">✏️ Власний запис...</option>
+                            </optgroup>
                         </select>
                     </div>
 
-                    <div class="form-group mb-sm">
-                        <label class="card-label--md">Категорія:</label>
-                        <select id="manualRecordCategory" style="width:100%;padding:8px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-card);color:var(--text-primary)">
-                            <option value="achievement">achievement — досягнення</option>
-                            <option value="bonus">bonus — бонус</option>
-                            <option value="grade">grade — оцінка</option>
-                            <option value="correction">correction — корекція</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group mb-sm">
-                        <label class="card-label--md">Опис (назва запису):</label>
-                        <input type="text" id="manualRecordDesc" placeholder="Наприклад: 💰 Ощадливий I">
-                    </div>
-
-                    <div class="form-group mb-sm">
-                        <label class="card-label--md">Кількість зірок:</label>
-                        <input type="number" id="manualRecordStars" min="1" placeholder="10">
+                    <!-- Поля що заповнюються автоматично або вручну для власного запису -->
+                    <div id="manualRecordFields">
+                        <div class="form-group mb-sm">
+                            <label class="card-label--md">Опис запису:</label>
+                            <input type="text" id="manualRecordDesc" placeholder="Оберіть досягнення вище" readonly
+                                style="background:var(--bg-secondary);opacity:0.7">
+                        </div>
+                        <div style="display:flex;gap:10px" class="mb-sm">
+                            <div class="form-group" style="flex:1">
+                                <label class="card-label--md">Зірки:</label>
+                                <input type="number" id="manualRecordStars" min="1" placeholder="0" readonly
+                                    style="background:var(--bg-secondary);opacity:0.7">
+                            </div>
+                            <div class="form-group" style="flex:1">
+                                <label class="card-label--md">Тип:</label>
+                                <input type="text" id="manualRecordType" placeholder="earn" readonly
+                                    style="background:var(--bg-secondary);opacity:0.7">
+                            </div>
+                        </div>
                     </div>
 
                     <div class="form-group mb-sm">
@@ -791,7 +850,7 @@
         import { renderRewards, buyTime, buyMoney, buyCustomReward, updateTimePreview, updateMoneyPreview, checkRewardPin } from './rewards.js';
         import { renderStats, updateChart, changeChartPeriod, changeChartOffset } from './stats.js';
         import { showDataInfoModal, closeDataInfoModal, exportData, importData,
-                 resetAllData, adjustBalance, saveConversionRates, addManualRecord } from './settings.js';
+                 resetAllData, adjustBalance, saveConversionRates, addManualRecord, applyManualRecordPreset } from './settings.js';
         import { openNotifications, closeNotifications, updateNotificationBadge,
                  updateChangelogBadge, markChangelogRead, dismissNotification,
                  dismissByAction, getUnreadItems, generateNotifications } from './notifications.js';
@@ -851,6 +910,7 @@
         window.resetAllData = resetAllData;
         window.adjustBalance = adjustBalance;
         window.addManualRecord = addManualRecord;
+        window.applyManualRecordPreset = applyManualRecordPreset;
         window.saveConversionRates = saveConversionRates;
         window.showDataInfoModal   = showDataInfoModal;
         window.closeDataInfoModal  = closeDataInfoModal;
