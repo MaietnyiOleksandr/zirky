@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⭐</text></svg>">
-    <!-- version: v3.20260506.1130 -->
+    <!-- version: v3.20260508.1402 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>⭐ Зірки Успіху</title>
     <link rel="stylesheet" href="style.css">
@@ -672,6 +672,57 @@
                     <button class="btn btn-primary" onclick="adjustBalance()">💰 Встановити баланс</button>
                 </div>
 
+
+                <!-- Ручне додавання запису (тільки для батьків) -->
+                <div id="manualRecordBlock" class="card-warning">
+                    <h3 class="card-title">🛠️ Додати запис вручну</h3>
+                    <p class="card-note card-note--warning">
+                        <strong>⚠️ Увага:</strong> Використовуйте тільки для відновлення втрачених записів
+                    </p>
+
+                    <div class="form-group mb-sm">
+                        <label class="card-label--md">Тип запису:</label>
+                        <select id="manualRecordType" style="width:100%;padding:8px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-card);color:var(--text-primary)">
+                            <option value="earn">earn — нарахування</option>
+                            <option value="spend">spend — витрата</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group mb-sm">
+                        <label class="card-label--md">Категорія:</label>
+                        <select id="manualRecordCategory" style="width:100%;padding:8px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-card);color:var(--text-primary)">
+                            <option value="achievement">achievement — досягнення</option>
+                            <option value="bonus">bonus — бонус</option>
+                            <option value="grade">grade — оцінка</option>
+                            <option value="correction">correction — корекція</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group mb-sm">
+                        <label class="card-label--md">Опис (назва запису):</label>
+                        <input type="text" id="manualRecordDesc" placeholder="Наприклад: 💰 Ощадливий I">
+                    </div>
+
+                    <div class="form-group mb-sm">
+                        <label class="card-label--md">Кількість зірок:</label>
+                        <input type="number" id="manualRecordStars" min="1" placeholder="10">
+                    </div>
+
+                    <div class="form-group mb-sm">
+                        <label class="card-label--md">Дата запису:</label>
+                        <input type="date" id="manualRecordDate">
+                    </div>
+
+                    <div class="form-group mb-md" style="display:flex;align-items:center;gap:10px">
+                        <input type="checkbox" id="manualRecordAdjustBalance" checked style="width:20px;height:20px;cursor:pointer">
+                        <label for="manualRecordAdjustBalance" class="card-label--md" style="margin:0;cursor:pointer">
+                            Також оновити баланс
+                        </label>
+                    </div>
+
+                    <button class="btn btn-primary" onclick="addManualRecord()">🛠️ Додати запис</button>
+                </div>
+
                 <!-- Курси конвертації (тільки для батьків) -->
                 <div id="conversionRatesBlock" class="card-success">
                     <h3 class="card-title">⭐ Курси конвертації</h3>
@@ -740,7 +791,7 @@
         import { renderRewards, buyTime, buyMoney, buyCustomReward, updateTimePreview, updateMoneyPreview, checkRewardPin } from './rewards.js';
         import { renderStats, updateChart, changeChartPeriod, changeChartOffset } from './stats.js';
         import { showDataInfoModal, closeDataInfoModal, exportData, importData,
-                 resetAllData, adjustBalance, saveConversionRates } from './settings.js';
+                 resetAllData, adjustBalance, saveConversionRates, addManualRecord } from './settings.js';
         import { openNotifications, closeNotifications, updateNotificationBadge,
                  updateChangelogBadge, markChangelogRead, dismissNotification,
                  dismissByAction, getUnreadItems, generateNotifications } from './notifications.js';
@@ -799,6 +850,7 @@
         window.importData = importData;
         window.resetAllData = resetAllData;
         window.adjustBalance = adjustBalance;
+        window.addManualRecord = addManualRecord;
         window.saveConversionRates = saveConversionRates;
         window.showDataInfoModal   = showDataInfoModal;
         window.closeDataInfoModal  = closeDataInfoModal;

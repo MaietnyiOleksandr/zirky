@@ -2,7 +2,7 @@
 // UI     ui.js — Ui
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260507.2304';
+export const VERSION = 'v3.20260508.1402';
 
 // ════════════════════════════════════════════════════════════
 
@@ -62,6 +62,9 @@ export function updateUI() {
             if (el) el.textContent = (state.data.balance || 0) + '⭐';
         }
     }
+    const manualBlock = document.getElementById('manualRecordBlock');
+    if (manualBlock) manualBlock.style.display = _isParent ? 'block' : 'none';
+
     if (ratesBlock) {
         ratesBlock.style.display = _isParent ? 'block' : 'none';
         if (_isParent) {

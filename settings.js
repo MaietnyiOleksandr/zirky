@@ -2,13 +2,14 @@
 // ⚙️   settings.js — Налаштування / Експорт / Імпорт
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260508.0630';
+export const VERSION = 'v3.20260508.1402';
 
 // ════════════════════════════════════════════════════════════
 
 import { state } from './state.js';
 import { recalculateAchievements, giveRewardsForNewAchievements } from './achievements.js';
 import { saveData, saveAllFeedback } from './firebase.js';
+import { nowKyiv } from './utils.js';
 import { getFeedbackItems } from './feedback.js';
 import { THEMES } from './appearance.js';
 
@@ -341,6 +342,54 @@ export function resetAllData() {
     alert("✅ Всі дані скинуто\n\nСторінка перезавантажиться.");
     setTimeout(() => location.reload(), 500);
 }
+
+export function addManualRecord() {
+    const type    = document.getElementById('manualRecordType').value;
+    const cat     = document.getElementById('manualRecordCategory').value;
+    const desc    = document.getElementById('manualRecordDesc').value.trim();
+    const stars   = parseInt(document.getElementById('manualRecordStars').value);
+    const dateVal = document.getElementById('manualRecordDate').value;
+    const adjustBal = document.getElementById('manualRecordAdjustBalance').checked;
+
+    if (!desc) { alert('⚠️ Введіть опис запису'); return; }
+    if (!stars || stars < 1) { alert('⚠️ Введіть кількість зірок'); return; }
+    if (!dateVal) { alert('⚠️ Оберіть дату'); return; }
+
+    // Перетворюємо дату (локальну) у ISO з київським часом 12:00
+    const isoDate = new Date(`${dateVal}T12:00:00+03:00`).toISOString();
+
+    const record = {
+        id: Date.now() + Math.random(),
+        date: isoDate,
+        description: desc,
+        stars: stars,
+        type: type,
+        category: cat
+    };
+
+    state.data.records.push(record);
+
+    if (adjustBal) {
+        state.data.balance = Number(state.data.balance) + (type === 'earn' ? stars : -stars);
+        if (state.data.balance < 0) state.data.balance = 0;
+    }
+
+    const levelsBefore = { ...(state.data.achievements?.levels || {}) };
+    recalculateAchievements();
+    giveRewardsForNewAchievements(levelsBefore);
+
+    saveData();
+    if (window.updateUI) window.updateUI();
+    if (window.renderHistory) window.renderHistory();
+
+    // Очищуємо форму
+    document.getElementById('manualRecordDesc').value = '';
+    document.getElementById('manualRecordStars').value = '';
+    document.getElementById('manualRecordDate').value = '';
+
+    alert(`✅ Запис додано!\n\n"${desc}" — ${stars}⭐\nДата: ${dateVal}${adjustBal ? '\nБаланс оновлено' : ''}`);
+}
+
 
 export function adjustBalance() {
     const input = document.getElementById('newBalanceInput');
