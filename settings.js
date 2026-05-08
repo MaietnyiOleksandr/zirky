@@ -2,7 +2,7 @@
 // ⚙️   settings.js — Налаштування / Експорт / Імпорт
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260507.2304';
+export const VERSION = 'v3.20260508.0630';
 
 // ════════════════════════════════════════════════════════════
 
@@ -359,7 +359,18 @@ export function adjustBalance() {
         return;
     }
     
-    // Змінюємо баланс
+    // Змінюємо баланс — додаємо запис корекції щоб maxBalance правильно відстежувався
+    const diff = newBalance - oldBalance;
+    if (diff !== 0) {
+        state.data.records.push({
+            id: Date.now(),
+            date: new Date().toISOString(),
+            description: `Корекція балансу (${diff > 0 ? '+' : ''}${diff}⭐)`,
+            stars: Math.abs(diff),
+            type: diff > 0 ? 'earn' : 'spend',
+            category: 'correction'
+        });
+    }
     state.data.balance = newBalance;
 
     // Перевіряємо досягнення (Ощадлива змінюється при зміні балансу)

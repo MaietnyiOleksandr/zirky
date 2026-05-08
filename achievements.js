@@ -2,7 +2,7 @@
 // 🏆  achievements.js — Система досягнень
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260507.2300';
+export const VERSION = 'v3.20260508.0630';
 
 // ════════════════════════════════════════════════════════════
 
@@ -77,10 +77,10 @@ export function recalculateAchievements() {
         // Максимальний баланс (для Ощадливий) — відстежуємо пік, не реагуємо на витрати
         if (record.type === 'earn' && record.category !== 'achievement') {
             state.data.achievements.counters._runningBalance =
-                (state.data.achievements.counters._runningBalance || 0) + record.stars;
+                (state.data.achievements.counters._runningBalance || 0) + Number(record.stars || 0);
         } else if (record.type === 'spend') {
             state.data.achievements.counters._runningBalance =
-                (state.data.achievements.counters._runningBalance || 0) - record.stars;
+                (state.data.achievements.counters._runningBalance || 0) - Number(record.stars || 0);
         }
         state.data.achievements.counters.maxBalance = Math.max(
             state.data.achievements.counters.maxBalance || 0,
