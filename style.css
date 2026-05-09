@@ -1,6 +1,6 @@
 /* ════════════════════════════════════════════════════
    Зірки Успіху — Стилі
-   Версія: v3.20260508.1402
+   Версія: v3.20260509.2100
    ════════════════════════════════════════════════════ */
 
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;900&family=Comfortaa:wght@400;700&family=Fredoka+One&family=Ubuntu:wght@400;700&family=Playfair+Display:wght@400;700&display=swap');
@@ -466,18 +466,35 @@ body::after {
 
 .tab {
     flex: 1;
-    min-width: 140px;
-    padding: 15px 20px;
+    min-width: 58px;
+    padding: 8px 4px;
     background: var(--card);
     color: var(--text);
     border: none;
-    border-radius: 18px;
+    border-radius: 14px;
     font-family: var(--font-main);
-    font-size: 16px;
-    font-weight: 700;
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+}
+
+.tab-icon {
+    font-size: 20px;
+    line-height: 1;
+}
+
+.tab-label {
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
 }
 
 .tab:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0,0,0,0.15); }
@@ -1239,7 +1256,7 @@ select:focus, input:focus {
     .balance { font-size: 44px; }
     .content { padding: 10px; }
     .tabs { gap: 8px; }
-    .tab { min-width: 100px; padding: 12px 15px; font-size: 14px; }
+    .tab { min-width: 48px; padding: 6px 3px; }
 }
 
 /* ════════════════════════════════════════════════════

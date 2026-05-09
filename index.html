@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⭐</text></svg>">
-    <!-- version: v3.20260508.1411 -->
+    <!-- version: v3.20260509.2100 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>⭐ Зірки Успіху</title>
     <link rel="stylesheet" href="style.css">
@@ -142,12 +142,13 @@
 
         <!-- Tabs -->
         <div class="tabs">
-            <button class="tab active" data-tab="add"          onclick="switchTab('add', true)">➕ Додати</button>
-            <button class="tab"        data-tab="history"       onclick="switchTab('history', true)">📜 Історія</button>
-            <button class="tab"        data-tab="rewards"       onclick="switchTab('rewards', true)">🎁 Витрати</button>
-            <button class="tab"        data-tab="achievements"  onclick="switchTab('achievements', true)">🏆 Досягнення<span class="tab-badge" id="tabBadge_achievements" style="display:none;"></span></button>
-            <button class="tab"        data-tab="stats"         onclick="switchTab('stats', true)">📊 Статистика<span class="tab-badge" id="tabBadge_stats" style="display:none;"></span></button>
-            <button class="tab"        data-tab="settings"      onclick="switchTab('settings', true)">⚙️ Налаштування<span class="tab-badge" id="tabBadge_settings" style="display:none;"></span></button>
+            <button class="tab active" data-tab="add"          onclick="switchTab('add', true)"><span class="tab-icon">➕</span><span class="tab-label">Додати</span></button>
+            <button class="tab"        data-tab="rewards"       onclick="switchTab('rewards', true)"><span class="tab-icon">🎁</span><span class="tab-label">Витрати</span></button>
+            <button class="tab"        data-tab="achievements"  onclick="switchTab('achievements', true)"><span class="tab-icon">🏆</span><span class="tab-label">Успіхи</span><span class="tab-badge" id="tabBadge_achievements" style="display:none;"></span></button>
+            <button class="tab"        data-tab="history"       onclick="switchTab('history', true)"><span class="tab-icon">📜</span><span class="tab-label">Історія</span></button>
+            <button class="tab"        data-tab="stats"         onclick="switchTab('stats', true)"><span class="tab-icon">📊</span><span class="tab-label">Графіки</span><span class="tab-badge" id="tabBadge_stats" style="display:none;"></span></button>
+            <button class="tab"        data-tab="feedback"      onclick="switchTab('feedback', true)"><span class="tab-icon">💬</span><span class="tab-label">Зв'язок</span><span class="tab-badge" id="tabBadge_feedback" style="display:none;"></span></button>
+            <button class="tab"        data-tab="settings"      onclick="switchTab('settings', true)"><span class="tab-icon">⚙️</span><span class="tab-label">Опції</span><span class="tab-badge" id="tabBadge_settings" style="display:none;"></span></button>
         </div>
 
         <!-- Content -->
@@ -593,14 +594,6 @@
                     </div>
                 </div>
 
-                <!-- Зворотній зв'язок -->
-                <div class="card-purple">
-                    <h3 class="card-title">💬 Зворотній зв'язок</h3>
-                    <div id="feedbackBlock">
-                        <div class="text-hint font-sm text-center p-sm">Завантаження...</div>
-                    </div>
-                </div>
-
                 <!-- Кнопка "Інформація про дані" тепер у заголовку секції -->
 
                 <!-- Експорт -->
@@ -822,6 +815,18 @@
             </div>
 
         </div>
+
+        <!-- ── Feedback Section ── -->
+        <div class="section" id="feedbackSection">
+            <div class="section-content">
+                <div class="card-purple">
+                    <h3 class="card-title">💬 Зворотній зв'язок</h3>
+                    <div id="feedbackBlock">
+                        <div class="text-hint font-sm text-center p-sm">Завантаження...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Firebase SDK -->
@@ -952,6 +957,7 @@
             const tabMap = {
                 achievements: 'tabBadge_achievements',
                 stats:        'tabBadge_stats',
+                feedback:     'tabBadge_feedback',
                 settings:     'tabBadge_settings',
             };
             Object.entries(tabMap).forEach(([badgeKey, elId]) => {

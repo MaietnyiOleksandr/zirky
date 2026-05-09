@@ -6,7 +6,7 @@
 //     showForm/switchTab, а ui.js потребував їх модулів
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260506.0745';
+export const VERSION = 'v3.20260509.2100';
 
 import { state } from './state.js';
 import { getTodayDate } from './utils.js';
@@ -80,11 +80,14 @@ export function switchTab(tab, fromClick = false) {
     }
     else if (tab === 'achievements') renderAchievements();
     else if (tab === 'stats') renderStats();
-    else if (tab === 'settings') { renderFeedback(); renderThemeShop(); }
+    else if (tab === 'feedback') renderFeedback();
+    else if (tab === 'settings') { renderThemeShop(); }
 
     if (!state.data.isParent && tab === 'add') {
         switchTab('instructions');
     }
+    // Оновлюємо badge для feedback після кожного відкриття
+    if (tab === 'feedback' && window.updateBadges) window.updateBadges();
 }
 
 // ── Слухаємо події від firebase.js та freeze.js ──────────────
