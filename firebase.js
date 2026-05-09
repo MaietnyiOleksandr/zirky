@@ -2,7 +2,7 @@
 // FIREBASE  firebase.js — Firebase
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260506.1130';
+export const VERSION = 'v3.20260510.0005';
 
 import { state } from './state.js';
 import { firebaseConfig } from './config.js';
@@ -102,6 +102,7 @@ export function saveData() {
         goal:            state.data.goal || null,
         achievements:    state.data.achievements || { counters: {}, streaks: {}, levels: {}, weekly: {}, repeatableHistory: {}, freezePeriods: [] },
         conversionRates:  state.data.conversionRates || null,
+        schedule:        state.data.schedule || null,
         // notifications — окрема гілка zirky-notifications
         appearance:      state.data.appearance || { child: { owned: ['default'], active: { theme: 'default', palette: 'default', font: 'default', buttons: 'default', background: 'default' } }, parent: { active: { theme: 'default', palette: 'default', font: 'default', buttons: 'default', background: 'default' } } },
     };

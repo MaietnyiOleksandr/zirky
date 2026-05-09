@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⭐</text></svg>">
-    <!-- version: v3.20260509.2115 -->
+    <!-- version: v3.20260510.0005 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>⭐ Зірки Успіху</title>
     <link rel="stylesheet" href="style.css">
@@ -143,6 +143,7 @@
         <!-- Tabs -->
         <div class="tabs">
             <button class="tab active" data-tab="add"          onclick="switchTab('add', true)"><span class="tab-icon">➕</span><span class="tab-label">Додати</span></button>
+            <button class="tab"        data-tab="schedule"      onclick="switchTab('schedule', true)"><span class="tab-icon">📋</span><span class="tab-label">Розклад</span></button>
             <button class="tab"        data-tab="rewards"       onclick="switchTab('rewards', true)"><span class="tab-icon">🎁</span><span class="tab-label">Витрати</span></button>
             <button class="tab"        data-tab="achievements"  onclick="switchTab('achievements', true)"><span class="tab-icon">🏆</span><span class="tab-label">Успіхи</span><span class="tab-badge" id="tabBadge_achievements" style="display:none;"></span></button>
             <button class="tab"        data-tab="history"       onclick="switchTab('history', true)"><span class="tab-icon">📜</span><span class="tab-label">Історія</span></button>
@@ -308,6 +309,43 @@
             </div>
 
             <!-- ══ Історія ════════════════════════════════════ -->
+
+            <!-- ── Schedule Section ── -->
+            <div class="section" id="scheduleSection">
+                <div class="section-header">
+                    <h2 class="section-title">📋 Розклад уроків</h2>
+                    <button class="btn-icon" onclick="showHelp('scheduleSection')" title="Довідка">?</button>
+                </div>
+
+                <!-- Навігація по днях -->
+                <div class="schedule-nav">
+                    <button class="month-btn" id="schedulePrevBtn" onclick="scheduleNavDay(-1)">◀</button>
+                    <span id="scheduleDayTitle" class="schedule-day-title">Завантаження...</span>
+                    <button class="month-btn" id="scheduleNextBtn" onclick="scheduleNavDay(1)">▶</button>
+                </div>
+
+                <!-- Таблиця уроків -->
+                <div class="schedule-table-wrap">
+                    <table class="schedule-table">
+                        <tbody id="scheduleTbody">
+                            <tr><td colspan="2" class="schedule-empty">Завантаження...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Кнопки дій -->
+                <div class="schedule-actions-row">
+                    <button class="btn btn-secondary schedule-action-btn" onclick="openTeachersModal()">🧑‍🏫 Вчителі</button>
+                    <button class="btn btn-secondary schedule-action-btn" onclick="openBellsModal()">🕐 Дзвінки</button>
+                </div>
+
+                <!-- Батьківські кнопки -->
+                <div class="schedule-actions-row" id="scheduleParentBtns" style="display:none;">
+                    <button class="btn btn-secondary schedule-action-btn" onclick="openScheduleEditor()">✏️ Редагувати розклад</button>
+                    <button class="btn btn-secondary schedule-action-btn" onclick="openClubEditor()">🎭 Гуртки</button>
+                </div>
+            </div>
+
             <div class="section" id="historySection">
                 <div class="section-header">
                     <h2 class="section-title">📜 Історія</h2>
@@ -853,6 +891,13 @@
         import { renderHistory, changeMonth, applyHistoryFilter } from './history.js';
         import { renderRewards, buyTime, buyMoney, buyCustomReward, updateTimePreview, updateMoneyPreview, checkRewardPin } from './rewards.js';
         import { renderStats, updateChart, changeChartPeriod, changeChartOffset } from './stats.js';
+        import { initSchedule, renderSchedule, scheduleNavDay,
+                 scheduleShowTeacher, openScheduleEditor, closeScheduleEditor,
+                 toggleWeekBtns, schedEditorWeek, schedAddLesson, schedUpdateLesson,
+                 schedDelLesson, saveScheduleEditor, openClubEditor, closeClubEditor,
+                 clubAddDay, saveClubEditor, openTeachersModal, closeTeachersModal,
+                 schedUpdateTeacher, saveTeachersModal, openBellsModal, closeBellsModal,
+                 schedUpdateBell, saveBellsModal } from './schedule.js';
         import { showDataInfoModal, closeDataInfoModal, exportData, importData,
                  resetAllData, adjustBalance, saveConversionRates, addManualRecord, applyManualRecordPreset } from './settings.js';
         import { openNotifications, closeNotifications, updateNotificationBadge,
@@ -908,6 +953,30 @@
         window.renderStats = renderStats;
         window.updateChart = updateChart;
         window.changeChartPeriod = changeChartPeriod;
+        window.initSchedule         = initSchedule;
+        window.renderSchedule       = renderSchedule;
+        window.scheduleNavDay       = scheduleNavDay;
+        window.scheduleShowTeacher  = scheduleShowTeacher;
+        window.openScheduleEditor   = openScheduleEditor;
+        window.closeScheduleEditor  = closeScheduleEditor;
+        window.toggleWeekBtns       = toggleWeekBtns;
+        window.schedEditorWeek      = schedEditorWeek;
+        window.schedAddLesson       = schedAddLesson;
+        window.schedUpdateLesson    = schedUpdateLesson;
+        window.schedDelLesson       = schedDelLesson;
+        window.saveScheduleEditor   = saveScheduleEditor;
+        window.openClubEditor       = openClubEditor;
+        window.closeClubEditor      = closeClubEditor;
+        window.clubAddDay           = clubAddDay;
+        window.saveClubEditor       = saveClubEditor;
+        window.openTeachersModal    = openTeachersModal;
+        window.closeTeachersModal   = closeTeachersModal;
+        window.schedUpdateTeacher   = schedUpdateTeacher;
+        window.saveTeachersModal    = saveTeachersModal;
+        window.openBellsModal       = openBellsModal;
+        window.closeBellsModal      = closeBellsModal;
+        window.schedUpdateBell      = schedUpdateBell;
+        window.saveBellsModal       = saveBellsModal;
         window.changeChartOffset = changeChartOffset;
         window.exportData = exportData;
         window.importData = importData;
@@ -1009,6 +1078,7 @@
         // ── Ініціалізація ─────────────────────────────────────
         setTodayDates();
         initFirebase();
+        initSchedule();
         initFeedbackListener((rawData) => {
             initFeedbackData(rawData);
             renderFeedback();
@@ -1049,6 +1119,94 @@
             <div id="helpModalContent" class="help-modal-content"></div>
         </div>
     </div>
+
+    <!-- Schedule Editor Modal -->
+    <div id="scheduleEditorModal" class="help-modal" style="display:none;">
+        <div class="help-modal-inner help-modal-inner--wide">
+            <div class="help-modal-header">
+                <h3 class="help-modal-title">✏️ Редагування розкладу</h3>
+                <button onclick="closeScheduleEditor()" class="help-close-btn">✕</button>
+            </div>
+            <div class="help-modal-content">
+                <div class="sched-editor-options">
+                    <label class="sched-check-label">
+                        <input type="checkbox" id="schedTwoWeeks" onchange="toggleWeekBtns()">
+                        Двотижневий розклад
+                    </label>
+                    <div id="schedWeekBtnWrap" style="display:flex;gap:8px;margin-top:8px;">
+                        <button class="btn btn-sm sched-week-btn active" data-w="1" onclick="schedEditorWeek(1)">Тиждень А</button>
+                        <button class="btn btn-sm sched-week-btn" data-w="2" id="schedWeekBBtn" onclick="schedEditorWeek(2)" style="display:none;">Тиждень Б</button>
+                    </div>
+                </div>
+                <div id="schedEditorDays" class="sched-editor-days"></div>
+                <div style="display:flex;gap:10px;margin-top:16px;">
+                    <button class="btn btn-primary" style="flex:1" onclick="saveScheduleEditor()">💾 Зберегти</button>
+                    <button class="btn btn-secondary" style="flex:1" onclick="closeScheduleEditor()">Скасувати</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Club Editor Modal -->
+    <div id="clubEditorModal" class="help-modal" style="display:none;">
+        <div class="help-modal-inner help-modal-inner--wide">
+            <div class="help-modal-header">
+                <h3 class="help-modal-title">🎭 Гуртки</h3>
+                <button onclick="closeClubEditor()" class="help-close-btn">✕</button>
+            </div>
+            <div class="help-modal-content">
+                <div id="clubEditorDays" class="sched-editor-days"></div>
+                <div style="display:flex;gap:10px;margin-top:16px;">
+                    <button class="btn btn-primary" style="flex:1" onclick="saveClubEditor()">💾 Зберегти</button>
+                    <button class="btn btn-secondary" style="flex:1" onclick="closeClubEditor()">Скасувати</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Teachers Modal -->
+    <div id="teachersModal" class="help-modal" style="display:none;">
+        <div class="help-modal-inner">
+            <div class="help-modal-header">
+                <h3 class="help-modal-title">🧑‍🏫 Вчителі</h3>
+                <button onclick="closeTeachersModal()" class="help-close-btn">✕</button>
+            </div>
+            <div class="help-modal-content">
+                <div id="teachersList"></div>
+                <div style="display:flex;gap:10px;margin-top:16px;">
+                    <button class="btn btn-primary" style="flex:1" onclick="saveTeachersModal()">💾 Зберегти</button>
+                    <button class="btn btn-secondary" style="flex:1" onclick="closeTeachersModal()">Закрити</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bells Modal -->
+    <div id="bellsModal" class="help-modal" style="display:none;">
+        <div class="help-modal-inner">
+            <div class="help-modal-header">
+                <h3 class="help-modal-title">🕐 Розклад дзвінків</h3>
+                <button onclick="closeBellsModal()" class="help-close-btn">✕</button>
+            </div>
+            <div class="help-modal-content">
+                <table class="schedule-table" style="margin-bottom:16px;">
+                    <thead>
+                        <tr>
+                            <th class="schedule-num">№</th>
+                            <th>Початок</th>
+                            <th>Кінець</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bellsList"></tbody>
+                </table>
+                <div style="display:flex;gap:10px;">
+                    <button class="btn btn-primary" style="flex:1" onclick="saveBellsModal()">💾 Зберегти</button>
+                    <button class="btn btn-secondary" style="flex:1" onclick="closeBellsModal()">Закрити</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
 </body>
 </html>

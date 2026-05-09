@@ -2,7 +2,7 @@
 // UI     ui.js — Ui
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260508.1402';
+export const VERSION = 'v3.20260510.0005';
 
 // ════════════════════════════════════════════════════════════
 
@@ -64,6 +64,14 @@ export function updateUI() {
     }
     const manualBlock = document.getElementById('manualRecordBlock');
     if (manualBlock) manualBlock.style.display = _isParent ? 'block' : 'none';
+
+    // Батьківські кнопки в розкладі
+    const schedParentBtns = document.getElementById('scheduleParentBtns');
+    if (schedParentBtns) schedParentBtns.style.display = _isParent ? 'flex' : 'none';
+
+    // Таб "Розклад" — поки прихований для дитини (тестування)
+    const schedTab = document.querySelector('.tab[data-tab="schedule"]');
+    if (schedTab) schedTab.style.display = _isParent ? '' : 'none';
 
     if (ratesBlock) {
         ratesBlock.style.display = _isParent ? 'block' : 'none';

@@ -1,6 +1,6 @@
 /* ════════════════════════════════════════════════════
    Зірки Успіху — Стилі
-   Версія: v3.20260509.2100
+   Версія: v3.20260510.0005
    ════════════════════════════════════════════════════ */
 
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;900&family=Comfortaa:wght@400;700&family=Fredoka+One&family=Ubuntu:wght@400;700&family=Playfair+Display:wght@400;700&display=swap');
@@ -157,7 +157,7 @@ body::after {
     background: var(--card);
     border-radius: var(--radius);
     padding: 20px;
-    margin-bottom: 10px;
+    margin-bottom: 20px;
     box-shadow: var(--shadow);
     text-align: center;
     position: relative;
@@ -454,7 +454,8 @@ body::after {
 .tabs {
     display: flex;
     gap: 10px;
-    margin-bottom: 10px;
+    margin-bottom: 20px;
+    overflow-x: auto;
     overflow-y: visible;
     -webkit-overflow-scrolling: touch;
     padding: 5px 4px 8px;  /* top — для hover тіні вгорі, sides — для крайніх табів, bottom — для scrollbar */
@@ -2263,3 +2264,218 @@ select:focus, input:focus {
 }
 
 .tab { position: relative; }
+
+/* ════════════════════════════════════════════════════
+   📋  РОЗКЛАД
+   ════════════════════════════════════════════════════ */
+
+.schedule-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.schedule-day-title {
+    flex: 1;
+    text-align: center;
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--text);
+}
+
+.schedule-table-wrap {
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    margin-bottom: 16px;
+}
+
+.schedule-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--card);
+}
+
+.schedule-table th {
+    background: var(--primary);
+    color: white;
+    padding: 10px 12px;
+    font-size: 13px;
+    font-weight: 700;
+    text-align: center;
+}
+
+.schedule-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border-light);
+    vertical-align: middle;
+}
+
+.schedule-table tr:last-child td { border-bottom: none; }
+
+.schedule-num {
+    width: 36px;
+    text-align: center;
+    font-weight: 700;
+    color: var(--text-muted);
+    font-size: 13px;
+}
+
+.schedule-name { font-size: 15px; }
+
+.schedule-lesson-name {
+    cursor: default;
+    display: inline;
+}
+
+.schedule-lesson-name.has-teacher {
+    cursor: pointer;
+    border-bottom: 1px dashed var(--primary);
+}
+
+.schedule-time {
+    font-size: 11px;
+    color: var(--text-muted);
+    display: block;
+    margin-top: 2px;
+}
+
+.schedule-separator td {
+    background: var(--bg-secondary, #f5f5f5);
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-muted);
+    padding: 6px 12px;
+    text-align: center;
+    letter-spacing: 0.5px;
+}
+
+.schedule-club .schedule-name { color: var(--primary); }
+
+.schedule-empty {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 24px;
+    font-size: 14px;
+}
+
+.schedule-row:nth-child(even) { background: var(--bg-secondary, rgba(0,0,0,0.02)); }
+.schedule-club { background: rgba(var(--primary-rgb, 100,100,200), 0.05) !important; }
+
+/* Підказка вчителя */
+.schedule-teacher-hint {
+    position: absolute;
+    right: 12px;
+    background: var(--card);
+    border: 1px solid var(--border-light);
+    border-radius: 10px;
+    padding: 8px 12px;
+    font-size: 13px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    z-index: 10;
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity 0.2s, transform 0.2s;
+    white-space: nowrap;
+    pointer-events: none;
+}
+.schedule-teacher-hint.visible { opacity: 1; transform: translateY(0); }
+.schedule-row { position: relative; }
+
+/* Кнопки дій */
+.schedule-actions-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+.schedule-action-btn {
+    flex: 1;
+    font-size: 13px;
+    padding: 10px 8px;
+}
+
+/* ── Редактор розкладу ── */
+.help-modal-inner--wide { max-width: 680px; }
+
+.sched-editor-options {
+    background: var(--bg-secondary, #f5f5f5);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+}
+
+.sched-check-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.sched-week-btn { font-size: 13px; }
+.sched-week-btn.active {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+}
+
+.sched-editor-days {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 12px;
+}
+
+.sched-editor-day {
+    background: var(--bg-secondary, #f5f5f5);
+    border-radius: 10px;
+    padding: 10px 12px;
+}
+
+.sched-editor-day-title {
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.sched-editor-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 6px;
+}
+
+.sched-input {
+    flex: 1;
+    padding: 7px 10px;
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    background: var(--card);
+    color: var(--text);
+    font-family: var(--font-main);
+    font-size: 13px;
+}
+.sched-time { max-width: 90px; flex: none; }
+
+.sched-del-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 4px;
+    line-height: 1;
+    border-radius: 6px;
+    transition: color 0.2s, background 0.2s;
+}
+.sched-del-btn:hover { color: #f44336; background: rgba(244,67,54,0.1); }
+
+.sched-teacher-label {
+    min-width: 120px;
+    font-size: 13px;
+    font-weight: 600;
+}
