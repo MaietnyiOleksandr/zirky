@@ -2,7 +2,7 @@
 // 🏆  achievements.js — Система досягнень
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260508.0838';
+export const VERSION = 'v3.20260509.0811';
 
 // ════════════════════════════════════════════════════════════
 
@@ -771,7 +771,7 @@ export function renderAchievementsHome() {
     
     // Fire Streak
     const streak = state.data.achievements.streaks?.earning || { current: 0, best: 0 };
-    const showStreak = streak.current > 0;
+    const showStreak = streak.current >= 2;
     
     // Останні отримані досягнення (максимум 5)
     const levels = state.data.achievements.levels || {};

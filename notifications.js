@@ -3,7 +3,7 @@
 //     Етап 1: Фундамент — структура + Firebase
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260506.2211';
+export const VERSION = 'v3.20260508.0811';
 
 import { state }    from './state.js';
 import { nowKyiv }  from './utils.js';
@@ -266,11 +266,13 @@ export function generateNotifications() {
         const dow     = nowDate.getDay();
         const streak  = state.data.achievements?.streaks?.earning?.current || 0;
         const todayEarn = earnRecs.filter(r => r.date.startsWith(today));
+        // Не генеруємо якщо: серія < 3, вже перервана (0), або зірки сьогодні є
+        if (streak < 3) return null;
         return dow >= 1 && dow <= 5 && nowDate.getHours() >= 16
-            && todayEarn.length === 0 && streak > 0
+            && todayEarn.length === 0
             ? {
                 title: 'Ризик серії!',
-                body:  `Сьогодні ще не додано зірок. Серія: ${streak} ${streak === 1 ? 'день' : streak < 5 ? 'дні' : 'днів'}`,
+                body:  `Сьогодні ще не додано зірок. Серія: ${streak} ${streak < 5 ? 'дні' : 'днів'}`,
               }
             : null;
     });
