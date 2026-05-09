@@ -6,7 +6,7 @@
 //     showForm/switchTab, а ui.js потребував їх модулів
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260509.2100';
+export const VERSION = 'v3.20260509.2115';
 
 import { state } from './state.js';
 import { getTodayDate } from './utils.js';
@@ -55,17 +55,9 @@ export function showForm(type) {
 
 export function switchTab(tab, fromClick = false) {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    // Якщо виклик від кліку — підсвічуємо натиснуту вкладку
-    if (fromClick && event && event.target) {
-        event.target.classList.add('active');
-    } else {
-        // Програмний виклик — підсвічуємо вкладку по імені
-        document.querySelectorAll('.tab').forEach(t => {
-            if (t.getAttribute('onclick') && t.getAttribute('onclick').includes("'" + tab + "'")) {
-                t.classList.add('active');
-            }
-        });
-    }
+    // Завжди знаходимо кнопку по data-tab — не залежить від event.target (може бути span)
+    const activeBtn = document.querySelector(`.tab[data-tab="${tab}"]`);
+    if (activeBtn) activeBtn.classList.add('active');
     document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
     document.getElementById(tab + 'Section').classList.add('active');
 
