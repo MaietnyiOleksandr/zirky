@@ -157,7 +157,7 @@ body::after {
     background: var(--card);
     border-radius: var(--radius);
     padding: 20px;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
     box-shadow: var(--shadow);
     text-align: center;
     position: relative;
@@ -454,8 +454,7 @@ body::after {
 .tabs {
     display: flex;
     gap: 10px;
-    margin-bottom: 20px;
-    overflow-x: auto;
+    margin-bottom: 10px;
     overflow-y: visible;
     -webkit-overflow-scrolling: touch;
     padding: 5px 4px 8px;  /* top — для hover тіні вгорі, sides — для крайніх табів, bottom — для scrollbar */
