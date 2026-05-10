@@ -2,11 +2,10 @@
 // 📚  subjects.js — Єдине джерело правди для предметів
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260510.2050';
-
 import { state } from './state.js';
 import { saveData } from './firebase.js';
 
+export const VERSION = 'v3.20260510.2135';
 
 // ── Дефолтний список (якщо Firebase порожній) ────────
 const DEFAULT_SUBJECTS = [
@@ -21,7 +20,9 @@ const DEFAULT_SUBJECTS = [
     { name: 'Фізкультура',     emoji: '⚽', isDouble: false },
 ];
 
-const DEFAULT_CLUBS = [];
+const DEFAULT_CLUBS = [
+    // Додайте ваші гуртки тут або через інтерфейс налаштувань
+];
 
 // ── Геттери ─────────────────────────────────────────
 export function getSubjects() {
@@ -32,7 +33,11 @@ export function getSubjects() {
 }
 
 export function getClubs() {
-    if (!state.data.clubs) state.data.clubs = [...DEFAULT_CLUBS];
+    if (!state.data.clubs) state.data.clubs = DEFAULT_CLUBS.map(c => ({...c}));
+    // Міграція: якщо clubs — масив рядків (стара версія) → конвертуємо
+    if (state.data.clubs.length > 0 && typeof state.data.clubs[0] === 'string') {
+        state.data.clubs = state.data.clubs.map(c => ({ name: c, emoji: '🎭' }));
+    }
     return state.data.clubs;
 }
 
@@ -157,11 +162,16 @@ function _renderSubjectsEditor() {
     if (clubContainer) {
         let html = '';
         clubs.forEach((c, i) => {
+            const name  = typeof c === 'string' ? c : (c.name  || '');
+            const emoji = typeof c === 'string' ? '🎭' : (c.emoji || '🎭');
             html += `
             <div class="sched-editor-row" data-idx="${i}">
+                <input class="sched-input sched-emoji-input" type="text" maxlength="4"
+                    value="${emoji}" placeholder="🎭"
+                    onchange="subjUpdateClub(${i},'emoji',this.value)">
                 <input class="sched-input" type="text"
-                    value="${c}" placeholder="Назва гуртка"
-                    onchange="subjUpdateClub(${i},this.value)">
+                    value="${name}" placeholder="Назва гуртка"
+                    onchange="subjUpdateClub(${i},'name',this.value)">
                 <button class="sched-del-btn" onclick="subjDelete(${i},'club')">✕</button>
             </div>`;
         });
@@ -175,17 +185,17 @@ export function subjUpdateField(idx, field, value) {
     subjects[idx][field] = value;
 }
 
-export function subjUpdateClub(idx, value) {
+export function subjUpdateClub(idx, field, value) {
     const clubs = getClubs();
-    if (clubs[idx] === undefined) return;
-    clubs[idx] = value;
+    if (!clubs[idx]) return;
+    clubs[idx][field] = value;
 }
 
 export function subjAddNew(type) {
     if (type === 'subject') {
         getSubjects().push({ name: '', emoji: '📝', isDouble: false });
     } else {
-        getClubs().push('');
+        getClubs().push({ name: '', emoji: '🎭' });
     }
     _renderSubjectsEditor();
 }
@@ -221,7 +231,7 @@ export function saveSubjectsEditor() {
 
     // Фільтруємо порожні
     state.data.subjects = subjects.filter(s => s.name.trim() !== '');
-    state.data.clubs    = clubs.filter(c => c.trim() !== '');
+    state.data.clubs    = clubs.filter(c => (typeof c === 'string' ? c : c.name).trim() !== '');
 
     saveData();
     buildSubjectSelects();

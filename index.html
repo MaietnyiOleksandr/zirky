@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⭐</text></svg>">
-    <!-- version: v3.20260510.2050 -->
+    <!-- version: v3.20260510.2200 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>⭐ Зірки Успіху</title>
     <link rel="stylesheet" href="style.css">
@@ -328,6 +328,9 @@
                 <div class="schedule-actions-row" id="scheduleParentBtns" style="display:none;">
                     <button class="btn btn-secondary schedule-action-btn" onclick="openScheduleEditor()">✏️ Редагувати розклад</button>
                     <button class="btn btn-secondary schedule-action-btn" onclick="openClubEditor()">🎭 Гуртки</button>
+                </div>
+                <div id="scheduleSubjectsBtnWrap" style="display:none;">
+                    <button class="btn btn-secondary" style="width:100%" onclick="openSubjectsEditor()">📚 Предмети та гуртки</button>
                 </div>
             </div>
 
@@ -681,15 +684,6 @@
 
 
 
-                <!-- Предмети та гуртки (тільки батьки) -->
-                <div id="subjectsSettingsBlock" class="card-warning">
-                    <h3 class="card-title">📚 Предмети та гуртки</h3>
-                    <p class="card-note card-note--warning">Зміни одразу оновлять всі форми та фільтри</p>
-                    <button class="btn btn-primary" style="width:100%" onclick="openSubjectsEditor()">
-                        ✏️ Редагувати предмети та гуртки
-                    </button>
-                </div>
-
                 <!-- Ручне додавання запису (тільки для батьків) -->
                 <div id="manualRecordBlock" class="card-warning">
                     <h3 class="card-title">🛠️ Додати запис вручну</h3>
@@ -840,8 +834,11 @@
 
             <!-- ── Feedback Section ── -->
             <div class="section" id="feedbackSection">
+                <div class="section-header">
+                    <h2 class="section-title">💬 Зворотній зв'язок</h2>
+                    <button class="btn-icon" onclick="showHelp('feedbackSection')" title="Довідка">?</button>
+                </div>
                 <div class="card-purple">
-                    <h3 class="card-title">💬 Зворотній зв'язок</h3>
                     <div id="feedbackBlock">
                         <div class="text-hint font-sm text-center p-sm">Завантаження...</div>
                     </div>

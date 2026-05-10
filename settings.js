@@ -2,7 +2,7 @@
 // ⚙️   settings.js — Налаштування / Експорт / Імпорт
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260510.0749';
+export const VERSION = 'v3.20260510.2135';
 
 // ════════════════════════════════════════════════════════════
 
@@ -37,10 +37,13 @@ async function _loadVersionsTable() {
     } catch(e) {}
 
     const jsFiles = [
-        'achievements.js','appearance.js','auth.js','changelog.js','config.js',
-        'feedback.js','firebase.js','freeze.js','goals.js','help.js','history.js',
-        'navigation.js','notifications.js','records.js','rewards.js',
-        'schedule.js','settings.js','state.js','stats.js','ui.js','utils.js'
+        'achievements.js','appearance.js','auth.js',
+        'changelog.js','config.js','feedback.js','firebase.js',
+        'freeze.js','goals.js','help.js','history.js',
+        'navigation.js','notifications.js','records.js',
+        'rewards.js','schedule.js','settings.js',
+        'state.js','stats.js','subjects.js',
+        'ui.js','utils.js'
     ];
 
     const makeRow = (name, ver) => {

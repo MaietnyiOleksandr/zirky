@@ -2,7 +2,7 @@
 // 📋  schedule.js — Розклад уроків
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260510.2105';
+export const VERSION = 'v3.20260510.2135';
 
 import { state } from './state.js';
 import { saveData } from './firebase.js';
@@ -261,9 +261,11 @@ function _clubSelect(dayKey, idx, currentName) {
             placeholder="Назва гуртка"
             onchange="schedUpdateLesson(${dayKey},${idx},'name',this.value)">`;
     }
-    const opts = clubs.map(c =>
-        `<option value="${c}" ${c === currentName ? 'selected' : ''}>${c}</option>`
-    ).join('');
+    const opts = clubs.map(c => {
+        const name  = typeof c === 'string' ? c : (c.name  || '');
+        const emoji = typeof c === 'string' ? '🎭' : (c.emoji || '🎭');
+        return `<option value="${name}" ${name === currentName ? 'selected' : ''}>${emoji} ${name}</option>`;
+    }).join('');
     return `<select class="sched-input sched-lesson-select"
         onchange="schedUpdateLesson(${dayKey},${idx},'name',this.value)">
         <option value="">— гурток —</option>${opts}

@@ -2,7 +2,7 @@
 // 🔐  auth.js — Авторизація та PIN-код
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260510.0005';
+export const VERSION = 'v3.20260510.2135';
 
 import { state } from './state.js';
 import { saveData } from './firebase.js';
@@ -39,7 +39,7 @@ export function enterAsChild(loginType = 'direct') {
     applyAppearance();
     if (window.updateBadges) window.updateBadges();
     updateUI();
-    switchTab('rewards'); // TODO: змінити на 'schedule' коли розклад буде готовий для дитини
+    switchTab('schedule');
 }
 
 export function addPin(digit) {
