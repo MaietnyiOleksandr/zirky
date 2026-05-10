@@ -40,7 +40,7 @@ async function _loadVersionsTable() {
         'achievements.js','appearance.js','auth.js','changelog.js','config.js',
         'feedback.js','firebase.js','freeze.js','goals.js','help.js','history.js',
         'navigation.js','notifications.js','records.js','rewards.js',
-        'settings.js','schedule.js','state.js','stats.js','ui.js','utils.js'
+        'schedule.js','settings.js','state.js','stats.js','ui.js','utils.js'
     ];
 
     const makeRow = (name, ver) => {
