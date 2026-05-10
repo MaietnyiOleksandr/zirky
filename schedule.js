@@ -2,7 +2,7 @@
 // 📋  schedule.js — Розклад уроків
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260510.2135';
+export const VERSION = 'v3.20260510.2236';
 
 import { state } from './state.js';
 import { saveData } from './firebase.js';
@@ -136,7 +136,17 @@ export function renderSchedule() {
             html += `<tr class="schedule-separator"><td colspan="2">🎭 Гуртки</td></tr>`;
         }
 
-        const lessonNum = lesson.isClub ? '🎭' : (idx + 1);
+        // Для гуртка — знаходимо emoji зі списку гуртків
+        let clubEmoji = '🎭';
+        if (lesson.isClub) {
+            const clubs = getClubs();
+            const found = clubs.find(c => {
+                const n = typeof c === 'string' ? c : c.name;
+                return n === lesson.name;
+            });
+            if (found && typeof found !== 'string') clubEmoji = found.emoji || '🎭';
+        }
+        const lessonNum = lesson.isClub ? clubEmoji : (idx + 1);
         const teacherHint = !lesson.isClub && s.teachers[lesson.name]
             ? `data-teacher="${s.teachers[lesson.name]}"` : '';
 

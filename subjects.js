@@ -2,10 +2,11 @@
 // 📚  subjects.js — Єдине джерело правди для предметів
 // ════════════════════════════════════════════════════
 
+export const VERSION = 'v3.20260510.2236';
+
 import { state } from './state.js';
 import { saveData } from './firebase.js';
 
-export const VERSION = 'v3.20260510.2135';
 
 // ── Дефолтний список (якщо Firebase порожній) ────────
 const DEFAULT_SUBJECTS = [
@@ -45,9 +46,17 @@ export function getClubs() {
 export function getSubjectEmoji(subjectName) {
     if (!subjectName) return '';
     const subjects = getSubjects();
-    const found = subjects.find(s => subjectName.includes(s.name));
-    if (found) return `${found.emoji} ${subjectName}`;
-    // Гуртки (без окремого emoji — просто повертаємо як є)
+    const foundSubj = subjects.find(s => subjectName.includes(s.name));
+    if (foundSubj) return `${foundSubj.emoji} ${subjectName}`;
+    const clubs = getClubs();
+    const foundClub = clubs.find(c => {
+        const name = typeof c === 'string' ? c : c.name;
+        return name && subjectName.includes(name);
+    });
+    if (foundClub) {
+        const emoji = typeof foundClub === 'string' ? '🎭' : (foundClub.emoji || '🎭');
+        return `${emoji} ${subjectName}`;
+    }
     return subjectName;
 }
 
@@ -167,11 +176,9 @@ function _renderSubjectsEditor() {
             html += `
             <div class="sched-editor-row" data-idx="${i}">
                 <input class="sched-input sched-emoji-input" type="text" maxlength="4"
-                    value="${emoji}" placeholder="🎭"
-                    onchange="subjUpdateClub(${i},'emoji',this.value)">
+                    value="${emoji}" placeholder="🎭">
                 <input class="sched-input" type="text"
-                    value="${name}" placeholder="Назва гуртка"
-                    onchange="subjUpdateClub(${i},'name',this.value)">
+                    value="${name}" placeholder="Назва гуртка">
                 <button class="sched-del-btn" onclick="subjDelete(${i},'club')">✕</button>
             </div>`;
         });
@@ -225,13 +232,18 @@ export function saveSubjectsEditor() {
     const clubs = getClubs();
     document.querySelectorAll('#clubsEditorList .sched-editor-row').forEach(row => {
         const idx = Number(row.dataset.idx);
-        const input = row.querySelector('input[type="text"]');
-        if (input && clubs[idx] !== undefined) clubs[idx] = input.value.trim();
+        if (!clubs[idx]) return;
+        const inputs = row.querySelectorAll('input[type="text"]');
+        // Перший input — emoji (sched-emoji-input), другий — назва
+        if (inputs[0]) clubs[idx].emoji = inputs[0].value.trim() || '🎭';
+        if (inputs[1]) clubs[idx].name  = inputs[1].value.trim();
     });
 
-    // Фільтруємо порожні
+    // Фільтруємо порожні, гарантуємо об'єктний формат
     state.data.subjects = subjects.filter(s => s.name.trim() !== '');
-    state.data.clubs    = clubs.filter(c => (typeof c === 'string' ? c : c.name).trim() !== '');
+    state.data.clubs    = clubs
+        .map(c => typeof c === 'string' ? { name: c, emoji: '🎭' } : c)
+        .filter(c => c.name.trim() !== '');
 
     saveData();
     buildSubjectSelects();
