@@ -2,10 +2,11 @@
 // 📋  schedule.js — Розклад уроків
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260510.0757';
+export const VERSION = 'v3.20260510.2105';
 
 import { state } from './state.js';
 import { saveData } from './firebase.js';
+import { getSubjects, getClubs } from './subjects.js';
 
 // ── Константи ────────────────────────────────────────
 const DAY_NAMES   = ['', 'Понеділок', 'Вівторок', 'Середа', 'Четвер', "П'ятниця"];
@@ -240,11 +241,42 @@ function _renderEditorWeek(week) {
     container.innerHTML = html;
 }
 
+
+// ── Хелпер: select предметів ─────────────────────────
+function _subjectSelect(dayKey, idx, currentName) {
+    const subjects = getSubjects();
+    const opts = subjects.map(s =>
+        `<option value="${s.name}" ${s.name === currentName ? 'selected' : ''}>${s.emoji} ${s.name}</option>`
+    ).join('');
+    return `<select class="sched-input sched-lesson-select"
+        onchange="schedUpdateLesson(${dayKey},${idx},'name',this.value)">
+        <option value="">— предмет —</option>${opts}
+    </select>`;
+}
+
+function _clubSelect(dayKey, idx, currentName) {
+    const clubs = getClubs();
+    if (clubs.length === 0) {
+        return `<input class="sched-input" type="text" value="${currentName||''}"
+            placeholder="Назва гуртка"
+            onchange="schedUpdateLesson(${dayKey},${idx},'name',this.value)">`;
+    }
+    const opts = clubs.map(c =>
+        `<option value="${c}" ${c === currentName ? 'selected' : ''}>${c}</option>`
+    ).join('');
+    return `<select class="sched-input sched-lesson-select"
+        onchange="schedUpdateLesson(${dayKey},${idx},'name',this.value)">
+        <option value="">— гурток —</option>${opts}
+    </select>`;
+}
+
 function _editorRow(dayKey, idx, lesson) {
+    const nameInput = lesson.isClub
+        ? _clubSelect(dayKey, idx, lesson.name)
+        : _subjectSelect(dayKey, idx, lesson.name);
     return `
     <div class="sched-editor-row" id="schedRow_${dayKey}_${idx}">
-        <input class="sched-input" type="text" value="${lesson.name || ''}"
-            placeholder="Назва" onchange="schedUpdateLesson(${dayKey},${idx},'name',this.value)">
+        ${nameInput}
         ${lesson.isClub ? `
         <input class="sched-input sched-time" type="time" value="${lesson.timeStart||''}"
             onchange="schedUpdateLesson(${dayKey},${idx},'timeStart',this.value)">
@@ -279,11 +311,17 @@ export function saveScheduleEditor() {
     const s = _sched();
     s.twoWeeks = document.getElementById('schedTwoWeeks').checked;
     // Зберігаємо всі поточні значення з інпутів
-    document.querySelectorAll('.sched-editor-row').forEach(row => {
-        const [, dayKey, idx] = row.id.split('_').map(Number);
+    document.querySelectorAll('.sched-editor-row[id]').forEach(row => {
+        const parts = row.id.split('_');
+        if (parts.length < 3) return;
+        const dayKey = Number(parts[1]);
+        const idx    = Number(parts[2]);
         if (!s.days[dayKey]?.lessons[idx]) return;
-        const input = row.querySelector('input[type="text"]');
-        if (input) s.days[dayKey].lessons[idx].name = input.value.trim();
+        // Зчитуємо з select або input (якщо гурток без списку)
+        const sel = row.querySelector('select.sched-lesson-select');
+        const inp = row.querySelector('input[type="text"]');
+        const val = sel ? sel.value : (inp ? inp.value.trim() : '');
+        if (val) s.days[dayKey].lessons[idx].name = val;
     });
     saveData();
     closeScheduleEditor();
@@ -325,8 +363,7 @@ function _renderClubEditor() {
             lessons.forEach((club, idx) => {
                 const realIdx = (s.days[key]?.lessons || []).indexOf(club);
                 html += `<div class="sched-editor-row">
-                    <input class="sched-input" type="text" value="${club.name||''}" placeholder="Назва гуртка"
-                        onchange="schedUpdateLesson(${key},${realIdx},'name',this.value)">
+                    ${_clubSelect(key, realIdx, club.name)}
                     <input class="sched-input sched-time" type="time" value="${club.timeStart||''}"
                         onchange="schedUpdateLesson(${key},${realIdx},'timeStart',this.value)">
                     <input class="sched-input sched-time" type="time" value="${club.timeEnd||''}"
