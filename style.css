@@ -1,6 +1,6 @@
 /* ════════════════════════════════════════════════════
    Зірки Успіху — Стилі
-   Версія: v3.20260510.2220
+   Версія: v3.20260510.2250
    ════════════════════════════════════════════════════ */
 
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;900&family=Comfortaa:wght@400;700&family=Fredoka+One&family=Ubuntu:wght@400;700&family=Playfair+Display:wght@400;700&display=swap');
@@ -451,16 +451,24 @@ body::after {
 /* ════════════════════════════════════════════════════
    ТАБИ
    ════════════════════════════════════════════════════ */
+/* Зовнішня обгортка — вона скролює */
+.tabs-scroll {
+    overflow-x: auto;
+    overflow-y: visible;
+    -webkit-overflow-scrolling: touch;
+    margin-bottom: 10px;
+    padding-bottom: 4px; /* місце для scrollbar */
+}
+.tabs-scroll::-webkit-scrollbar { height: 4px; }
+.tabs-scroll::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 4px; }
+
+/* Внутрішній flex-рядок — overflow: visible щоб тіні не обрізались */
 .tabs {
     display: flex;
     gap: 10px;
-    margin-bottom: 10px;
-    overflow-y: visible;
-    padding: 5px 4px 8px;  /* top — для hover тіні вгорі, sides — для крайніх табів, bottom — для scrollbar */
+    overflow: visible;
+    padding: 5px 4px 8px;
 }
-
-.tabs::-webkit-scrollbar { height: 4px; }
-.tabs::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 4px; }
 
 .tab {
     flex: 1;
