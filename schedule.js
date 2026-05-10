@@ -2,7 +2,7 @@
 // 📋  schedule.js — Розклад уроків
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260510.0747';
+export const VERSION = 'v3.20260510.0757';
 
 import { state } from './state.js';
 import { saveData } from './firebase.js';
@@ -256,7 +256,8 @@ function _editorRow(dayKey, idx, lesson) {
 
 export function schedAddLesson(dayKey) {
     const s = _sched();
-    if (!s.days[dayKey]) s.days[dayKey] = { lessons: [] };
+    if (!s.days[dayKey]) s.days[dayKey] = {};
+    if (!s.days[dayKey].lessons) s.days[dayKey].lessons = [];
     s.days[dayKey].lessons.push({ name: '', isClub: false });
     _renderEditorWeek(_editorWeek);
 }
@@ -342,7 +343,8 @@ function _renderClubEditor() {
 
 export function clubAddDay(dayKey) {
     const s = _sched();
-    if (!s.days[dayKey]) s.days[dayKey] = { lessons: [] };
+    if (!s.days[dayKey]) s.days[dayKey] = {};
+    if (!s.days[dayKey].lessons) s.days[dayKey].lessons = [];
     s.days[dayKey].lessons.push({ name: '', isClub: true, timeStart: '', timeEnd: '' });
     _renderClubEditor();
 }
