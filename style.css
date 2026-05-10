@@ -1,6 +1,6 @@
 /* ════════════════════════════════════════════════════
    Зірки Успіху — Стилі
-   Версія: v3.20260510.2152
+   Версія: v3.20260510.2220
    ════════════════════════════════════════════════════ */
 
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;900&family=Comfortaa:wght@400;700&family=Fredoka+One&family=Ubuntu:wght@400;700&family=Playfair+Display:wght@400;700&display=swap');
@@ -2259,6 +2259,7 @@ select:focus, input:focus {
     right: 6px;
     border: 1.5px solid var(--card);
     animation: notifPulse 2s infinite;
+    pointer-events: none;
 }
 
 .tab { position: relative; }
