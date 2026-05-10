@@ -2,7 +2,7 @@
 // 📋  schedule.js — Розклад уроків
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260510.0005';
+export const VERSION = 'v3.20260510.0747';
 
 import { state } from './state.js';
 import { saveData } from './firebase.js';
@@ -21,16 +21,14 @@ let _viewWeek = null; // null = поточний тиждень
 
 // Отримуємо розклад (ініціалізуємо якщо немає)
 function _sched() {
-    if (!state.data.schedule) {
-        state.data.schedule = {
-            twoWeeks: false,
-            days: { 1:{},2:{},3:{},4:{},5:{}, 11:{},12:{},13:{},14:{},15:{} },
-            // days: { dow: { lessons:[{name,isClub,timeStart,timeEnd}], clubs:[] } }
-            bells:    [],   // [{lesson, start, end}]
-            teachers: {},   // { 'Математика': 'Іваненко Іван Іванович', ... }
-        };
-    }
-    return state.data.schedule;
+    if (!state.data.schedule) state.data.schedule = {};
+    const s = state.data.schedule;
+    // Гарантуємо всі поля навіть якщо schedule прийшов з Firebase частково
+    if (!s.days) s.days = { 1:{},2:{},3:{},4:{},5:{},11:{},12:{},13:{},14:{},15:{} };
+    if (!s.bells) s.bells = [];
+    if (!s.teachers) s.teachers = {};
+    if (s.twoWeeks === undefined) s.twoWeeks = false;
+    return s;
 }
 
 // Ключ дня: для однотижневого - 1..5, для двотижневого - 11..15 (тиждень А) / 21..25 (тиждень Б)
@@ -93,10 +91,12 @@ export function scheduleNavDay(dir) {
 
 // ── Рендер основного розкладу ────────────────────────
 export function renderSchedule() {
+    // Якщо initSchedule ще не викликався — ініціалізуємо
+    if (_viewDow === null) { _viewDow = _todayDow(); _viewWeek = 0; }
     const s = _sched();
-    const dow  = _viewDow ?? _todayDow();
+    const dow  = _viewDow;
     const weekNum = _schoolWeekNum(
-        (() => { const d = new Date(); d.setDate(d.getDate() + _viewWeek * 7); return d; })()
+        (() => { const d = new Date(); d.setDate(d.getDate() + (_viewWeek || 0) * 7); return d; })()
     );
     const dayKey = _dayKey(dow, weekNum);
     const dayData = s.days[dayKey] || {};
