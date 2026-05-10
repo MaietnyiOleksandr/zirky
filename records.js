@@ -2,9 +2,10 @@
 // RECORDS  records.js — Records
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260504.2308';
+export const VERSION = 'v3.20260510.2050';
 
 import { state } from './state.js';
+import { isDoubleSubject } from './subjects.js';
 import { gradeToStars } from './config.js';
 import { recalculateAchievements, checkWeeklyAchievements, checkGoalReached, giveRewardsForNewAchievements, removeRewardsForLostAchievements } from './achievements.js';
 import { saveData } from './firebase.js';
@@ -21,7 +22,7 @@ export function addGradeRecord() {
     if (!date || !subject || !grade) { alert('❌ Заповніть всі поля!'); return; }
 
     let stars = gradeToStars[grade];
-    if (subject === 'Математика') stars *= 2;
+    if (isDoubleSubject(subject)) stars *= 2;
 
     state.data.records.push({
         id: Date.now(),
@@ -74,8 +75,8 @@ export function addDiagnosticWork() {
     let stars = gradeToStars[grade];
     
     // Діагностувальна робота: ×3 для всіх, ×6 для математики
-    if (subject === 'Математика') {
-        stars *= 6;  // ×2 (математика) × ×3 (діагностувальна) = ×6
+    if (isDoubleSubject(subject)) {
+        stars *= 6;  // ×2 (подвійний предмет) × ×3 (діагностувальна) = ×6
     } else {
         stars *= 3;  // ×3 для всіх інших предметів
     }
@@ -115,7 +116,7 @@ export function addDiagnosticWork() {
     document.getElementById('diagnosticSubject').value = '';
     document.getElementById('diagnosticGrade').value = '';
     
-    const multiplier = subject === 'Математика' ? '×6' : '×3';
+    const multiplier = isDoubleSubject(subject) ? '×6' : '×3';
     alert(`✅ Додано діагностувальну роботу!\n\n${subject}: ${grade} балів\nБонус: ${multiplier}\nОтримано: ${stars}⭐`);
 }
 

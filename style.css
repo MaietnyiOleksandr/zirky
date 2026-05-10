@@ -1,6 +1,6 @@
 /* ════════════════════════════════════════════════════
    Зірки Успіху — Стилі
-   Версія: v3.20260510.0005
+   Версія: v3.20260510.2050
    ════════════════════════════════════════════════════ */
 
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;900&family=Comfortaa:wght@400;700&family=Fredoka+One&family=Ubuntu:wght@400;700&family=Playfair+Display:wght@400;700&display=swap');
@@ -1291,7 +1291,7 @@ select:focus, input:focus {
 #childInstructions { display: none; }
 
 /* Батьківські блоки в налаштуваннях — показуються через settings.js */
-#pinSettingsBlock, #balanceCorrectionBlock, #conversionRatesBlock, #manualRecordBlock { display: none; margin-top: 15px; }
+#pinSettingsBlock, #balanceCorrectionBlock, #conversionRatesBlock, #manualRecordBlock, #subjectsSettingsBlock { display: none; margin-top: 15px; }
 
 /* ════════════════════════════════════════════════════
    ТЕМИ — фони через data-bg атрибут на <html>
@@ -2479,3 +2479,17 @@ select:focus, input:focus {
     font-size: 13px;
     font-weight: 600;
 }
+
+/* ── Редактор предметів ── */
+.subj-double-label {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+    cursor: pointer;
+    color: var(--text-muted);
+}
+.subj-double-label input { width: 16px; height: 16px; cursor: pointer; }
+.sched-emoji-input { max-width: 52px; flex: none; text-align: center; }

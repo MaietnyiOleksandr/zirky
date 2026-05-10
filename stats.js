@@ -2,9 +2,10 @@
 // 📊  stats.js — Статистика та графіки
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260504.1434';
+export const VERSION = 'v3.20260510.2050';
 
 import { state } from './state.js';
+import { getSubjectEmoji } from './subjects.js';
 
 // Зчитуємо CSS змінну з поточної теми
 function cssVar(name, fallback = '') {
@@ -69,12 +70,6 @@ export function renderSubjectAnalytics() {
         })
         .sort((a, b) => b.avg - a.avg);
 
-    const emojiMap = {
-        'Математика': '📐', 'Українська мова': '🇺🇦', 'Я пізнаю світ': '🌍',
-        'Читання': '📖', 'Англійська мова': '🇬🇧', 'Інформатика': '💻',
-        'Мистецтво': '🎨', 'Вірш': '📝', 'Фізкультура': '⚽'
-    };
-
     const maxAvg = 12;
 
     // Колір бару залежно від оцінки — через CSS класи
@@ -83,7 +78,8 @@ export function renderSubjectAnalytics() {
     let html = `<div style="display:grid;gap:10px;">`;
 
     subjects.forEach(s => {
-        const emoji = emojiMap[s.name] || '📚';
+        const emojiRaw = getSubjectEmoji(s.name);
+        const emoji = emojiRaw !== s.name ? emojiRaw.split(' ')[0] : '📚';
         const avgRounded = Math.round(s.avg * 10) / 10;
         const barWidth = Math.round((s.avg / maxAvg) * 100);
         const cls = barClass(s.avg);
@@ -117,15 +113,11 @@ export function renderSubjectChartSelector(subjects) {
     const container = document.getElementById('subjectAnalytics');
     if (!container || !subjects.length) return;
 
-    const emojiMap = {
-        'Математика':'📐','Українська мова':'🇺🇦','Я пізнаю світ':'🌍',
-        'Читання':'📖','Англійська мова':'🇬🇧','Інформатика':'💻',
-        'Мистецтво':'🎨','Вірш':'📝','Фізкультура':'⚽'
-    };
-
-    const options = subjects.map(s =>
-        `<option value="${s.name}">${emojiMap[s.name]||'📚'} ${s.name}</option>`
-    ).join('');
+    const options = subjects.map(s => {
+        const er = getSubjectEmoji(s.name);
+        const em = er !== s.name ? er.split(' ')[0] : '📚';
+        return `<option value="${s.name}">${em} ${s.name}</option>`;
+    }).join('');
 
     container.innerHTML += `
         <div class="subject-chart-block">

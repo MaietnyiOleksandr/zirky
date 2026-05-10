@@ -2,7 +2,9 @@
 // HISTORY  history.js — History
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260504.2258';
+export const VERSION = 'v3.20260510.2050';
+
+import { getSubjectEmoji } from './subjects.js';
 
 // ════════════════════════════════════════════════════════════
 
@@ -11,26 +13,7 @@ import { deleteFreezePeriod, editFreezePeriod } from './freeze.js';
 import { deleteRecord } from './records.js';
 
 // ════════════════════════════════════════════════════
-// 🗺️  Емодзі предметів
-// ════════════════════════════════════════════════════
-
-export function getSubjectEmoji(subject) {
-    const emojiMap = {
-        'Математика':      '📐',
-        'Українська мова': '🇺🇦',
-        'Я пізнаю світ':   '🌍',
-        'Читання':         '📖',
-        'Англійська мова': '🇬🇧',
-        'Інформатика':     '💻',
-        'Мистецтво':       '🎨',
-        'Вірш':            '📝',
-        'Фізкультура':     '⚽'
-    };
-    for (const [key, emoji] of Object.entries(emojiMap)) {
-        if (subject.includes(key)) return emoji + ' ' + subject;
-    }
-    return subject;
-}
+// getSubjectEmoji — імпортується з subjects.js
 
 // ════════════════════════════════════════════════════
 // 🔍  Фільтрація

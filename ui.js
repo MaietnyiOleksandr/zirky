@@ -2,12 +2,13 @@
 // UI     ui.js — Ui
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260510.0005';
+export const VERSION = 'v3.20260510.2050';
 
 // ════════════════════════════════════════════════════════════
 
 import { state } from './state.js';
 import { showForm, switchTab } from './navigation.js';
+import { buildSubjectSelects } from './subjects.js';
 export { showForm, switchTab };  // re-export — інші файли ще імпортують з ui.js
 import { renderAchievementsHome } from './achievements.js';
 import { renderGoal } from './goals.js';
@@ -18,6 +19,7 @@ import { renderGoal } from './goals.js';
 // Додавання записів
 
 export function updateUI() {
+    buildSubjectSelects(); // Оновлюємо всі select-и предметів з subjects.js
     document.getElementById('balance').textContent = Number(state.data.balance) + '⭐';
 
     let records = state.data.records || [];
@@ -64,6 +66,9 @@ export function updateUI() {
     }
     const manualBlock = document.getElementById('manualRecordBlock');
     if (manualBlock) manualBlock.style.display = _isParent ? 'block' : 'none';
+
+    const subjectsBlock = document.getElementById('subjectsSettingsBlock');
+    if (subjectsBlock) subjectsBlock.style.display = _isParent ? 'block' : 'none';
 
     // Батьківські кнопки в розкладі
     const schedParentBtns = document.getElementById('scheduleParentBtns');

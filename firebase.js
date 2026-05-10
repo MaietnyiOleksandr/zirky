@@ -2,7 +2,7 @@
 // FIREBASE  firebase.js — Firebase
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260510.0005';
+export const VERSION = 'v3.20260510.2050';
 
 import { state } from './state.js';
 import { firebaseConfig } from './config.js';
@@ -47,7 +47,9 @@ export function initFirebase() {
 
             state.data.isParent = wasParent;
             if (state.data.balance === undefined) state.data.balance = 0;
-            if (!state.data.records) state.data.records = [];
+            if (!state.data.records)  state.data.records  = [];
+            if (!state.data.subjects) state.data.subjects = null; // ініціалізується в subjects.js
+            if (!state.data.clubs)    state.data.clubs    = null;
             if (!state.data.achievements) state.data.achievements = { counters: {}, streaks: {}, levels: {}, weekly: {}, repeatableHistory: {}, freezePeriods: [] };
             // Міграція appearance до формату {child, parent}
             state.data.appearance = migrateAppearance(state.data.appearance);
@@ -102,7 +104,9 @@ export function saveData() {
         goal:            state.data.goal || null,
         achievements:    state.data.achievements || { counters: {}, streaks: {}, levels: {}, weekly: {}, repeatableHistory: {}, freezePeriods: [] },
         conversionRates:  state.data.conversionRates || null,
-        schedule:        state.data.schedule || null,
+        schedule:        state.data.schedule  || null,
+        subjects:        state.data.subjects  || null,
+        clubs:           state.data.clubs     || null,
         // notifications — окрема гілка zirky-notifications
         appearance:      state.data.appearance || { child: { owned: ['default'], active: { theme: 'default', palette: 'default', font: 'default', buttons: 'default', background: 'default' } }, parent: { active: { theme: 'default', palette: 'default', font: 'default', buttons: 'default', background: 'default' } } },
     };

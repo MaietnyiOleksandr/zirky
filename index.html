@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⭐</text></svg>">
-    <!-- version: v3.20260510.0005 -->
+    <!-- version: v3.20260510.2050 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>⭐ Зірки Успіху</title>
     <link rel="stylesheet" href="style.css">
@@ -180,15 +180,6 @@
                         <label>📚 Предмет</label>
                         <select id="subject">
                             <option value="">Оберіть предмет</option>
-                            <option value="Математика">📐 Математика (×2 зірки)</option>
-                            <option value="Українська мова">🇺🇦 Українська мова</option>
-                            <option value="Я пізнаю світ">🌍 Я пізнаю світ</option>
-                            <option value="Читання">📖 Читання</option>
-                            <option value="Англійська мова">🇬🇧 Англійська мова</option>
-                            <option value="Інформатика">💻 Інформатика</option>
-                            <option value="Мистецтво">🎨 Мистецтво</option>
-                            <option value="Вірш">📝 Вірш</option>
-                            <option value="Фізкультура">⚽ Фізкультура</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -223,12 +214,6 @@
                         <label>📚 Предмет</label>
                         <select id="diagnosticSubject">
                             <option value="">Оберіть предмет</option>
-                            <option value="Математика">📐 Математика</option>
-                            <option value="Українська мова">🇺🇦 Українська мова</option>
-                            <option value="Я пізнаю світ">🌍 Я пізнаю світ</option>
-                            <option value="Читання">📖 Читання</option>
-                            <option value="Англійська мова">🇬🇧 Англійська мова</option>
-                            <option value="Інформатика">💻 Інформатика</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -372,15 +357,6 @@
                     </select>
                     <select id="filterSubject" class="filter-select" onchange="applyHistoryFilter()">
                         <option value="all">📚 Всі предмети</option>
-                        <option value="Математика">📐 Математика</option>
-                        <option value="Українська мова">🇺🇦 Українська мова</option>
-                        <option value="Я пізнаю світ">🌍 Я пізнаю світ</option>
-                        <option value="Читання">📖 Читання</option>
-                        <option value="Англійська мова">🇬🇧 Англійська мова</option>
-                        <option value="Інформатика">💻 Інформатика</option>
-                        <option value="Мистецтво">🎨 Мистецтво</option>
-                        <option value="Вірш">📝 Вірш</option>
-                        <option value="Фізкультура">⚽ Фізкультура</option>
                     </select>
                     <select id="filterSpendCategory" class="filter-select" onchange="applyHistoryFilter()">
                         <option value="all">💳 Всі витрати</option>
@@ -704,6 +680,16 @@
                 </div>
 
 
+
+                <!-- Предмети та гуртки (тільки батьки) -->
+                <div id="subjectsSettingsBlock" class="card-warning">
+                    <h3 class="card-title">📚 Предмети та гуртки</h3>
+                    <p class="card-note card-note--warning">Зміни одразу оновлять всі форми та фільтри</p>
+                    <button class="btn btn-primary" style="width:100%" onclick="openSubjectsEditor()">
+                        ✏️ Редагувати предмети та гуртки
+                    </button>
+                </div>
+
                 <!-- Ручне додавання запису (тільки для батьків) -->
                 <div id="manualRecordBlock" class="card-warning">
                     <h3 class="card-title">🛠️ Додати запис вручну</h3>
@@ -891,6 +877,9 @@
         import { renderHistory, changeMonth, applyHistoryFilter } from './history.js';
         import { renderRewards, buyTime, buyMoney, buyCustomReward, updateTimePreview, updateMoneyPreview, checkRewardPin } from './rewards.js';
         import { renderStats, updateChart, changeChartPeriod, changeChartOffset } from './stats.js';
+        import { buildSubjectSelects, openSubjectsEditor, closeSubjectsEditor,
+                 subjAddNew, subjDelete, subjUpdateField, subjUpdateClub,
+                 saveSubjectsEditor } from './subjects.js';
         import { initSchedule, renderSchedule, scheduleNavDay,
                  scheduleShowTeacher, openScheduleEditor, closeScheduleEditor,
                  toggleWeekBtns, schedEditorWeek, schedAddLesson, schedUpdateLesson,
@@ -977,6 +966,14 @@
         window.closeBellsModal      = closeBellsModal;
         window.schedUpdateBell      = schedUpdateBell;
         window.saveBellsModal       = saveBellsModal;
+        window.buildSubjectSelects   = buildSubjectSelects;
+        window.openSubjectsEditor    = openSubjectsEditor;
+        window.closeSubjectsEditor   = closeSubjectsEditor;
+        window.subjAddNew            = subjAddNew;
+        window.subjDelete            = subjDelete;
+        window.subjUpdateField       = subjUpdateField;
+        window.subjUpdateClub        = subjUpdateClub;
+        window.saveSubjectsEditor    = saveSubjectsEditor;
         window.changeChartOffset = changeChartOffset;
         window.exportData = exportData;
         window.importData = importData;
@@ -1202,6 +1199,33 @@
                 <div style="display:flex;gap:10px;">
                     <button class="btn btn-primary" style="flex:1" onclick="saveBellsModal()">💾 Зберегти</button>
                     <button class="btn btn-secondary" style="flex:1" onclick="closeBellsModal()">Закрити</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Subjects Editor Modal -->
+    <div id="subjectsEditorModal" class="help-modal" style="display:none;">
+        <div class="help-modal-inner help-modal-inner--wide">
+            <div class="help-modal-header">
+                <h3 class="help-modal-title">📚 Предмети та гуртки</h3>
+                <button onclick="closeSubjectsEditor()" class="help-close-btn">✕</button>
+            </div>
+            <div class="help-modal-content">
+                <h4 style="margin:0 0 8px;font-size:14px;color:var(--text-muted)">📐 Предмети <span style="font-weight:400">(×2 = подвійні зірки)</span></h4>
+                <div id="subjectsEditorList"></div>
+                <button class="btn btn-sm btn-ghost" style="margin-top:6px" onclick="subjAddNew('subject')">+ Додати предмет</button>
+
+                <hr style="margin:16px 0;border:none;border-top:1px solid var(--border-light)">
+
+                <h4 style="margin:0 0 8px;font-size:14px;color:var(--text-muted)">🎭 Гуртки</h4>
+                <div id="clubsEditorList"></div>
+                <button class="btn btn-sm btn-ghost" style="margin-top:6px" onclick="subjAddNew('club')">+ Додати гурток</button>
+
+                <div style="display:flex;gap:10px;margin-top:16px;">
+                    <button class="btn btn-primary" style="flex:1" onclick="saveSubjectsEditor()">💾 Зберегти</button>
+                    <button class="btn btn-secondary" style="flex:1" onclick="closeSubjectsEditor()">Скасувати</button>
                 </div>
             </div>
         </div>
