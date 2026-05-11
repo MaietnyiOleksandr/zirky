@@ -3,7 +3,7 @@
 //     Етап 1: Фундамент — структура + Firebase
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260511.2031';
+export const VERSION = 'v3.20260511.2056';
 
 import { state }    from './state.js';
 import { nowKyiv }  from './utils.js';
@@ -197,6 +197,11 @@ export function generateNotifications() {
     _pruneFullyReadByType('changelog', clId);
 
     // ── 2. Feedback ───────────────────────────────────────
+    // Коротка мітка для сповіщень: title якщо є, інакше перші 35 символів тексту
+    const _fbLabel = (item) => item.title
+        ? `"${item.title}"`
+        : `"${item.text.slice(0, 35)}${item.text.length > 35 ? '…' : ''}"`;
+
     getFeedbackItems().forEach(item => {
         // Відповідь батьків дитині
         if (item.commentAt) {
@@ -206,7 +211,7 @@ export function generateNotifications() {
             if (!existing || existing.createdAt !== item.commentAt) {
                 _upsertItem(_makeItem(id, 'feedback_reply',
                     'Відповідь батьків',
-                    `${item.category}: "${item.text.slice(0, 60)}"`,
+                    `До: ${_fbLabel(item)}`,
                     { createdAt: item.commentAt, readBy: { parent: existing?.readBy?.parent || null, child: null } }
                 ));
             }
@@ -219,7 +224,7 @@ export function generateNotifications() {
                 const NAMES = { '⏳': 'Нове', '🔄': 'В опрацюванні', '✅': 'Виконано', '❌': 'Відхилено' };
                 _upsertItem(_makeItem(id, 'feedback_status',
                     'Оновлено статус запиту',
-                    `${item.category} → ${item.status} ${NAMES[item.status] || ''}`,
+                    `${_fbLabel(item)} → ${item.status} ${NAMES[item.status] || ''}`,
                     { createdAt: item.statusChangedAt, readBy: { parent: existing?.readBy?.parent || null, child: null } }
                 ));
             }
@@ -230,7 +235,7 @@ export function generateNotifications() {
             if (!_items[id]) {
                 _upsertItem(_makeItem(id, 'feedback_new',
                     'Нове повідомлення від дитини',
-                    `${item.category}: "${item.text.slice(0, 60)}"`,
+                    `${item.category} · ${_fbLabel(item)}`,
                     { createdAt: item.date }
                 ));
             }
@@ -242,7 +247,7 @@ export function generateNotifications() {
             if (!existing || existing.createdAt !== item.childCommentAt) {
                 _upsertItem(_makeItem(id, 'feedback_comment',
                     'Дитина прокоментувала',
-                    `До запиту: "${item.text.slice(0, 60)}"`,
+                    `До: ${_fbLabel(item)}`,
                     { createdAt: item.childCommentAt, readBy: { child: existing?.readBy?.child || null, parent: null } }
                 ));
             }

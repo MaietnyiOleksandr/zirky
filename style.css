@@ -1,6 +1,6 @@
 /* ════════════════════════════════════════════════════
    Зірки Успіху — Стилі
-   Версія: v3.20260511.1744
+   Версія: v3.20260511.2056
    ════════════════════════════════════════════════════ */
 
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;900&family=Comfortaa:wght@400;700&family=Fredoka+One&family=Ubuntu:wght@400;700&family=Playfair+Display:wght@400;700&display=swap');
@@ -1746,6 +1746,38 @@ select:focus, input:focus {
     display: flex;
     align-items: center;
     gap: 8px;
+}
+
+/* ── Поле назви feedback ── */
+.fb-title-input {
+    width: 100%;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 2px solid var(--border);
+    background: var(--card);
+    color: var(--text);
+    font-size: 14px;
+    font-family: var(--font-main);
+    font-weight: 600;
+    box-sizing: border-box;
+    margin-bottom: 8px;
+    transition: border-color 0.2s;
+}
+.fb-title-input:focus {
+    outline: none;
+    border-color: var(--c-fb-primary);
+}
+.fb-title-input::placeholder {
+    font-weight: 400;
+    color: var(--text-hint, #aaa);
+}
+
+/* ── Назва у картці ── */
+.fb-card-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
 }
 
 .fb-textarea {

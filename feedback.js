@@ -2,7 +2,7 @@
 // 💬  feedback.js — Зворотній зв'язок
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260511.1705';
+export const VERSION = 'v3.20260511.2056';
 
 import { state } from './state.js';
 import { notifyFeedbackChanged } from './notifications.js';
@@ -126,8 +126,11 @@ function _renderChildView() {
         <div class="mb-md">
             <p class="fb-intro">Напиши батькам своє побажання або запитання 💜</p>
             <div class="fb-categories">${catBtns}</div>
+            <input id="feedbackTitle" class="fb-title-input"
+                maxlength="40"
+                placeholder="Коротка назва (до 40 символів), напр. «Розклад уроків»">
             <textarea id="feedbackText" class="fb-textarea"
-                placeholder="Введи текст повідомлення..."></textarea>
+                placeholder="Докладніше опиши своє побажання або питання..."></textarea>
             <button onclick="submitFeedback()" class="fb-submit-btn">📨 Надіслати</button>
         </div>
         <div>
@@ -159,6 +162,7 @@ function _renderChildCard(item) {
                 </div>
             </div>
 
+            ${item.title ? `<div class="fb-card-title">${item.title}</div>` : ''}
             <div id="fbText_${item.id}" class="fb-card-text">${item.text}</div>
 
             <div id="fbEdit_${item.id}" style="display:none;margin-bottom:8px;">
@@ -278,6 +282,7 @@ function _renderParentCard(item) {
                 </div>
             </div>
 
+            ${item.title ? `<div class="fb-card-title">${item.title}</div>` : ''}
             <div class="fb-card-text">${item.text}</div>
 
             ${item.childComment ? `
@@ -343,14 +348,18 @@ export function selectFeedbackCategory(cat) {
 }
 
 export function submitFeedback() {
-    const text = document.getElementById('feedbackText')?.value?.trim();
+    const title = document.getElementById('feedbackTitle')?.value?.trim();
+    const text  = document.getElementById('feedbackText')?.value?.trim();
     if (!_selectedCategory) { alert('❗ Оберіть категорію'); return; }
-    if (!text)               { alert('❗ Введіть текст повідомлення'); return; }
+    if (!title)             { alert('❗ Введіть коротку назву повідомлення'); return; }
+    if (!text)              { alert('❗ Введіть текст повідомлення'); return; }
     const item = { id: Date.now().toString(), date: nowKyiv(), category: _selectedCategory,
-        text, status: '⏳', comment: '', childComment: '', updatedAt: null };
+        title, text, status: '⏳', comment: '', childComment: '', updatedAt: null };
     _items.unshift(item);
     saveFeedbackItem(item);
     _selectedCategory = null;
+    const titleEl = document.getElementById('feedbackTitle');
+    if (titleEl) titleEl.value = '';
     if (window.generateNotifications) window.generateNotifications();
     renderFeedback();
 }
