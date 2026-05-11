@@ -3,7 +3,7 @@
 //     Етап 1: Фундамент — структура + Firebase
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260511.1752';
+export const VERSION = 'v3.20260511.2031';
 
 import { state }    from './state.js';
 import { nowKyiv }  from './utils.js';
@@ -193,6 +193,8 @@ export function generateNotifications() {
             `Доступна версія ${ver}`
         ));
     }
+    // Старі changelog-записи (не поточна версія) — видаляємо якщо прочитані
+    _pruneFullyReadByType('changelog', clId);
 
     // ── 2. Feedback ───────────────────────────────────────
     getFeedbackItems().forEach(item => {
@@ -329,6 +331,22 @@ export function generateNotifications() {
     if (window.updateBadges) window.updateBadges();
 }
 
+// Видаляє всі повністю прочитані записи типу type,
+// КРІМ keepId (найновіший — anchor для throttle).
+function _pruneFullyReadByType(type, keepId) {
+    Object.values(_items)
+        .filter(i => i.type === type && i.id !== keepId)
+        .forEach(item => {
+            const role = item.role || 'both';
+            const pr   = !!item.readBy?.parent;
+            const cr   = !!item.readBy?.child;
+            const done = role === 'parent' ? pr
+                       : role === 'child'  ? cr
+                       : pr && cr;
+            if (done) _removeItem(item.id);
+        });
+}
+
 // Upsert без зайвих перезаписів
 function _upsertItem(item) {
     _items[item.id] = item;
@@ -366,6 +384,8 @@ function _generateConditional(type, today, condFn, repeatDays = 1) {
     if (!result) return;
 
     _upsertItem(_makeItem(id, type, result.title, result.body));
+    // Новий запис створено — видаляємо старі прочитані того ж типу
+    _pruneFullyReadByType(type, id);
 }
 
 // ════════════════════════════════════════════════════
@@ -396,6 +416,23 @@ export function dismissNotification(id) {
     }
 
     _saveItem(item);
+
+    // Якщо запис тепер повністю прочитаний і існує новіший anchor того ж типу —
+    // видаляємо цей (він більше не потрібен як anchor)
+    const CYCLIC_TYPES = new Set(['no_stars','streak_risk','backup','good_dynamics','changelog']);
+    if (CYCLIC_TYPES.has(item.type)) {
+        const sameType = Object.values(_items).filter(i => i.type === item.type);
+        const newest   = sameType.sort((a, b) => b.id.localeCompare(a.id))[0];
+        if (newest && newest.id !== item.id) {
+            // Є новіший anchor — можна перевірити чи цей вже повністю прочитаний
+            const r    = item.role || 'both';
+            const pr   = !!item.readBy?.parent;
+            const cr   = !!item.readBy?.child;
+            const done = r === 'parent' ? pr : r === 'child' ? cr : pr && cr;
+            if (done) _removeItem(item.id);
+        }
+    }
+
     if (window.updateBadges) window.updateBadges();
 }
 
