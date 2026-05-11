@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⭐</text></svg>">
-    <!-- version: v3.20260511.1437 -->
+    <!-- version: v3.20260511.1705 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>⭐ Зірки Успіху</title>
     <link rel="stylesheet" href="style.css">
@@ -867,7 +867,8 @@
                  deleteFeedback, deleteFeedbackConfirm, setFeedbackStatus,
                  saveParentComment, startEditParentComment, cancelEditParentComment,
                  deleteParentComment, toggleChildComment, cancelChildComment,
-                 saveChildComment, toggleFbDropdown, closeFbDropdown } from './feedback.js';
+                 saveChildComment, toggleFbDropdown, closeFbDropdown,
+                 applyFeedbackFilter } from './feedback.js';
         import { getTodayDate, setTodayDates } from './utils.js';
         import { showLoading, updateUI } from './ui.js';
         import { showHelp, closeHelp } from './help.js';
@@ -1050,6 +1051,7 @@
         window.toggleChildComment = toggleChildComment;
         window.cancelChildComment = cancelChildComment;
         window.saveChildComment = saveChildComment;
+        window.applyFeedbackFilter       = applyFeedbackFilter;
         window.renderAchievements = renderAchievements;
         window.renderAchievementsHome = renderAchievementsHome;
 

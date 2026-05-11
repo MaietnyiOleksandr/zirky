@@ -1,6 +1,6 @@
 /* ════════════════════════════════════════════════════
    Зірки Успіху — Стилі
-   Версія: v3.20260511.1437
+   Версія: v3.20260511.1705
    ════════════════════════════════════════════════════ */
 
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;900&family=Comfortaa:wght@400;700&family=Fredoka+One&family=Ubuntu:wght@400;700&family=Playfair+Display:wght@400;700&display=swap');
@@ -1666,6 +1666,67 @@ select:focus, input:focus {
 
 .fb-cat-btn:hover  { background: var(--c-fb-light); }
 .fb-cat-btn.active { background: var(--c-fb-primary); color: white; }
+
+/* ── Фільтри зворотного зв'язку ── */
+.fb-filter-section {
+    margin-bottom: 14px;
+    padding: 10px 12px;
+    background: var(--card-alt, var(--card));
+    border-radius: 12px;
+    border: 1px solid var(--border);
+}
+
+.fb-filter-row {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.fb-filter-row + .fb-filter-row {
+    margin-top: 7px;
+    padding-top: 7px;
+    border-top: 1px solid var(--border);
+}
+
+.fb-filter-btn {
+    padding: 4px 11px;
+    border-radius: 16px;
+    border: 1.5px solid var(--border);
+    background: none;
+    font-size: 12px;
+    cursor: pointer;
+    color: var(--text-secondary, var(--text));
+    font-family: var(--font-main);
+    transition: all 0.18s;
+    white-space: nowrap;
+}
+
+.fb-filter-btn:hover {
+    border-color: var(--c-fb-primary);
+    color: var(--c-fb-primary);
+}
+
+.fb-filter-btn.active {
+    background: var(--c-fb-primary);
+    border-color: var(--c-fb-primary);
+    color: #fff;
+    font-weight: 600;
+}
+
+.fb-filter-count {
+    margin-left: auto;
+    font-size: 11px;
+    color: var(--text-hint, var(--text-secondary));
+    font-style: italic;
+    white-space: nowrap;
+}
+
+.fb-parent-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
 
 .fb-textarea {
     width: 100%;

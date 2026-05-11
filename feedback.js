@@ -2,14 +2,20 @@
 // 💬  feedback.js — Зворотній зв'язок
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260511.0952';
+export const VERSION = 'v3.20260511.1705';
 
 import { state } from './state.js';
 import { notifyFeedbackChanged } from './notifications.js';
 import { nowKyiv } from './utils.js';
 import { saveFeedbackItem, deleteFeedbackItem } from './firebase.js';
 
-const CATEGORIES = ['💬 Побажання', '⚠️ Зауваження', '❓ Питання'];
+const CATEGORIES = [
+    '💬 Побажання',
+    '⚠️ Зауваження',
+    '❓ Питання',
+    '📅 Розклад',
+    '💡 Ідея',
+];
 
 function _formatCommentDate(iso) {
     if (!iso) return '';
@@ -31,6 +37,57 @@ const STATUS_CONFIG = {
 
 let _items = [];
 let _selectedCategory = null;
+
+// ════════════════════════════════════════════════════
+// 🔍  Стан фільтрів
+// ════════════════════════════════════════════════════
+
+let _filterCat    = 'all';
+let _filterStatus = 'all';
+
+export function applyFeedbackFilter(type, value) {
+    if (type === 'cat')    _filterCat    = value;
+    if (type === 'status') _filterStatus = value;
+    renderFeedback();
+}
+
+function _getFilteredItems() {
+    let result = _items;
+    if (_filterCat    !== 'all') result = result.filter(i => i.category === _filterCat);
+    if (_filterStatus !== 'all') result = result.filter(i => i.status   === _filterStatus);
+    return result;
+}
+
+function _renderFilterBar() {
+    const isFiltered = _filterCat !== 'all' || _filterStatus !== 'all';
+    const filteredCount = _getFilteredItems().length;
+    const totalCount    = _items.length;
+
+    const catAll = `<button class="fb-filter-btn${_filterCat === 'all' ? ' active' : ''}"
+        onclick="applyFeedbackFilter('cat','all')">Всі категорії</button>`;
+    const catBtns = CATEGORIES.map(cat => {
+        const safeId = cat.replace(/[^\w]/g, '_');
+        return `<button class="fb-filter-btn${_filterCat === cat ? ' active' : ''}"
+            onclick="applyFeedbackFilter('cat','${cat}')">${cat}</button>`;
+    }).join('');
+
+    const statusAll = `<button class="fb-filter-btn${_filterStatus === 'all' ? ' active' : ''}"
+        onclick="applyFeedbackFilter('status','all')">Всі статуси</button>`;
+    const statusBtns = Object.entries(STATUS_CONFIG).map(([status, cfg]) =>
+        `<button class="fb-filter-btn${_filterStatus === status ? ' active' : ''}"
+            onclick="applyFeedbackFilter('status','${status}')">${status} ${cfg.label}</button>`
+    ).join('');
+
+    const countHint = isFiltered
+        ? `<span class="fb-filter-count">${filteredCount} з ${totalCount}</span>`
+        : '';
+
+    return `
+        <div class="fb-filter-section">
+            <div class="fb-filter-row">${catAll}${catBtns}</div>
+            <div class="fb-filter-row">${statusAll}${statusBtns}${countHint}</div>
+        </div>`;
+}
 
 export function initFeedbackData(rawData) {
     _items = !rawData ? [] : Object.entries(rawData)
@@ -58,9 +115,12 @@ function _renderChildView() {
             class="fb-cat-btn">${cat}</button>
     `).join('');
 
-    const list = _items.length === 0
-        ? `<div class="fb-empty">Повідомлень ще немає 🙂</div>`
-        : _items.map(item => _renderChildCard(item)).join('');
+    const filtered = _getFilteredItems();
+    const isFiltered = _filterCat !== 'all' || _filterStatus !== 'all';
+
+    const list = filtered.length === 0
+        ? `<div class="fb-empty">${isFiltered ? '🔍 Немає повідомлень за цим фільтром' : 'Повідомлень ще немає 🙂'}</div>`
+        : filtered.map(item => _renderChildCard(item)).join('');
 
     return `
         <div class="mb-md">
@@ -72,6 +132,7 @@ function _renderChildView() {
         </div>
         <div>
             <h4 class="fb-list-title">📋 Мої повідомлення</h4>
+            ${_items.length > 1 ? _renderFilterBar() : ''}
             ${list}
         </div>`;
 }
@@ -170,12 +231,16 @@ function _renderParentView() {
         ? `<span style="color:var(--c-warning-text);font-size:13px;"><strong>⏳ Нових: ${newCount}</strong></span>`
         : `<span class="text-hint font-sm">Нових повідомлень немає</span>`;
 
-    const list = _items.length === 0
-        ? `<div class="fb-empty">Повідомлень ще немає</div>`
-        : _items.map(item => _renderParentCard(item)).join('');
+    const filtered   = _getFilteredItems();
+    const isFiltered = _filterCat !== 'all' || _filterStatus !== 'all';
+
+    const list = filtered.length === 0
+        ? `<div class="fb-empty">${isFiltered ? '🔍 Немає повідомлень за цим фільтром' : 'Повідомлень ще немає'}</div>`
+        : filtered.map(item => _renderParentCard(item)).join('');
 
     return `
-        <div class="mb-md">${header}</div>
+        <div class="fb-parent-header mb-md">${header}</div>
+        ${_renderFilterBar()}
         ${list}`;
 }
 
