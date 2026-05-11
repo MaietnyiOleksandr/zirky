@@ -6,7 +6,7 @@
 //     showForm/switchTab, а ui.js потребував їх модулів
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260510.0005';
+export const VERSION = 'v3.20260511.1221';
 
 import { state } from './state.js';
 import { getTodayDate } from './utils.js';
@@ -18,6 +18,7 @@ import { renderRewards } from './rewards.js';
 import { renderStats, checkStreakWarning } from './stats.js';
 // showDataInfo більше не викликається автоматично — тільки через кнопку
 import { renderFeedback } from './feedback.js';
+import { dismissByAction } from './notifications.js';
 import { renderSchedule } from './schedule.js';
 import { applyAppearance, renderThemeShop } from './appearance.js';
 import { updateNotificationBadge, openNotifications, closeNotifications } from './notifications.js';
@@ -74,7 +75,11 @@ export function switchTab(tab, fromClick = false) {
     else if (tab === 'achievements') renderAchievements();
     else if (tab === 'stats') renderStats();
     else if (tab === 'schedule') renderSchedule();
-    else if (tab === 'feedback') renderFeedback();
+    else if (tab === 'feedback') {
+        renderFeedback();
+        dismissByAction('feedback_new',     'tab');
+        dismissByAction('feedback_comment', 'tab');
+    }
     else if (tab === 'settings') { renderThemeShop(); }
 
     if (!state.data.isParent && tab === 'add') {

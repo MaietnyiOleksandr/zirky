@@ -3,7 +3,7 @@
 //     Етап 1: Фундамент — структура + Firebase
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260508.0811';
+export const VERSION = 'v3.20260511.1221';
 
 import { state }    from './state.js';
 import { nowKyiv }  from './utils.js';
@@ -47,14 +47,14 @@ export const NOTIF_TYPES = {
     },
     feedback_new: {
         role:       'parent',
-        badges:     ['bell'],
-        dismissBy:  ['checkmark'],
+        badges:     ['bell', 'feedback'],
+        dismissBy:  ['checkmark', 'tab'],
         repeatDays: null,
     },
     feedback_comment: {
         role:       'parent',
-        badges:     ['bell'],
-        dismissBy:  ['checkmark'],
+        badges:     ['bell', 'feedback'],
+        dismissBy:  ['checkmark', 'tab'],
         repeatDays: null,
     },
     good_dynamics: {
@@ -544,4 +544,5 @@ export function notifyAchievementEarned() {
 
 export function notifyFeedbackChanged() {
     generateNotifications();
+    if (window.updateBadges) window.updateBadges();
 }
