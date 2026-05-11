@@ -3,13 +3,13 @@
 //     Етап 1: Фундамент — структура + Firebase
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260512.0004';
+export const VERSION = 'v3.20260512.0056';
 
 import { state }    from './state.js';
 import { nowKyiv }  from './utils.js';
 import { CHANGELOG } from './changelog.js';
 import { getFeedbackItems } from './feedback.js';
-import { getDatabase, ref, set, remove, push, onValue, query, orderByChild, endAt }
+import { getDatabase, ref, set, update, remove, push, onValue, query, orderByChild, endAt }
     from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 import { saveData } from './firebase.js';
 
@@ -184,9 +184,10 @@ function _isFullyRead(item) {
 }
 
 // Компакція: прочитані повні записи → slim.
-// Запускається після onValue та після dismissNotification.
+// Один батчевий update() замість N окремих set() — щоб onValue не тригерився N разів.
 function _compactReadItems() {
     const SLIM_FIELDS = new Set(['id','type','role','createdAt','readBy']);
+    const updates = {};
     let compacted = 0;
     Object.values(_items).forEach(item => {
         // Вже slim — пропускаємо
@@ -194,11 +195,14 @@ function _compactReadItems() {
         if (!_isFullyRead(item)) return;
         const slim = _toSlim(item);
         _items[item.id] = slim;
-        _saveItem(slim);
+        updates[`zirky-notifications/${_fbKey(item.id)}`] = slim;
         _writeLog('compact', item.id, '→ slim');
         compacted++;
     });
-    if (compacted > 0) _writeLog('compact:done', '', `Скомпактовано: ${compacted}`);
+    if (compacted > 0) {
+        update(ref(_getDb(), '/'), updates); // один запис → onValue спрацює лише раз
+        _writeLog('compact:done', '', `Скомпактовано: ${compacted}`);
+    }
 }
 
 // Ініціалізація слухача Firebase
