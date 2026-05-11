@@ -2,10 +2,10 @@
 // 💬  feedback.js — Зворотній зв'язок
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260511.2056';
+export const VERSION = 'v3.20260512.0004';
 
 import { state } from './state.js';
-import { notifyFeedbackChanged } from './notifications.js';
+import { notifyFeedbackChanged, removeNotification, getUnreadItems } from './notifications.js';
 import { nowKyiv } from './utils.js';
 import { saveFeedbackItem, deleteFeedbackItem } from './firebase.js';
 
@@ -386,7 +386,47 @@ export function saveEditFeedback(id) {
 }
 
 export function deleteFeedback(id) {
-    if (!confirm('Видалити це повідомлення?')) return;
+    const item = _items.find(i => i.id === id);
+    if (!item) return;
+
+    // Перевіряємо чи є непрочитані сповіщення пов'язані з цим повідомленням
+    const role = item => item.role !== 'both'
+        ? item.role
+        : null; // null = перевіряємо обидва
+
+    const relatedNotifIds = [
+        `fb_new_${id}`,
+        `fb_reply_${id}`,
+        `fb_status_${id}`,
+        `fb_comment_${id}`,
+    ];
+
+    // getUnreadItems повертає непрочитані для поточного профілю
+    const currentRole  = window.state?.data?.isParent ? 'parent' : 'child';
+    const unreadNotifs = getUnreadItems(currentRole)
+        .filter(n => relatedNotifIds.includes(n.id));
+
+    let confirmMsg = 'Видалити це повідомлення?';
+    if (unreadNotifs.length > 0) {
+        const labels = {
+            feedback_reply:   'відповідь батьків',
+            feedback_status:  'зміна статусу',
+            feedback_new:     'нове повідомлення',
+            feedback_comment: 'коментар дитини',
+        };
+        const unreadTypes = [...new Set(unreadNotifs.map(n => labels[n.type] || n.type))];
+        confirmMsg = `⚠️ До цього повідомлення є непрочитані сповіщення:
+• ${unreadTypes.join('
+• ')}
+
+Все одно видалити?`;
+    }
+
+    if (!confirm(confirmMsg)) return;
+
+    // Видаляємо всі пов'язані сповіщення
+    relatedNotifIds.forEach(nid => removeNotification(nid));
+
     _items = _items.filter(i => i.id !== id);
     deleteFeedbackItem(id);
     renderFeedback();

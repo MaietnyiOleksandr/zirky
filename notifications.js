@@ -3,13 +3,13 @@
 //     Етап 1: Фундамент — структура + Firebase
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260511.2056';
+export const VERSION = 'v3.20260512.0004';
 
 import { state }    from './state.js';
 import { nowKyiv }  from './utils.js';
 import { CHANGELOG } from './changelog.js';
 import { getFeedbackItems } from './feedback.js';
-import { getDatabase, ref, set, remove, onValue }
+import { getDatabase, ref, set, remove, push, onValue, query, orderByChild, endAt }
     from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 import { saveData } from './firebase.js';
 
@@ -97,6 +97,9 @@ export const NOTIF_TYPES = {
 let _db = null;
 let _items = {};   // поточний стан: { id: NotifItem }
 
+// 🐛 DEBUG — доступ до _items з консолі браузера
+if (typeof window !== 'undefined') window.__notifItems = () => _items;
+
 // Викликається з firebase.js після ініціалізації
 export function setNotifDb(db) { _db = db; }
 
@@ -113,10 +116,89 @@ function _saveItem(item) {
 // Firebase не дозволяє крапки в ключах — замінюємо на тире
 function _fbKey(id) { return id.replace(/\./g, '-'); }
 
+// ════════════════════════════════════════════════════
+// 📋  ЛОГУВАННЯ → zirky-logs (авто-очищення 30 днів)
+// ════════════════════════════════════════════════════
+
+function _writeLog(event, id, details = '') {
+    if (!_db) return;
+    const entry = {
+        ts:      _kyivNow(),
+        event,
+        id:      id || '',
+        details: details || '',
+    };
+    push(ref(_db, 'zirky-logs'), entry);
+    // Також в консоль для зручності
+    console.log(`[notif:${event}] ${id}${details ? ' | ' + details : ''}`, entry.ts);
+}
+
+function _cleanOldLogs() {
+    if (!_db) return;
+    // Видаляємо записи старші 30 днів
+    const cutoff = new Date(_kyivNow());
+    cutoff.setDate(cutoff.getDate() - 30);
+    const cutoffStr = cutoff.toISOString();
+    const logsRef = query(
+        ref(_db, 'zirky-logs'),
+        orderByChild('ts'),
+        endAt(cutoffStr)
+    );
+    onValue(logsRef, (snap) => {
+        if (!snap.exists()) return;
+        snap.forEach(child => remove(child.ref));
+    }, { onlyOnce: true });
+}
+
 // Видалити один запис
 function _removeItem(id) {
     remove(ref(_getDb(), `zirky-notifications/${_fbKey(id)}`));
     delete _items[id];
+}
+
+// Публічна обгортка — для видалення з feedback.js
+export function removeNotification(id) {
+    _writeLog('remove', id, 'пов\'язане з feedback');
+    _removeItem(id);
+}
+
+// Slim-версія запису — маркер "переглянуто", мінімум полів
+function _toSlim(item) {
+    return {
+        id:        item.id,
+        type:      item.type,
+        role:      item.role || 'both',
+        createdAt: item.createdAt || null,
+        readBy:    item.readBy   || { parent: null, child: null },
+    };
+}
+
+// Перевірка чи запис повністю прочитаний
+function _isFullyRead(item) {
+    const role = item.role || 'both';
+    const pr   = !!item.readBy?.parent;
+    const cr   = !!item.readBy?.child;
+    return role === 'parent' ? pr
+         : role === 'child'  ? cr
+         : pr && cr;
+}
+
+// Компакція: прочитані повні записи → slim.
+// Запускається після onValue та після dismissNotification.
+function _compactReadItems() {
+    const SLIM_FIELDS = new Set(['id','type','role','createdAt','readBy']);
+    let compacted = 0;
+    Object.values(_items).forEach(item => {
+        // Вже slim — пропускаємо
+        if (Object.keys(item).every(k => SLIM_FIELDS.has(k))) return;
+        if (!_isFullyRead(item)) return;
+        const slim = _toSlim(item);
+        _items[item.id] = slim;
+        _saveItem(slim);
+        _writeLog('compact', item.id, '→ slim');
+        compacted++;
+    });
+    if (compacted > 0) _writeLog('compact:done', '', `Скомпактовано: ${compacted}`);
 }
 
 // Ініціалізація слухача Firebase
@@ -126,6 +208,8 @@ export function initNotificationsListener() {
         const raw = snapshot.val() || {};
         _items = {};
         Object.values(raw).forEach(item => { _items[item.id] = item; });
+        _cleanOldLogs();
+        _compactReadItems();
         if (window.updateBadges) window.updateBadges();
     });
 }
@@ -413,6 +497,7 @@ export function dismissNotification(id) {
     const role = state.data.isParent ? 'parent' : 'child';
     if (!item.readBy) item.readBy = { parent: null, child: null };
     item.readBy[role] = _kyivNow();
+    _writeLog('dismiss', item.id, `role:${role} type:${item.type}`);
 
     // Якщо резервна копія — записуємо дату в хмару
     if (item.type === 'backup') {
@@ -422,21 +507,9 @@ export function dismissNotification(id) {
 
     _saveItem(item);
 
-    // Якщо запис тепер повністю прочитаний і існує новіший anchor того ж типу —
-    // видаляємо цей (він більше не потрібен як anchor)
-    const CYCLIC_TYPES = new Set(['no_stars','streak_risk','backup','good_dynamics','changelog']);
-    if (CYCLIC_TYPES.has(item.type)) {
-        const sameType = Object.values(_items).filter(i => i.type === item.type);
-        const newest   = sameType.sort((a, b) => b.id.localeCompare(a.id))[0];
-        if (newest && newest.id !== item.id) {
-            // Є новіший anchor — можна перевірити чи цей вже повністю прочитаний
-            const r    = item.role || 'both';
-            const pr   = !!item.readBy?.parent;
-            const cr   = !!item.readBy?.child;
-            const done = r === 'parent' ? pr : r === 'child' ? cr : pr && cr;
-            if (done) _removeItem(item.id);
-        }
-    }
+    // Через 500мс — компактуємо прочитані записи в slim
+    // (затримка щоб Firebase встиг зберегти readBy перед читанням)
+    setTimeout(_compactReadItems, 500);
 
     if (window.updateBadges) window.updateBadges();
 }
