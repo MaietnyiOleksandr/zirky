@@ -3,7 +3,7 @@
 //     Етап 1: Фундамент — структура + Firebase
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260511.1254';
+export const VERSION = 'v3.20260511.1322';
 
 import { state }    from './state.js';
 import { nowKyiv }  from './utils.js';
@@ -11,6 +11,7 @@ import { CHANGELOG } from './changelog.js';
 import { getFeedbackItems } from './feedback.js';
 import { getDatabase, ref, set, remove, onValue }
     from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+import { saveData } from './firebase.js';
 
 // ════════════════════════════════════════════════════
 // 📋  КАТАЛОГ ТИПІВ СПОВІЩЕНЬ
@@ -83,7 +84,7 @@ export const NOTIF_TYPES = {
     },
     backup: {
         role:       'parent',
-        badges:     ['bell'],
+        badges:     ['bell', 'settings'],
         dismissBy:  ['checkmark'],
         repeatDays: 7,
     },
@@ -315,7 +316,7 @@ export function generateNotifications() {
     }, 7);  // повторювати щотижня
 
     _generateConditional('backup', today, () => {
-        const last = localStorage.getItem('backupLastDate') || '';
+        const last = state.data.backupLastDate || '';
         const days = last
             ? Math.floor((new Date(today) - new Date(last)) / 86_400_000)
             : 999;
@@ -390,9 +391,10 @@ export function dismissNotification(id) {
     if (!item.readBy) item.readBy = { parent: null, child: null };
     item.readBy[role] = _kyivNow();
 
-    // Якщо резервна копія — записуємо дату
+    // Якщо резервна копія — записуємо дату в хмару
     if (item.type === 'backup') {
-        localStorage.setItem('backupLastDate', _kyivToday());
+        state.data.backupLastDate = _kyivToday();
+        saveData();
     }
 
     _saveItem(item);

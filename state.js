@@ -6,7 +6,7 @@
 //     Зміни в будь-якому модулі видні всюди.
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260504.1013';
+export const VERSION = 'v3.20260511.1322';
 
 // ════════════════════════════════════════════════════════════
 
@@ -31,6 +31,7 @@ export const state = {
             owned:  ['default'],
             active: { theme: 'default', palette: 'default', font: 'default', buttons: 'default', background: 'default' },
         },
+        backupLastDate: null,   // 'YYYY-MM-DD' — дата останнього резервного копіювання (синхронізується через Firebase)
     },
 
     // ── Firebase ──────────────────────────────────

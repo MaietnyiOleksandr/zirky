@@ -2,7 +2,7 @@
 // ⚙️   settings.js — Налаштування / Експорт / Імпорт
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260510.2135';
+export const VERSION = 'v3.20260511.1322';
 
 // ════════════════════════════════════════════════════════════
 
@@ -12,6 +12,7 @@ import { saveData, saveAllFeedback } from './firebase.js';
 import { nowKyiv } from './utils.js';
 import { getFeedbackItems } from './feedback.js';
 import { THEMES } from './appearance.js';
+import { dismissByAction } from './notifications.js';
 
 // ════════════════════════════════════════════════════════════
 // // ⚙️   БЛОК: Налаштування / Експорт / Імпорт
@@ -188,6 +189,12 @@ export function exportData() {
         const dateTime = `${String(now.getHours()).padStart(2,'0')}-${String(now.getMinutes()).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}-${String(now.getMonth()+1).padStart(2,'0')}-${now.getFullYear()}`;
         a.download = `${dateTime}-zirky-backup.json`;
         a.click();
+        
+        // Записуємо дату резервного копіювання в хмару (синхронізується між пристроями)
+        state.data.backupLastDate = new Date().toISOString().split('T')[0];
+        saveData();
+        // Знімаємо сповіщення про бекап (якщо було)
+        dismissByAction('backup', 'checkmark');
         
         URL.revokeObjectURL(url);
         
