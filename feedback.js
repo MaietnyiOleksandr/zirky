@@ -2,9 +2,10 @@
 // 💬  feedback.js — Зворотній зв'язок
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260506.1130';
+export const VERSION = 'v3.20260511.0952';
 
 import { state } from './state.js';
+import { notifyFeedbackChanged } from './notifications.js';
 import { nowKyiv } from './utils.js';
 import { saveFeedbackItem, deleteFeedbackItem } from './firebase.js';
 
@@ -306,6 +307,7 @@ export function saveEditFeedback(id) {
     if (!item) return;
     item.text = newText;
     saveFeedbackItem(item);
+    notifyFeedbackChanged();
     renderFeedback();
 }
 
@@ -367,6 +369,7 @@ export function saveParentComment(id) {
     item.commentAt = nowKyiv();
     item.updatedAt = nowKyiv();
     saveFeedbackItem(item);
+    notifyFeedbackChanged();
     renderFeedback();
 }
 
@@ -414,6 +417,7 @@ export function deleteParentComment(id) {
     item.commentAt = null;
     item.updatedAt = nowKyiv();
     saveFeedbackItem(item);
+    notifyFeedbackChanged();
     renderFeedback();
 }
 // updateFeedbackBadge — тепер керується через updateBadges() у notifications

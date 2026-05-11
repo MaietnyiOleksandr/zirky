@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⭐</text></svg>">
-    <!-- version: v3.20260510.2250 -->
+    <!-- version: v3.20260511.0952 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>⭐ Зірки Успіху</title>
     <link rel="stylesheet" href="style.css">
@@ -608,7 +608,7 @@
                     <div class="section-header-actions">
                         <button class="btn-icon" onclick="showDataInfoModal()" title="Інформація про дані">📊</button>
                         <button class="btn-icon" onclick="showHelp('about')" title="Про програму">ℹ️</button>
-                        <button class="btn-icon" onclick="showHelp('changelog')" title="Історія змін" id="changelogBtn" style="position:relative;">📝<span id="changelogBadge" style="display:none;position:absolute;top:-3px;right:-3px;width:10px;height:10px;background:#f44336;border-radius:50%;border:2px solid var(--card);"></span></button>
+                        <button class="btn-icon" onclick="showHelp('changelog')" title="Історія змін" id="changelogBtn" style="position:relative;">📝<span id="changelogBadge" style="display:none;position:absolute;top:-3px;right:-3px;width:10px;height:10px;background:#f44336;border-radius:50%;border:2px solid var(--card);pointer-events:none;"></span></button>
                         <button class="btn-icon" onclick="showHelp('settingsSection')" title="Довідка">?</button>
                     </div>
                 </div>
@@ -1117,7 +1117,7 @@
     </div>
 
     <!-- Schedule Editor Modal -->
-    <div id="scheduleEditorModal" class="help-modal" style="display:none;">
+    <div id="scheduleEditorModal" class="help-modal" style="display:none;" onclick="if(event.target===this){closeScheduleEditor()}">
         <div class="help-modal-inner help-modal-inner--wide">
             <div class="help-modal-header">
                 <h3 class="help-modal-title">✏️ Редагування розкладу</h3>
@@ -1144,7 +1144,7 @@
     </div>
 
     <!-- Club Editor Modal -->
-    <div id="clubEditorModal" class="help-modal" style="display:none;">
+    <div id="clubEditorModal" class="help-modal" style="display:none;" onclick="if(event.target===this){closeClubEditor()}">
         <div class="help-modal-inner help-modal-inner--wide">
             <div class="help-modal-header">
                 <h3 class="help-modal-title">🎭 Гуртки</h3>
@@ -1161,7 +1161,7 @@
     </div>
 
     <!-- Teachers Modal -->
-    <div id="teachersModal" class="help-modal" style="display:none;">
+    <div id="teachersModal" class="help-modal" style="display:none;" onclick="if(event.target===this){closeTeachersModal()}">
         <div class="help-modal-inner">
             <div class="help-modal-header">
                 <h3 class="help-modal-title">🧑‍🏫 Вчителі</h3>
@@ -1178,7 +1178,7 @@
     </div>
 
     <!-- Bells Modal -->
-    <div id="bellsModal" class="help-modal" style="display:none;">
+    <div id="bellsModal" class="help-modal" style="display:none;" onclick="if(event.target===this){closeBellsModal()}">
         <div class="help-modal-inner">
             <div class="help-modal-header">
                 <h3 class="help-modal-title">🕐 Розклад дзвінків</h3>

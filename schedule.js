@@ -2,7 +2,7 @@
 // 📋  schedule.js — Розклад уроків
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260510.2236';
+export const VERSION = 'v3.20260511.0952';
 
 import { state } from './state.js';
 import { saveData } from './firebase.js';
@@ -72,14 +72,29 @@ function _formatDate(dow, weekOffset) {
     return `${d.getDate()} ${MONTH_NAMES[d.getMonth()]}`;
 }
 
+// ── Закриття модалок по кліку на overlay ─────────────
+function _initModalClose(id, closeFn) {
+    const modal = document.getElementById(id);
+    if (!modal) return;
+    modal.addEventListener('click', e => {
+        if (e.target === modal) closeFn();
+    });
+}
+
 // ── Ініціалізація ────────────────────────────────────
 export function initSchedule() {
     _sched(); // Гарантуємо структуру
     if (_viewDow === null) {
         _viewDow  = _todayDow();
-        _viewWeek = 0; // 0 = поточний тиждень
+        _viewWeek = 0;
     }
     renderSchedule();
+    // Ініціалізуємо закриття модалок по кліку на overlay
+    _initModalClose('scheduleEditorModal', closeScheduleEditor);
+    _initModalClose('clubEditorModal',     closeClubEditor);
+    _initModalClose('teachersModal',       closeTeachersModal);
+    _initModalClose('bellsModal',          closeBellsModal);
+    _initModalClose('subjectsEditorModal', () => window.closeSubjectsEditor?.());
 }
 
 // ── Навігація по днях ────────────────────────────────
@@ -138,13 +153,16 @@ export function renderSchedule() {
 
         // Для гуртка — знаходимо emoji зі списку гуртків
         let clubEmoji = '🎭';
-        if (lesson.isClub) {
+        if (lesson.isClub && lesson.name) {
             const clubs = getClubs();
+            const lessonNameTrim = lesson.name.trim().toLowerCase();
             const found = clubs.find(c => {
-                const n = typeof c === 'string' ? c : c.name;
-                return n === lesson.name;
+                const n = (typeof c === 'string' ? c : (c.name || '')).trim().toLowerCase();
+                return n && lessonNameTrim.includes(n) || n === lessonNameTrim;
             });
-            if (found && typeof found !== 'string') clubEmoji = found.emoji || '🎭';
+            if (found) {
+                clubEmoji = (typeof found === 'string') ? '🎭' : (found.emoji || '🎭');
+            }
         }
         const lessonNum = lesson.isClub ? clubEmoji : (idx + 1);
         const teacherHint = !lesson.isClub && s.teachers[lesson.name]
@@ -437,9 +455,9 @@ function _renderTeachersEditor() {
     if (!container) return;
 
     const subjects = _allSubjects();
-    const isParent = !!state.data.isParent;
-    const rdonly = isParent ? '' : 'readonly';
-    const opacity = isParent ? '' : 'style="opacity:0.7"';
+    // Вчителів можуть редагувати всі (і батьки, і дитина)
+    const rdonly  = '';
+    const opacity = '';
 
     let html = `
     <div class="sched-editor-row">
@@ -474,9 +492,19 @@ export function schedUpdateTeacher(subject, value) {
 }
 
 export function saveTeachersModal() {
+    const s = _sched();
+    // Зчитуємо всі значення з DOM (надійніше ніж onchange на мобільних)
+    document.querySelectorAll('#teachersList .sched-editor-row').forEach(row => {
+        const label = row.querySelector('.sched-teacher-label');
+        const input = row.querySelector('input[type="text"]');
+        if (label && input) {
+            const subj = label.textContent.replace('🏫 ', '').trim();
+            s.teachers[subj === 'Класний керівник' ? '__classTeacher__' : subj] = input.value.trim();
+        }
+    });
     saveData();
     closeTeachersModal();
-    renderSchedule(); // Оновлюємо підказки
+    renderSchedule();
 }
 
 // ════════════════════════════════════════════════════
