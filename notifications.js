@@ -3,7 +3,7 @@
 //     Етап 1: Фундамент — структура + Firebase
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260511.1520';
+export const VERSION = 'v3.20260511.1752';
 
 import { state }    from './state.js';
 import { nowKyiv }  from './utils.js';
@@ -409,6 +409,7 @@ export function dismissByAction(type, action) {
     );
     if (!match.length) return;
     match.forEach(item => {
+        if (!item.readBy) item.readBy = {};
         item.readBy[role] = _kyivNow();
         _saveItem(item);
     });
