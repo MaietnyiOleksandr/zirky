@@ -2,7 +2,7 @@
 // 💬  feedback.js — Зворотній зв'язок
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260512.0004';
+export const VERSION = 'v3.20260512.0042';
 
 import { state } from './state.js';
 import { notifyFeedbackChanged, removeNotification, getUnreadItems } from './notifications.js';
@@ -415,11 +415,7 @@ export function deleteFeedback(id) {
             feedback_comment: 'коментар дитини',
         };
         const unreadTypes = [...new Set(unreadNotifs.map(n => labels[n.type] || n.type))];
-        confirmMsg = `⚠️ До цього повідомлення є непрочитані сповіщення:
-• ${unreadTypes.join('
-• ')}
-
-Все одно видалити?`;
+        confirmMsg = `⚠️ До цього повідомлення є непрочитані сповіщення:\n• ${unreadTypes.join('\n• ')}\n\nВсе одно видалити?`;
     }
 
     if (!confirm(confirmMsg)) return;
