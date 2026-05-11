@@ -2,12 +2,13 @@
 // 🔐  auth.js — Авторизація та PIN-код
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260510.2135';
+export const VERSION = 'v3.20260511.1545';
 
 import { state } from './state.js';
 import { saveData } from './firebase.js';
 import { nowKyiv } from './utils.js';
-import { switchTab, updateUI } from './ui.js';
+import { updateUI } from './ui.js';
+import { switchTab } from './navigation.js';
 import { applyAppearance } from './appearance.js';
 
 // ════════════════════════════════════════════════════════════

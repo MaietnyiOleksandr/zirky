@@ -2,14 +2,13 @@
 // FIREBASE  firebase.js — Firebase
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260511.1502';
+export const VERSION = 'v3.20260511.1545';
 
 import { state } from './state.js';
 import { firebaseConfig } from './config.js';
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
 import { getDatabase, ref, set, remove, onValue } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 import { recalculateAchievements } from './achievements.js';
-import { setNotifDb, initNotificationsListener, generateNotifications } from './notifications.js';
 import { migrateAppearance } from './utils.js';
 import { checkStreakWarning } from './stats.js';
 import { showLoading, updateUI } from './ui.js';
@@ -20,11 +19,7 @@ import { showLoading, updateUI } from './ui.js';
 
 // Ініціалізуємо Firebase тут — db потрібен локально
 const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-
-// Передаємо db у notifications.js та запускаємо listener
-setNotifDb(db);
-initNotificationsListener();
+export const db = getDatabase(app);
 
 export function initFirebase() {
     showLoading(true);
@@ -59,7 +54,6 @@ export function initFirebase() {
         updateUI();
         checkStreakWarning();  // Перевіряємо чи треба нагадати про канікули
         // Сигналізуємо що дані завантажені — ui.js сам оновить активну секцію
-        generateNotifications();  // Генеруємо/оновлюємо сповіщення
         document.dispatchEvent(new CustomEvent('zirky:dataLoaded'));
     });
 }

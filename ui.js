@@ -2,14 +2,13 @@
 // UI     ui.js — Ui
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260510.2152';
+export const VERSION = 'v3.20260511.1545';
 
 // ════════════════════════════════════════════════════════════
 
 import { state } from './state.js';
 import { showForm, switchTab } from './navigation.js';
 import { buildSubjectSelects } from './subjects.js';
-export { showForm, switchTab };  // re-export — інші файли ще імпортують з ui.js
 import { renderAchievementsHome } from './achievements.js';
 import { renderGoal } from './goals.js';
 

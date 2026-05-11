@@ -6,7 +6,7 @@
 //     showForm/switchTab, а ui.js потребував їх модулів
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260511.1254';
+export const VERSION = 'v3.20260511.1545';
 
 import { state } from './state.js';
 import { getTodayDate } from './utils.js';
@@ -18,10 +18,14 @@ import { renderRewards } from './rewards.js';
 import { renderStats, checkStreakWarning } from './stats.js';
 // showDataInfo більше не викликається автоматично — тільки через кнопку
 import { renderFeedback } from './feedback.js';
-import { dismissByAction } from './notifications.js';
 import { renderSchedule } from './schedule.js';
 import { applyAppearance, renderThemeShop } from './appearance.js';
-import { updateNotificationBadge, openNotifications, closeNotifications } from './notifications.js';
+import { dismissByAction, setNotifDb, initNotificationsListener, generateNotifications } from './notifications.js';
+
+// ── Ініціалізація notifications (перенесено з firebase.js) ──
+setNotifDb(db);
+initNotificationsListener();
+document.addEventListener('zirky:dataLoaded', generateNotifications);
 
 export function showForm(type) {
     document.querySelectorAll('.quick-action-btn').forEach(btn => btn.classList.remove('active'));
@@ -114,5 +118,3 @@ document.addEventListener('zirky:goalReached', () => {
     renderAchievementsHome();
     renderGoal();
 });
-
-export { updateNotificationBadge, openNotifications, closeNotifications };

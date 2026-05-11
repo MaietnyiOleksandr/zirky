@@ -2,14 +2,13 @@
 // ⚙️   settings.js — Налаштування / Експорт / Імпорт
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260511.1322';
+export const VERSION = 'v3.20260511.1520';
 
 // ════════════════════════════════════════════════════════════
 
 import { state } from './state.js';
 import { recalculateAchievements, giveRewardsForNewAchievements } from './achievements.js';
 import { saveData, saveAllFeedback } from './firebase.js';
-import { nowKyiv } from './utils.js';
 import { getFeedbackItems } from './feedback.js';
 import { THEMES } from './appearance.js';
 import { dismissByAction } from './notifications.js';

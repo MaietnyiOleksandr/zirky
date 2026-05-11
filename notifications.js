@@ -3,7 +3,7 @@
 //     Етап 1: Фундамент — структура + Firebase
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260511.1322';
+export const VERSION = 'v3.20260511.1520';
 
 import { state }    from './state.js';
 import { nowKyiv }  from './utils.js';
@@ -378,8 +378,6 @@ export function getUnreadItems(role) {
         .sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
 }
 
-export function getAllItems() { return _items; }
-
 // ════════════════════════════════════════════════════
 // ✓  DISMISS — позначити прочитаним
 // ════════════════════════════════════════════════════
@@ -538,10 +536,6 @@ export function updateChangelogBadge() {
 export function markChangelogRead() {
     dismissByAction('changelog', 'modal');
     if (window.updateBadges) window.updateBadges();
-}
-
-export function notifyAchievementEarned() {
-    generateNotifications();
 }
 
 export function notifyFeedbackChanged() {
