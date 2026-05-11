@@ -6,10 +6,11 @@
 //     showForm/switchTab, а ui.js потребував їх модулів
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260511.1545';
+export const VERSION = 'v3.20260511.1602';
 
 import { state } from './state.js';
 import { getTodayDate } from './utils.js';
+import { db } from './firebase.js';
 import { renderAchievements, renderAchievementsHome } from './achievements.js';
 import { renderGoal } from './goals.js';
 import { renderFreezePeriods } from './freeze.js';
