@@ -1,6 +1,6 @@
 /* ════════════════════════════════════════════════════
    Зірки Успіху — Стилі
-   Версія: v3.20260511.1705
+   Версія: v3.20260511.1744
    ════════════════════════════════════════════════════ */
 
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;900&family=Comfortaa:wght@400;700&family=Fredoka+One&family=Ubuntu:wght@400;700&family=Playfair+Display:wght@400;700&display=swap');
@@ -630,6 +630,26 @@ select:focus, input:focus {
 }
 
 .btn-icon:hover { background: var(--bg); transform: scale(1.1); }
+
+/* Бейдж на іконці-кнопці (через ::after — span всередині button ламає onclick) */
+.btn-icon {
+    overflow: visible; /* щоб ::after виходив за межі */
+}
+.btn-icon.has-badge {
+    position: relative;
+}
+.btn-icon.has-badge::after {
+    content: '';
+    position: absolute;
+    top: -3px;
+    right: -3px;
+    width: 10px;
+    height: 10px;
+    background: #f44336;
+    border-radius: 50%;
+    border: 2px solid var(--card);
+    pointer-events: none;
+}
 
 /* Компактна кнопка (без width:100%, padding менший) */
 .btn-compact {

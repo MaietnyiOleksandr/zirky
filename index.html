@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⭐</text></svg>">
-    <!-- version: v3.20260511.1705 -->
+    <!-- version: v3.20260511.1744 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>⭐ Зірки Успіху</title>
     <link rel="stylesheet" href="style.css">
@@ -609,7 +609,7 @@
                     <div class="section-header-actions">
                         <button class="btn-icon" onclick="showDataInfoModal()" title="Інформація про дані">📊</button>
                         <button class="btn-icon" onclick="showHelp('about')" title="Про програму">ℹ️</button>
-                        <button class="btn-icon" onclick="showHelp('changelog')" title="Історія змін" id="changelogBtn" style="position:relative;">📝<span id="changelogBadge" style="display:none;position:absolute;top:-3px;right:-3px;width:10px;height:10px;background:#f44336;border-radius:50%;border:2px solid var(--card);pointer-events:none;"></span></button>
+                        <button class="btn-icon" onclick="showHelp('changelog')" title="Історія змін" id="changelogBtn">📝</button>
                         <button class="btn-icon" onclick="showHelp('settingsSection')" title="Довідка">?</button>
                     </div>
                 </div>
@@ -1016,8 +1016,8 @@
             if (bell) bell.style.display = badgeTargets.has('bell') ? 'block' : 'none';
 
             // 📝 Changelog кнопка
-            const cl = document.getElementById('changelogBadge');
-            if (cl) cl.style.display = badgeTargets.has('changelog') ? 'block' : 'none';
+            const cl = document.getElementById('changelogBtn');
+            if (cl) cl.classList.toggle('has-badge', badgeTargets.has('changelog'));
 
             // Таби — крапки
             const tabMap = {
