@@ -2,7 +2,7 @@
 // 📊  stats.js — Статистика та графіки
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260510.2050';
+export const VERSION = 'v3.20260514.0958';
 
 import { state } from './state.js';
 import { getSubjectEmoji } from './subjects.js';
@@ -243,8 +243,8 @@ export function drawSubjectChart(subjectName, subjects) {
 export function renderStats() {
     updateChart();
 
-    const totalEarned  = (state.data.records||[]).filter(r=>r.type==='earn').reduce((s,r)=>s+r.stars,0);
-    const totalSpent   = (state.data.records||[]).filter(r=>r.type==='spend').reduce((s,r)=>s+r.stars,0);
+    const totalEarned  = (state.data.records||[]).filter(r=>r.type==='earn' && r.category!=='correction').reduce((s,r)=>s+r.stars,0);
+    const totalSpent   = (state.data.records||[]).filter(r=>r.type==='spend' && r.category!=='correction').reduce((s,r)=>s+r.stars,0);
     const thisMonth    = new Date().getMonth();
     const recordsCount = (state.data.records||[]).filter(r=>new Date(r.date).getMonth()===thisMonth).length;
 
@@ -306,7 +306,7 @@ export function updateChart() {
         });
         return {
             date:   d,
-            earned: recs.filter(r=>r.type==='earn').reduce((s,r)=>s+r.stars,0),
+            earned: recs.filter(r=>r.type==='earn' && r.category!=='correction').reduce((s,r)=>s+r.stars,0),
             spent:  recs.filter(r=>r.type==='spend').reduce((s,r)=>s+r.stars,0),
             label:  labelFormat(d),
         };

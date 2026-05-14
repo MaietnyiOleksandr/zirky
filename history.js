@@ -2,7 +2,7 @@
 // HISTORY  history.js — History
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260510.2050';
+export const VERSION = 'v3.20260514.0958';
 
 import { getSubjectEmoji } from './subjects.js';
 
@@ -73,6 +73,7 @@ export function renderHistory() {
     if (filterType === 'bonus')       records = records.filter(r => r.category === 'bonus');
     if (filterType === 'special')     records = records.filter(r => r.category === 'special');
     if (filterType === 'achievement') records = records.filter(r => r.category === 'achievement');
+    if (filterType === 'correction')  records = records.filter(r => r.category === 'correction');
     if (filterType === 'spend')       records = records.filter(r => r.type === 'spend');
     if (filterType === 'freeze')      records = records.filter(r => r.type === 'freeze');
 
@@ -109,9 +110,10 @@ export function renderHistory() {
         const date    = new Date(r.date);
         const dateStr = `${date.getDate()}.${(date.getMonth()+1).toString().padStart(2,'0')}.${date.getFullYear()}`;
 
-        let desc = r.category === 'grade'      ? `${getSubjectEmoji(r.subject)} — ${r.grade} балів`
-                 : r.category === 'diagnostic' ? `${getSubjectEmoji(r.subject)} — ${r.grade} балів`
-                 : r.type === 'spend'          ? (r.desc || r.description || r.reward || '—')
+        let desc = r.category === 'grade'       ? `${getSubjectEmoji(r.subject)} — ${r.grade} балів`
+                 : r.category === 'diagnostic'  ? `${getSubjectEmoji(r.subject)} — ${r.grade} балів`
+                 : r.category === 'correction'  ? `🔧 ${r.desc || r.description || 'Корекція балансу'}`
+                 : r.type === 'spend'           ? (r.desc || r.description || r.reward || '—')
                  : (r.desc || r.description || '—');
 
         const starClass = r.type === 'earn' ? 'positive'

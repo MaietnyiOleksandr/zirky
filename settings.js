@@ -2,7 +2,7 @@
 // ⚙️   settings.js — Налаштування / Експорт / Імпорт
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260514.0850';
+export const VERSION = 'v3.20260514.0958';
 
 // ════════════════════════════════════════════════════════════
 
@@ -463,51 +463,61 @@ export function addManualRecord() {
 
 
 export function adjustBalance() {
-    const input = document.getElementById('newBalanceInput');
-    const newBalance = parseInt(input.value);
-    
-    if (isNaN(newBalance) || newBalance < 0) {
-        alert('❌ Введіть коректне число (0 або більше)');
-        return;
-    }
-    
-    const oldBalance = state.data.balance || 0;
-    
-    const confirmMsg = `💰 Змінити баланс?\n\nБуло: ${oldBalance}⭐\nСтане: ${newBalance}⭐\n\nПродовжити?`;
-    
-    if (!confirm(confirmMsg)) {
-        return;
-    }
-    
-    // Змінюємо баланс — додаємо запис корекції щоб maxBalance правильно відстежувався
-    const diff = newBalance - oldBalance;
-    if (diff !== 0) {
-        state.data.records.push({
-            id: Date.now(),
-            date: new Date().toISOString(),
-            description: `Корекція балансу (${diff > 0 ? '+' : ''}${diff}⭐)`,
-            stars: Math.abs(diff),
-            type: diff > 0 ? 'earn' : 'spend',
-            category: 'correction'
-        });
-    }
-    state.data.balance = newBalance;
+    const directionEl = document.getElementById('correctionDirection');
+    const starsEl     = document.getElementById('correctionStars');
+    const reasonEl    = document.getElementById('correctionReason');
 
-    // Перевіряємо досягнення (Ощадлива змінюється при зміні балансу)
+    const direction = directionEl?.value;
+    const stars     = parseInt(starsEl?.value);
+    const reason    = reasonEl?.value?.trim();
+
+    if (!direction || isNaN(stars) || stars <= 0) {
+        alert('❌ Введіть коректну кількість зірок (більше 0)');
+        return;
+    }
+    if (!reason) {
+        alert('❌ Вкажіть причину корекції');
+        return;
+    }
+
+    const isEarn    = direction === '+';
+    const oldBalance = state.data.balance || 0;
+    const newBalance = isEarn ? oldBalance + stars : oldBalance - stars;
+
+    const confirmMsg = `🔧 Корекція балансу?
+
+Було: ${oldBalance}⭐
+Стане: ${newBalance}⭐
+Причина: ${reason}
+
+Продовжити?`;
+    if (!confirm(confirmMsg)) return;
+
+    state.data.records.push({
+        id: Date.now(),
+        date: new Date().toISOString(),
+        description: reason,
+        stars,
+        type: isEarn ? 'earn' : 'spend',
+        category: 'correction'
+    });
+
+    // Баланс не встановлюємо напряму — він перерахується через recalculateAchievements
     const levelsBefore = { ...(state.data.achievements?.levels || {}) };
     recalculateAchievements();
+    // Синхронізуємо balance з _runningBalance
+    state.data.balance = state.data.achievements.counters._runningBalance || 0;
     giveRewardsForNewAchievements(levelsBefore);
 
-    // Зберігаємо
     saveData();
-    
-    // Оновлюємо відображення
     showDataInfo();
-    
-    // Очищаємо поле
-    input.value = '';
-    
-    alert(`✅ Баланс змінено!\n\nНовий баланс: ${newBalance}⭐`);
+
+    starsEl.value  = '';
+    reasonEl.value = '';
+
+    alert(`✅ Корекцію додано!
+
+Новий баланс: ${state.data.balance}⭐`);
 }
 
 export function saveConversionRates() {

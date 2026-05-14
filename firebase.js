@@ -2,7 +2,7 @@
 // FIREBASE  firebase.js — Firebase
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260514.0850';
+export const VERSION = 'v3.20260514.0958';
 
 import { state } from './state.js';
 import { firebaseConfig } from './config.js';
@@ -51,6 +51,8 @@ export function initFirebase() {
         }
         showLoading(false);
         recalculateAchievements();  // Перераховуємо досягнення з усіх записів
+        // Баланс завжди береться з _runningBalance — не з Firebase — щоб уникнути розбіжностей
+        state.data.balance = state.data.achievements.counters._runningBalance || 0;
         updateUI();
         checkStreakWarning();  // Перевіряємо чи треба нагадати про канікули
         // Сигналізуємо що дані завантажені — ui.js сам оновить активну секцію
