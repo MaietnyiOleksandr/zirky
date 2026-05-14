@@ -2,7 +2,7 @@
 // ⚙️   settings.js — Налаштування / Експорт / Імпорт
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260511.1520';
+export const VERSION = 'v3.20260514.0850';
 
 // ════════════════════════════════════════════════════════════
 
@@ -114,6 +114,34 @@ export async function showDataInfoModal() {
     const directLoginStr   = fmtLoginDate(childNotif.lastDirectLoginAt)  || 'ще не було';
     const pinFailLoginStr  = fmtLoginDate(childNotif.lastPinFailLoginAt) || 'ще не було';
 
+    // Резервна копія
+    const backupRaw  = state.data.backupLastDate || '';
+    const backupDate = (() => {
+        if (backupRaw) {
+            return new Date(backupRaw).toLocaleDateString('uk-UA',
+                { day: 'numeric', month: 'long', year: 'numeric' });
+        }
+        // fallback — з останнього backup_* сповіщення
+        const notifItems = window.__notifItems ? Object.values(window.__notifItems()) : [];
+        const lastBackup = notifItems
+            .filter(i => i.type === 'backup')
+            .sort((a, b) => b.id.localeCompare(a.id))[0];
+        if (lastBackup) {
+            const d = lastBackup.id.replace('backup_', '');
+            return new Date(d).toLocaleDateString('uk-UA',
+                { day: 'numeric', month: 'long', year: 'numeric' });
+        }
+        return null;
+    })();
+    const backupDaysAgo = backupRaw
+        ? Math.floor((Date.now() - new Date(backupRaw)) / 86_400_000)
+        : null;
+    const backupStatus = !backupDate
+        ? { label: 'невідомо', color: 'var(--text-hint)' }
+        : backupDaysAgo >= 7
+            ? { label: `${backupDaysAgo} дн. тому ⚠️`, color: 'var(--c-warning-text)' }
+            : { label: `${backupDaysAgo} дн. тому`, color: 'var(--c-success-text)' };
+
     // Розмір даних
     const dataSize = new Blob([JSON.stringify(state.data)]).size;
     const sizeKB   = (dataSize / 1024).toFixed(2);
@@ -149,7 +177,15 @@ export async function showDataInfoModal() {
             <div class="font-sm">❌ Вхід після невірного PIN: <strong>${pinFailLoginStr}</strong></div>
         </div>` : ''}
 
-        <div class="font-xs text-hint mt-sm">💾 Розмір даних: ${sizeKB} KB</div>
+        <div class="card-inner mt-sm" style="display:grid;gap:6px;">
+            <div style="font-size:12px;font-weight:700;color:var(--text-muted);margin-bottom:2px;">💾 Резервна копія</div>
+            ${backupDate
+                ? `<div class="font-sm">Остання: <strong>${backupDate}</strong></div>
+                   <div class="font-sm">Давність: <strong style="color:${backupStatus.color}">${backupStatus.label}</strong></div>`
+                : `<div class="font-sm" style="color:var(--text-hint)">Дата невідома — зробіть резервну копію</div>`}
+        </div>
+
+        <div class="font-xs text-hint mt-sm">📦 Розмір даних: ${sizeKB} KB</div>
         <div class="versions-table-block mt-sm">
             <div style="font-size:12px;font-weight:700;color:var(--text-muted);margin-bottom:6px;">📋 Версії файлів</div>
             <div id="versionsTableBody" class="font-xs text-hint text-center">Завантаження...</div>

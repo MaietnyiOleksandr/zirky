@@ -3,7 +3,7 @@
 //     Етап 1: Фундамент — структура + Firebase
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260512.0056';
+export const VERSION = 'v3.20260514.0850';
 
 import { state }    from './state.js';
 import { nowKyiv }  from './utils.js';
@@ -411,12 +411,23 @@ export function generateNotifications() {
     }, 7);  // повторювати щотижня
 
     _generateConditional('backup', today, () => {
-        const last = state.data.backupLastDate || '';
+        // Беремо дату з state, або як fallback — з останнього backup_* запису в _items
+        let last = state.data.backupLastDate || '';
+        if (!last) {
+            const lastBackupItem = Object.values(_items)
+                .filter(i => i.type === 'backup')
+                .sort((a, b) => b.id.localeCompare(a.id))[0];
+            if (lastBackupItem) {
+                // ID має вигляд backup_2026-05-06 — беремо дату після _
+                last = lastBackupItem.id.replace('backup_', '');
+            }
+        }
         const days = last
             ? Math.floor((new Date(today) - new Date(last)) / 86_400_000)
             : 999;
+        _writeLog('backup:check', '', `last=${last || 'невідомо'} days=${days}`);
         return days >= 7
-            ? { title: 'Час зробити резервну копію', body: `Минуло ${days < 999 ? days + ' днів' : 'більше тижня'}` }
+            ? { title: 'Час зробити резервну копію', body: `Минуло ${days < 999 ? days + ' дн.' : 'більше тижня'} з останнього бекапу` }
             : null;
     }, 7);
 
