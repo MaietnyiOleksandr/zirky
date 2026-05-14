@@ -3,7 +3,7 @@
 //     Етап 1: Фундамент — структура + Firebase
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260514.0850';
+export const VERSION = 'v3.20260514.0904';
 
 import { state }    from './state.js';
 import { nowKyiv }  from './utils.js';
@@ -183,26 +183,56 @@ function _isFullyRead(item) {
          : pr && cr;
 }
 
-// Компакція: прочитані повні записи → slim.
+// Компакція: прочитані повні записи → slim або видалення.
 // Один батчевий update() замість N окремих set() — щоб onValue не тригерився N разів.
+// Для циклічних типів (no_stars, streak_risk тощо): якщо є новіший anchor того ж типу
+// і цей запис вже прочитаний → видаляємо (а не слімуємо), бо anchor вже не потрібен.
+const CYCLIC_TYPES = new Set(['no_stars','streak_risk','backup','good_dynamics','changelog']);
+
 function _compactReadItems() {
     const SLIM_FIELDS = new Set(['id','type','role','createdAt','readBy']);
-    const updates = {};
+    const updates  = {};   // для slim-записів
+    const toDelete = [];   // для видалення старих циклічних
     let compacted = 0;
+
+    // Для кожного циклічного типу знаходимо найновіший ID (anchor)
+    const newestByType = {};
+    CYCLIC_TYPES.forEach(type => {
+        const same = Object.values(_items).filter(i => i.type === type);
+        if (same.length > 1) {
+            newestByType[type] = same.sort((a, b) => b.id.localeCompare(a.id))[0].id;
+        }
+    });
+
     Object.values(_items).forEach(item => {
         // Вже slim — пропускаємо
         if (Object.keys(item).every(k => SLIM_FIELDS.has(k))) return;
         if (!_isFullyRead(item)) return;
+
+        // Циклічний і є новіший anchor → видаляємо
+        if (CYCLIC_TYPES.has(item.type) && newestByType[item.type] && newestByType[item.type] !== item.id) {
+            toDelete.push(item.id);
+            delete _items[item.id];
+            _writeLog('compact', item.id, '→ delete (є новіший anchor)');
+            compacted++;
+            return;
+        }
+
+        // Інакше → slim
         const slim = _toSlim(item);
         _items[item.id] = slim;
         updates[`zirky-notifications/${_fbKey(item.id)}`] = slim;
         _writeLog('compact', item.id, '→ slim');
         compacted++;
     });
-    if (compacted > 0) {
-        update(ref(_getDb(), '/'), updates); // один запис → onValue спрацює лише раз
-        _writeLog('compact:done', '', `Скомпактовано: ${compacted}`);
+
+    if (toDelete.length > 0) {
+        toDelete.forEach(id => remove(ref(_getDb(), `zirky-notifications/${_fbKey(id)}`)));
     }
+    if (Object.keys(updates).length > 0) {
+        update(ref(_getDb(), '/'), updates);
+    }
+    if (compacted > 0) _writeLog('compact:done', '', `Оброблено: ${compacted}`);
 }
 
 // Ініціалізація слухача Firebase
