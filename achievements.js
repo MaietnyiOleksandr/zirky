@@ -2,7 +2,7 @@
 // 🏆  achievements.js — Система досягнень
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260509.0811';
+export const VERSION = 'v3.20260514.1545';
 
 // ════════════════════════════════════════════════════════════
 
@@ -493,6 +493,8 @@ export function giveRewardsForNewAchievements(levelsBefore) {
         
         // goal_counter обробляється окремо в checkGoalReached()
         if (ach.type === 'goal_counter') return;
+        // weekly обробляється окремо в checkWeeklyAchievements()
+        if (ach.type === 'weekly') return;
         
         // Для repeatable - перевіряємо чи це повторне отримання
         const isRepeatable = ach.type === 'repeatable_streak';
