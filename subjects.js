@@ -2,10 +2,10 @@
 // 📚  subjects.js — Єдине джерело правди для предметів
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260510.2236';
+export const VERSION = 'v3.20260514.1530';
 
 import { state } from './state.js';
-import { saveData } from './firebase.js';
+import { saveSubjects } from './firebase.js';
 
 
 // ── Дефолтний список (якщо Firebase порожній) ────────
@@ -245,7 +245,7 @@ export function saveSubjectsEditor() {
         .map(c => typeof c === 'string' ? { name: c, emoji: '🎭' } : c)
         .filter(c => c.name.trim() !== '');
 
-    saveData();
+    saveSubjects();
     buildSubjectSelects();
     closeSubjectsEditor();
 }

@@ -3,7 +3,7 @@
 //     Етап 1: Фундамент — структура + Firebase
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260514.0918';
+export const VERSION = 'v3.20260514.1530';
 
 import { state }    from './state.js';
 import { nowKyiv }  from './utils.js';
@@ -11,7 +11,6 @@ import { CHANGELOG } from './changelog.js';
 import { getFeedbackItems } from './feedback.js';
 import { getDatabase, ref, set, update, remove, push, onValue, query, orderByChild, endAt }
     from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
-import { saveData } from './firebase.js';
 
 // ════════════════════════════════════════════════════
 // 📋  КАТАЛОГ ТИПІВ СПОВІЩЕНЬ

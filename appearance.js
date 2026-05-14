@@ -12,10 +12,10 @@
 //       3. Додай CSS vars у style.css (опційно)
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260505.1335';
+export const VERSION = 'v3.20260514.1530';
 
 import { state } from './state.js';
-import { saveData } from './firebase.js';
+import { saveAppearance, saveRecords } from './firebase.js';
 import { spendStars } from './rewards.js';
 import { DEFAULT_ACTIVE, migrateAppearance } from './utils.js';
 
@@ -405,7 +405,7 @@ export function activateTheme(themeId, devOnly = false) {
     profile.active = { theme: themeId, ...theme.components };
     _resetAppearanceVars();
     _applyComponents(profile.active);
-    saveData();
+    saveAppearance();
 }
 
 export function setComponent(type, id) {
@@ -432,7 +432,7 @@ export function setComponent(type, id) {
 
     _resetAppearanceVars();
     _applyComponents(profile.active);
-    saveData();
+    saveAppearance();
     renderThemeShop();
 }
 
@@ -723,7 +723,7 @@ export function refundTheme(themeId) {
         const levelsBefore = { ...(state.data.achievements?.levels || {}) };
         recalculateAchievements();
         giveRewardsForNewAchievements(levelsBefore);
-        saveData();
+        saveRecords();
         renderThemeShop();
         import('./ui.js').then(m => m.updateUI());
         alert(`✅ Тему "${theme.name}" повернуто.\n+${theme.price}⭐ повернуто на рахунок.`);

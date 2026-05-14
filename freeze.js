@@ -1,13 +1,14 @@
 // ════════════════════════════════════════════════════
-
-export const VERSION = 'v3.20260426.1550';
 // FREEZE  freeze.js — Freeze
-//     Зірки Успіху | v3.20260426.1550
+// ════════════════════════════════════════════════════
+
+export const VERSION = 'v3.20260514.1530';
+
 // ════════════════════════════════════════════════════
 
 import { state } from './state.js';
 import { recalculateAchievements } from './achievements.js';
-import { saveData } from './firebase.js';
+import { saveRecords } from './firebase.js';
 
 // ════════════════════════════════════════════════════════════
 // ❄️   БЛОК: Канікули
@@ -100,7 +101,7 @@ export function addFreezePeriod() {
     
     // Перераховуємо серії
     recalculateAchievements();
-    saveData();
+    saveRecords();
     document.dispatchEvent(new CustomEvent('zirky:stateChanged'));  // ui.js оновить UI
     renderFreezePeriods();
     
@@ -130,7 +131,7 @@ ${from.toLocaleDateString('uk-UA')} - ${until.toLocaleDateString('uk-UA')}`)) re
     
     // Перераховуємо серії
     recalculateAchievements();
-    saveData();
+    saveRecords();
     document.dispatchEvent(new CustomEvent('zirky:stateChanged'));  // ui.js оновить UI
     renderFreezePeriods();
 }

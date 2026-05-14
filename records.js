@@ -2,13 +2,13 @@
 // RECORDS  records.js — Records
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260510.2050';
+export const VERSION = 'v3.20260514.1530';
 
 import { state } from './state.js';
 import { isDoubleSubject } from './subjects.js';
 import { gradeToStars } from './config.js';
 import { recalculateAchievements, checkWeeklyAchievements, checkGoalReached, giveRewardsForNewAchievements, removeRewardsForLostAchievements } from './achievements.js';
-import { saveData } from './firebase.js';
+import { saveRecords } from './firebase.js';
 import { updateUI } from './ui.js';
 
 // ════════════════════════════════════════════════════════════
@@ -48,11 +48,8 @@ export function addGradeRecord() {
     giveRewardsForNewAchievements(levelsBefore);
     
     // Перевіряємо тижневі досягнення
-    if (checkWeeklyAchievements()) {
-        saveData(); // Зберігаємо якщо були зміни
-    }
-    
-    saveData();
+    checkWeeklyAchievements();
+    saveRecords();
     updateUI();  // Одразу оновлюємо badges та досягнення
 
     document.getElementById('subject').value = '';
@@ -106,11 +103,8 @@ export function addDiagnosticWork() {
     giveRewardsForNewAchievements(levelsBefore);
     
     // Перевіряємо тижневі досягнення
-    if (checkWeeklyAchievements()) {
-        saveData();
-    }
-    
-    saveData();
+    checkWeeklyAchievements();
+    saveRecords();
     updateUI();
 
     document.getElementById('diagnosticSubject').value = '';
@@ -152,11 +146,8 @@ export function addBonusRecord() {
     giveRewardsForNewAchievements(levelsBefore);
     
     // Перевіряємо тижневі досягнення
-    if (checkWeeklyAchievements()) {
-        saveData(); // Зберігаємо якщо були зміни
-    }
-    
-    saveData();
+    checkWeeklyAchievements();
+    saveRecords();
     updateUI();
 
     document.getElementById('bonusType').value = '';
@@ -194,11 +185,8 @@ export function addSpecialRecord() {
     giveRewardsForNewAchievements(levelsBefore);
     
     // Перевіряємо тижневі досягнення
-    if (checkWeeklyAchievements()) {
-        saveData(); // Зберігаємо якщо були зміни
-    }
-    
-    saveData();
+    checkWeeklyAchievements();
+    saveRecords();
     updateUI();
 
     document.getElementById('specialDesc').value = '';
@@ -241,7 +229,7 @@ export function deleteRecord(id) {
         }
     }
     
-    saveData();
+    saveRecords();
     updateUI();
 }
 

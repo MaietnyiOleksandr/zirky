@@ -2,13 +2,13 @@
 // ⚙️   settings.js — Налаштування / Експорт / Імпорт
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260514.0958';
+export const VERSION = 'v3.20260514.1530';
 
 // ════════════════════════════════════════════════════════════
 
 import { state } from './state.js';
 import { recalculateAchievements, giveRewardsForNewAchievements } from './achievements.js';
-import { saveData, saveAllFeedback } from './firebase.js';
+import { saveAll, saveRecords, saveRates, saveBackupDate, saveAllFeedback } from './firebase.js';
 import { getFeedbackItems } from './feedback.js';
 import { THEMES } from './appearance.js';
 import { dismissByAction } from './notifications.js';
@@ -227,7 +227,7 @@ export function exportData() {
         
         // Записуємо дату резервного копіювання в хмару (синхронізується між пристроями)
         state.data.backupLastDate = new Date().toISOString().split('T')[0];
-        saveData();
+        saveBackupDate();
         // Знімаємо сповіщення про бекап (якщо було)
         dismissByAction('backup', 'checkmark');
         
@@ -327,7 +327,7 @@ export function importData(event) {
             recalculateAchievements();
             
             // Зберігаємо основні дані в Firebase
-            saveData();
+            saveAll();
 
             // Відновлюємо feedback в Firebase
             saveAllFeedback(feedbackToRestore);
@@ -383,7 +383,7 @@ export function resetAllData() {
         }
     });
     
-    saveData();
+    saveAll();
     alert("✅ Всі дані скинуто\n\nСторінка перезавантажиться.");
     setTimeout(() => location.reload(), 500);
 }
@@ -447,7 +447,7 @@ export function addManualRecord() {
     recalculateAchievements();
     giveRewardsForNewAchievements(levelsBefore);
 
-    saveData();
+    saveRecords();
     if (window.updateUI) window.updateUI();
     if (window.renderHistory) window.renderHistory();
 
@@ -509,7 +509,7 @@ export function adjustBalance() {
     state.data.balance = state.data.achievements.counters._runningBalance || 0;
     giveRewardsForNewAchievements(levelsBefore);
 
-    saveData();
+    saveRecords();
     showDataInfo();
 
     starsEl.value  = '';
@@ -528,7 +528,7 @@ export function saveConversionRates() {
     if (!moneyPerStar || moneyPerStar < 1) { alert('❌ Некоректне значення гривень!'); return; }
 
     state.data.conversionRates = { minutesPerStar, moneyPerStar };
-    saveData();
+    saveRates();
 
     // Оновлюємо поля на вкладці Витрати
     if (window.renderRewards) window.renderRewards();

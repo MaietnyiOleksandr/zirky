@@ -2,10 +2,10 @@
 // 🔐  auth.js — Авторизація та PIN-код
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260511.1545';
+export const VERSION = 'v3.20260514.1530';
 
 import { state } from './state.js';
-import { saveData } from './firebase.js';
+import { saveNotifications, savePin } from './firebase.js';
 import { nowKyiv } from './utils.js';
 import { updateUI } from './ui.js';
 import { switchTab } from './navigation.js';
@@ -33,7 +33,7 @@ export function enterAsChild(loginType = 'direct') {
     } else {
         state.data.notifications.child.lastPinFailLoginAt = ts;
     }
-    saveData();
+    saveNotifications();
 
     document.getElementById('loginOverlay').style.display = 'none';
     document.getElementById('mainApp').style.display = 'block';
@@ -85,7 +85,7 @@ export function changePin() {
     const newPin = document.getElementById('newPin').value;
     if (newPin.length === 4 && /^\d+$/.test(newPin)) {
         state.data.pin = newPin;
-        saveData();
+        savePin();
         document.getElementById('currentPin').textContent = newPin;
         document.getElementById('newPin').value = '';
         alert('✅ PIN змінено!');

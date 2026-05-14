@@ -2,13 +2,13 @@
 // REWARDS  rewards.js — Витрати / Конвертація
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260504.2323';
+export const VERSION = 'v3.20260514.1530';
 
 // ════════════════════════════════════════════════════════════
 
 import { state } from './state.js';
 import { conversionRates } from './config.js';
-import { saveData } from './firebase.js';
+import { saveRecords } from './firebase.js';
 import { recalculateAchievements, giveRewardsForNewAchievements } from './achievements.js';
 import { updateUI } from './ui.js';
 import { nowKyiv } from './utils.js';
@@ -39,7 +39,7 @@ export function spendStars(stars, record) {
     const levelsBefore = { ...(state.data.achievements.levels || {}) };
     recalculateAchievements();
     giveRewardsForNewAchievements(levelsBefore);
-    saveData();
+    saveRecords();
     updateUI();
     return true;
 }
@@ -172,7 +172,7 @@ export function doCustomReward(date, desc, stars) {
     const levelsBefore = { ...(state.data.achievements.levels || {}) };
     recalculateAchievements();
     giveRewardsForNewAchievements(levelsBefore);
-    saveData();
+    saveRecords();
     updateUI();
     ['customRewardDate', 'customRewardDesc', 'customRewardStars'].forEach(id => {
         document.getElementById(id).value = '';

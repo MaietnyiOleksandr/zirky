@@ -1,12 +1,13 @@
 // ════════════════════════════════════════════════════
-
-export const VERSION = 'v3.20260426.1721';
 // GOALS  goals.js — Goals
-//     Зірки Успіху | v3.20260426.1721
+// ════════════════════════════════════════════════════
+
+export const VERSION = 'v3.20260514.1530';
+
 // ════════════════════════════════════════════════════
 
 import { state } from './state.js';
-import { saveData } from './firebase.js';
+import { saveGoalData } from './firebase.js';
 
 // ════════════════════════════════════════════════════════════
 // 🎯  БЛОК: Цілі
@@ -53,7 +54,7 @@ export function saveGoal() {
     }
     
     state.data.goal = { name, target, emoji, reached: false };  // reached скидається для нової мети
-    saveData();
+    saveGoalData();
     document.getElementById('goalModal').style.display = 'none';
     renderGoal();
     alert('✅ Мета встановлена!');
@@ -62,7 +63,7 @@ export function saveGoal() {
 export function deleteGoal() {
     if (confirm('Видалити мету? Прогрес не втратиться.')) {
         state.data.goal = null;
-        saveData();
+        saveGoalData();
         document.getElementById('goalModal').style.display = 'none';
         renderGoal();
     }

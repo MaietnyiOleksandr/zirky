@@ -2,10 +2,10 @@
 // 📋  schedule.js — Розклад уроків
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260511.0952';
+export const VERSION = 'v3.20260514.1530';
 
 import { state } from './state.js';
-import { saveData } from './firebase.js';
+import { saveSchedule } from './firebase.js';
 import { getSubjects, getClubs } from './subjects.js';
 
 // ── Константи ────────────────────────────────────────
@@ -353,7 +353,7 @@ export function saveScheduleEditor() {
         const val = sel ? sel.value : (inp ? inp.value.trim() : '');
         if (val) s.days[dayKey].lessons[idx].name = val;
     });
-    saveData();
+    saveSchedule();
     closeScheduleEditor();
     renderSchedule();
 }
@@ -417,7 +417,7 @@ export function clubAddDay(dayKey) {
 }
 
 export function saveClubEditor() {
-    saveData();
+    saveSchedule();
     closeClubEditor();
     renderSchedule();
 }
@@ -502,7 +502,7 @@ export function saveTeachersModal() {
             s.teachers[subj === 'Класний керівник' ? '__classTeacher__' : subj] = input.value.trim();
         }
     });
-    saveData();
+    saveSchedule();
     closeTeachersModal();
     renderSchedule();
 }
@@ -563,6 +563,6 @@ export function schedUpdateBell(idx, field, value) {
 }
 
 export function saveBellsModal() {
-    saveData();
+    saveSchedule();
     closeBellsModal();
 }
