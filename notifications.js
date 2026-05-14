@@ -3,7 +3,7 @@
 //     Етап 1: Фундамент — структура + Firebase
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260514.0904';
+export const VERSION = 'v3.20260514.0918';
 
 import { state }    from './state.js';
 import { nowKyiv }  from './utils.js';
@@ -543,12 +543,6 @@ export function dismissNotification(id) {
     if (!item.readBy) item.readBy = { parent: null, child: null };
     item.readBy[role] = _kyivNow();
     _writeLog('dismiss', item.id, `role:${role} type:${item.type}`);
-
-    // Якщо резервна копія — записуємо дату в хмару
-    if (item.type === 'backup') {
-        state.data.backupLastDate = _kyivToday();
-        saveData();
-    }
 
     _saveItem(item);
 
