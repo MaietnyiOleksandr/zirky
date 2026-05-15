@@ -2,7 +2,7 @@
 // 📊  stats.js — Статистика та графіки
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260515.1727';
+export const VERSION = 'v3.20260515.1747';
 
 import { state } from './state.js';
 import { getSubjectEmoji } from './subjects.js';
@@ -645,13 +645,12 @@ function hexToRgba(hex, opacity) {
     return `rgba(${r},${g},${b},${opacity})`;
 }
 
-function heatStarLevel(stars) {
+// Динамічний рівень: нормалізація по [min, max] місяця
+function heatDynLevel(stars, min, max) {
     if (!stars || stars <= 0) return -1;
-    if (stars <= 3)  return 0;
-    if (stars <= 8)  return 1;
-    if (stars <= 14) return 2;
-    if (stars <= 22) return 3;
-    return 4;
+    if (min === max) return 4; // одне унікальне значення — максимальна насиченість
+    const ratio = (stars - min) / (max - min); // 0..1
+    return Math.min(4, Math.floor(ratio * 4.99)); // 0..4
 }
 
 export function updateHeatmap() {
@@ -668,6 +667,7 @@ export function updateHeatmap() {
 
     const MONTH_NAMES = ['Січень','Лютий','Березень','Квітень','Травень','Червень',
                          'Липень','Серпень','Вересень','Жовтень','Листопад','Грудень'];
+    const MONTH_SHORT = ['Сі','Лю','Бе','Кв','Тр','Че','Ли','Се','Ве','Жо','Ли','Гр'];
 
     document.getElementById('heatmapNextBtn').disabled = state.heatmapOffset === 0;
     document.getElementById('heatmapPeriodDisplay').textContent =
@@ -678,11 +678,11 @@ export function updateHeatmap() {
         ? cssVar('--secondary', '#0057B7')
         : cssVar('--accent',    '#FF6B6B');
 
-    const OPACITIES = [0.12, 0.28, 0.52, 0.75, 1.0];
+    const OPACITIES  = [0.12, 0.28, 0.52, 0.75, 1.0];
     const TEXT_DARK  = cssVar('--text-muted', '#666');
     const TEXT_LIGHT = '#ffffff';
 
-    // Підрахунок зірок по днях
+    // ── Підрахунок зірок по днях ──────────────────────
     const records  = state.data.records || [];
     const dayStars = {};
     records.forEach(r => {
@@ -694,39 +694,66 @@ export function updateHeatmap() {
         if (!isEarn && r.type === 'spend') dayStars[d] += (r.stars || 0);
     });
 
-    // Перший день тижня (0=Пн…6=Нд)
+    // ── Динамічна шкала: min/max по активних днях ─────
+    const activeVals = Object.values(dayStars).filter(v => v > 0);
+    const dynMin = activeVals.length ? Math.min(...activeVals) : 0;
+    const dynMax = activeVals.length ? Math.max(...activeVals) : 0;
+
+    // ── Підрахунок зірок по тижнях місяця ─────────────
+    // Тиждень визначається за ISO-понеділком
+    const weekStars = {}; // ключ: "d1-d2" (перший і останній день тижня в межах місяця)
+    for (let d = 1; d <= days; d++) {
+        const dow = new Date(year, month, d).getDay();
+        const isMon = (dow === 1) || (d === 1);  // початок тижня — понеділок або 1-е число
+        if (isMon) {
+            // Знаходимо кінець тижня (неділя або кінець місяця)
+            let end = d;
+            for (let e = d; e <= days; e++) {
+                end = e;
+                if (new Date(year, month, e).getDay() === 0) break;
+            }
+            const key = `${d}-${end}`;
+            weekStars[key] = 0;
+            for (let e = d; e <= end; e++) weekStars[key] += (dayStars[e] || 0);
+        }
+    }
+
+    // ── Статистика ────────────────────────────────────
+    const allVals    = Object.values(dayStars);
+    const totalSt    = allVals.reduce((s, v) => s + v, 0);
+    const activeDays = activeVals.length;
+
+    const bestDay = Object.entries(dayStars)
+        .filter(([, v]) => v > 0)
+        .sort((a, b) => b[1] - a[1])[0];
+
+    const bestWeek = Object.entries(weekStars)
+        .filter(([, v]) => v > 0)
+        .sort((a, b) => b[1] - a[1])[0];
+
+    // ── Перший день тижня в місяці ────────────────────
     let firstDow = new Date(year, month, 1).getDay();
-    firstDow = firstDow === 0 ? 6 : firstDow - 1; // конвертуємо: нд=6
+    firstDow = firstDow === 0 ? 6 : firstDow - 1;
 
-    // Статистика
-    const allStars  = Object.values(dayStars);
-    const totalSt   = allStars.reduce((s, v) => s + v, 0);
-    const activeDays = allStars.filter(v => v > 0).length;
-    const maxDay     = Object.entries(dayStars).sort((a, b) => b[1] - a[1])[0];
-
-    // Будуємо HTML
+    // ── Сітка ─────────────────────────────────────────
     const DOW_LABELS = ['Пн','Вт','Ср','Чт','Пт','Сб','Нд'];
     let html = `<div class="hm-day-labels">${DOW_LABELS.map(l =>
         `<div class="hm-day-label">${l}</div>`).join('')}</div>`;
-
     html += `<div class="hm-grid">`;
 
-    // Порожні клітинки на початку
     for (let e = 0; e < firstDow; e++) {
         html += `<div class="hm-cell" style="background:transparent;"></div>`;
     }
 
-    // Дні місяця
     for (let d = 1; d <= days; d++) {
-        const date    = new Date(year, month, d);
-        const future  = date > today;
-        const stars   = dayStars[d] || 0;
-        const lv      = future ? -2 : heatStarLevel(stars);
-        const hasStars = stars > 0;
+        const date     = new Date(year, month, d);
+        const future   = date > today;
+        const stars    = dayStars[d] || 0;
+        const lv       = future ? -2 : heatDynLevel(stars, dynMin, dynMax);
+        const hasStars = stars > 0 && !future;
 
         let bg, textDay, textStars;
-
-        if (future || lv === -2) {
+        if (future) {
             bg        = cssVar('--border-light', '#E0E0E0');
             textDay   = cssVar('--text-hint', '#999');
             textStars = textDay;
@@ -740,37 +767,43 @@ export function updateHeatmap() {
             textStars = lv >= 3 ? TEXT_LIGHT : baseHex;
         }
 
-        const cellClass = `hm-cell${hasStars ? ' has-stars' : ''}`;
-
-        html += `<div class="${cellClass}" style="background:${bg};"
+        html += `<div class="hm-cell${hasStars ? ' has-stars' : ''}" style="background:${bg};"
             data-day="${d}" data-stars="${stars}"
             onclick="this.classList.toggle('pinned')">
-            <span class="hm-num hm-num-day"   style="color:${textDay};">${d}</span>
-            <span class="hm-num hm-num-stars"  style="color:${textStars};">${stars > 0 ? stars + '⭐' : '—'}</span>
+            <span class="hm-num hm-num-day"  style="color:${textDay};">${d}</span>
+            <span class="hm-num hm-num-stars" style="color:${textStars};">${hasStars ? stars + '⭐' : '—'}</span>
         </div>`;
     }
-
     html += `</div>`;
 
-    // Легенда
-    const swatches = [-1, 0, 1, 2, 3, 4].map(lv => {
-        const col = lv === -1
-            ? cssVar('--bg', '#FFF9E6')
-            : hexToRgba(baseHex, OPACITIES[lv]);
-        return `<div class="hm-legend-swatch" style="background:${col};"></div>`;
-    }).join('');
-    html += `<div class="hm-legend">
-        <span>Менше</span>${swatches}<span>Більше</span>
-    </div>`;
+    // ── Легенда ───────────────────────────────────────
+    const swatches = [cssVar('--bg', '#FFF9E6'), ...OPACITIES.map(op => hexToRgba(baseHex, op))]
+        .map(col => `<div class="hm-legend-swatch" style="background:${col};"></div>`).join('');
+    html += `<div class="hm-legend"><span>Менше</span>${swatches}<span>Більше</span></div>`;
 
-    // Зведення
-    const maxDayName = maxDay
-        ? `${maxDay[0]} ${['','Сі','Лю','Бе','Кв','Тр','Че','Ли','Се','Ве','Жо','Ли','Гр'][month + 1]}— ${maxDay[1]}⭐`
+    // ── Зведення ──────────────────────────────────────
+    const mo = MONTH_SHORT[month];
+    const labelTotal   = isEarn ? 'Всього зароблено'   : 'Всього витрачено';
+    const labelDays    = isEarn ? 'Активних днів'       : 'Днів з витратами';
+    const labelBestDay = isEarn ? 'Найкращий день'      : 'Найвитратніший день';
+    const labelBestWk  = isEarn ? 'Найкращий тиждень'  : 'Найвитратніший тиждень';
+
+    const bestDayStr = bestDay
+        ? `${bestDay[0]} ${mo} — ${bestDay[1]}⭐`
         : '—';
-    const label = isEarn ? 'Всього зароблено' : 'Всього витрачено';
+
+    let bestWeekStr = '—';
+    if (bestWeek) {
+        const [range, val] = bestWeek;
+        const [wFrom, wTo] = range.split('-');
+        bestWeekStr = `${wFrom}-${wTo} ${mo} — ${val}⭐`;
+    }
+
     html += `<div class="hm-summary">
-        <div class="hm-summary-item">${label}<br><strong>${totalSt}⭐</strong></div>
-        <div class="hm-summary-item">Активних днів<br><strong>${activeDays} з ${days}</strong></div>
+        <div class="hm-summary-item">${labelTotal}<br><strong>${totalSt}⭐</strong></div>
+        <div class="hm-summary-item">${labelDays}<br><strong>${activeDays} з ${days}</strong></div>
+        <div class="hm-summary-item">${labelBestDay}<br><strong>${bestDayStr}</strong></div>
+        <div class="hm-summary-item">${labelBestWk}<br><strong>${bestWeekStr}</strong></div>
     </div>`;
 
     container.innerHTML = html;
