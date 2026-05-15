@@ -2,7 +2,7 @@
 // 📊  stats.js — Статистика та графіки
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260515.1939';
+export const VERSION = 'v3.20260515.1946';
 
 import { state } from './state.js';
 import { getSubjectEmoji } from './subjects.js';
@@ -1020,6 +1020,43 @@ function _buildLegend(segments, total, drillable) {
     }).join('');
 }
 
+function _donutTransition(container, topbarInner, newLayoutHtml) {
+    const oldLayout = container.querySelector('.donut-layout');
+    const topbarEl  = container.querySelector('.donut-topbar');
+
+    // Topbar оновлюємо миттєво — він фіксованої висоти, не зсуває layout
+    if (topbarEl) {
+        topbarEl.innerHTML = topbarInner;
+    }
+
+    if (!oldLayout) {
+        // Перший рендер — topbar вже є, просто додаємо layout
+        if (topbarEl) {
+            const tmp = document.createElement('div');
+            tmp.innerHTML = newLayoutHtml;
+            container.appendChild(tmp.firstChild);
+        } else {
+            container.innerHTML =
+                `<div class="donut-topbar">${topbarInner}</div>${newLayoutHtml}`;
+        }
+        return;
+    }
+
+    // Анімація виходу через inline style (не чіпаємо CSS-клас .donut-layout)
+    oldLayout.style.animation = 'donut-exit 0.25s ease-in both';
+    oldLayout.style.pointerEvents = 'none';
+
+    setTimeout(() => {
+        const dying = container.querySelector('.donut-layout');
+        if (!dying) return;
+        const tmp = document.createElement('div');
+        tmp.innerHTML = newLayoutHtml;
+        const newLayout = tmp.firstChild;
+        // CSS-клас забезпечить donut-enter анімацію автоматично
+        dying.replaceWith(newLayout);
+    }, 250);
+}
+
 export function renderSourceDonut() {
     const navRow = document.getElementById('donutNavRow');
     const nextBtn = document.getElementById('donutNextBtn');
@@ -1128,16 +1165,14 @@ function updateSourceDonut() {
     const svg    = _buildDonutSVG(segments, total);
     const legend = _buildLegend(segments, total, !drilldown);
 
-    const topbar = drilldown
-        ? `<div class="donut-topbar">
-               <button class="donut-back-btn" onclick="drillDonut(null)">← Назад</button>
-               <span class="donut-subtitle">${drillTitle}</span>
-           </div>`
-        : `<div class="donut-topbar">
-               <span class="donut-hint">Натисни на категорію — деталі</span>
-           </div>`;
+    const topbarInner = drilldown
+        ? `<button class="donut-back-btn" onclick="drillDonut(null)">← Назад</button>
+           <span class="donut-subtitle">${drillTitle}</span>`
+        : `<span class="donut-hint">Натисни на категорію — деталі</span>`;
 
-    container.innerHTML = `${topbar}<div class="donut-layout">${svg}<div class="donut-legend">${legend}</div></div>`;
+    const newLayoutHtml = `<div class="donut-layout">${svg}<div class="donut-legend">${legend}</div></div>`;
+
+    _donutTransition(container, topbarInner, newLayoutHtml);
 }
 
 export function changeDonutPeriod(period) {

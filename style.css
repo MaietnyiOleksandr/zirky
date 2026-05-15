@@ -1,6 +1,6 @@
 /* ════════════════════════════════════════════════════
    Зірки Успіху — Стилі
-   Версія: v3.20260515.1939
+   Версія: v3.20260515.1946
    ════════════════════════════════════════════════════ */
 
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;900&family=Comfortaa:wght@400;700&family=Fredoka+One&family=Ubuntu:wght@400;700&family=Playfair+Display:wght@400;700&display=swap');
@@ -2721,12 +2721,22 @@ select:focus, input:focus {
 /* ═══════════════════════════════════════════════════
    🍩  ПОНЧИК — розподіл зірок по джерелах
 ═══════════════════════════════════════════════════ */
+@keyframes donut-enter {
+    from { opacity: 0; transform: scale(0.9); }
+    to   { opacity: 1; transform: scale(1);   }
+}
+@keyframes donut-exit {
+    from { opacity: 1; transform: scale(1);   }
+    to   { opacity: 0; transform: scale(0.9); }
+}
 .donut-layout {
     display: flex;
     align-items: center;
     gap: 18px;
     flex-wrap: wrap;
     margin-top: 4px;
+    animation: donut-enter 0.25s ease-out both;
+    transform-origin: center;
 }
 .donut-svg {
     width: 160px;
