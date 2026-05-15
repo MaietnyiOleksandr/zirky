@@ -2,7 +2,7 @@
 // 📊  stats.js — Статистика та графіки
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260515.1925';
+export const VERSION = 'v3.20260515.1939';
 
 import { state } from './state.js';
 import { getSubjectEmoji } from './subjects.js';
@@ -1042,7 +1042,7 @@ function updateSourceDonut() {
     const records = _getEarnRecords();
     const drilldown = state.donutDrilldown;
 
-    let segments = [], total = 0, subtitle = '', backBtn = '';
+    let segments = [], total = 0, drillTitle = '';
 
     if (!drilldown) {
         // ── Головний рівень ────────────────────────────
@@ -1064,12 +1064,8 @@ function updateSourceDonut() {
                 stars: cats[d.key],
                 onclick: d.drillable ? `drillDonut('${d.key}')` : null,
             }));
-        subtitle = total > 0
-            ? '<div class="donut-hint">Натисни категорію — деталі</div>'
-            : '';
     } else {
         // ── Дриллдаун ─────────────────────────────────
-        backBtn = `<button class="period-btn donut-back-btn" onclick="drillDonut(null)">← Назад</button>`;
         const cat = drilldown.category;
         const catRecs = records.filter(r => r.category === cat);
 
@@ -1085,7 +1081,7 @@ function updateSourceDonut() {
             segments = sorted.map(([name, stars], i) => ({
                 label: name, color: PALETTE[i % PALETTE.length], stars, onclick: null,
             }));
-            subtitle = `<div class="donut-subtitle">${cat === 'grade' ? '🎓 Оцінки' : '🔬 Діагностичні'} — по предметах</div>`;
+            drillTitle = cat === 'grade' ? '🎓 Оцінки — по предметах' : '🔬 Діагностичні — по предметах';
 
         } else if (cat === 'bonus') {
             const grpStars = Object.fromEntries(Object.keys(BONUS_GROUPS).map(g => [g, 0]));
@@ -1105,7 +1101,7 @@ function updateSourceDonut() {
                     label: `${gdata.icon} ${gname}`, color: gdata.color,
                     stars: grpStars[gname], onclick: null,
                 }));
-            subtitle = `<div class="donut-subtitle">🌟 Бонуси — по групах</div>`;
+            drillTitle = '🌟 Бонуси — по групах';
 
         } else if (cat === 'achievement') {
             const byAch = {};
@@ -1120,7 +1116,7 @@ function updateSourceDonut() {
             segments = sorted.map(([name, stars], i) => ({
                 label: name, color: PALETTE[i % PALETTE.length], stars, onclick: null,
             }));
-            subtitle = `<div class="donut-subtitle">🏆 Досягнення — по типах</div>`;
+            drillTitle = '🏆 Досягнення — по типах';
         }
     }
 
@@ -1132,13 +1128,16 @@ function updateSourceDonut() {
     const svg    = _buildDonutSVG(segments, total);
     const legend = _buildLegend(segments, total, !drilldown);
 
-    container.innerHTML = `
-        ${backBtn}
-        ${subtitle}
-        <div class="donut-layout">
-            ${svg}
-            <div class="donut-legend">${legend}</div>
-        </div>`;
+    const topbar = drilldown
+        ? `<div class="donut-topbar">
+               <button class="donut-back-btn" onclick="drillDonut(null)">← Назад</button>
+               <span class="donut-subtitle">${drillTitle}</span>
+           </div>`
+        : `<div class="donut-topbar">
+               <span class="donut-hint">Натисни на категорію — деталі</span>
+           </div>`;
+
+    container.innerHTML = `${topbar}<div class="donut-layout">${svg}<div class="donut-legend">${legend}</div></div>`;
 }
 
 export function changeDonutPeriod(period) {

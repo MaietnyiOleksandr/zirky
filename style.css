@@ -1,6 +1,6 @@
 /* ════════════════════════════════════════════════════
    Зірки Успіху — Стилі
-   Версія: v3.20260515.1925
+   Версія: v3.20260515.1939
    ════════════════════════════════════════════════════ */
 
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;900&family=Comfortaa:wght@400;700&family=Fredoka+One&family=Ubuntu:wght@400;700&family=Playfair+Display:wght@400;700&display=swap');
@@ -2792,18 +2792,33 @@ select:focus, input:focus {
     margin-left: 2px;
     font-size: 14px;
 }
+.donut-topbar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 30px;
+    margin-bottom: 10px;
+}
 .donut-hint {
     font-size: 11px;
     color: var(--text-hint);
-    margin-bottom: 10px;
 }
 .donut-subtitle {
     font-size: 13px;
     font-weight: 600;
     color: var(--secondary);
-    margin-bottom: 10px;
 }
 .donut-back-btn {
-    margin-bottom: 10px;
+    flex-shrink: 0;
+    padding: 3px 10px;
     font-size: 12px;
+    background: transparent;
+    border: 1px solid var(--border, #ddd);
+    border-radius: 20px;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: background 0.15s;
+}
+.donut-back-btn:hover {
+    background: var(--bg-alt, rgba(0,0,0,0.05));
 }
