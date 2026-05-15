@@ -3,7 +3,7 @@
 //     Етап 1: Фундамент — структура + Firebase
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260514.1530';
+export const VERSION = 'v3.20260515.1208';
 
 import { state }    from './state.js';
 import { nowKyiv }  from './utils.js';
@@ -405,10 +405,13 @@ export function generateNotifications() {
     _generateConditional('no_stars', today, () => {
         const lastEarn = earnRecs.length
             ? earnRecs.reduce((a, b) => a.date > b.date ? a : b) : null;
-        const diffH = lastEarn
-            ? (new Date(_kyivNow()) - new Date(lastEarn.date)) / 3_600_000
+        // Порівнюємо за днями (не годинами), бо дата запису завжди T12:00:00
+        // daysDiff=0 → сьогодні, daysDiff=1 → вчора, daysDiff>=2 → позавчора і давніше
+        const lastEarnDay = lastEarn?.date?.split('T')[0] || null;
+        const daysDiff = lastEarnDay
+            ? Math.round((new Date(today) - new Date(lastEarnDay)) / 86_400_000)
             : 9999;
-        return diffH >= 24
+        return daysDiff >= 2
             ? { title: 'Зірки не додавались', body: 'Більше доби без нових зірок!' }
             : null;
     });
