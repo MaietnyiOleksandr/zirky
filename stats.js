@@ -2,7 +2,7 @@
 // 📊  stats.js — Статистика та графіки
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260515.1815';
+export const VERSION = 'v3.20260515.1847';
 
 import { state } from './state.js';
 import { getSubjectEmoji } from './subjects.js';
@@ -767,10 +767,10 @@ export function updateHeatmap() {
             textStars = lv >= 3 ? TEXT_LIGHT : baseHex;
         }
 
-        html += `<div class="hm-cell${hasStars ? ' has-stars' : ''}" style="background:${bg};"
+        html += `<div class="hm-cell${!future ? ' hm-past' : ''}" style="background:${bg};"
             data-day="${d}" data-stars="${stars}">
             <span class="hm-num hm-num-day"  style="color:${textDay};">${d}</span>
-            <span class="hm-num hm-num-stars" style="color:${textStars};">${hasStars ? stars + '⭐' : '—'}</span>
+            <span class="hm-num hm-num-stars" style="color:${textStars};">${!future ? (stars > 0 ? stars + '⭐' : '—') : ''}</span>
         </div>`;
     }
     html += `</div>`;
@@ -808,7 +808,7 @@ export function updateHeatmap() {
     container.innerHTML = html;
 
     // Обробники кліків — окремо після рендерингу, щоб таймери тримали актуальні DOM-елементи
-    container.querySelectorAll('.hm-cell.has-stars').forEach(cell => {
+    container.querySelectorAll('.hm-cell.hm-past').forEach(cell => {
         cell.addEventListener('click', function () {
             if (this._hmTimer) clearTimeout(this._hmTimer);
             this.classList.remove('unpinning');

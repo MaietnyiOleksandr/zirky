@@ -1,6 +1,6 @@
 /* ════════════════════════════════════════════════════
    Зірки Успіху — Стилі
-   Версія: v3.20260515.1755
+   Версія: v3.20260515.1847
    ════════════════════════════════════════════════════ */
 
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;900&family=Comfortaa:wght@400;700&family=Fredoka+One&family=Ubuntu:wght@400;700&family=Playfair+Display:wght@400;700&display=swap');
@@ -2662,9 +2662,13 @@ select:focus, input:focus {
     transition: transform 0.15s;
     overflow: hidden;
 }
-.hm-cell.has-stars { cursor: pointer; }
-.hm-cell.has-stars:hover  { transform: scale(1.12); }
-.hm-cell.has-stars:active { transform: scale(1.05); }
+.hm-cell.hm-past { cursor: pointer; }
+.hm-cell.hm-past:active { transform: scale(1.05); }
+@media (hover: hover) {
+    .hm-cell.hm-past:hover { transform: scale(1.12); }
+    .hm-cell.hm-past:hover .hm-num-day   { opacity: 0; }
+    .hm-cell.hm-past:hover .hm-num-stars { opacity: 1; }
+}
 .hm-num {
     position: absolute;
     inset: 0;
@@ -2680,11 +2684,9 @@ select:focus, input:focus {
 }
 .hm-num-day   { opacity: 1; }
 .hm-num-stars { opacity: 0; font-size: 9px; }
-.hm-cell.has-stars:hover  .hm-num-day   { opacity: 0; }
-.hm-cell.has-stars:hover  .hm-num-stars { opacity: 1; }
-.hm-cell.pinned .hm-num-day   { opacity: 0; }
-.hm-cell.pinned .hm-num-stars { opacity: 1; }
-.hm-cell.unpinning .hm-num { transition: opacity 0.54s; }
+.hm-cell.hm-past.pinned .hm-num-day   { opacity: 0; }
+.hm-cell.hm-past.pinned .hm-num-stars { opacity: 1; }
+.hm-cell.hm-past.unpinning .hm-num { transition: opacity 0.54s; }
 .hm-legend {
     display: flex;
     align-items: center;
