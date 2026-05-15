@@ -2,7 +2,7 @@
 // 📊  stats.js — Статистика та графіки
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260515.1755';
+export const VERSION = 'v3.20260515.1815';
 
 import { state } from './state.js';
 import { getSubjectEmoji } from './subjects.js';
@@ -768,16 +768,7 @@ export function updateHeatmap() {
         }
 
         html += `<div class="hm-cell${hasStars ? ' has-stars' : ''}" style="background:${bg};"
-            data-day="${d}" data-stars="${stars}"
-            onclick="(function(el){
-                clearTimeout(window['_hmt'+el.dataset.day]);
-                el.classList.remove('unpinning');
-                el.classList.add('pinned');
-                window['_hmt'+el.dataset.day] = setTimeout(function(){
-                    el.classList.add('unpinning');
-                    el.classList.remove('pinned');
-                }, 3000);
-            })(this)">
+            data-day="${d}" data-stars="${stars}">
             <span class="hm-num hm-num-day"  style="color:${textDay};">${d}</span>
             <span class="hm-num hm-num-stars" style="color:${textStars};">${hasStars ? stars + '⭐' : '—'}</span>
         </div>`;
@@ -815,6 +806,25 @@ export function updateHeatmap() {
     </div>`;
 
     container.innerHTML = html;
+
+    // Обробники кліків — окремо після рендерингу, щоб таймери тримали актуальні DOM-елементи
+    container.querySelectorAll('.hm-cell.has-stars').forEach(cell => {
+        cell.addEventListener('click', function () {
+            if (this._hmTimer) clearTimeout(this._hmTimer);
+            this.classList.remove('unpinning');
+            this.classList.add('pinned');
+
+            const el = this;
+            el._hmTimer = setTimeout(function () {
+                el.classList.add('unpinning');
+                // rAF гарантує що браузер "бачить" новий transition-duration
+                // перед тим як змінити opacity
+                requestAnimationFrame(function () {
+                    el.classList.remove('pinned');
+                });
+            }, 3000);
+        });
+    });
 }
 
 export function changeHeatmapMode(mode) {
