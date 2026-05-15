@@ -2,7 +2,7 @@
 // 📋  schedule.js — Розклад уроків
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260514.1530';
+export const VERSION = 'v3.20260515.1157';
 
 import { state } from './state.js';
 import { saveSchedule } from './firebase.js';
@@ -334,7 +334,13 @@ export function schedDelLesson(dayKey, idx) {
     const s = _sched();
     if (!s.days[dayKey]?.lessons) return;
     s.days[dayKey].lessons.splice(idx, 1);
-    _renderEditorWeek(_editorWeek);
+    // Перемальовуємо ту модалку яка зараз відкрита
+    const clubModal = document.getElementById('clubEditorModal');
+    if (clubModal && clubModal.style.display !== 'none') {
+        _renderClubEditor();
+    } else {
+        _renderEditorWeek(_editorWeek);
+    }
 }
 
 export function saveScheduleEditor() {
