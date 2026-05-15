@@ -1,6 +1,6 @@
 /* ════════════════════════════════════════════════════
    Зірки Успіху — Стилі
-   Версія: v3.20260515.1747
+   Версія: v3.20260515.1755
    ════════════════════════════════════════════════════ */
 
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;900&family=Comfortaa:wght@400;700&family=Fredoka+One&family=Ubuntu:wght@400;700&family=Playfair+Display:wght@400;700&display=swap');
@@ -2684,6 +2684,7 @@ select:focus, input:focus {
 .hm-cell.has-stars:hover  .hm-num-stars { opacity: 1; }
 .hm-cell.pinned .hm-num-day   { opacity: 0; }
 .hm-cell.pinned .hm-num-stars { opacity: 1; }
+.hm-cell.unpinning .hm-num { transition: opacity 0.54s; }
 .hm-legend {
     display: flex;
     align-items: center;

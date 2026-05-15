@@ -2,7 +2,7 @@
 // 📊  stats.js — Статистика та графіки
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260515.1747';
+export const VERSION = 'v3.20260515.1755';
 
 import { state } from './state.js';
 import { getSubjectEmoji } from './subjects.js';
@@ -769,7 +769,15 @@ export function updateHeatmap() {
 
         html += `<div class="hm-cell${hasStars ? ' has-stars' : ''}" style="background:${bg};"
             data-day="${d}" data-stars="${stars}"
-            onclick="this.classList.toggle('pinned')">
+            onclick="(function(el){
+                clearTimeout(window['_hmt'+el.dataset.day]);
+                el.classList.remove('unpinning');
+                el.classList.add('pinned');
+                window['_hmt'+el.dataset.day] = setTimeout(function(){
+                    el.classList.add('unpinning');
+                    el.classList.remove('pinned');
+                }, 3000);
+            })(this)">
             <span class="hm-num hm-num-day"  style="color:${textDay};">${d}</span>
             <span class="hm-num hm-num-stars" style="color:${textStars};">${hasStars ? stars + '⭐' : '—'}</span>
         </div>`;
