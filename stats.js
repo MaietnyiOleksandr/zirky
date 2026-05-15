@@ -2,7 +2,7 @@
 // 📊  stats.js — Статистика та графіки
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260514.0958';
+export const VERSION = 'v3.20260515.1420';
 
 import { state } from './state.js';
 import { getSubjectEmoji } from './subjects.js';
@@ -253,6 +253,7 @@ export function renderStats() {
     document.getElementById('recordsCount').textContent = recordsCount;
 
     setTimeout(renderSubjectAnalytics, 0);
+    setTimeout(updateBalanceChart, 0);
 }
 
 export function updateChart() {
@@ -418,6 +419,215 @@ export function updateChart() {
 
     svg += '</svg>';
     chartContainer.innerHTML = `<div class="chart-wrapper" style="width:${width}px;">${svg}</div>`;
+}
+
+// ════════════════════════════════════════════════════
+// 💰  ГРАФІК БАЛАНСУ
+// ════════════════════════════════════════════════════
+
+export function updateBalanceChart() {
+    const container = document.getElementById('balanceChartContainer');
+    if (!container) return;
+
+    const now = new Date();
+    document.getElementById('balanceNextBtn').disabled = state.balanceOffset === 0;
+
+    // Будуємо перелік дат і мітки
+    let periods = [], labelFormat, periodName, isYear = false;
+    const months = ['Січень','Лютий','Березень','Квітень','Травень','Червень',
+                    'Липень','Серпень','Вересень','Жовтень','Листопад','Грудень'];
+    const monthsShort = ['Сі','Лю','Бе','Кв','Тр','Че','Ли','Се','Ве','Жо','Ли','Гр'];
+
+    if (state.balancePeriod === 'week') {
+        const dow = now.getDay();
+        const daysFromMon = (dow === 0 ? 6 : dow - 1);
+        const weekStart = new Date(now);
+        weekStart.setDate(now.getDate() - daysFromMon + state.balanceOffset * 7);
+        weekStart.setHours(0,0,0,0);
+        for (let i = 0; i < 7; i++) {
+            const d = new Date(weekStart);
+            d.setDate(weekStart.getDate() + i);
+            periods.push(d);
+        }
+        const we = periods[6];
+        periodName = `${periods[0].getDate()} ${months[periods[0].getMonth()].slice(0,3).toLowerCase()} — ${we.getDate()} ${months[we.getMonth()].slice(0,3).toLowerCase()} ${we.getFullYear()}`;
+        labelFormat = d => ['Нд','Пн','Вт','Ср','Чт','Пт','Сб'][(d.getDay())];
+    } else if (state.balancePeriod === 'month') {
+        const target = new Date(now.getFullYear(), now.getMonth() + state.balanceOffset, 1);
+        const days = new Date(target.getFullYear(), target.getMonth() + 1, 0).getDate();
+        for (let i = 1; i <= days; i++) {
+            periods.push(new Date(target.getFullYear(), target.getMonth(), i));
+        }
+        periodName = `${months[target.getMonth()]} ${target.getFullYear()}`;
+        labelFormat = d => d.getDate();
+    } else {
+        isYear = true;
+        const yr = now.getFullYear() + state.balanceOffset;
+        for (let i = 0; i < 12; i++) periods.push(new Date(yr, i, 1));
+        periodName = `${yr} рік`;
+        labelFormat = (_, i) => monthsShort[i];
+    }
+
+    document.getElementById('balancePeriodDisplay').textContent = periodName;
+
+    // Рахуємо баланс на кінець кожного дня/місяця
+    const records = state.data.records || [];
+
+    const balanceAt = (endDate) => {
+        const cutoff = new Date(endDate);
+        if (!isYear) cutoff.setHours(23, 59, 59, 999);
+        else {
+            cutoff.setMonth(cutoff.getMonth() + 1, 0);
+            cutoff.setHours(23, 59, 59, 999);
+        }
+        return records.reduce((sum, r) => {
+            const rd = new Date(r.date);
+            if (rd > cutoff) return sum;
+            if (r.type === 'earn')  return sum + (r.stars || 0);
+            if (r.type === 'spend') return sum - (r.stars || 0);
+            return sum;
+        }, 0);
+    };
+
+    // Визначаємо до якої дати показувати (не в майбутньому)
+    const today = new Date(); today.setHours(23,59,59,999);
+    const data = periods.map((d, i) => ({
+        date:    d,
+        balance: d <= today ? Math.max(0, balanceAt(d)) : null,
+        label:   typeof labelFormat === 'function' ? labelFormat(d, i) : i,
+    }));
+
+    // Фільтруємо null (майбутні дати)
+    const validData = data.filter(d => d.balance !== null);
+    if (validData.length === 0) {
+        container.innerHTML = '<div style="text-align:center;padding:30px;color:var(--text-hint);font-size:14px;">Немає даних за цей період</div>';
+        return;
+    }
+
+    // Розміри SVG
+    const w       = container.clientWidth || 300;
+    const h       = 200;
+    const pad     = { top: 28, right: 16, bottom: 32, left: 44 };
+    const cw      = w - pad.left - pad.right;
+    const ch      = h - pad.top - pad.bottom;
+
+    const maxBal  = Math.max(...validData.map(d => d.balance), 10);
+    const n       = data.length;
+
+    const scaleX  = i => pad.left + (n < 2 ? cw / 2 : (i / (n - 1)) * cw);
+    const scaleY  = v => pad.top + ch - Math.max(0, Math.min(1, v / maxBal)) * ch;
+
+    // Кольори з теми
+    const colLine    = cssVar('--secondary',      '#0057B7');
+    const colFrom    = cssVar('--progress-from',  '#0057B7');
+    const colTo      = cssVar('--progress-to',    '#4A90E2');
+    const colText    = cssVar('--text-hint',      '#999');
+    const colMuted   = cssVar('--text-muted',     '#666');
+    const colGrid    = cssVar('--border-light',   '#E0E0E0');
+    const colCard    = cssVar('--card',           '#ffffff');
+    const colPrimary = cssVar('--primary',        '#FFD700');
+
+    // Smooth bezier path для лінії та заливки
+    const pts = validData.map(d => [scaleX(data.indexOf(d)), scaleY(d.balance)]);
+
+    const smoothPath = (points) => {
+        if (points.length < 2) return `M${points[0][0]},${points[0][1]}`;
+        let d = `M${points[0][0].toFixed(1)},${points[0][1].toFixed(1)}`;
+        for (let i = 0; i < points.length - 1; i++) {
+            const x0 = points[i][0],   y0 = points[i][1];
+            const x1 = points[i+1][0], y1 = points[i+1][1];
+            const cpx = (x0 + x1) / 2;
+            d += ` C${cpx.toFixed(1)},${y0.toFixed(1)} ${cpx.toFixed(1)},${y1.toFixed(1)} ${x1.toFixed(1)},${y1.toFixed(1)}`;
+        }
+        return d;
+    };
+
+    const linePath  = smoothPath(pts);
+    const lastPt    = pts[pts.length - 1];
+    const firstPt   = pts[0];
+    const areaPath  = linePath
+        + ` L${lastPt[0].toFixed(1)},${(pad.top + ch).toFixed(1)}`
+        + ` L${firstPt[0].toFixed(1)},${(pad.top + ch).toFixed(1)} Z`;
+
+    // Унікальний ID для градієнта (щоб не конфліктувало з іншими SVG)
+    const gradId = 'balGrad_' + Date.now();
+
+    let svg = `<svg width="${w}" height="${h}" style="display:block;overflow:visible;">`;
+
+    // Gradient def
+    svg += `<defs>
+        <linearGradient id="${gradId}" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%"   stop-color="${colFrom}" stop-opacity="0.25"/>
+            <stop offset="100%" stop-color="${colTo}"   stop-opacity="0.03"/>
+        </linearGradient>
+    </defs>`;
+
+    // Сітка (горизонтальні лінії)
+    const gridSteps = 4;
+    for (let i = 0; i <= gridSteps; i++) {
+        const val = Math.round(maxBal * (1 - i / gridSteps));
+        const y   = pad.top + (ch / gridSteps) * i;
+        svg += `<line x1="${pad.left}" y1="${y.toFixed(1)}" x2="${w - pad.right}" y2="${y.toFixed(1)}"
+            stroke="${colGrid}" stroke-width="1"/>`;
+        svg += `<text x="${pad.left - 5}" y="${(y + 4).toFixed(1)}"
+            font-size="9" fill="${colText}" text-anchor="end">${val}⭐</text>`;
+    }
+
+    // Область заливки
+    svg += `<path d="${areaPath}" fill="url(#${gradId})"/>`;
+
+    // Крива лінія
+    svg += `<path d="${linePath}" fill="none" stroke="${colLine}" stroke-width="2.5"
+        stroke-linecap="round" stroke-linejoin="round"/>`;
+
+    // Підписи осі X і точки
+    const totalPts   = data.length;
+    const labelStep  = state.balancePeriod === 'month'
+        ? Math.max(1, Math.ceil(totalPts / 10))
+        : 1;
+
+    data.forEach((d, i) => {
+        const x = scaleX(i);
+        // Мітки X
+        if (i % labelStep === 0 || i === totalPts - 1) {
+            svg += `<text x="${x.toFixed(1)}" y="${h - 6}"
+                font-size="9" fill="${colMuted}" text-anchor="middle">${d.label}</text>`;
+        }
+        // Точки тільки для валідних даних
+        if (d.balance !== null) {
+            const y = scaleY(d.balance);
+            const isLast = i === validData[validData.length - 1] ? true : false;
+            const showDot = state.balancePeriod === 'week' || isLast
+                || i === 0
+                || (state.balancePeriod === 'year');
+
+            if (showDot) {
+                svg += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4"
+                    fill="${colPrimary}" stroke="${colLine}" stroke-width="2"/>`;
+            }
+        }
+    });
+
+    // Поточний баланс — велика мітка
+    const curBalance = state.data.balance || 0;
+    svg += `<text x="${w - pad.right}" y="${pad.top - 8}"
+        font-size="11" font-weight="bold" fill="${colLine}" text-anchor="end">${curBalance}⭐ зараз</text>`;
+
+    svg += '</svg>';
+    container.innerHTML = svg;
+}
+
+export function changeBalancePeriod(period) {
+    state.balancePeriod = period;
+    state.balanceOffset = 0;
+    document.querySelectorAll('#balanceChartCard .period-btn').forEach(b => b.classList.remove('active'));
+    event.target.classList.add('active');
+    updateBalanceChart();
+}
+
+export function changeBalanceOffset(delta) {
+    state.balanceOffset += delta;
+    updateBalanceChart();
 }
 
 export function changeChartPeriod(period) {

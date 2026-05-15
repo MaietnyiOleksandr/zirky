@@ -6,7 +6,7 @@
 //     Зміни в будь-якому модулі видні всюди.
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260511.1322';
+export const VERSION = 'v3.20260515.1420';
 
 // ════════════════════════════════════════════════════════════
 
@@ -43,6 +43,9 @@ export const state = {
     showPeriod: 'month',   // 'month' або 'all'
     chartPeriod: 'week',   // 'week', 'month', 'year'
     chartOffset: 0,        // 0 = поточний, -1 = попередній
+
+    balancePeriod: 'week', // 'week', 'month', 'year'
+    balanceOffset: 0,      // 0 = поточний, -1 = попередній
 
     // ── Тимчасові дані ────────────────────────────
     pendingCustomReward: null,

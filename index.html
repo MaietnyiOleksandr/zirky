@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⭐</text></svg>">
-    <!-- version: v3.20260514.1535 -->
+    <!-- version: v3.20260515.1420 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>⭐ Зірки Успіху</title>
     <link rel="stylesheet" href="style.css">
@@ -488,6 +488,26 @@
                     </div>
                 </div>
 
+                <!-- Графік балансу -->
+                <div class="stats-card" id="balanceChartCard">
+                    <h3 class="stats-card-title">💰 Баланс зірок</h3>
+                    <div class="stats-controls">
+                        <div class="period-toggle">
+                            <button class="period-btn active" onclick="changeBalancePeriod('week')">Тиждень</button>
+                            <button class="period-btn" onclick="changeBalancePeriod('month')">Місяць</button>
+                            <button class="period-btn" onclick="changeBalancePeriod('year')">Рік</button>
+                        </div>
+                    </div>
+                    <div class="month-selector mt-md">
+                        <button class="month-btn" onclick="changeBalanceOffset(-1)">◀</button>
+                        <div class="month-display month-display--sm" id="balancePeriodDisplay"></div>
+                        <button class="month-btn" onclick="changeBalanceOffset(1)" id="balanceNextBtn">▶</button>
+                    </div>
+                    <div class="chart-container" style="overflow:hidden;">
+                        <div id="balanceChartContainer"></div>
+                    </div>
+                </div>
+
                 <!-- Аналітика по предметах -->
                 <div class="stats-card">
                     <h3 class="stats-card-title">📊 Середня оцінка</h3>
@@ -884,7 +904,8 @@
                  addSpecialRecord, deleteRecord } from './records.js';
         import { renderHistory, changeMonth, applyHistoryFilter } from './history.js';
         import { renderRewards, buyTime, buyMoney, buyCustomReward, updateTimePreview, updateMoneyPreview, checkRewardPin } from './rewards.js';
-        import { renderStats, updateChart, changeChartPeriod, changeChartOffset } from './stats.js';
+        import { renderStats, updateChart, changeChartPeriod, changeChartOffset,
+                 updateBalanceChart, changeBalancePeriod, changeBalanceOffset } from './stats.js';
         import { buildSubjectSelects, openSubjectsEditor, closeSubjectsEditor,
                  subjAddNew, subjDelete, subjUpdateField, subjUpdateClub,
                  saveSubjectsEditor } from './subjects.js';
@@ -983,6 +1004,9 @@
         window.subjUpdateClub        = subjUpdateClub;
         window.saveSubjectsEditor    = saveSubjectsEditor;
         window.changeChartOffset = changeChartOffset;
+        window.updateBalanceChart   = updateBalanceChart;
+        window.changeBalancePeriod  = changeBalancePeriod;
+        window.changeBalanceOffset  = changeBalanceOffset;
         window.exportData = exportData;
         window.importData = importData;
         window.resetAllData = resetAllData;
