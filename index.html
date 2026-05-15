@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⭐</text></svg>">
-    <!-- version: v3.20260515.1725 -->
+    <!-- version: v3.20260515.1925 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>⭐ Зірки Успіху</title>
     <link rel="stylesheet" href="style.css">
@@ -530,6 +530,27 @@
                         <div class="text-hint font-sm text-center">Завантаження...</div>
                     </div>
                 </div>
+
+                <!-- Розподіл зірок по джерелах -->
+                <div class="stats-card" id="sourceDonutCard">
+                    <h3 class="stats-card-title">🍩 Звідки зірки</h3>
+                    <div class="stats-controls">
+                        <div class="period-toggle">
+                            <button class="period-btn" onclick="changeDonutPeriod('week')">Тиждень</button>
+                            <button class="period-btn active" onclick="changeDonutPeriod('month')">Місяць</button>
+                            <button class="period-btn" onclick="changeDonutPeriod('year')">Рік</button>
+                            <button class="period-btn" onclick="changeDonutPeriod('all')">Увесь час</button>
+                        </div>
+                    </div>
+                    <div class="month-selector mt-md" id="donutNavRow">
+                        <button class="month-btn" onclick="changeDonutOffset(-1)">◀</button>
+                        <div class="month-display month-display--sm" id="donutPeriodDisplay"></div>
+                        <button class="month-btn" onclick="changeDonutOffset(1)" id="donutNextBtn">▶</button>
+                    </div>
+                    <div id="sourceDonutContainer">
+                        <div class="text-hint font-sm text-center">Завантаження...</div>
+                    </div>
+                </div>
             </div>
 
             <!-- ══ Інструкції ══════════════════════════════════ -->
@@ -921,7 +942,8 @@
         import { renderRewards, buyTime, buyMoney, buyCustomReward, updateTimePreview, updateMoneyPreview, checkRewardPin } from './rewards.js';
         import { renderStats, updateChart, changeChartPeriod, changeChartOffset,
                  updateBalanceChart, changeBalancePeriod, changeBalanceOffset,
-                 updateHeatmap, changeHeatmapMode, changeHeatmapOffset } from './stats.js';
+                 updateHeatmap, changeHeatmapMode, changeHeatmapOffset,
+                 renderSourceDonut, changeDonutPeriod, changeDonutOffset, drillDonut } from './stats.js';
         import { buildSubjectSelects, openSubjectsEditor, closeSubjectsEditor,
                  subjAddNew, subjDelete, subjUpdateField, subjUpdateClub,
                  saveSubjectsEditor } from './subjects.js';
@@ -1026,6 +1048,10 @@
         window.updateHeatmap        = updateHeatmap;
         window.changeHeatmapMode    = changeHeatmapMode;
         window.changeHeatmapOffset  = changeHeatmapOffset;
+        window.renderSourceDonut    = renderSourceDonut;
+        window.changeDonutPeriod    = changeDonutPeriod;
+        window.changeDonutOffset    = changeDonutOffset;
+        window.drillDonut           = drillDonut;
         window.exportData = exportData;
         window.importData = importData;
         window.resetAllData = resetAllData;

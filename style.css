@@ -1,6 +1,6 @@
 /* ════════════════════════════════════════════════════
    Зірки Успіху — Стилі
-   Версія: v3.20260515.1847
+   Версія: v3.20260515.1925
    ════════════════════════════════════════════════════ */
 
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;900&family=Comfortaa:wght@400;700&family=Fredoka+One&family=Ubuntu:wght@400;700&family=Playfair+Display:wght@400;700&display=swap');
@@ -2716,4 +2716,94 @@ select:focus, input:focus {
 .hm-summary-item strong {
     color: var(--secondary);
     font-size: 13px;
+}
+
+/* ═══════════════════════════════════════════════════
+   🍩  ПОНЧИК — розподіл зірок по джерелах
+═══════════════════════════════════════════════════ */
+.donut-layout {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    flex-wrap: wrap;
+    margin-top: 4px;
+}
+.donut-svg {
+    width: 160px;
+    height: 160px;
+    flex-shrink: 0;
+    overflow: visible;
+}
+.donut-center-val {
+    font-size: 20px;
+    font-weight: 700;
+    fill: var(--secondary);
+}
+.donut-center-lbl {
+    font-size: 11px;
+    fill: var(--text-hint);
+}
+.donut-legend {
+    flex: 1;
+    min-width: 160px;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+.donut-leg-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    padding: 4px 6px;
+    border-radius: 8px;
+    transition: background 0.15s;
+}
+.donut-leg-item[onclick]:hover {
+    background: var(--bg-alt, rgba(0,0,0,0.04));
+}
+.donut-leg-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+    flex-shrink: 0;
+}
+.donut-leg-name {
+    flex: 1;
+    color: var(--text-main);
+    font-size: 13px;
+    line-height: 1.2;
+}
+.donut-leg-pct {
+    color: var(--text-hint);
+    font-size: 12px;
+    min-width: 32px;
+    text-align: right;
+}
+.donut-leg-stars {
+    color: var(--secondary);
+    font-size: 12px;
+    font-weight: 600;
+    min-width: 44px;
+    text-align: right;
+}
+.donut-arrow {
+    color: var(--text-hint);
+    margin-left: 2px;
+    font-size: 14px;
+}
+.donut-hint {
+    font-size: 11px;
+    color: var(--text-hint);
+    margin-bottom: 10px;
+}
+.donut-subtitle {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--secondary);
+    margin-bottom: 10px;
+}
+.donut-back-btn {
+    margin-bottom: 10px;
+    font-size: 12px;
 }

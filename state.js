@@ -6,7 +6,7 @@
 //     Зміни в будь-якому модулі видні всюди.
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260515.1727';
+export const VERSION = 'v3.20260515.1925';
 
 // ════════════════════════════════════════════════════════════
 
@@ -49,6 +49,10 @@ export const state = {
 
     heatmapOffset: 0,      // 0 = поточний місяць
     heatmapMode:  'earn',  // 'earn' | 'spend'
+
+    donutPeriod:    'month', // 'week', 'month', 'year', 'all'
+    donutOffset:    0,
+    donutDrilldown: null,    // null | { category: string }
 
     // ── Тимчасові дані ────────────────────────────
     pendingCustomReward: null,

@@ -2,7 +2,7 @@
 // 📊  stats.js — Статистика та графіки
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260515.1847';
+export const VERSION = 'v3.20260515.1925';
 
 import { state } from './state.js';
 import { getSubjectEmoji } from './subjects.js';
@@ -255,6 +255,7 @@ export function renderStats() {
     setTimeout(renderSubjectAnalytics, 0);
     setTimeout(updateBalanceChart, 0);
     setTimeout(updateHeatmap, 0);
+    setTimeout(renderSourceDonut, 0);
 }
 
 export function updateChart() {
@@ -878,4 +879,284 @@ export function checkStreakWarning() {
             }
         }, 1000);
     }
+}
+
+// ════════════════════════════════════════════════════
+// 🍩  РОЗПОДІЛ ЗІРОК ПО ДЖЕРЕЛАХ
+// ════════════════════════════════════════════════════
+
+const DONUT_COLORS = {
+    grade:       '#378ADD',
+    diagnostic:  '#1D9E75',
+    bonus:       '#EF9F27',
+    special:     '#D4537E',
+    achievement: '#7F77DD',
+};
+
+// Групи бонусів — key-слова з r.description
+const BONUS_GROUPS = {
+    'Додаткове навчання': {
+        icon: '📚', color: '#EF9F27',
+        matches: ['Виконано Д/З', 'Важке завдання', 'Прочитав книгу'],
+    },
+    'Допомога батькам': {
+        icon: '🤝', color: '#E87828',
+        matches: ['Допомога батькам'],
+    },
+    'Гігієна': {
+        icon: '🧼', color: '#D4537E',
+        matches: ['Почистити зуби', 'Причесати волосся'],
+    },
+};
+
+// Імена досягнень для групування
+const ACH_NAMES = [
+    'Відмінник', 'Зіркова', 'Тверда десятка', 'Книголюб',
+    'Fire Streak', 'Ощадливий', 'Транжира', 'Чистюля',
+    'Красуня', 'Швидкий старт', 'Цілеспрямована',
+];
+// Кольори для сегментів суб'єктів/досягнень (10+)
+const PALETTE = [
+    '#378ADD','#1D9E75','#EF9F27','#D4537E','#7F77DD',
+    '#D85A30','#5DCAA5','#E87828','#993556','#534AB7',
+    '#BA7517','#0F6E56',
+];
+
+function _donutPeriodBounds() {
+    const now = new Date();
+    if (state.donutPeriod === 'all') return null;
+    let start, end;
+    if (state.donutPeriod === 'week') {
+        const daysFromMon = (now.getDay() === 0 ? 6 : now.getDay() - 1);
+        start = new Date(now);
+        start.setDate(now.getDate() - daysFromMon + state.donutOffset * 7);
+        start.setHours(0, 0, 0, 0);
+        end = new Date(start);
+        end.setDate(start.getDate() + 6);
+        end.setHours(23, 59, 59, 999);
+    } else if (state.donutPeriod === 'month') {
+        const t = new Date(now.getFullYear(), now.getMonth() + state.donutOffset, 1);
+        start = t;
+        end = new Date(t.getFullYear(), t.getMonth() + 1, 0, 23, 59, 59, 999);
+    } else {
+        const yr = now.getFullYear() + state.donutOffset;
+        start = new Date(yr, 0, 1);
+        end   = new Date(yr, 11, 31, 23, 59, 59, 999);
+    }
+    return { start, end };
+}
+
+function _donutPeriodLabel() {
+    const MONTHS = ['Січень','Лютий','Березень','Квітень','Травень','Червень',
+                    'Липень','Серпень','Вересень','Жовтень','Листопад','Грудень'];
+    const now = new Date();
+    if (state.donutPeriod === 'week') {
+        const daysFromMon = (now.getDay() === 0 ? 6 : now.getDay() - 1);
+        const ws = new Date(now);
+        ws.setDate(now.getDate() - daysFromMon + state.donutOffset * 7);
+        ws.setHours(0, 0, 0, 0);
+        const we = new Date(ws); we.setDate(ws.getDate() + 6);
+        return `${ws.getDate()} ${MONTHS[ws.getMonth()].slice(0,3).toLowerCase()} — ${we.getDate()} ${MONTHS[we.getMonth()].slice(0,3).toLowerCase()}`;
+    } else if (state.donutPeriod === 'month') {
+        const t = new Date(now.getFullYear(), now.getMonth() + state.donutOffset, 1);
+        return `${MONTHS[t.getMonth()]} ${t.getFullYear()}`;
+    } else {
+        return `${now.getFullYear() + state.donutOffset} рік`;
+    }
+}
+
+function _getEarnRecords() {
+    const bounds = _donutPeriodBounds();
+    return (state.data.records || []).filter(r => {
+        if (r.type !== 'earn') return false;
+        if (r.category === 'correction') return false;
+        if (!bounds) return true;
+        const d = new Date(r.date);
+        return d >= bounds.start && d <= bounds.end;
+    });
+}
+
+function _buildDonutSVG(segments, total) {
+    if (!segments.length || total === 0) return '';
+    const cx = 90, cy = 90, R = 80, ri = 50;
+    const TAU = Math.PI * 2;
+    let a = -Math.PI / 2;
+    const gap = segments.length > 1 ? 0.018 : 0;
+    let paths = '';
+    segments.forEach(seg => {
+        const sweep = (seg.stars / total) * TAU;
+        const s = a + gap, e = a + sweep - gap;
+        const lg = sweep - 2 * gap > Math.PI ? 1 : 0;
+        const x1 = cx + R  * Math.cos(s), y1 = cy + R  * Math.sin(s);
+        const x2 = cx + R  * Math.cos(e), y2 = cy + R  * Math.sin(e);
+        const x3 = cx + ri * Math.cos(e), y3 = cy + ri * Math.sin(e);
+        const x4 = cx + ri * Math.cos(s), y4 = cy + ri * Math.sin(s);
+        const d = `M${x1.toFixed(2)},${y1.toFixed(2)} A${R},${R} 0 ${lg} 1 ${x2.toFixed(2)},${y2.toFixed(2)} L${x3.toFixed(2)},${y3.toFixed(2)} A${ri},${ri} 0 ${lg} 0 ${x4.toFixed(2)},${y4.toFixed(2)} Z`;
+        const click = seg.onclick ? `onclick="${seg.onclick}" style="cursor:pointer"` : '';
+        paths += `<path d="${d}" fill="${seg.color}" ${click} opacity="0.9"><title>${seg.label}: ${seg.stars}⭐ (${Math.round(seg.stars/total*100)}%)</title></path>`;
+        a += sweep;
+    });
+    const totalLabel = total > 999 ? (total/1000).toFixed(1)+'k' : total;
+    return `<svg viewBox="0 0 180 180" class="donut-svg">
+        ${paths}
+        <text x="90" y="84"  text-anchor="middle" class="donut-center-val">${totalLabel}</text>
+        <text x="90" y="102" text-anchor="middle" class="donut-center-lbl">⭐ всього</text>
+    </svg>`;
+}
+
+function _buildLegend(segments, total, drillable) {
+    return segments.map(seg => {
+        const pct = Math.round(seg.stars / total * 100);
+        const click = drillable && seg.onclick
+            ? `onclick="${seg.onclick}" style="cursor:pointer" tabindex="0"`
+            : '';
+        const arrow = drillable && seg.onclick ? '<span class="donut-arrow">›</span>' : '';
+        return `<div class="donut-leg-item" ${click}>
+            <span class="donut-leg-dot" style="background:${seg.color}"></span>
+            <span class="donut-leg-name">${seg.label}${arrow}</span>
+            <span class="donut-leg-pct">${pct}%</span>
+            <span class="donut-leg-stars">${seg.stars}⭐</span>
+        </div>`;
+    }).join('');
+}
+
+export function renderSourceDonut() {
+    const navRow = document.getElementById('donutNavRow');
+    const nextBtn = document.getElementById('donutNextBtn');
+    if (navRow) {
+        const isAll = state.donutPeriod === 'all';
+        navRow.style.display = isAll ? 'none' : '';
+        if (!isAll) {
+            const display = document.getElementById('donutPeriodDisplay');
+            if (display) display.textContent = _donutPeriodLabel();
+            if (nextBtn) nextBtn.disabled = state.donutOffset === 0;
+        }
+    }
+    updateSourceDonut();
+}
+
+function updateSourceDonut() {
+    const container = document.getElementById('sourceDonutContainer');
+    if (!container) return;
+
+    const records = _getEarnRecords();
+    const drilldown = state.donutDrilldown;
+
+    let segments = [], total = 0, subtitle = '', backBtn = '';
+
+    if (!drilldown) {
+        // ── Головний рівень ────────────────────────────
+        const cats = { grade: 0, diagnostic: 0, bonus: 0, special: 0, achievement: 0 };
+        records.forEach(r => { if (cats[r.category] !== undefined) cats[r.category] += (r.stars || 0); });
+        total = Object.values(cats).reduce((s, v) => s + v, 0);
+        const DEFS = [
+            { key: 'grade',       label: '🎓 Оцінки',     drillable: true  },
+            { key: 'diagnostic',  label: '🔬 Діагностичні',drillable: true  },
+            { key: 'bonus',       label: '🌟 Бонуси',      drillable: true  },
+            { key: 'special',     label: '✨ Особливі',    drillable: false },
+            { key: 'achievement', label: '🏆 Досягнення',  drillable: true  },
+        ];
+        segments = DEFS
+            .filter(d => cats[d.key] > 0)
+            .map(d => ({
+                label: d.label,
+                color: DONUT_COLORS[d.key],
+                stars: cats[d.key],
+                onclick: d.drillable ? `drillDonut('${d.key}')` : null,
+            }));
+        subtitle = total > 0
+            ? '<div class="donut-hint">Натисни категорію — деталі</div>'
+            : '';
+    } else {
+        // ── Дриллдаун ─────────────────────────────────
+        backBtn = `<button class="period-btn donut-back-btn" onclick="drillDonut(null)">← Назад</button>`;
+        const cat = drilldown.category;
+        const catRecs = records.filter(r => r.category === cat);
+
+        if (cat === 'grade' || cat === 'diagnostic') {
+            const bySubj = {};
+            catRecs.forEach(r => {
+                let subj = r.subject || 'Інше';
+                if (subj.startsWith('Діагностувальна робота з ')) subj = subj.replace('Діагностувальна робота з ', '');
+                bySubj[subj] = (bySubj[subj] || 0) + (r.stars || 0);
+            });
+            const sorted = Object.entries(bySubj).sort((a, b) => b[1] - a[1]);
+            total = sorted.reduce((s, [, v]) => s + v, 0);
+            segments = sorted.map(([name, stars], i) => ({
+                label: name, color: PALETTE[i % PALETTE.length], stars, onclick: null,
+            }));
+            subtitle = `<div class="donut-subtitle">${cat === 'grade' ? '🎓 Оцінки' : '🔬 Діагностичні'} — по предметах</div>`;
+
+        } else if (cat === 'bonus') {
+            const grpStars = Object.fromEntries(Object.keys(BONUS_GROUPS).map(g => [g, 0]));
+            catRecs.forEach(r => {
+                const desc = r.description || '';
+                for (const [gname, gdata] of Object.entries(BONUS_GROUPS)) {
+                    if (gdata.matches.some(m => desc.includes(m))) {
+                        grpStars[gname] += (r.stars || 0);
+                        break;
+                    }
+                }
+            });
+            total = Object.values(grpStars).reduce((s, v) => s + v, 0);
+            segments = Object.entries(BONUS_GROUPS)
+                .filter(([g]) => grpStars[g] > 0)
+                .map(([gname, gdata]) => ({
+                    label: `${gdata.icon} ${gname}`, color: gdata.color,
+                    stars: grpStars[gname], onclick: null,
+                }));
+            subtitle = `<div class="donut-subtitle">🌟 Бонуси — по групах</div>`;
+
+        } else if (cat === 'achievement') {
+            const byAch = {};
+            catRecs.forEach(r => {
+                const desc = r.description || '';
+                const matched = ACH_NAMES.find(n => desc.includes(n));
+                const key = matched || 'Інше';
+                byAch[key] = (byAch[key] || 0) + (r.stars || 0);
+            });
+            const sorted = Object.entries(byAch).sort((a, b) => b[1] - a[1]);
+            total = sorted.reduce((s, [, v]) => s + v, 0);
+            segments = sorted.map(([name, stars], i) => ({
+                label: name, color: PALETTE[i % PALETTE.length], stars, onclick: null,
+            }));
+            subtitle = `<div class="donut-subtitle">🏆 Досягнення — по типах</div>`;
+        }
+    }
+
+    if (total === 0) {
+        container.innerHTML = `<div class="text-hint font-sm text-center" style="padding:24px 0">Немає даних за цей період</div>`;
+        return;
+    }
+
+    const svg    = _buildDonutSVG(segments, total);
+    const legend = _buildLegend(segments, total, !drilldown);
+
+    container.innerHTML = `
+        ${backBtn}
+        ${subtitle}
+        <div class="donut-layout">
+            ${svg}
+            <div class="donut-legend">${legend}</div>
+        </div>`;
+}
+
+export function changeDonutPeriod(period) {
+    state.donutPeriod    = period;
+    state.donutOffset    = 0;
+    state.donutDrilldown = null;
+    document.querySelectorAll('#sourceDonutCard .period-btn:not(.donut-back-btn)').forEach(b => b.classList.remove('active'));
+    event.target.classList.add('active');
+    renderSourceDonut();
+}
+
+export function changeDonutOffset(delta) {
+    state.donutOffset    += delta;
+    state.donutDrilldown  = null;
+    renderSourceDonut();
+}
+
+export function drillDonut(category) {
+    state.donutDrilldown = category ? { category } : null;
+    updateSourceDonut();
 }
