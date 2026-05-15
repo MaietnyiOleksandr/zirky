@@ -1,6 +1,6 @@
 /* ════════════════════════════════════════════════════
    Зірки Успіху — Стилі
-   Версія: v3.20260511.2056
+   Версія: v3.20260515.1727
    ════════════════════════════════════════════════════ */
 
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;900&family=Comfortaa:wght@400;700&family=Fredoka+One&family=Ubuntu:wght@400;700&family=Playfair+Display:wght@400;700&display=swap');
@@ -2632,3 +2632,85 @@ select:focus, input:focus {
 }
 .subj-double-label input { width: 16px; height: 16px; cursor: pointer; }
 .sched-emoji-input { max-width: 52px; flex: none; text-align: center; }
+
+/* ════════════════════════════════════════════════════
+   🔥  ТЕПЛОВА КАРТА АКТИВНОСТІ
+   ════════════════════════════════════════════════════ */
+.hm-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+    margin-top: 10px;
+}
+.hm-day-labels {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+    margin-bottom: 4px;
+}
+.hm-day-label {
+    text-align: center;
+    font-size: 10px;
+    color: var(--text-hint);
+    font-weight: 600;
+}
+.hm-cell {
+    aspect-ratio: 1;
+    border-radius: 7px;
+    position: relative;
+    cursor: default;
+    transition: transform 0.15s;
+    overflow: hidden;
+}
+.hm-cell.has-stars { cursor: pointer; }
+.hm-cell.has-stars:hover  { transform: scale(1.12); }
+.hm-cell.has-stars:active { transform: scale(1.05); }
+.hm-num {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1;
+    transition: opacity 0.18s;
+    pointer-events: none;
+    user-select: none;
+}
+.hm-num-day   { opacity: 1; }
+.hm-num-stars { opacity: 0; font-size: 9px; }
+.hm-cell.has-stars:hover  .hm-num-day   { opacity: 0; }
+.hm-cell.has-stars:hover  .hm-num-stars { opacity: 1; }
+.hm-cell.pinned .hm-num-day   { opacity: 0; }
+.hm-cell.pinned .hm-num-stars { opacity: 1; }
+.hm-legend {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 12px;
+    font-size: 11px;
+    color: var(--text-hint);
+}
+.hm-legend-swatch {
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;
+    flex-shrink: 0;
+}
+.hm-summary {
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border-light);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+}
+.hm-summary-item {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+.hm-summary-item strong {
+    color: var(--secondary);
+    font-size: 13px;
+}

@@ -2,7 +2,7 @@
 // 📊  stats.js — Статистика та графіки
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260515.1420';
+export const VERSION = 'v3.20260515.1727';
 
 import { state } from './state.js';
 import { getSubjectEmoji } from './subjects.js';
@@ -254,6 +254,7 @@ export function renderStats() {
 
     setTimeout(renderSubjectAnalytics, 0);
     setTimeout(updateBalanceChart, 0);
+    setTimeout(updateHeatmap, 0);
 }
 
 export function updateChart() {
@@ -628,6 +629,163 @@ export function changeBalancePeriod(period) {
 export function changeBalanceOffset(delta) {
     state.balanceOffset += delta;
     updateBalanceChart();
+}
+
+// ════════════════════════════════════════════════════
+// 🔥  ТЕПЛОВА КАРТА АКТИВНОСТІ
+// ════════════════════════════════════════════════════
+
+function hexToRgba(hex, opacity) {
+    hex = (hex || '').replace('#', '').trim();
+    if (hex.length === 3) hex = hex.split('').map(c => c + c).join('');
+    if (hex.length !== 6) return `rgba(0,0,0,${opacity})`;
+    const r = parseInt(hex.slice(0, 2), 16);
+    const g = parseInt(hex.slice(2, 4), 16);
+    const b = parseInt(hex.slice(4, 6), 16);
+    return `rgba(${r},${g},${b},${opacity})`;
+}
+
+function heatStarLevel(stars) {
+    if (!stars || stars <= 0) return -1;
+    if (stars <= 3)  return 0;
+    if (stars <= 8)  return 1;
+    if (stars <= 14) return 2;
+    if (stars <= 22) return 3;
+    return 4;
+}
+
+export function updateHeatmap() {
+    const container = document.getElementById('heatmapContainer');
+    if (!container) return;
+
+    const now    = new Date();
+    const isEarn = state.heatmapMode === 'earn';
+    const target = new Date(now.getFullYear(), now.getMonth() + state.heatmapOffset, 1);
+    const year   = target.getFullYear();
+    const month  = target.getMonth();
+    const days   = new Date(year, month + 1, 0).getDate();
+    const today  = new Date(); today.setHours(23, 59, 59, 999);
+
+    const MONTH_NAMES = ['Січень','Лютий','Березень','Квітень','Травень','Червень',
+                         'Липень','Серпень','Вересень','Жовтень','Листопад','Грудень'];
+
+    document.getElementById('heatmapNextBtn').disabled = state.heatmapOffset === 0;
+    document.getElementById('heatmapPeriodDisplay').textContent =
+        `${MONTH_NAMES[month]} ${year}`;
+
+    // Кольори — залежать від теми через CSS змінні
+    const baseHex = isEarn
+        ? cssVar('--secondary', '#0057B7')
+        : cssVar('--accent',    '#FF6B6B');
+
+    const OPACITIES = [0.12, 0.28, 0.52, 0.75, 1.0];
+    const TEXT_DARK  = cssVar('--text-muted', '#666');
+    const TEXT_LIGHT = '#ffffff';
+
+    // Підрахунок зірок по днях
+    const records  = state.data.records || [];
+    const dayStars = {};
+    records.forEach(r => {
+        const rd = new Date(r.date);
+        if (rd.getFullYear() !== year || rd.getMonth() !== month) return;
+        const d = rd.getDate();
+        if (!dayStars[d]) dayStars[d] = 0;
+        if (isEarn  && r.type === 'earn')  dayStars[d] += (r.stars || 0);
+        if (!isEarn && r.type === 'spend') dayStars[d] += (r.stars || 0);
+    });
+
+    // Перший день тижня (0=Пн…6=Нд)
+    let firstDow = new Date(year, month, 1).getDay();
+    firstDow = firstDow === 0 ? 6 : firstDow - 1; // конвертуємо: нд=6
+
+    // Статистика
+    const allStars  = Object.values(dayStars);
+    const totalSt   = allStars.reduce((s, v) => s + v, 0);
+    const activeDays = allStars.filter(v => v > 0).length;
+    const maxDay     = Object.entries(dayStars).sort((a, b) => b[1] - a[1])[0];
+
+    // Будуємо HTML
+    const DOW_LABELS = ['Пн','Вт','Ср','Чт','Пт','Сб','Нд'];
+    let html = `<div class="hm-day-labels">${DOW_LABELS.map(l =>
+        `<div class="hm-day-label">${l}</div>`).join('')}</div>`;
+
+    html += `<div class="hm-grid">`;
+
+    // Порожні клітинки на початку
+    for (let e = 0; e < firstDow; e++) {
+        html += `<div class="hm-cell" style="background:transparent;"></div>`;
+    }
+
+    // Дні місяця
+    for (let d = 1; d <= days; d++) {
+        const date    = new Date(year, month, d);
+        const future  = date > today;
+        const stars   = dayStars[d] || 0;
+        const lv      = future ? -2 : heatStarLevel(stars);
+        const hasStars = stars > 0;
+
+        let bg, textDay, textStars;
+
+        if (future || lv === -2) {
+            bg        = cssVar('--border-light', '#E0E0E0');
+            textDay   = cssVar('--text-hint', '#999');
+            textStars = textDay;
+        } else if (lv === -1) {
+            bg        = cssVar('--bg', '#FFF9E6');
+            textDay   = cssVar('--text-hint', '#999');
+            textStars = textDay;
+        } else {
+            bg        = hexToRgba(baseHex, OPACITIES[lv]);
+            textDay   = lv >= 3 ? TEXT_LIGHT : TEXT_DARK;
+            textStars = lv >= 3 ? TEXT_LIGHT : baseHex;
+        }
+
+        const cellClass = `hm-cell${hasStars ? ' has-stars' : ''}`;
+
+        html += `<div class="${cellClass}" style="background:${bg};"
+            data-day="${d}" data-stars="${stars}"
+            onclick="this.classList.toggle('pinned')">
+            <span class="hm-num hm-num-day"   style="color:${textDay};">${d}</span>
+            <span class="hm-num hm-num-stars"  style="color:${textStars};">${stars > 0 ? stars + '⭐' : '—'}</span>
+        </div>`;
+    }
+
+    html += `</div>`;
+
+    // Легенда
+    const swatches = [-1, 0, 1, 2, 3, 4].map(lv => {
+        const col = lv === -1
+            ? cssVar('--bg', '#FFF9E6')
+            : hexToRgba(baseHex, OPACITIES[lv]);
+        return `<div class="hm-legend-swatch" style="background:${col};"></div>`;
+    }).join('');
+    html += `<div class="hm-legend">
+        <span>Менше</span>${swatches}<span>Більше</span>
+    </div>`;
+
+    // Зведення
+    const maxDayName = maxDay
+        ? `${maxDay[0]} ${['','Сі','Лю','Бе','Кв','Тр','Че','Ли','Се','Ве','Жо','Ли','Гр'][month + 1]}— ${maxDay[1]}⭐`
+        : '—';
+    const label = isEarn ? 'Всього зароблено' : 'Всього витрачено';
+    html += `<div class="hm-summary">
+        <div class="hm-summary-item">${label}<br><strong>${totalSt}⭐</strong></div>
+        <div class="hm-summary-item">Активних днів<br><strong>${activeDays} з ${days}</strong></div>
+    </div>`;
+
+    container.innerHTML = html;
+}
+
+export function changeHeatmapMode(mode) {
+    state.heatmapMode = mode;
+    document.querySelectorAll('#heatmapCard .hm-mode-btn').forEach(b => b.classList.remove('active'));
+    event.target.classList.add('active');
+    updateHeatmap();
+}
+
+export function changeHeatmapOffset(delta) {
+    state.heatmapOffset += delta;
+    updateHeatmap();
 }
 
 export function changeChartPeriod(period) {

@@ -6,7 +6,7 @@
 //     Зміни в будь-якому модулі видні всюди.
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260515.1420';
+export const VERSION = 'v3.20260515.1727';
 
 // ════════════════════════════════════════════════════════════
 
@@ -46,6 +46,9 @@ export const state = {
 
     balancePeriod: 'week', // 'week', 'month', 'year'
     balanceOffset: 0,      // 0 = поточний, -1 = попередній
+
+    heatmapOffset: 0,      // 0 = поточний місяць
+    heatmapMode:  'earn',  // 'earn' | 'spend'
 
     // ── Тимчасові дані ────────────────────────────
     pendingCustomReward: null,

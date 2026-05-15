@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⭐</text></svg>">
-    <!-- version: v3.20260515.1420 -->
+    <!-- version: v3.20260515.1725 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>⭐ Зірки Успіху</title>
     <link rel="stylesheet" href="style.css">
@@ -508,6 +508,21 @@
                     </div>
                 </div>
 
+                <!-- Теплова карта активності -->
+                <div class="stats-card" id="heatmapCard">
+                    <h3 class="stats-card-title">🔥 Активність по днях</h3>
+                    <div style="display:flex;gap:8px;margin-bottom:10px;">
+                        <button class="period-btn hm-mode-btn active" onclick="changeHeatmapMode('earn')">⭐ Нараховано</button>
+                        <button class="period-btn hm-mode-btn" onclick="changeHeatmapMode('spend')">🎮 Витрачено</button>
+                    </div>
+                    <div class="month-selector">
+                        <button class="month-btn" onclick="changeHeatmapOffset(-1)">◀</button>
+                        <div class="month-display month-display--sm" id="heatmapPeriodDisplay"></div>
+                        <button class="month-btn" onclick="changeHeatmapOffset(1)" id="heatmapNextBtn">▶</button>
+                    </div>
+                    <div id="heatmapContainer"></div>
+                </div>
+
                 <!-- Аналітика по предметах -->
                 <div class="stats-card">
                     <h3 class="stats-card-title">📊 Середня оцінка</h3>
@@ -905,7 +920,8 @@
         import { renderHistory, changeMonth, applyHistoryFilter } from './history.js';
         import { renderRewards, buyTime, buyMoney, buyCustomReward, updateTimePreview, updateMoneyPreview, checkRewardPin } from './rewards.js';
         import { renderStats, updateChart, changeChartPeriod, changeChartOffset,
-                 updateBalanceChart, changeBalancePeriod, changeBalanceOffset } from './stats.js';
+                 updateBalanceChart, changeBalancePeriod, changeBalanceOffset,
+                 updateHeatmap, changeHeatmapMode, changeHeatmapOffset } from './stats.js';
         import { buildSubjectSelects, openSubjectsEditor, closeSubjectsEditor,
                  subjAddNew, subjDelete, subjUpdateField, subjUpdateClub,
                  saveSubjectsEditor } from './subjects.js';
@@ -1007,6 +1023,9 @@
         window.updateBalanceChart   = updateBalanceChart;
         window.changeBalancePeriod  = changeBalancePeriod;
         window.changeBalanceOffset  = changeBalanceOffset;
+        window.updateHeatmap        = updateHeatmap;
+        window.changeHeatmapMode    = changeHeatmapMode;
+        window.changeHeatmapOffset  = changeHeatmapOffset;
         window.exportData = exportData;
         window.importData = importData;
         window.resetAllData = resetAllData;
