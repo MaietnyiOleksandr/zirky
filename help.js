@@ -2,7 +2,7 @@
 // ❓  help.js — Інструкції по розділах
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260515.1953';
+export const VERSION = 'v3.20260518.2352';
 
 import { state } from './state.js';
 import { CHANGELOG } from './changelog.js';
@@ -72,46 +72,49 @@ const HELP_CHILD = {
     `,
 
     achievementsSection: `
-        <p>Тут твої додаткові винагороди за старання! 🌟</p>
-        <p>Кожне досягнення має рівні 🥉🥈🥇 — за кожен рівень отримаєш бонусні зірки ⭐<br>
-        <b>❗ Деякі досягнення можна отримати декілька разів ❗</b></p>
+        <p>Тут твої додаткові нагороди за старання! 🌟</p>
+        <p>За кожен рівень досягнення автоматично отримаєш бонусні зірки ⭐</p>
         ${HR}
-        <p>🎯 <b>Ціленаправлена</b> — досягни свою мету по зіркам<br>
-        Рівні: 1 раз +20⭐ / 2 рази +40⭐ / 3 рази +60⭐</p>
+        <table style="width:100%;border-collapse:collapse;font-size:12px;margin:8px 0;">
+<thead><tr style="background:var(--bg);color:var(--secondary);font-weight:700;">
+  <th style="padding:5px 4px;text-align:left;border-bottom:2px solid var(--border-light);">Досягнення</th>
+  <th style="padding:5px 4px;text-align:center;border-bottom:2px solid var(--border-light);">🥉</th>
+  <th style="padding:5px 4px;text-align:center;border-bottom:2px solid var(--border-light);">🥈</th>
+  <th style="padding:5px 4px;text-align:center;border-bottom:2px solid var(--border-light);">🥇</th>
+  <th style="padding:5px 4px;text-align:right;border-bottom:2px solid var(--border-light);">Зірки</th>
+</tr></thead>
+<tbody>
+<tr><td colspan="5" style="padding:4px 4px;font-weight:700;color:var(--secondary);font-size:11px;padding-top:8px;">📊 Оцінки</td></tr>
+<tr><td style="padding:3px 4px;">🎓 Відмінник</td><td style="text-align:center;">5</td><td style="text-align:center;">20</td><td style="text-align:center;">100</td><td style="text-align:right;">+50/200/1000⭐</td></tr>
+<tr style="background:var(--bg);"><td style="padding:3px 4px;">💫 Зіркова</td><td style="text-align:center;">30</td><td style="text-align:center;">60</td><td style="text-align:center;">120</td><td style="text-align:right;">+10/30/50⭐</td></tr>
+<tr><td style="padding:3px 4px;">🏅 Тверда десятка</td><td style="text-align:center;">50</td><td style="text-align:center;">100</td><td style="text-align:center;">200</td><td style="text-align:right;">+10/20/30⭐</td></tr>
+<tr><td colspan="5" style="padding:4px 4px;font-weight:700;color:var(--secondary);font-size:11px;padding-top:8px;">📚 Навчання</td></tr>
+<tr><td style="padding:3px 4px;">📝 Старанна</td><td style="text-align:center;">20</td><td style="text-align:center;">60</td><td style="text-align:center;">120</td><td style="text-align:right;">+30/70/150⭐</td></tr>
+<tr style="background:var(--bg);"><td style="padding:3px 4px;">🧠 Мегамозок</td><td style="text-align:center;">10</td><td style="text-align:center;">30</td><td style="text-align:center;">90</td><td style="text-align:right;">+30/70/150⭐</td></tr>
+<tr><td style="padding:3px 4px;">📚 Книголюб</td><td style="text-align:center;">5 книг</td><td style="text-align:center;">10</td><td style="text-align:center;">20</td><td style="text-align:right;">+20/40/100⭐</td></tr>
+<tr style="background:var(--bg);"><td style="padding:3px 4px;">📖 Читачка</td><td colspan="3" style="text-align:center;font-size:11px;">300→800→1500→3000→5000→8000 стор.</td><td style="text-align:right;">+30⭐ × 6</td></tr>
+<tr><td colspan="5" style="padding:4px 4px;font-weight:700;color:var(--secondary);font-size:11px;padding-top:8px;">🏠 Вдома</td></tr>
+<tr><td style="padding:3px 4px;">🤝 Помічниця</td><td style="text-align:center;">10</td><td style="text-align:center;">30</td><td style="text-align:center;">90</td><td style="text-align:right;">+30/70/150⭐</td></tr>
+<tr style="background:var(--bg);"><td style="padding:3px 4px;">🏠 Господиня</td><td style="text-align:center;">20</td><td style="text-align:center;">60</td><td style="text-align:center;">120</td><td style="text-align:right;">+30/70/150⭐</td></tr>
+<tr><td style="padding:3px 4px;">🏸 Активна</td><td style="text-align:center;">7</td><td style="text-align:center;">20</td><td style="text-align:center;">45</td><td style="text-align:right;">+30/70/150⭐</td></tr>
+<tr><td colspan="5" style="padding:4px 4px;font-weight:700;color:var(--secondary);font-size:11px;padding-top:8px;">🧼 Гігієна</td></tr>
+<tr><td style="padding:3px 4px;">🦷 Чистюля ❗</td><td style="text-align:center;">5</td><td style="text-align:center;">10</td><td style="text-align:center;">30</td><td style="text-align:right;">+20/50/100⭐</td></tr>
+<tr style="background:var(--bg);"><td style="padding:3px 4px;">🪮 Красуня ❗</td><td style="text-align:center;">3</td><td style="text-align:center;">5</td><td style="text-align:center;">7</td><td style="text-align:right;">+10/20/30⭐</td></tr>
+<tr><td colspan="5" style="padding:4px 4px;font-weight:700;color:var(--secondary);font-size:11px;padding-top:8px;">🌟 Особливі</td></tr>
+<tr><td style="padding:3px 4px;">🔥 Fire Streak</td><td style="text-align:center;">7 днів</td><td style="text-align:center;">14</td><td style="text-align:center;">30</td><td style="text-align:right;">+50/100/300⭐</td></tr>
+<tr style="background:var(--bg);"><td style="padding:3px 4px;">💰 Ощадлива</td><td style="text-align:center;">200⭐</td><td style="text-align:center;">500⭐</td><td style="text-align:center;">1000⭐</td><td style="text-align:right;">+10/30/50⭐</td></tr>
+<tr><td style="padding:3px 4px;">💸 Транжира</td><td style="text-align:center;">300⭐</td><td style="text-align:center;">700⭐</td><td style="text-align:center;">1000⭐</td><td style="text-align:right;">+10/20/40⭐</td></tr>
+<tr style="background:var(--bg);"><td style="padding:3px 4px;">🚀 Швидкий старт ❗</td><td style="text-align:center;">50⭐</td><td style="text-align:center;">100⭐</td><td style="text-align:center;">150⭐</td><td style="text-align:right;">+5/10/20⭐</td></tr>
+<tr><td style="padding:3px 4px;">🎯 Цілеспрямована</td><td style="text-align:center;">1 ціль</td><td style="text-align:center;">2</td><td style="text-align:center;">3</td><td style="text-align:right;">+20/40/60⭐</td></tr>
+</tbody></table>
+<p style="font-size:11px;color:var(--text-muted);margin-top:4px;">❗ — повторюється після кожного виконання</p>
         ${HR}
-        <p>🎓 <b>Відмінниця</b> — накопичуй дванадцятки з будь-яких предметів<br>
-        Рівні: 5 / 20 / 100 відмінних оцінок</p>
+        <p>🔥 <b>Fire Streak</b> — заробляй зірки щодня без пропусків у будні.<br>
+        Вихідні та канікули серію не скидають 🎉</p>
         ${HR}
-        <p>💫 <b>Зіркова</b> — накопичуй одинадцятки<br>
-        🥉 30 → +10⭐ / 🥈 60 → +30⭐ / 🥇 120 → +50⭐</p>
-        ${HR}
-        <p>🏅 <b>Тверда десятка</b> — накопичуй десятки<br>
-        🥉 50 → +10⭐ / 🥈 100 → +20⭐ / 🥇 200 → +30⭐</p>
-        ${HR}
-        <p>📚 <b>Книголюб</b> — читай книги<br>
-        Рівні: 3 / 7 / 15 книг</p>
-        ${HR}
-        <p>💰 <b>Ощадлива</b> — накопичуй зірки на балансі</p>
-        ${HR}
-        <p>💸 <b>Транжира</b> — витрачай зірки на нагороди<br>
-        Враховуються і покупки тем!</p>
-        ${HR}
-        <p>🔥 <b>Fire Streak</b> — заробляй зірки щодня без пропусків<br>
-        У вихідні пропуск не страшний — серія продовжиться в понеділок.<br>
-        Пропуск у будній день скидає серію до нуля!<br>
-        Рівні: 7 / 14 / 30 днів поспіль</p>
-        ${HR}
-        <p>🪥 <b>Чистюля</b> — чисть зуби кожен день (мінімум 2 рази на добу)<br>
-        <b>❗ Повторюється кожні 10/20/30 днів поспіль</b></p>
-        ${HR}
-        <p>💇 <b>Красуня</b> — причісуйся щодня<br>
-        <b>❗ Також повторюється кожні 10/20/30 днів поспіль</b></p>
-        ${HR}
-        <p>⚡ <b>Швидкий старт</b> — заробляй зірки з початку кожного тижня<br>
-        <b>❗ Можна отримати щотижня</b></p>
-        ${HR}
-        <p>❄️ <b>Канікули</b> — серії не рвуться під час канікул.<br>
-        Але якщо ти заробиш зірки на канікулах — серії все одно зростуть 🎉</p>
+        <p>🦷 <b>Чистюля</b> — потрібно 2 записи "зуби" на день<br>
+        🪮 <b>Красуня</b> — 1 запис "причесатись" на день<br>
+        🚀 <b>Швидкий старт</b> — зірки з початку кожного тижня</p>
     `,
 
     statsSection: `
@@ -145,7 +148,7 @@ const HELP_CHILD = {
         <p>🍩 <b>Звідки мої зірки:</b><br>
         Пончик показує з чого ти найбільше заробляєш<br>
         🎓 Оцінки · 🔬 Діагностичні · 🌟 Бонуси · ✨ Особливі · 🏆 Досягнення<br>
-        Натисни на шматочок — побачиш деталі всередині категорії 🔍<br>
+        Натисни на шматочок бонусів — побачиш деталі: 📚 Навчання / 🤝 Допомога / 🏠 По дому / 🏸 Активність / 🧼 Гігієна 🔍<br>
         ⏱️ Перемикай: <b>Тиждень / Місяць / Рік / Увесь час</b></p>
     `,
 
@@ -218,7 +221,8 @@ const HELP_CHILD = {
         ${HR}
         <p>🏆 <b>Досягнення</b><br>
         Виконуй завдання — відкривай нагороди й отримуй бонусні зірки!<br>
-        Три рівні кожного: 🥉 Бронза → 🥈 Срібло → 🥇 Золото</p>
+        17 досягнень: за оцінки, навчання, домашні справи, активність, гігієну та інше.<br>
+        Читачка рахує сторінки книг — чим більше читаєш, тим більше рівнів!</p>
         ${HR}
         <p>🔥 <b>Fire Streak</b><br>
         Заробляй зірки кожного буднього дня — і серія зростатиме.<br>
@@ -248,23 +252,25 @@ const HELP_PARENT = {
 
     addSection: `
         <p>Тут додаються всі записи для дитини 📝</p>
-        <p>Цей розділ невидимий у дитячому профілі</p>
+        <p>Цей розділ невидимий у дитячому профілі — там він замінений на <b>📘 Довідник</b></p>
         ${HR}
         <p>📚 <b>Додати оцінку</b><br>
         Оберіть дату, предмет і оцінку — зірки нараховуються автоматично.<br>
         Оцінки: 12=5⭐ / 11=4⭐ / 10=3⭐ / 9=2⭐ / 8=1⭐<br>
-        📐 Математика — подвійні зірки (×2)<br>
-        Оцінки нижче 8 не нараховують зірок</p>
+        📐 Математика — подвійні зірки (×2) · Оцінки нижче 8 зірок не дають</p>
         ${HR}
         <p>📝 <b>Діагностувальна робота</b><br>
         Потрійний множник для всіх предметів (×3)<br>
         📐 Математика — шестикратний бонус (×6)</p>
         ${HR}
-        <p>🌟 <b>Додати бонус</b><br>
-        📝 Виконано Д/З +2⭐ / 🎯 Важке завдання +5⭐ / 📚 Книга +10⭐<br>
-        🤝 Допомога: проста +3⭐ / важча +5⭐<br>
-        💇 Причесати волосся +5⭐ / 🪥 Почистити зуби +2⭐<br>
-        <b>Для "Чистюля" потрібно 2 записи про зуби на день!</b></p>
+        <p>🌟 <b>Додати бонус</b> — бонуси розділені по категоріях:<br>
+        📚 <b>Навчання:</b> Д/З +2⭐ · Важке завдання +5⭐ · Книга +10⭐<br>
+        <span style="font-size:12px;color:var(--text-muted);">При виборі книги — вводьте кількість сторінок для досягнення "Читачка"</span><br>
+        🤝 <b>Допомога батькам:</b> проста +3⭐ · важка +5⭐<br>
+        🏠 <b>Домашні справи:</b> кімната +3⭐ · одяг +3⭐ · ліжко +2⭐ · посуд +3⭐ · готування +5⭐<br>
+        🏸 <b>Активність:</b> прогулянка 30+ хв / 6000+ кроків +3⭐ · тренування 60+ хв / 10000+ кроків +5⭐<br>
+        🧼 <b>Гігієна:</b> причесатись +5⭐ · зуби +2⭐<br>
+        <b>⚠️ Для "Чистюля" — 2 записи "зуби" на один день!</b></p>
         ${HR}
         <p>✨ <b>Особливе нарахування</b><br>
         Довільний опис і кількість зірок — для нестандартних ситуацій</p>
@@ -311,34 +317,47 @@ const HELP_PARENT = {
 
     achievementsSection: `
         <p>Система досягнень мотивує дитину до регулярних зусиль 🏆</p>
-        <p>Три рівні: 🥉 Бронза → 🥈 Срібло → 🥇 Золото<br>
-        За кожен рівень автоматично нараховуються бонусні зірки.<br>
-        Деякі досягнення можна отримувати повторно (позначені ❗)</p>
+        <p>За кожен рівень автоматично нараховуються бонусні зірки.<br>
+        Досягнення з ❗ можна отримувати повторно.</p>
         ${HR}
-        <p>🎯 <b>Ціленаправлена</b> — досягнення встановленої мети<br>
-        +20⭐ / +40⭐ / +60⭐ за 1/2/3 виконання<br>
-        Після досягнення — встановіть нову мету на головній сторінці</p>
+        <table style="width:100%;border-collapse:collapse;font-size:12px;margin:8px 0;">
+<thead><tr style="background:var(--bg);color:var(--secondary);font-weight:700;">
+  <th style="padding:5px 4px;text-align:left;border-bottom:2px solid var(--border-light);">Досягнення</th>
+  <th style="padding:5px 4px;text-align:center;border-bottom:2px solid var(--border-light);">🥉 Бронза</th>
+  <th style="padding:5px 4px;text-align:center;border-bottom:2px solid var(--border-light);">🥈 Срібло</th>
+  <th style="padding:5px 4px;text-align:center;border-bottom:2px solid var(--border-light);">🥇 Золото</th>
+  <th style="padding:5px 4px;text-align:right;border-bottom:2px solid var(--border-light);">Бонус</th>
+</tr></thead>
+<tbody>
+<tr><td colspan="5" style="padding:4px 4px;font-weight:700;color:var(--secondary);font-size:11px;padding-top:8px;">📊 За оцінки</td></tr>
+<tr><td style="padding:3px 4px;">🎓 Відмінник</td><td style="text-align:center;">5</td><td style="text-align:center;">20</td><td style="text-align:center;">100</td><td style="text-align:right;">+50/200/1000⭐</td></tr>
+<tr style="background:var(--bg);"><td style="padding:3px 4px;">💫 Зіркова</td><td style="text-align:center;">30</td><td style="text-align:center;">60</td><td style="text-align:center;">120</td><td style="text-align:right;">+10/30/50⭐</td></tr>
+<tr><td style="padding:3px 4px;">🏅 Тверда десятка</td><td style="text-align:center;">50</td><td style="text-align:center;">100</td><td style="text-align:center;">200</td><td style="text-align:right;">+10/20/30⭐</td></tr>
+<tr><td colspan="5" style="padding:4px 4px;font-weight:700;color:var(--secondary);font-size:11px;padding-top:8px;">📚 Навчання</td></tr>
+<tr><td style="padding:3px 4px;">📝 Старанна</td><td style="text-align:center;">20 Д/З</td><td style="text-align:center;">60</td><td style="text-align:center;">120</td><td style="text-align:right;">+30/70/150⭐</td></tr>
+<tr style="background:var(--bg);"><td style="padding:3px 4px;">🧠 Мегамозок</td><td style="text-align:center;">10 завд.</td><td style="text-align:center;">30</td><td style="text-align:center;">90</td><td style="text-align:right;">+30/70/150⭐</td></tr>
+<tr><td style="padding:3px 4px;">📚 Книголюб</td><td style="text-align:center;">5 книг</td><td style="text-align:center;">10</td><td style="text-align:center;">20</td><td style="text-align:right;">+20/40/100⭐</td></tr>
+<tr style="background:var(--bg);"><td style="padding:3px 4px;">📖 Читачка</td><td colspan="3" style="text-align:center;font-size:11px;">6 рівнів: 300→800→1500→3000→5000→8000 стор.</td><td style="text-align:right;">+30⭐ × 6</td></tr>
+<tr><td colspan="5" style="padding:4px 4px;font-weight:700;color:var(--secondary);font-size:11px;padding-top:8px;">🏠 Домашні справи та активність</td></tr>
+<tr><td style="padding:3px 4px;">🤝 Помічниця</td><td style="text-align:center;">10</td><td style="text-align:center;">30</td><td style="text-align:center;">90</td><td style="text-align:right;">+30/70/150⭐</td></tr>
+<tr style="background:var(--bg);"><td style="padding:3px 4px;">🏠 Господиня</td><td style="text-align:center;">20 справ</td><td style="text-align:center;">60</td><td style="text-align:center;">120</td><td style="text-align:right;">+30/70/150⭐</td></tr>
+<tr><td style="padding:3px 4px;">🏸 Активна</td><td style="text-align:center;">7 виходів</td><td style="text-align:center;">20</td><td style="text-align:center;">45</td><td style="text-align:right;">+30/70/150⭐</td></tr>
+<tr><td colspan="5" style="padding:4px 4px;font-weight:700;color:var(--secondary);font-size:11px;padding-top:8px;">🧼 Гігієна</td></tr>
+<tr><td style="padding:3px 4px;">🦷 Чистюля ❗</td><td style="text-align:center;">5 днів</td><td style="text-align:center;">10</td><td style="text-align:center;">30</td><td style="text-align:right;">+20/50/100⭐</td></tr>
+<tr style="background:var(--bg);"><td style="padding:3px 4px;">🪮 Красуня ❗</td><td style="text-align:center;">3 дні</td><td style="text-align:center;">5</td><td style="text-align:center;">7</td><td style="text-align:right;">+10/20/30⭐</td></tr>
+<tr><td colspan="5" style="padding:4px 4px;font-weight:700;color:var(--secondary);font-size:11px;padding-top:8px;">🌟 Особливі</td></tr>
+<tr><td style="padding:3px 4px;">🔥 Fire Streak</td><td style="text-align:center;">7 днів</td><td style="text-align:center;">14</td><td style="text-align:center;">30</td><td style="text-align:right;">+50/100/300⭐</td></tr>
+<tr style="background:var(--bg);"><td style="padding:3px 4px;">💰 Ощадливий</td><td style="text-align:center;">200⭐</td><td style="text-align:center;">500⭐</td><td style="text-align:center;">1000⭐</td><td style="text-align:right;">+10/30/50⭐</td></tr>
+<tr><td style="padding:3px 4px;">💸 Транжира</td><td style="text-align:center;">300⭐</td><td style="text-align:center;">700⭐</td><td style="text-align:center;">1000⭐</td><td style="text-align:right;">+10/20/40⭐</td></tr>
+<tr style="background:var(--bg);"><td style="padding:3px 4px;">🚀 Швидкий старт ❗</td><td style="text-align:center;">50⭐/тиж</td><td style="text-align:center;">100⭐</td><td style="text-align:center;">150⭐</td><td style="text-align:right;">+5/10/20⭐</td></tr>
+<tr><td style="padding:3px 4px;">🎯 Цілеспрямована</td><td style="text-align:center;">1 ціль</td><td style="text-align:center;">2</td><td style="text-align:center;">3</td><td style="text-align:right;">+20/40/60⭐</td></tr>
+</tbody></table>
+<p style="font-size:11px;color:var(--text-muted);margin-top:4px;">❗ — досягнення повторюються після кожного виконання</p>
         ${HR}
-        <p>🎓 <b>Відмінниця</b> — оцінки 12: рівні 5 / 20 / 100<br>
-        💫 <b>Зіркова</b> — оцінки 11: 30 / 60 / 120 шт<br>
-        🏅 <b>Тверда десятка</b> — оцінки 10: 50 / 100 / 200 шт<br>
-        📚 <b>Книголюб</b> — прочитані книги: 3 / 7 / 15</p>
-        ${HR}
-        <p>💰 <b>Ощадлива</b> — накопичення на балансі<br>
-        💸 <b>Транжира</b> — витрати зірок (враховуються покупки тем)</p>
-        ${HR}
-        <p>🔥 <b>Fire Streak</b> — зірки щодня без пропусків у будні<br>
-        Вихідні та канікули не скидають серію.<br>
-        Рівні: 7 / 14 / 30 днів</p>
-        ${HR}
-        <p>🪥 <b>Чистюля</b> — потрібно 2 записи "Почистити зуби" на день<br>
-        ❗ Повторюється кожні 10/20/30 днів</p>
-        ${HR}
-        <p>💇 <b>Красуня</b> — 1 запис "Причесати волосся" на день<br>
-        ❗ Повторюється кожні 10/20/30 днів</p>
-        ${HR}
-        <p>⚡ <b>Швидкий старт</b> — зірки на початку тижня (пн-ср)<br>
-        ❗ Можна отримати щотижня</p>
+        <p>🎯 <b>Цілеспрямована</b> — після досягнення встановіть нову мету на головній.<br>
+        🔥 <b>Fire Streak</b> — рахуються лише будні. Вихідні та ❄️ канікули серію не скидають.<br>
+        🦷 <b>Чистюля</b> — потрібно <b>2 записи "зуби"</b> на один день.<br>
+        📖 <b>Читачка</b> — кількість сторінок вводиться при додаванні бонусу "Прочитала книгу".</p>
     `,
 
     statsSection: `
@@ -375,7 +394,7 @@ const HELP_PARENT = {
         Кругова діаграма: частка кожного типу нарахувань за обраний період<br>
         Натисніть на сегмент — дриллдаун по підкатегоріях:<br>
         🎓 <b>Оцінки</b> / 🔬 <b>Діагностичні</b> → розбивка по предметах<br>
-        🌟 <b>Бонуси</b> → Додаткове навчання / Допомога батькам / Гігієна<br>
+        🌟 <b>Бонуси</b> → 📚 Навчання / 🤝 Допомога / 🧼 Гігієна / 🏠 По дому / 🏸 Активність<br>
         🏆 <b>Досягнення</b> → по типах досягнень<br>
         ✨ <b>Особливі</b> — без підкатегорій (довільні нарахування)<br>
         Перемикайте: <b>Тиждень / Місяць / Рік / Увесь час</b> та стрілками ◀ ▶</p>
@@ -490,12 +509,13 @@ const HELP_PARENT = {
         Час на смартфоні, кишенькові гроші або довільна нагорода — дитина витрачає зірки
         самостійно. Курси конвертації налаштовуються батьками.</p>
         ${HR}
-        <p>🏆 <b>17+ досягнень</b><br>
-        Три рівні кожного: 🥉 Бронза → 🥈 Срібло → 🥇 Золото. За кожен рівень —
-        автоматичні бонусні зірки.<br>
-        🔥 <b>Fire Streak</b> — серія за щоденну активність у будні<br>
-        🎓 Відмінниця / 💫 Зіркова / 📚 Книголюб / 🧹 Чистюля / 💇 Красуня<br>
-        💰 Ощадлива / 💸 Транжира / ⚡ Швидкий старт / 🎯 Ціленаправлена</p>
+        <p>🏆 <b>17 досягнень</b><br>
+        Кожне досягнення — від 3 до 6 рівнів з автоматичними бонусними зірками.<br>
+        📊 Оцінки: Відмінник / Зіркова / Тверда десятка<br>
+        📚 Навчання: Старанна / Мегамозок / Книголюб / Читачка (6 рівнів, рахує сторінки)<br>
+        🏠 Вдома: Помічниця / Господиня / Активна<br>
+        🧼 Гігієна: Чистюля ❗ / Красуня ❗<br>
+        🌟 Особливі: Fire Streak / Ощадливий / Транжира / Швидкий старт ❗ / Цілеспрямована</p>
         ${HR}
         <p>🎨 <b>Магазин тем оформлення</b><br>
         Дитина купує теми за накопичені зірки — додаткова мотивація не витрачати все
