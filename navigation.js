@@ -6,7 +6,7 @@
 //     showForm/switchTab, а ui.js потребував їх модулів
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260511.1602';
+export const VERSION = 'v3.20260518.2241';
 
 import { state } from './state.js';
 import { getTodayDate } from './utils.js';
@@ -89,7 +89,7 @@ export function switchTab(tab, fromClick = false) {
     }
     else if (tab === 'settings') { renderThemeShop(); }
 
-    if (!state.data.isParent && tab === 'add') {
+    if ((!state.data.isParent && tab === 'add') || tab === 'guide') {
         switchTab('instructions');
     }
     // Оновлюємо badge для feedback після кожного відкриття
