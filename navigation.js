@@ -6,7 +6,7 @@
 //     showForm/switchTab, а ui.js потребував їх модулів
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260518.2241';
+export const VERSION = 'v3.20260518.2247';
 
 import { state } from './state.js';
 import { getTodayDate } from './utils.js';
@@ -61,6 +61,11 @@ export function showForm(type) {
 // Додавання записів
 
 export function switchTab(tab, fromClick = false) {
+    // Довідник і дитячий "add" → одразу на instructions, без пошуку guideSection
+    if (tab === 'guide' || (!state.data.isParent && tab === 'add')) {
+        return switchTab('instructions');
+    }
+
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     // Завжди знаходимо кнопку по data-tab — не залежить від event.target (може бути span)
     const activeBtn = document.querySelector(`.tab[data-tab="${tab}"]`);
@@ -89,9 +94,6 @@ export function switchTab(tab, fromClick = false) {
     }
     else if (tab === 'settings') { renderThemeShop(); }
 
-    if ((!state.data.isParent && tab === 'add') || tab === 'guide') {
-        switchTab('instructions');
-    }
     // Оновлюємо badge для feedback після кожного відкриття
     if (tab === 'feedback' && window.updateBadges) window.updateBadges();
 }
