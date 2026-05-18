@@ -1,6 +1,6 @@
 /* ════════════════════════════════════════════════════
    Зірки Успіху — Стилі
-   Версія: v3.20260518.2223
+   Версія: v3.20260518.2318
    ════════════════════════════════════════════════════ */
 
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;900&family=Comfortaa:wght@400;700&family=Fredoka+One&family=Ubuntu:wght@400;700&family=Playfair+Display:wght@400;700&display=swap');
@@ -425,9 +425,12 @@ body::after {
     box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
 
-.badge-home.bronze { border-color: #CD7F32; }
-.badge-home.silver { border-color: #C0C0C0; }
-.badge-home.gold   { border-color: #FFD700; }
+.badge-home.bronze   { border-color: #CD7F32; }
+.badge-home.silver   { border-color: #C0C0C0; }
+.badge-home.gold     { border-color: #FFD700; }
+.badge-home.platinum { border-color: #9EC4D4; }
+.badge-home.diamond  { border-color: #74D7F7; }
+.badge-home.sapphire { border-color: #4169E1; }
 .badge-home:hover  { transform: translateY(-3px); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
 
 .achievement-tooltip {
@@ -1037,9 +1040,12 @@ select:focus, input:focus {
     transition: all 0.3s;
 }
 
-.achievement-card.bronze { border-color: #CD7F32; box-shadow: 0 4px 12px rgba(205,127,50,0.2); }
-.achievement-card.silver { border-color: #C0C0C0; box-shadow: 0 4px 12px rgba(192,192,192,0.2); }
-.achievement-card.gold   { border-color: #FFD700; box-shadow: 0 4px 12px rgba(255,215,0,0.3); }
+.achievement-card.bronze   { border-color: #CD7F32; box-shadow: 0 4px 12px rgba(205,127,50,0.2); }
+.achievement-card.silver   { border-color: #C0C0C0; box-shadow: 0 4px 12px rgba(192,192,192,0.2); }
+.achievement-card.gold     { border-color: #FFD700; box-shadow: 0 4px 12px rgba(255,215,0,0.3); }
+.achievement-card.platinum { border-color: #9EC4D4; box-shadow: 0 4px 12px rgba(158,196,212,0.3); }
+.achievement-card.diamond  { border-color: #74D7F7; box-shadow: 0 4px 12px rgba(116,215,247,0.3); }
+.achievement-card.sapphire { border-color: #4169E1; box-shadow: 0 4px 12px rgba(65,105,225,0.3); }
 
 .achievement-card.unlocked {
     background: linear-gradient(135deg, #FFF9E6 0%, #FFE5B4 100%);
@@ -1088,9 +1094,12 @@ select:focus, input:focus {
     justify-content: center;
 }
 
-.achievement-progress-fill.bronze { background: linear-gradient(90deg, #CD7F32, #E89968); }
-.achievement-progress-fill.silver { background: linear-gradient(90deg, #C0C0C0, #E8E8E8); }
-.achievement-progress-fill.gold   { background: linear-gradient(90deg, #FFD700, #FFA500); }
+.achievement-progress-fill.bronze   { background: linear-gradient(90deg, #CD7F32, #E89968); }
+.achievement-progress-fill.silver   { background: linear-gradient(90deg, #C0C0C0, #E8E8E8); }
+.achievement-progress-fill.gold     { background: linear-gradient(90deg, #FFD700, #FFA500); }
+.achievement-progress-fill.platinum { background: linear-gradient(90deg, #9EC4D4, #C8E8F4); }
+.achievement-progress-fill.diamond  { background: linear-gradient(90deg, #74D7F7, #B0EEFF); }
+.achievement-progress-fill.sapphire { background: linear-gradient(90deg, #4169E1, #6A8FFF); }
 
 .achievement-progress-text {
     color: white;
@@ -1114,9 +1123,12 @@ select:focus, input:focus {
     transition: all 0.3s;
 }
 
-.badge.bronze { border-color: #CD7F32; }
-.badge.silver { border-color: #C0C0C0; }
-.badge.gold   { border-color: #FFD700; }
+.badge.bronze   { border-color: #CD7F32; }
+.badge.silver   { border-color: #C0C0C0; }
+.badge.gold     { border-color: #FFD700; }
+.badge.platinum { border-color: #9EC4D4; }
+.badge.diamond  { border-color: #74D7F7; }
+.badge.sapphire { border-color: #4169E1; }
 .badge:hover  { transform: scale(1.1); }
 
 /* ════════════════════════════════════════════════════

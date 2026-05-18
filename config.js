@@ -2,7 +2,7 @@
 // ⚙️  config.js — Конфігурація та константи
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260518.2256';
+export const VERSION = 'v3.20260518.2318';
 
 // ════════════════════════════════════════════════════════════
 
@@ -216,6 +216,23 @@ export const ACHIEVEMENTS = {
         ],
         type: "cumulative",
         counter: "activity"
+    },
+
+    // ── Читання (сторінки) ────────────────────────
+    "читачка": {
+        name: "Читачка",
+        icon: "📖",
+        desc: "Читай книги та рахуй прочитані сторінки",
+        levels: [
+            { tier: "bronze",   target: 300,  reward: 30, desc: "300 сторінок" },
+            { tier: "silver",   target: 800,  reward: 30, desc: "800 сторінок" },
+            { tier: "gold",     target: 1500, reward: 30, desc: "1 500 сторінок" },
+            { tier: "platinum", target: 3000, reward: 30, desc: "3 000 сторінок" },
+            { tier: "diamond",  target: 5000, reward: 30, desc: "5 000 сторінок" },
+            { tier: "sapphire", target: 8000, reward: 30, desc: "8 000 сторінок" }
+        ],
+        type: "cumulative",
+        counter: "pages"
     }
 };
 

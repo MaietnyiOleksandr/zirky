@@ -2,7 +2,7 @@
 // 🏆  achievements.js — Система досягнень
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260518.2202';
+export const VERSION = 'v3.20260518.2318';
 
 // ════════════════════════════════════════════════════════════
 
@@ -70,6 +70,12 @@ export function recalculateAchievements() {
             (!record.subcategory && record.description && record.description.includes('Прочитав книгу'))
         )) {
             state.data.achievements.counters.books = (state.data.achievements.counters.books || 0) + 1;
+        }
+
+        // Сторінки (Читачка) — з поля pages у записі
+        if (record.category === 'bonus' && record.counterKey === 'books' && record.pages) {
+            state.data.achievements.counters.pages =
+                (state.data.achievements.counters.pages || 0) + Number(record.pages);
         }
 
         // Нові counters по subcategory (з fallback по description для старих записів)
@@ -323,7 +329,7 @@ export function checkGoalReached(recordDate = null) {
     
     if (levelIndex < goalAch.levels.length) {
         const level = goalAch.levels[levelIndex];
-        const tierName = levelIndex === 0 ? 'I' : levelIndex === 1 ? 'II' : 'III';
+        const tierName = ['I','II','III','IV','V','VI','VII','VIII','IX','X'][levelIndex] ?? String(levelIndex+1);
         const fullName = `${goalAch.icon} ${goalAch.name} ${tierName}`;
         
         // Нараховуємо зірки
@@ -416,7 +422,7 @@ export function checkWeeklyAchievements() {
             // Видаляємо записи досягнення за рівні що були скасовані
             for (let i = achievedLevel; i < currentWeekLevel; i++) {
                 const level = ach.levels[i];
-                const tierName = level.tier === 'bronze' ? 'I' : level.tier === 'silver' ? 'II' : 'III';
+                const tierName = ['I','II','III','IV','V','VI','VII','VIII','IX','X'][ach.levels.indexOf(level)] ?? String(ach.levels.indexOf(level)+1);
                 const fullName = `${ach.icon} ${ach.name} ${tierName}`;
                 
                 // Видаляємо запис з цього тижня і повертаємо зірки
@@ -441,7 +447,7 @@ export function checkWeeklyAchievements() {
     
     // Видаємо бонуси
     newWeeklyUnlocks.forEach(({ achId, ach, level, levelNum }) => {
-        const tierName = level.tier === 'bronze' ? 'I' : level.tier === 'silver' ? 'II' : 'III';
+        const tierName = ['I','II','III','IV','V','VI','VII','VIII','IX','X'][ach.levels.indexOf(level)] ?? String(ach.levels.indexOf(level)+1);
         const fullName = `${ach.icon} ${ach.name} ${tierName}`;
         
         state.data.balance = Number(state.data.balance) + level.reward;
@@ -492,7 +498,7 @@ export function removeRewardsForLostAchievements(levelsBefore) {
                 const level = ach.levels[i];
                 if (!level) continue;
                 
-                const tierName = level.tier === 'bronze' ? 'I' : level.tier === 'silver' ? 'II' : 'III';
+                const tierName = ['I','II','III','IV','V','VI','VII','VIII','IX','X'][ach.levels.indexOf(level)] ?? String(ach.levels.indexOf(level)+1);
                 const fullName = ach.levels.length > 1 ? `${ach.icon} ${ach.name} ${tierName}` : `${ach.icon} ${ach.name}`;
                 
                 // Знаходимо записи про цей рівень
@@ -542,7 +548,7 @@ export function giveRewardsForNewAchievements(levelsBefore) {
                 if (!level) continue;
                 
                 const levelNum = i + 1;
-                const tierName = level.tier === 'bronze' ? 'I' : level.tier === 'silver' ? 'II' : 'III';
+                const tierName = ['I','II','III','IV','V','VI','VII','VIII','IX','X'][ach.levels.indexOf(level)] ?? String(ach.levels.indexOf(level)+1);
                 const fullName = ach.levels.length > 1 ? `${ach.icon} ${ach.name} ${tierName}` : `${ach.icon} ${ach.name}`;
                 
                 // Для repeatable - зберігаємо історію

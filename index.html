@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⭐</text></svg>">
-    <!-- version: v3.20260518.2256 -->
+    <!-- version: v3.20260518.2318 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>⭐ Зірки Успіху</title>
     <link rel="stylesheet" href="style.css">
@@ -270,6 +270,10 @@
                                 <option value="🪥 Почистити зуби|2|hygiene|">🪥 Почистити зуби (+2⭐)</option>
                             </optgroup>
                         </select>
+                    </div>
+                    <div class="form-group" id="bookPagesGroup" style="display:none">
+                        <label>📄 Кількість сторінок</label>
+                        <input type="number" id="bookPages" min="1" max="9999" placeholder="Скільки сторінок у книзі?">
                     </div>
                     <button class="btn btn-primary" onclick="addBonusRecord()">✨ Додати бонус</button>
                 </div>
@@ -675,6 +679,7 @@
                                 <span class="stars-guide-badge stars-badge--blue">+10⭐</span>
                             </div>
                         </div>
+                        <div class="stars-guide-tip">📖 Книголюб рахує кількість книг &nbsp;|&nbsp; 📄 Читачка рахує сторінки (+30⭐ за кожен рівень)</div>
                     </div>
 
                     <!-- Допомога -->
@@ -1112,6 +1117,16 @@
         window.addGradeRecord = addGradeRecord;
         window.addDiagnosticWork = addDiagnosticWork;
         window.addBonusRecord = addBonusRecord;
+
+        // Показуємо поле сторінок тільки при виборі книги
+        document.getElementById('bonusType').addEventListener('change', function() {
+            const parts = this.value.split('|');
+            const isBook = parts[3] === 'books';
+            const group = document.getElementById('bookPagesGroup');
+            const input = document.getElementById('bookPages');
+            if (group) group.style.display = isBook ? 'block' : 'none';
+            if (input && !isBook) input.value = '';
+        });
         window.addSpecialRecord = addSpecialRecord;
         window.deleteRecord = deleteRecord;
         window.renderHistory = renderHistory;

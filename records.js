@@ -2,7 +2,7 @@
 // RECORDS  records.js — Records
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260518.2202';
+export const VERSION = 'v3.20260518.2318';
 
 import { state } from './state.js';
 import { isDoubleSubject } from './subjects.js';
@@ -122,6 +122,13 @@ export function addBonusRecord() {
 
     const [name, starsRaw, subcategory = '', counterKey = ''] = bonusType.split('|');
     const stars = parseInt(starsRaw);
+
+    // Сторінки — зчитуємо лише якщо це книга
+    const pagesInput = document.getElementById('bookPages');
+    const pages = (counterKey === 'books' && pagesInput && pagesInput.value)
+        ? parseInt(pagesInput.value) || undefined
+        : undefined;
+
     state.data.records.push({
         id: Date.now(),
         date: date + 'T12:00:00',
@@ -131,6 +138,7 @@ export function addBonusRecord() {
         category: 'bonus',
         subcategory: subcategory || undefined,
         counterKey:  counterKey  || undefined,
+        pages,
     });
     state.data.balance = Number(state.data.balance) + stars;
     
