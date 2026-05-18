@@ -2,7 +2,7 @@
 // UI     ui.js — Ui
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260511.1607';
+export const VERSION = 'v3.20260518.2202';
 
 // ════════════════════════════════════════════════════════════
 
@@ -36,14 +36,28 @@ export function updateUI() {
     document.getElementById('spentStats').textContent = spent + '⭐';
 
     if (!state.data.isParent) {
+        // Перетворюємо вкладку "Додати" на "📘 Зірки" для дитини
         document.querySelectorAll('.tab').forEach(t => {
-            if (t.textContent.includes('Додати')) t.style.display = 'none';
+            if (t.dataset.tab === 'add') {
+                const icon  = t.querySelector('.tab-icon');
+                const label = t.querySelector('.tab-label');
+                if (icon)  icon.textContent  = '📘';
+                if (label) label.textContent = 'Зірки';
+            }
         });
         document.getElementById('parentInstructions').style.display = 'none';
         document.getElementById('childInstructions').style.display = 'block';
     } else {
         // Відновлюємо всі вкладки для батьків
-        document.querySelectorAll('.tab').forEach(t => t.style.display = '');
+        document.querySelectorAll('.tab').forEach(t => {
+            t.style.display = '';
+            if (t.dataset.tab === 'add') {
+                const icon  = t.querySelector('.tab-icon');
+                const label = t.querySelector('.tab-label');
+                if (icon)  icon.textContent  = '➕';
+                if (label) label.textContent = 'Додати';
+            }
+        });
         document.getElementById('parentInstructions').style.display = 'block';
         document.getElementById('childInstructions').style.display = 'none';
         document.getElementById('currentPin').textContent = state.data.pin;

@@ -2,7 +2,7 @@
 // RECORDS  records.js — Records
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260514.1530';
+export const VERSION = 'v3.20260518.2202';
 
 import { state } from './state.js';
 import { isDoubleSubject } from './subjects.js';
@@ -120,16 +120,19 @@ export function addBonusRecord() {
 
     if (!date || !bonusType) { alert('❌ Заповніть всі поля!'); return; }
 
-    const [name, stars] = bonusType.split('|');
+    const [name, starsRaw, subcategory = '', counterKey = ''] = bonusType.split('|');
+    const stars = parseInt(starsRaw);
     state.data.records.push({
         id: Date.now(),
         date: date + 'T12:00:00',
         description: name,
-        stars: parseInt(stars),
+        stars,
         type: 'earn',
-        category: 'bonus'
+        category: 'bonus',
+        subcategory: subcategory || undefined,
+        counterKey:  counterKey  || undefined,
     });
-    state.data.balance = Number(state.data.balance) + parseInt(stars);
+    state.data.balance = Number(state.data.balance) + stars;
     
     const newRecord = state.data.records[state.data.records.length - 1];
     

@@ -1,6 +1,6 @@
 /* ════════════════════════════════════════════════════
    Зірки Успіху — Стилі
-   Версія: v3.20260515.1946
+   Версія: v3.20260518.2202
    ════════════════════════════════════════════════════ */
 
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;900&family=Comfortaa:wght@400;700&family=Fredoka+One&family=Ubuntu:wght@400;700&family=Playfair+Display:wght@400;700&display=swap');
@@ -2831,4 +2831,78 @@ select:focus, input:focus {
 }
 .donut-back-btn:hover {
     background: var(--bg-alt, rgba(0,0,0,0.05));
+}
+
+/* ══ Дитячий довідник зірок ══════════════════════════════════ */
+.stars-guide-header {
+    text-align: center;
+    padding: 20px 0 10px;
+}
+.stars-guide-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--secondary);
+    margin-bottom: 6px;
+}
+.stars-guide-subtitle {
+    font-size: 13px;
+    color: var(--text-muted);
+}
+.stars-guide-card {
+    background: var(--card-bg, #fff);
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+}
+.stars-guide-card--spend {
+    background: var(--bg-alt, #f5f5f5);
+}
+.stars-guide-card-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--secondary);
+    margin-bottom: 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border, #eee);
+}
+.stars-guide-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+.stars-guide-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+.stars-guide-label {
+    font-size: 14px;
+    color: var(--text, #333);
+    flex: 1;
+}
+.stars-guide-badge {
+    font-size: 13px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+.stars-badge--gold   { background: #fff3cd; color: #b8860b; }
+.stars-badge--silver { background: #e8e8e8; color: #555; }
+.stars-badge--bronze { background: #ffe5cc; color: #a0522d; }
+.stars-badge--blue   { background: #dbeeff; color: #1a6fbf; }
+.stars-badge--green  { background: #d4f4e6; color: #1a7a4a; }
+.stars-badge--purple { background: #ede8ff; color: #5533aa; }
+.stars-badge--pink   { background: #fde6f0; color: #c2185b; }
+.stars-badge--gray   { background: #f0f0f0; color: #555; }
+.stars-guide-tip {
+    margin-top: 8px;
+    font-size: 12px;
+    color: var(--text-muted);
+    background: var(--bg-alt, #f8f8f8);
+    border-radius: 8px;
+    padding: 6px 10px;
 }

@@ -2,7 +2,7 @@
 // ⚙️  config.js — Конфігурація та константи
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260507.2300';
+export const VERSION = 'v3.20260518.2202';
 
 // ════════════════════════════════════════════════════════════
 
@@ -154,6 +154,68 @@ export const ACHIEVEMENTS = {
         ],
         type: "goal_counter",
         check: "goal_reached"
+    },
+
+    // ── Нові досягнення (травень 2026) ────────────────
+    "старанна": {
+        name: "Старанна",
+        icon: "📝",
+        desc: "Виконуй домашні завдання регулярно",
+        levels: [
+            { tier: "bronze", target: 20,  reward: 30,  desc: "20 виконаних Д/З" },
+            { tier: "silver", target: 60,  reward: 70,  desc: "60 виконаних Д/З" },
+            { tier: "gold",   target: 120, reward: 150, desc: "120 виконаних Д/З" }
+        ],
+        type: "cumulative",
+        counter: "homework"
+    },
+    "мегамозок": {
+        name: "Мегамозок",
+        icon: "🧠",
+        desc: "Беріться за складні завдання та перемагай",
+        levels: [
+            { tier: "bronze", target: 10, reward: 30,  desc: "10 важких завдань" },
+            { tier: "silver", target: 30, reward: 70,  desc: "30 важких завдань" },
+            { tier: "gold",   target: 90, reward: 150, desc: "90 важких завдань" }
+        ],
+        type: "cumulative",
+        counter: "hard_tasks"
+    },
+    "помічниця": {
+        name: "Помічниця",
+        icon: "🤝",
+        desc: "Допомагай батькам із радістю",
+        levels: [
+            { tier: "bronze", target: 10, reward: 30,  desc: "10 разів допомогла" },
+            { tier: "silver", target: 30, reward: 70,  desc: "30 разів допомогла" },
+            { tier: "gold",   target: 90, reward: 150, desc: "90 разів допомогла" }
+        ],
+        type: "cumulative",
+        counter: "help"
+    },
+    "господиня": {
+        name: "Господиня",
+        icon: "🏠",
+        desc: "Тримай дім у порядку",
+        levels: [
+            { tier: "bronze", target: 20,  reward: 30,  desc: "20 домашніх справ" },
+            { tier: "silver", target: 60,  reward: 70,  desc: "60 домашніх справ" },
+            { tier: "gold",   target: 120, reward: 150, desc: "120 домашніх справ" }
+        ],
+        type: "cumulative",
+        counter: "home_chores"
+    },
+    "активна": {
+        name: "Активна",
+        icon: "🏸",
+        desc: "Рухайся та будь активною",
+        levels: [
+            { tier: "bronze", target: 7,  reward: 30,  desc: "7 активних виходів" },
+            { tier: "silver", target: 20, reward: 70,  desc: "20 активних виходів" },
+            { tier: "gold",   target: 45, reward: 150, desc: "45 активних виходів" }
+        ],
+        type: "cumulative",
+        counter: "activity"
     }
 };
 

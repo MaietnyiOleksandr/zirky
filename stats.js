@@ -2,7 +2,7 @@
 // 📊  stats.js — Статистика та графіки
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260515.1946';
+export const VERSION = 'v3.20260518.2202';
 
 import { state } from './state.js';
 import { getSubjectEmoji } from './subjects.js';
@@ -894,18 +894,33 @@ const DONUT_COLORS = {
 };
 
 // Групи бонусів — key-слова з r.description
+// Групи бонусів — визначаються по subcategory (нові записи)
+// або по description (fallback для старих записів без subcategory)
 const BONUS_GROUPS = {
-    'Додаткове навчання': {
+    'Навчання': {
         icon: '📚', color: '#EF9F27',
-        matches: ['Виконано Д/З', 'Важке завдання', 'Прочитав книгу'],
+        subcategory: 'study',
+        descFallback: ['Виконано Д/З', 'Важке завдання', 'Прочитав книгу'],
     },
-    'Допомога батькам': {
+    'Допомога': {
         icon: '🤝', color: '#E87828',
-        matches: ['Допомога батькам'],
+        subcategory: 'help',
+        descFallback: ['Допомога батькам'],
     },
     'Гігієна': {
         icon: '🧼', color: '#D4537E',
-        matches: ['Почистити зуби', 'Причесати волосся'],
+        subcategory: 'hygiene',
+        descFallback: ['Почистити зуби', 'Причесати волосся'],
+    },
+    'По дому': {
+        icon: '🏠', color: '#5DCAA5',
+        subcategory: 'home_chore',
+        descFallback: [],
+    },
+    'Активність': {
+        icon: '🏸', color: '#534AB7',
+        subcategory: 'activity',
+        descFallback: [],
     },
 };
 
@@ -914,6 +929,7 @@ const ACH_NAMES = [
     'Відмінник', 'Зіркова', 'Тверда десятка', 'Книголюб',
     'Fire Streak', 'Ощадливий', 'Транжира', 'Чистюля',
     'Красуня', 'Швидкий старт', 'Цілеспрямована',
+    'Старанна', 'Мегамозок', 'Помічниця', 'Господиня', 'Активна',
 ];
 // Кольори для сегментів суб'єктів/досягнень (10+)
 const PALETTE = [
@@ -1125,7 +1141,10 @@ function updateSourceDonut() {
             catRecs.forEach(r => {
                 const desc = r.description || '';
                 for (const [gname, gdata] of Object.entries(BONUS_GROUPS)) {
-                    if (gdata.matches.some(m => desc.includes(m))) {
+                    // Нові записи — по subcategory; старі — по description (fallback)
+                    const matchesSub  = r.subcategory && r.subcategory === gdata.subcategory;
+                    const matchesDesc = !r.subcategory && gdata.descFallback.some(m => desc.includes(m));
+                    if (matchesSub || matchesDesc) {
                         grpStars[gname] += (r.stars || 0);
                         break;
                     }

@@ -2,7 +2,7 @@
 // 🏆  achievements.js — Система досягнень
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260514.1545';
+export const VERSION = 'v3.20260518.2202';
 
 // ════════════════════════════════════════════════════════════
 
@@ -64,9 +64,45 @@ export function recalculateAchievements() {
             state.data.achievements.counters.grades_10 = (state.data.achievements.counters.grades_10 || 0) + 1;
         }
 
-        // Книги
-        if (record.description && record.description.includes('Прочитав книгу')) {
+        // Книги (Книголюб) — fallback по description для старих записів без subcategory
+        if (record.category === 'bonus' && (
+            record.counterKey === 'books' ||
+            (!record.subcategory && record.description && record.description.includes('Прочитав книгу'))
+        )) {
             state.data.achievements.counters.books = (state.data.achievements.counters.books || 0) + 1;
+        }
+
+        // Нові counters по subcategory (з fallback по description для старих записів)
+        if (record.category === 'bonus') {
+            const sub = record.subcategory;
+            const ck  = record.counterKey;
+            const desc = record.description || '';
+
+            // homework (Старанна)
+            if (ck === 'homework' || (!sub && desc.includes('Виконано Д/З'))) {
+                state.data.achievements.counters.homework =
+                    (state.data.achievements.counters.homework || 0) + 1;
+            }
+            // hard_tasks (Мегамозок)
+            if (ck === 'hard_tasks' || (!sub && desc.includes('Важке завдання'))) {
+                state.data.achievements.counters.hard_tasks =
+                    (state.data.achievements.counters.hard_tasks || 0) + 1;
+            }
+            // help (Помічниця)
+            if (ck === 'help' || (!sub && desc.includes('Допомога батькам'))) {
+                state.data.achievements.counters.help =
+                    (state.data.achievements.counters.help || 0) + 1;
+            }
+            // home_chores (Господиня)
+            if (sub === 'home_chore') {
+                state.data.achievements.counters.home_chores =
+                    (state.data.achievements.counters.home_chores || 0) + 1;
+            }
+            // activity (Активна)
+            if (sub === 'activity') {
+                state.data.achievements.counters.activity =
+                    (state.data.achievements.counters.activity || 0) + 1;
+            }
         }
         
         // Витрати (для Транжира)

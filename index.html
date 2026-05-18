@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⭐</text></svg>">
-    <!-- version: v3.20260515.1925 -->
+    <!-- version: v3.20260518.2202 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>⭐ Зірки Успіху</title>
     <link rel="stylesheet" href="style.css">
@@ -244,13 +244,30 @@
                         <label>🌟 Бонус</label>
                         <select id="bonusType">
                             <option value="">Оберіть бонус</option>
-                            <option value="📝 Виконано Д/З|2">📝 Виконано Д/З (+2⭐)</option>
-                            <option value="🎯 Важке завдання|5">🎯 Важке завдання (+5⭐)</option>
-                            <option value="📚 Прочитав книгу|10">📚 Прочитав книгу (+10⭐)</option>
-                            <option value="🤝 Допомога батькам: проста|3">🤝 Допомога батькам: проста (+3⭐)</option>
-                            <option value="💪 Допомога батькам: важка|5">💪 Допомога батькам: важка (+5⭐)</option>
-                            <option value="💇 Причесати волосся|5">💇 Причесати волосся (+5⭐)</option>
-                            <option value="🪥 Почистити зуби|2">🪥 Почистити зуби (+2⭐)</option>
+                            <optgroup label="📚 Навчання">
+                                <option value="📝 Виконано Д/З|2|study|homework">📝 Виконано Д/З (+2⭐)</option>
+                                <option value="🎯 Важке завдання|5|study|hard_tasks">🎯 Важке завдання (+5⭐)</option>
+                                <option value="📖 Прочитав книгу|10|study|books">📖 Прочитав книгу (+10⭐)</option>
+                            </optgroup>
+                            <optgroup label="🤝 Допомога батькам">
+                                <option value="🤝 Допомога батькам: проста|3|help|help">🤝 Допомога: проста (+3⭐)</option>
+                                <option value="💪 Допомога батькам: важка|5|help|help">💪 Допомога: важка (+5⭐)</option>
+                            </optgroup>
+                            <optgroup label="🏠 По дому">
+                                <option value="🧹 Прибрала кімнату|3|home_chore|home_chores">🧹 Прибрала кімнату (+3⭐)</option>
+                                <option value="👕 Поскладала одяг|3|home_chore|home_chores">👕 Поскладала одяг (+3⭐)</option>
+                                <option value="🛏️ Застелила ліжко|2|home_chore|home_chores">🛏️ Застелила ліжко (+2⭐)</option>
+                                <option value="🫧 Помила посуд|3|home_chore|home_chores">🫧 Помила посуд (+3⭐)</option>
+                                <option value="🍳 Допомогла готувати|5|home_chore|home_chores">🍳 Допомогла готувати (+5⭐)</option>
+                            </optgroup>
+                            <optgroup label="🏸 Активність">
+                                <option value="🚶 Прогулянка 30+ хв|3|activity|activity">🚶 Прогулянка 30+ хв (+3⭐)</option>
+                                <option value="🏃 Тренування 60+ хв|5|activity|activity">🏃 Тренування 60+ хв (+5⭐)</option>
+                            </optgroup>
+                            <optgroup label="🧼 Гігієна">
+                                <option value="💇 Причесати волосся|5|hygiene|">💇 Причесатись (+5⭐)</option>
+                                <option value="🪥 Почистити зуби|2|hygiene|">🪥 Почистити зуби (+2⭐)</option>
+                            </optgroup>
                         </select>
                     </div>
                     <button class="btn btn-primary" onclick="addBonusRecord()">✨ Додати бонус</button>
@@ -604,58 +621,157 @@
                     </ul>
                 </div>
 
-                <!-- Дитяча інструкція -->
-                <div class="instructions" id="childInstructions">
-                    <h2>⭐ Як це працює?</h2>
+                <!-- Дитячий довідник зірок -->
+                <div id="childInstructions">
 
-                    <h3>🏆 Ти зароблюєш зірки!</h3>
-                    <ul>
-                        <li>Кожна гарна оцінка в школі = зірки на твій рахунок</li>
-                        <li>Допомагаєш вдома або читаєш книгу = ще більше зірок!</li>
-                        <li>Зірки накопичуються і ніколи не зникають самі</li>
-                    </ul>
+                    <div class="stars-guide-header">
+                        <div class="stars-guide-title">⭐ Як заробити зірки?</div>
+                        <div class="stars-guide-subtitle">Тут все про твої зірки — читай і заробляй!</div>
+                    </div>
 
-                    <h3>⭐ Скільки зірок за оцінку?</h3>
-                    <ul>
-                        <li>12 балів = 5⭐ — відмінно, так тримати!</li>
-                        <li>11 балів = 4⭐ — дуже добре!</li>
-                        <li>10 балів = 3⭐ — молодець!</li>
-                        <li>9 балів = 2⭐ — непогано!</li>
-                        <li>8 балів = 1⭐ — вже щось!</li>
-                    </ul>
+                    <!-- Оцінки -->
+                    <div class="stars-guide-card">
+                        <div class="stars-guide-card-title">🎓 За оцінки в школі</div>
+                        <div class="stars-guide-rows">
+                            <div class="stars-guide-row">
+                                <span class="stars-guide-label">12 балів</span>
+                                <span class="stars-guide-badge stars-badge--gold">5⭐</span>
+                            </div>
+                            <div class="stars-guide-row">
+                                <span class="stars-guide-label">11 балів</span>
+                                <span class="stars-guide-badge stars-badge--gold">4⭐</span>
+                            </div>
+                            <div class="stars-guide-row">
+                                <span class="stars-guide-label">10 балів</span>
+                                <span class="stars-guide-badge stars-badge--silver">3⭐</span>
+                            </div>
+                            <div class="stars-guide-row">
+                                <span class="stars-guide-label">9 балів</span>
+                                <span class="stars-guide-badge stars-badge--silver">2⭐</span>
+                            </div>
+                            <div class="stars-guide-row">
+                                <span class="stars-guide-label">8 балів</span>
+                                <span class="stars-guide-badge stars-badge--bronze">1⭐</span>
+                            </div>
+                        </div>
+                        <div class="stars-guide-tip">📐 Математика — подвійні зірки! &nbsp;|&nbsp; 📝 Діагностувальна — потрійні!</div>
+                    </div>
 
-                    <h3>🚀 Як заробити більше зірок?</h3>
-                    <ul>
-                        <li>📐 <strong>Математика</strong> — подвійні зірки! (x2)</li>
-                        <li>📝 <strong>Діагностувальна робота</strong> — потрійні зірки! (x3)</li>
-                        <li>📚 Виконано Д/З = +2⭐</li>
-                        <li>🤔 Спробував важке завдання = +5⭐</li>
-                        <li>📖 Прочитав книгу = +10⭐</li>
-                        <li>🏠 Допоміг вдома (легко) = +3⭐</li>
-                        <li>💪 Допоміг вдома (серйозно) = +5⭐</li>
-                        <li>💇 Причесати волосся = +5⭐</li>
-                        <li>🦷 Почистити зуби = +2⭐</li>
-                    </ul>
+                    <!-- Навчання -->
+                    <div class="stars-guide-card">
+                        <div class="stars-guide-card-title">📚 Навчання</div>
+                        <div class="stars-guide-rows">
+                            <div class="stars-guide-row">
+                                <span class="stars-guide-label">📝 Виконано Д/З</span>
+                                <span class="stars-guide-badge stars-badge--blue">+2⭐</span>
+                            </div>
+                            <div class="stars-guide-row">
+                                <span class="stars-guide-label">🎯 Важке завдання</span>
+                                <span class="stars-guide-badge stars-badge--blue">+5⭐</span>
+                            </div>
+                            <div class="stars-guide-row">
+                                <span class="stars-guide-label">📖 Прочитала книгу</span>
+                                <span class="stars-guide-badge stars-badge--blue">+10⭐</span>
+                            </div>
+                        </div>
+                    </div>
 
-                    <h3>🎁 На що можна витратити зірки?</h3>
-                    <ul>
-                        <li>🎮 Час на смартфоні — введи хвилини, програма порахує зірки</li>
-                        <li>💵 Гроші — введи суму в гривнях, програма порахує зірки</li>
-                        <li>✨ Особливе списання — будь-яка нагорода з батьками (потрібен PIN)</li>
-                    </ul>
+                    <!-- Допомога -->
+                    <div class="stars-guide-card">
+                        <div class="stars-guide-card-title">🤝 Допомога батькам</div>
+                        <div class="stars-guide-rows">
+                            <div class="stars-guide-row">
+                                <span class="stars-guide-label">🤝 Проста допомога</span>
+                                <span class="stars-guide-badge stars-badge--green">+3⭐</span>
+                            </div>
+                            <div class="stars-guide-row">
+                                <span class="stars-guide-label">💪 Серйозна допомога</span>
+                                <span class="stars-guide-badge stars-badge--green">+5⭐</span>
+                            </div>
+                        </div>
+                    </div>
 
-                    <h3>💡 Декілька важливих речей:</h3>
-                    <ul>
-                        <li>Зірки <strong>ніколи не забирають</strong> за погані оцінки — тільки додають!</li>
-                        <li>Чим більше стараєшся — тим швидше накопичуєш на мрію</li>
-                        <li>Можна заощаджувати зірки і збирати на щось велике</li>
-                        <li>Щонеділі разом з батьками дивіться на свій прогрес 📊</li>
-                    </ul>
+                    <!-- По дому -->
+                    <div class="stars-guide-card">
+                        <div class="stars-guide-card-title">🏠 По дому</div>
+                        <div class="stars-guide-rows">
+                            <div class="stars-guide-row">
+                                <span class="stars-guide-label">🧹 Прибрала кімнату</span>
+                                <span class="stars-guide-badge stars-badge--green">+3⭐</span>
+                            </div>
+                            <div class="stars-guide-row">
+                                <span class="stars-guide-label">👕 Поскладала одяг</span>
+                                <span class="stars-guide-badge stars-badge--green">+3⭐</span>
+                            </div>
+                            <div class="stars-guide-row">
+                                <span class="stars-guide-label">🛏️ Застелила ліжко</span>
+                                <span class="stars-guide-badge stars-badge--green">+2⭐</span>
+                            </div>
+                            <div class="stars-guide-row">
+                                <span class="stars-guide-label">🫧 Помила посуд</span>
+                                <span class="stars-guide-badge stars-badge--green">+3⭐</span>
+                            </div>
+                            <div class="stars-guide-row">
+                                <span class="stars-guide-label">🍳 Допомогла готувати</span>
+                                <span class="stars-guide-badge stars-badge--green">+5⭐</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Активність -->
+                    <div class="stars-guide-card">
+                        <div class="stars-guide-card-title">🏸 Активність</div>
+                        <div class="stars-guide-rows">
+                            <div class="stars-guide-row">
+                                <span class="stars-guide-label">🚶 Прогулянка 30+ хв</span>
+                                <span class="stars-guide-badge stars-badge--purple">+3⭐</span>
+                            </div>
+                            <div class="stars-guide-row">
+                                <span class="stars-guide-label">🏃 Тренування 60+ хв</span>
+                                <span class="stars-guide-badge stars-badge--purple">+5⭐</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Гігієна -->
+                    <div class="stars-guide-card">
+                        <div class="stars-guide-card-title">🧼 Гігієна</div>
+                        <div class="stars-guide-rows">
+                            <div class="stars-guide-row">
+                                <span class="stars-guide-label">💇 Причесатись</span>
+                                <span class="stars-guide-badge stars-badge--pink">+5⭐</span>
+                            </div>
+                            <div class="stars-guide-row">
+                                <span class="stars-guide-label">🪥 Почистити зуби</span>
+                                <span class="stars-guide-badge stars-badge--pink">+2⭐</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Витрати -->
+                    <div class="stars-guide-card stars-guide-card--spend">
+                        <div class="stars-guide-card-title">🎁 На що витрачати зірки?</div>
+                        <div class="stars-guide-rows">
+                            <div class="stars-guide-row">
+                                <span class="stars-guide-label">🎮 Час на смартфоні</span>
+                                <span class="stars-guide-badge stars-badge--gray">1⭐ = 2 хв</span>
+                            </div>
+                            <div class="stars-guide-row">
+                                <span class="stars-guide-label">💵 Гроші</span>
+                                <span class="stars-guide-badge stars-badge--gray">1⭐ = 1 грн</span>
+                            </div>
+                            <div class="stars-guide-row">
+                                <span class="stars-guide-label">✨ Особлива нагорода</span>
+                                <span class="stars-guide-badge stars-badge--gray">з батьками</span>
+                            </div>
+                        </div>
+                    </div>
 
                     <div class="motivation-block">
-                        🌟 Кожна зірка — це твій справжній результат!
-                        <span class="motivation-subtitle">Ти сам(а) вирішуєш, як швидко досягнеш своєї мети.</span>
+                        🌟 Зірки ніколи не зникають самі — тільки накопичуються!
+                        <span class="motivation-subtitle">Ти сама вирішуєш, як швидко досягнеш своєї мети ✨</span>
                     </div>
+
                 </div>
             </div>
 
