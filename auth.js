@@ -2,7 +2,7 @@
 // 🔐  auth.js — Авторизація та PIN-код
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260514.1530';
+export const VERSION = 'v3.20260518.2335';
 
 import { state } from './state.js';
 import { saveNotifications, savePin } from './firebase.js';
@@ -132,3 +132,19 @@ export function togglePeriod(period) {
 
 // ── Слухаємо запит на показ RewardPin від rewards.js ─────────
 document.addEventListener('zirky:showRewardPin', () => showRewardPin());
+
+// ── Клавіатурний ввід PIN (PC) ────────────────────────────────
+document.addEventListener('keydown', (e) => {
+    // Основний PIN
+    if (document.getElementById('pinOverlay')?.style.display === 'flex') {
+        if (e.key >= '0' && e.key <= '9') { addPin(e.key); return; }
+        if (e.key === 'Backspace')          { clearPin();    return; }
+        if (e.key === 'Escape')             { cancelPin();   return; }
+    }
+    // Reward PIN
+    if (document.getElementById('rewardPinOverlay')?.style.display === 'flex') {
+        if (e.key >= '0' && e.key <= '9') { addRewardPin(e.key); return; }
+        if (e.key === 'Backspace')          { clearRewardPin();    return; }
+        if (e.key === 'Escape')             { cancelRewardPin();   return; }
+    }
+});
