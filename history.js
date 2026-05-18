@@ -2,7 +2,7 @@
 // HISTORY  history.js — History
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260514.0958';
+export const VERSION = 'v3.20260518.2342';
 
 import { getSubjectEmoji } from './subjects.js';
 
@@ -115,6 +115,8 @@ export function renderHistory() {
                  : r.category === 'correction'  ? `🔧 ${r.desc || r.description || 'Корекція балансу'}`
                  : r.type === 'spend'           ? (r.desc || r.description || r.reward || '—')
                  : (r.desc || r.description || '—');
+        // Додаємо кількість сторінок для книг
+        if (r.counterKey === 'books' && r.pages) desc += ` — 📄 ${r.pages} стор.`;
 
         const starClass = r.type === 'earn' ? 'positive'
                         : (r.type === 'info' || r.type === 'freeze') ? 'info'
