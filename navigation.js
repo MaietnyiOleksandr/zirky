@@ -6,7 +6,7 @@
 //     showForm/switchTab, а ui.js потребував їх модулів
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260518.2247';
+export const VERSION = 'v3.20260519.2004';
 
 import { state } from './state.js';
 import { getTodayDate } from './utils.js';
@@ -20,6 +20,7 @@ import { renderStats, checkStreakWarning } from './stats.js';
 // showDataInfo більше не викликається автоматично — тільки через кнопку
 import { renderFeedback } from './feedback.js';
 import { renderSchedule } from './schedule.js';
+import { renderTasks } from './tasks.js';
 import { applyAppearance, renderThemeShop } from './appearance.js';
 import { dismissByAction, setNotifDb, initNotificationsListener, generateNotifications } from './notifications.js';
 
@@ -28,7 +29,57 @@ setNotifDb(db);
 initNotificationsListener();
 document.addEventListener('zirky:dataLoaded', generateNotifications);
 
+// ════════════════════════════════════════════════════
+// 🎨  Налаштування блоку "Додати" залежно від ролі
+// ════════════════════════════════════════════════════
+//   Батьки бачать всі 5 форм: оцінка, діагностувальна, бонус, особливе, канікули
+//   Дитина бачить лише 3: оцінка, діагностувальна, бонус
+//   Особливе та канікули — закриті, бо їх не можна делегувати
+function applyAddSectionVisibility() {
+    const isParent = !!state.data.isParent;
+
+    // Кнопки швидкого доступу — приховуємо "Особливе" та "Канікули" для дитини
+    const buttons = document.querySelectorAll('#addSection .quick-action-btn');
+    buttons.forEach(btn => {
+        const onclickAttr = btn.getAttribute('onclick') || '';
+        const isSpecial = onclickAttr.includes("'special'");
+        const isFreeze  = onclickAttr.includes("'freeze'");
+        if (isSpecial || isFreeze) {
+            btn.style.display = isParent ? '' : 'none';
+        }
+    });
+
+    // Якщо у дитини була активна закрита форма — перемикаємо на оцінку
+    if (!isParent) {
+        const specialForm = document.getElementById('specialForm');
+        const freezeForm  = document.getElementById('freezeForm');
+        if ((specialForm && specialForm.style.display === 'block') ||
+            (freezeForm  && freezeForm.style.display  === 'block')) {
+            _showFormProgrammatic('grade');
+        }
+    }
+}
+
+// Внутрішня: показати форму без event (для дитячого режиму при перемиканні)
+function _showFormProgrammatic(type) {
+    document.querySelectorAll('#addSection .quick-action-btn').forEach(btn => btn.classList.remove('active'));
+    const firstVisible = document.querySelector(`#addSection .quick-action-btn[onclick*="'${type}'"]`);
+    if (firstVisible) firstVisible.classList.add('active');
+    document.getElementById('gradeForm').style.display      = 'none';
+    document.getElementById('diagnosticForm').style.display = 'none';
+    document.getElementById('bonusForm').style.display      = 'none';
+    document.getElementById('specialForm').style.display    = 'none';
+    document.getElementById('freezeForm').style.display     = 'none';
+    const target = document.getElementById(type + 'Form');
+    if (target) target.style.display = 'block';
+}
+
 export function showForm(type) {
+    // Захист: дитина не має відкривати special / freeze
+    if (!state.data.isParent && (type === 'special' || type === 'freeze')) {
+        return;
+    }
+
     document.querySelectorAll('.quick-action-btn').forEach(btn => btn.classList.remove('active'));
     event.target.classList.add('active');
     document.getElementById('gradeForm').style.display = 'none';
@@ -37,23 +88,23 @@ export function showForm(type) {
     document.getElementById('specialForm').style.display = 'none';
     document.getElementById('freezeForm').style.display = 'none';
     document.getElementById(type + 'Form').style.display = 'block';
-    
+
     // Встановлюємо дефолтні дати
     if (type === 'diagnostic') {
         const today = getTodayDate();
         document.getElementById('diagnosticDate').value = today;
     }
-    
+
     // Якщо відкрили канікули - встановлюємо дефолтні дати та оновлюємо список
     if (type === 'freeze') {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         const tomorrow = new Date(today);
         tomorrow.setDate(today.getDate() + 1);
-        
+
         document.getElementById('freezeFromDate').value = today.toISOString().split('T')[0];
         document.getElementById('freezeUntilDate').value = tomorrow.toISOString().split('T')[0];
-        
+
         renderFreezePeriods();
     }
 }
@@ -61,8 +112,8 @@ export function showForm(type) {
 // Додавання записів
 
 export function switchTab(tab, fromClick = false) {
-    // Довідник і дитячий "add" → одразу на instructions, без пошуку guideSection
-    if (tab === 'guide' || (!state.data.isParent && tab === 'add')) {
+    // Довідник → одразу на instructions
+    if (tab === 'guide') {
         return switchTab('instructions');
     }
 
@@ -73,7 +124,11 @@ export function switchTab(tab, fromClick = false) {
     document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
     document.getElementById(tab + 'Section').classList.add('active');
 
-    if (tab === 'history') renderHistory();
+    if (tab === 'add') {
+        // При відкритті блоку Додати — застосовуємо видимість форм за роллю
+        applyAddSectionVisibility();
+    }
+    else if (tab === 'history') renderHistory();
     else if (tab === 'rewards') {
         renderRewards();
         // Встановлюємо дефолтну дату для витрат
@@ -85,6 +140,16 @@ export function switchTab(tab, fromClick = false) {
     else if (tab === 'achievements') renderAchievements();
     else if (tab === 'stats') renderStats();
     else if (tab === 'schedule') renderSchedule();
+    else if (tab === 'tasks') {
+        renderTasks();
+        // При відкритті табу — скидаємо tab-сповіщення цього розділу
+        dismissByAction('task_new',       'tab');
+        dismissByAction('task_request',   'tab');
+        dismissByAction('task_done',      'tab');
+        dismissByAction('task_declined',  'tab');
+        dismissByAction('task_confirmed', 'tab');
+        dismissByAction('task_rejected',  'tab');
+    }
     else if (tab === 'feedback') {
         renderFeedback();
         dismissByAction('feedback_new',     'tab');
@@ -94,8 +159,8 @@ export function switchTab(tab, fromClick = false) {
     }
     else if (tab === 'settings') { renderThemeShop(); }
 
-    // Оновлюємо badge для feedback після кожного відкриття
-    if (tab === 'feedback' && window.updateBadges) window.updateBadges();
+    // Оновлюємо badge для feedback/tasks після кожного відкриття
+    if ((tab === 'feedback' || tab === 'tasks') && window.updateBadges) window.updateBadges();
 }
 
 // ── Слухаємо події від firebase.js та freeze.js ──────────────
@@ -108,6 +173,8 @@ document.addEventListener('zirky:dataLoaded', () => {
         if (activeSection.id === 'historySection') renderHistory();
         if (activeSection.id === 'statsSection') renderStats();
         if (activeSection.id === 'rewardsSection') renderRewards();
+        if (activeSection.id === 'tasksSection') renderTasks();
+        if (activeSection.id === 'addSection') applyAddSectionVisibility();
     }
     checkStreakWarning();
 });

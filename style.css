@@ -2919,3 +2919,492 @@ select:focus, input:focus {
     border-radius: 8px;
     padding: 6px 10px;
 }
+/* ════════════════════════════════════════════════════
+   TASKS — змінні акцентного кольору (блакитний)
+   Структура аналогічна FEEDBACK блоку
+   ════════════════════════════════════════════════════ */
+:root {
+    --c-tk-primary:  #2196F3;
+    --c-tk-dark:     #1976D2;
+    --c-tk-light:    #E3F2FD;
+    --c-tk-lighter:  #F1F8FE;
+    --c-tk-text:     #0D47A1;
+    --c-tk-text-deep:#0A2E5C;
+    --c-tk-border:   #90CAF9;
+}
+
+/* Для темних тем — інший відтінок */
+:root[data-palette="space"] {
+    --c-tk-primary:  #38bdf8;
+    --c-tk-dark:     #0ea5e9;
+    --c-tk-light:    rgba(56,189,248,0.15);
+    --c-tk-lighter:  rgba(56,189,248,0.08);
+    --c-tk-text:     #7dd3fc;
+    --c-tk-text-deep:#bae6fd;
+    --c-tk-border:   rgba(56,189,248,0.4);
+}
+
+/* ════════════════════════════════════════════════════
+   TASKS — компоненти
+   ════════════════════════════════════════════════════ */
+.tk-intro {
+    font-size: 13px;
+    color: var(--c-tk-text);
+    margin: 0 0 12px;
+    line-height: 1.5;
+}
+
+.tk-list-title {
+    margin: 0 0 10px;
+    font-size: 14px;
+    color: var(--c-tk-text);
+    font-weight: 600;
+}
+
+.tk-empty {
+    text-align: center;
+    padding: 24px 16px;
+    color: var(--text-muted);
+    background: var(--c-tk-lighter);
+    border-radius: 10px;
+    border: 1px dashed var(--c-tk-border);
+    font-size: 13px;
+}
+
+/* ── Фільтри (стиль як у feedback) ── */
+.tk-filter-section {
+    background: var(--c-tk-lighter);
+    border-radius: 10px;
+    padding: 10px 12px;
+    margin: 16px 0;
+    border: 1px solid var(--c-tk-border);
+}
+
+.tk-filter-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+}
+
+.tk-filter-row + .tk-filter-row {
+    margin-top: 6px;
+    padding-top: 8px;
+    border-top: 1px dashed var(--c-tk-border);
+}
+
+.tk-filter-btn {
+    padding: 4px 10px;
+    border-radius: 14px;
+    border: 1px solid var(--c-tk-border);
+    background: var(--card);
+    font-size: 12px;
+    color: var(--c-tk-text);
+    cursor: pointer;
+    font-family: var(--font-main);
+    transition: all 0.2s;
+}
+
+.tk-filter-btn:hover {
+    background: var(--c-tk-light);
+}
+
+.tk-filter-btn.active {
+    background: var(--c-tk-primary);
+    color: white;
+    border-color: var(--c-tk-primary);
+}
+
+.tk-filter-count {
+    margin-left: auto;
+    font-size: 11px;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+/* ── Блок створення завдання батьками ── */
+.tk-create-block {
+    margin-bottom: 16px;
+}
+
+.tk-submit-btn {
+    width: 100%;
+    padding: 12px 16px;
+    background: var(--c-tk-primary);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: var(--font-main);
+    transition: all 0.2s;
+}
+.tk-submit-btn:hover {
+    background: var(--c-tk-dark);
+    transform: translateY(-1px);
+}
+
+.tk-form {
+    background: var(--card);
+    border: 1px solid var(--c-tk-border);
+    border-radius: 10px;
+    padding: 14px;
+    margin-top: 8px;
+}
+
+.tk-form-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--c-tk-text);
+    margin-bottom: 12px;
+}
+
+.tk-form-group {
+    margin-bottom: 12px;
+}
+
+.tk-label {
+    display: block;
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+    font-weight: 500;
+}
+
+.tk-input, .tk-select {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid var(--c-tk-border);
+    border-radius: 8px;
+    background: var(--card);
+    color: var(--text-primary);
+    font-size: 13px;
+    font-family: var(--font-main);
+    box-sizing: border-box;
+}
+
+.tk-input:focus, .tk-select:focus {
+    outline: none;
+    border-color: var(--c-tk-primary);
+    box-shadow: 0 0 0 2px var(--c-tk-light);
+}
+
+.tk-textarea {
+    width: 100%;
+    min-height: 60px;
+    padding: 8px 10px;
+    border: 1px solid var(--c-tk-border);
+    border-radius: 8px;
+    background: var(--card);
+    color: var(--text-primary);
+    font-size: 13px;
+    font-family: var(--font-main);
+    box-sizing: border-box;
+    resize: vertical;
+    margin-top: 6px;
+}
+
+.tk-textarea:focus {
+    outline: none;
+    border-color: var(--c-tk-primary);
+    box-shadow: 0 0 0 2px var(--c-tk-light);
+}
+
+.tk-radio-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.tk-radio, .tk-checkbox {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--text-primary);
+    cursor: pointer;
+}
+
+.tk-radio input, .tk-checkbox input {
+    accent-color: var(--c-tk-primary);
+    cursor: pointer;
+}
+
+/* ── Картка завдання ── */
+.tk-card {
+    background: var(--card);
+    border: 1px solid var(--c-tk-border);
+    border-left: 4px solid var(--c-tk-primary);
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+    transition: all 0.2s;
+}
+
+.tk-card--request {
+    border-left-color: var(--c-tk-primary);
+}
+
+.tk-card--task {
+    border-left-color: var(--c-tk-dark);
+}
+
+.tk-card--declined {
+    border-left-color: #f59e0b;
+    background: linear-gradient(to right, rgba(245,158,11,0.05), var(--card) 20%);
+}
+
+.tk-card--completed {
+    opacity: 0.85;
+    border-left-color: var(--text-muted);
+}
+
+.tk-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 6px;
+    flex-wrap: wrap;
+}
+
+.tk-card-origin {
+    font-size: 12px;
+    color: var(--c-tk-text);
+    font-weight: 600;
+}
+
+.tk-card-meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.tk-card-date {
+    font-size: 11px;
+    color: var(--text-hint);
+}
+
+.tk-card-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 4px 0 4px;
+    line-height: 1.4;
+}
+
+.tk-card-stars {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+/* ── Статуси (badge) ── */
+.tk-status-badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 9px;
+    border-radius: 10px;
+    white-space: nowrap;
+}
+
+.tk-st-pending {
+    background: var(--c-warning-bg, #fff3cd);
+    color: var(--c-warning-text, #856404);
+}
+
+.tk-st-active {
+    background: var(--c-tk-light);
+    color: var(--c-tk-text);
+}
+
+.tk-st-done {
+    background: var(--c-info-bg, #cce5ff);
+    color: var(--c-info-text, #004085);
+}
+
+.tk-st-confirmed {
+    background: var(--c-success-bg, #d4edda);
+    color: var(--c-success-text, #155724);
+}
+
+.tk-st-rejected {
+    background: var(--c-danger-bg, #f8d7da);
+    color: var(--c-danger-text, #721c24);
+}
+
+/* ── Дедлайн ── */
+.tk-deadline {
+    font-size: 12px;
+    font-weight: 500;
+    padding: 2px 8px;
+    border-radius: 8px;
+    background: var(--c-tk-light);
+    color: var(--c-tk-text);
+}
+
+.tk-deadline--warn {
+    background: var(--c-warning-bg, #fff3cd);
+    color: var(--c-warning-text, #856404);
+}
+
+.tk-deadline--overdue {
+    background: var(--c-danger-bg, #f8d7da);
+    color: var(--c-danger-text, #721c24);
+}
+
+/* ── Дії та кнопки ── */
+.tk-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+}
+
+.tk-action-btn {
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--c-tk-border);
+    background: var(--card);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--c-tk-text);
+    cursor: pointer;
+    font-family: var(--font-main);
+    transition: all 0.2s;
+}
+
+.tk-action-btn:hover {
+    background: var(--c-tk-light);
+}
+
+.tk-action-btn--primary {
+    background: var(--c-tk-primary);
+    color: white;
+    border-color: var(--c-tk-primary);
+}
+.tk-action-btn--primary:hover {
+    background: var(--c-tk-dark);
+}
+
+.tk-action-btn--danger {
+    background: #fef2f2;
+    color: #b91c1c;
+    border-color: #fca5a5;
+}
+.tk-action-btn--danger:hover {
+    background: #fee2e2;
+}
+
+.tk-action-btn--cancel {
+    background: transparent;
+    color: var(--text-muted);
+    border-color: var(--c-tk-border);
+}
+.tk-action-btn--cancel:hover {
+    background: var(--c-tk-lighter);
+}
+
+.tk-action-btn--sm {
+    padding: 4px 10px;
+    font-size: 12px;
+}
+
+/* ── Блоки відхилення / відмови ── */
+.tk-reject-block, .tk-decline-block {
+    margin-top: 10px;
+    padding: 10px;
+    background: var(--c-tk-lighter);
+    border-radius: 8px;
+    border: 1px solid var(--c-tk-border);
+}
+
+.tk-reject-title {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+    font-weight: 500;
+}
+
+.tk-reason-chips {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 6px;
+}
+
+.tk-chip {
+    padding: 4px 10px;
+    border-radius: 14px;
+    border: 1px solid var(--c-tk-border);
+    background: var(--card);
+    font-size: 12px;
+    color: var(--c-tk-text);
+    cursor: pointer;
+    font-family: var(--font-main);
+    transition: all 0.2s;
+}
+.tk-chip:hover {
+    background: var(--c-tk-light);
+}
+
+/* ── Коментарі (відмова дитини, відхилення батьками) ── */
+.tk-child-comment, .tk-reject-comment {
+    margin-top: 8px;
+    padding: 8px 10px;
+    background: var(--c-tk-lighter);
+    border-radius: 8px;
+    border-left: 3px solid #f59e0b;
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.tk-reject-comment {
+    border-left-color: #ef4444;
+}
+
+.tk-child-comment strong, .tk-reject-comment strong {
+    color: var(--text-primary);
+    font-size: 12px;
+}
+
+.tk-comment-body {
+    margin-top: 4px;
+    line-height: 1.5;
+    color: var(--text-primary);
+}
+
+/* ── Інфо-підказка ── */
+.tk-info-hint {
+    margin-top: 8px;
+    padding: 6px 10px;
+    background: var(--c-tk-lighter);
+    border-radius: 8px;
+    font-size: 12px;
+    color: var(--c-tk-text);
+    border: 1px dashed var(--c-tk-border);
+}
+
+/* Адаптив для малих екранів */
+@media (max-width: 480px) {
+    .tk-card-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .tk-card-meta {
+        gap: 4px;
+    }
+    .tk-actions {
+        flex-direction: column;
+    }
+    .tk-action-btn {
+        width: 100%;
+        text-align: center;
+    }
+}

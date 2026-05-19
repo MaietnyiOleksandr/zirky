@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⭐</text></svg>">
-    <!-- version: v3.20260519.0014 -->
+    <!-- version: v3.20260519.2004 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>⭐ Зірки Успіху</title>
     <link rel="stylesheet" href="style.css">
@@ -146,6 +146,7 @@
         <div class="tabs">
             <button class="tab active" data-tab="add"          onclick="switchTab('add', true)"><span class="tab-icon">➕</span><span class="tab-label">Додати</span></button>
             <button class="tab"        data-tab="schedule"      onclick="switchTab('schedule', true)"><span class="tab-icon">📋</span><span class="tab-label">Розклад</span></button>
+            <button class="tab"        data-tab="tasks"         onclick="switchTab('tasks', true)"><span class="tab-icon">✅</span><span class="tab-label">Завдання</span><span class="tab-badge" id="tabBadge_tasks" style="display:none;"></span></button>
             <button class="tab"        data-tab="rewards"       onclick="switchTab('rewards', true)"><span class="tab-icon">🎁</span><span class="tab-label">Витрати</span></button>
             <button class="tab"        data-tab="achievements"  onclick="switchTab('achievements', true)"><span class="tab-icon">🏆</span><span class="tab-label">Успіхи</span><span class="tab-badge" id="tabBadge_achievements" style="display:none;"></span></button>
             <button class="tab"        data-tab="history"       onclick="switchTab('history', true)"><span class="tab-icon">📜</span><span class="tab-label">Історія</span></button>
@@ -197,7 +198,7 @@
                             <option value="8">8 балів (1⭐)</option>
                         </select>
                     </div>
-                    <button class="btn btn-primary" onclick="addGradeRecord()">✨ Додати оцінку</button>
+                    <button class="btn btn-primary" onclick="submitGradeOrRequest()">✨ Додати оцінку</button>
                 </div>
 
                 <!-- Форма діагностувальної роботи -->
@@ -231,7 +232,7 @@
                             <option value="8">8 балів (1⭐)</option>
                         </select>
                     </div>
-                    <button class="btn btn-primary" onclick="addDiagnosticWork()">📝 Додати діагностувальну роботу</button>
+                    <button class="btn btn-primary" onclick="submitDiagnosticOrRequest()">📝 Додати діагностувальну роботу</button>
                 </div>
 
                 <!-- Форма бонусу -->
@@ -275,7 +276,7 @@
                         <label>📄 Кількість сторінок</label>
                         <input type="number" id="bookPages" min="1" max="9999" placeholder="Скільки сторінок у книзі?">
                     </div>
-                    <button class="btn btn-primary" onclick="addBonusRecord()">✨ Додати бонус</button>
+                    <button class="btn btn-primary" onclick="submitBonusOrRequest()">✨ Додати бонус</button>
                 </div>
 
                 <!-- Форма особливого нарахування -->
@@ -357,6 +358,15 @@
                 <div id="scheduleSubjectsBtnWrap" style="display:none;">
                     <button class="btn btn-secondary" style="width:100%" onclick="openSubjectsEditor()">📚 Предмети та гуртки</button>
                 </div>
+            </div>
+
+            <!-- ══ Завдання ════════════════════════════════════ -->
+            <div class="section" id="tasksSection">
+                <div class="section-header">
+                    <h2 class="section-title">✅ Завдання</h2>
+                    <button class="btn-icon" onclick="showHelp('tasksSection')" title="Довідка">?</button>
+                </div>
+                <div id="tasksBlock"></div>
             </div>
 
             <div class="section" id="historySection">
@@ -1051,6 +1061,13 @@
                  deleteParentComment, toggleChildComment, cancelChildComment,
                  saveChildComment, toggleFbDropdown, closeFbDropdown,
                  applyFeedbackFilter } from './feedback.js';
+        import { initTasks, renderTasks, applyTasksFilter,
+                 submitGradeRequest, submitDiagnosticRequest, submitBonusRequest,
+                 openParentTaskForm, closeParentTaskForm, submitParentTask,
+                 onParentTaskCategoryChange, onParentTaskBonusChange, onParentTaskDeadlineToggle,
+                 confirmTask, startRejectTask, cancelRejectTask, selectRejectReason, submitRejectTask,
+                 markTaskDone, startDeclineTask, cancelDeclineTask, selectDeclineReason, submitDeclineTask,
+                 clearChildDecline, deleteTaskByParent, getTasksUnreadCount } from './tasks.js';
         import { getTodayDate, setTodayDates } from './utils.js';
         import { showLoading, updateUI } from './ui.js';
         import { showHelp, closeHelp } from './help.js';
@@ -1229,6 +1246,7 @@
                 achievements: 'tabBadge_achievements',
                 stats:        'tabBadge_stats',
                 feedback:     'tabBadge_feedback',
+                tasks:        'tabBadge_tasks',
                 settings:     'tabBadge_settings',
             };
             Object.entries(tabMap).forEach(([badgeKey, elId]) => {
@@ -1260,6 +1278,48 @@
         window.renderAchievements = renderAchievements;
         window.renderAchievementsHome = renderAchievementsHome;
 
+        // ── Router-функції для блоку "Додати" (вибір батьки/дитина) ──
+        // У дитячому режимі → надсилається запит на перевірку (child_request)
+        // У батьківському → одразу нараховується запис (звичайна логіка)
+        window.submitGradeOrRequest = function () {
+            if (state.data.isParent) addGradeRecord();
+            else                     submitGradeRequest();
+        };
+        window.submitDiagnosticOrRequest = function () {
+            if (state.data.isParent) addDiagnosticWork();
+            else                     submitDiagnosticRequest();
+        };
+        window.submitBonusOrRequest = function () {
+            if (state.data.isParent) addBonusRecord();
+            else                     submitBonusRequest();
+        };
+
+        // ── Tasks API (експорти tasks.js на window для onclick) ──
+        window.renderTasks                = renderTasks;
+        window.applyTasksFilter           = applyTasksFilter;
+        window.submitGradeRequest         = submitGradeRequest;
+        window.submitDiagnosticRequest    = submitDiagnosticRequest;
+        window.submitBonusRequest         = submitBonusRequest;
+        window.openParentTaskForm         = openParentTaskForm;
+        window.closeParentTaskForm        = closeParentTaskForm;
+        window.submitParentTask           = submitParentTask;
+        window.onParentTaskCategoryChange = onParentTaskCategoryChange;
+        window.onParentTaskBonusChange    = onParentTaskBonusChange;
+        window.onParentTaskDeadlineToggle = onParentTaskDeadlineToggle;
+        window.confirmTask                = confirmTask;
+        window.startRejectTask            = startRejectTask;
+        window.cancelRejectTask           = cancelRejectTask;
+        window.selectRejectReason         = selectRejectReason;
+        window.submitRejectTask           = submitRejectTask;
+        window.markTaskDone               = markTaskDone;
+        window.startDeclineTask           = startDeclineTask;
+        window.cancelDeclineTask          = cancelDeclineTask;
+        window.selectDeclineReason        = selectDeclineReason;
+        window.submitDeclineTask          = submitDeclineTask;
+        window.clearChildDecline          = clearChildDecline;
+        window.deleteTaskByParent         = deleteTaskByParent;
+        window.getTasksUnreadCount        = getTasksUnreadCount;
+
         // ── Event listeners ───────────────────────────────────
         document.addEventListener('click', (e) => {
             if (e.target.id === 'setGoalBtn' || e.target.id === 'editGoalBtn') {
@@ -1289,6 +1349,7 @@
             if (window.generateNotifications) window.generateNotifications();
             if (window.updateBadges) window.updateBadges();
         });
+        initTasks();
 
     </script>
 
