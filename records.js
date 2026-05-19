@@ -8,7 +8,7 @@
 //   та з tasks.js при підтвердженні запиту/завдання.
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260519.1010';
+export const VERSION = 'v3.20260519.1029';
 
 import { state } from './state.js';
 import { isDoubleSubject } from './subjects.js';
@@ -39,10 +39,15 @@ export function commitRecord(recordData) {
     if (!recordData.id)   recordData.id   = Date.now();
     if (!recordData.type) recordData.type = 'earn';
 
-    // 1. Додаємо запис
+    // 1. Прибираємо undefined-поля (Firebase не приймає undefined)
+    for (const key in recordData) {
+        if (recordData[key] === undefined) delete recordData[key];
+    }
+
+    // 2. Додаємо запис
     state.data.records.push(recordData);
 
-    // 2. Оновлюємо баланс
+    // 3. Оновлюємо баланс
     const stars = Number(recordData.stars) || 0;
     if (recordData.type === 'earn') {
         state.data.balance = Number(state.data.balance) + stars;
@@ -50,25 +55,25 @@ export function commitRecord(recordData) {
         state.data.balance = Number(state.data.balance) - stars;
     }
 
-    // 3. Перевіряємо мету ДО recalculate — щоб goalsReached був оновлений
+    // 4. Перевіряємо мету ДО recalculate — щоб goalsReached був оновлений
     checkGoalReached(recordData.date);
 
-    // 4. Запам'ятовуємо рівні ДО перерахунку
+    // 5. Запам'ятовуємо рівні ДО перерахунку
     const levelsBefore = { ...(state.data.achievements.levels || {}) };
 
-    // 5. Перераховуємо ВСЕ — тепер goal_counter має правильний лічильник
+    // 6. Перераховуємо ВСЕ — тепер goal_counter має правильний лічильник
     recalculateAchievements();
 
-    // 6. Даємо бонуси тільки за НОВІ досягнення
+    // 7. Даємо бонуси тільки за НОВІ досягнення
     giveRewardsForNewAchievements(levelsBefore);
 
-    // 7. Перевіряємо тижневі досягнення
+    // 8. Перевіряємо тижневі досягнення
     checkWeeklyAchievements();
 
-    // 8. Зберігаємо в Firebase
+    // 9. Зберігаємо в Firebase
     saveRecords();
 
-    // 9. Оновлюємо UI
+    // 10. Оновлюємо UI
     updateUI();
 
     return recordData;
