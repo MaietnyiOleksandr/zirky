@@ -1,8 +1,14 @@
 // ════════════════════════════════════════════════════
 // RECORDS  records.js — Records
+//
+//   commitRecord(recordData) — спільна функція додавання запису.
+//   Робить весь стандартний цикл: push → balance → goal →
+//   achievements → save → UI. Викликається з усіх місць
+//   що додають запис: addGradeRecord/Bonus/Special/Diagnostic
+//   та з tasks.js при підтвердженні запиту/завдання.
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260519.0707';
+export const VERSION = 'v3.20260519.1010';
 
 import { state } from './state.js';
 import { isDoubleSubject } from './subjects.js';
@@ -10,6 +16,63 @@ import { gradeToStars } from './config.js';
 import { recalculateAchievements, checkWeeklyAchievements, checkGoalReached, giveRewardsForNewAchievements, removeRewardsForLostAchievements } from './achievements.js';
 import { saveRecords } from './firebase.js';
 import { updateUI } from './ui.js';
+
+// ════════════════════════════════════════════════════════════
+// 💾  СПІЛЬНА ФУНКЦІЯ — commitRecord
+//
+//     Уніфікований шлях додавання запису у state.
+//     Будь-який запис (оцінка, бонус, особливе, task-підтвердження)
+//     проходить через ОДИН і той самий пайплайн.
+//
+//     recordData має містити мінімум: id, date, stars, type, category
+//     Поведінка для type:
+//       'earn'  → balance += stars
+//       'spend' → balance -= stars
+//
+//     Повертає створений запис.
+// ════════════════════════════════════════════════════════════
+export function commitRecord(recordData) {
+    if (!recordData || typeof recordData !== 'object') {
+        console.error('⚠️ commitRecord: некоректний recordData', recordData);
+        return null;
+    }
+    if (!recordData.id)   recordData.id   = Date.now();
+    if (!recordData.type) recordData.type = 'earn';
+
+    // 1. Додаємо запис
+    state.data.records.push(recordData);
+
+    // 2. Оновлюємо баланс
+    const stars = Number(recordData.stars) || 0;
+    if (recordData.type === 'earn') {
+        state.data.balance = Number(state.data.balance) + stars;
+    } else if (recordData.type === 'spend') {
+        state.data.balance = Number(state.data.balance) - stars;
+    }
+
+    // 3. Перевіряємо мету ДО recalculate — щоб goalsReached був оновлений
+    checkGoalReached(recordData.date);
+
+    // 4. Запам'ятовуємо рівні ДО перерахунку
+    const levelsBefore = { ...(state.data.achievements.levels || {}) };
+
+    // 5. Перераховуємо ВСЕ — тепер goal_counter має правильний лічильник
+    recalculateAchievements();
+
+    // 6. Даємо бонуси тільки за НОВІ досягнення
+    giveRewardsForNewAchievements(levelsBefore);
+
+    // 7. Перевіряємо тижневі досягнення
+    checkWeeklyAchievements();
+
+    // 8. Зберігаємо в Firebase
+    saveRecords();
+
+    // 9. Оновлюємо UI
+    updateUI();
+
+    return recordData;
+}
 
 // ════════════════════════════════════════════════════════════
 // ➕  БЛОК: Нарахування (оцінки, бонуси, діагностика)
@@ -24,33 +87,13 @@ export function addGradeRecord() {
     let stars = gradeToStars[grade];
     if (isDoubleSubject(subject)) stars *= 2;
 
-    state.data.records.push({
+    commitRecord({
         id: Date.now(),
         date: date + 'T12:00:00',
         subject, grade, stars,
         type: 'earn',
         category: 'grade'
     });
-    state.data.balance = Number(state.data.balance) + stars;
-    
-    const newRecord = state.data.records[state.data.records.length - 1];
-    
-    // Перевіряємо мету ДО recalculate — щоб goalsReached вже був оновлений
-    const goalJustReached = checkGoalReached(date + 'T12:00:00');
-    
-    // Запам'ятовуємо рівні ДО перерахунку
-    const levelsBefore = {...(state.data.achievements.levels || {})};
-    
-    // Перераховуємо ВСЕ — тепер goal_counter вже має правильний лічильник
-    recalculateAchievements();
-    
-    // Даємо бонуси тільки за НОВІ досягнення
-    giveRewardsForNewAchievements(levelsBefore);
-    
-    // Перевіряємо тижневі досягнення
-    checkWeeklyAchievements();
-    saveRecords();
-    updateUI();  // Одразу оновлюємо badges та досягнення
 
     document.getElementById('subject').value = '';
     document.getElementById('grade').value = '';
@@ -62,15 +105,13 @@ export function addDiagnosticWork() {
     const subject = document.getElementById('diagnosticSubject').value;
     const grade = document.getElementById('diagnosticGrade').value;
 
-    if (!date || !subject || !grade) { 
-        alert('❌ Заповніть всі поля!'); 
-        return; 
+    if (!date || !subject || !grade) {
+        alert('❌ Заповніть всі поля!');
+        return;
     }
 
-    // gradeToStars береться з config.js
-    
     let stars = gradeToStars[grade];
-    
+
     // Діагностувальна робота: ×3 для всіх, ×6 для математики
     if (isDoubleSubject(subject)) {
         stars *= 6;  // ×2 (подвійний предмет) × ×3 (діагностувальна) = ×6
@@ -78,7 +119,7 @@ export function addDiagnosticWork() {
         stars *= 3;  // ×3 для всіх інших предметів
     }
 
-    state.data.records.push({
+    commitRecord({
         id: Date.now(),
         date: date + 'T12:00:00',
         subject: `Діагностувальна робота з ${subject}`,
@@ -87,29 +128,10 @@ export function addDiagnosticWork() {
         type: 'earn',
         category: 'diagnostic'
     });
-    
-    state.data.balance = Number(state.data.balance) + stars;
-    
-    // Перевіряємо мету ДО recalculate — щоб goalsReached вже був оновлений
-    const goalJustReached = checkGoalReached(date + 'T12:00:00');
-    
-    // Запам'ятовуємо рівні ДО перерахунку
-    const levelsBefore = {...(state.data.achievements.levels || {})};
-    
-    // Перераховуємо ВСЕ — тепер goal_counter вже має правильний лічильник
-    recalculateAchievements();
-    
-    // Даємо бонуси тільки за НОВІ досягнення
-    giveRewardsForNewAchievements(levelsBefore);
-    
-    // Перевіряємо тижневі досягнення
-    checkWeeklyAchievements();
-    saveRecords();
-    updateUI();
 
     document.getElementById('diagnosticSubject').value = '';
     document.getElementById('diagnosticGrade').value = '';
-    
+
     const multiplier = isDoubleSubject(subject) ? '×6' : '×3';
     alert(`✅ Додано діагностувальну роботу!\n\n${subject}: ${grade} балів\nБонус: ${multiplier}\nОтримано: ${stars}⭐`);
 }
@@ -137,7 +159,7 @@ export function addBonusRecord() {
         ? parseInt(pagesInput.value)
         : undefined;
 
-    state.data.records.push({
+    commitRecord({
         id: Date.now(),
         date: date + 'T12:00:00',
         description: name,
@@ -148,26 +170,6 @@ export function addBonusRecord() {
         counterKey:  counterKey  || undefined,
         pages,
     });
-    state.data.balance = Number(state.data.balance) + stars;
-    
-    const newRecord = state.data.records[state.data.records.length - 1];
-    
-    // Перевіряємо мету ДО recalculate — щоб goalsReached вже був оновлений
-    const goalJustReached = checkGoalReached(date + 'T12:00:00');
-    
-    // Запам'ятовуємо рівні ДО перерахунку
-    const levelsBefore = {...(state.data.achievements.levels || {})};
-    
-    // Перераховуємо ВСЕ — тепер goal_counter вже має правильний лічильник
-    recalculateAchievements();
-    
-    // Даємо бонуси тільки за НОВІ досягнення
-    giveRewardsForNewAchievements(levelsBefore);
-    
-    // Перевіряємо тижневі досягнення
-    checkWeeklyAchievements();
-    saveRecords();
-    updateUI();
 
     document.getElementById('bonusType').value = '';
     alert(`✅ Додано ${stars}⭐!`);
@@ -180,33 +182,13 @@ export function addSpecialRecord() {
 
     if (!date || !desc.trim() || !stars || stars < 1) { alert('❌ Заповніть всі поля!'); return; }
 
-    state.data.records.push({
+    commitRecord({
         id: Date.now(),
         date: date + 'T12:00:00',
         description: desc, stars,
         type: 'earn',
         category: 'special'
     });
-    state.data.balance = Number(state.data.balance) + stars;
-    
-    const newRecord = state.data.records[state.data.records.length - 1];
-    
-    // Перевіряємо мету ДО recalculate — щоб goalsReached вже був оновлений
-    const goalJustReached = checkGoalReached(date + 'T12:00:00');
-    
-    // Запам'ятовуємо рівні ДО перерахунку
-    const levelsBefore = {...(state.data.achievements.levels || {})};
-    
-    // Перераховуємо ВСЕ — тепер goal_counter вже має правильний лічильник
-    recalculateAchievements();
-    
-    // Даємо бонуси тільки за НОВІ досягнення
-    giveRewardsForNewAchievements(levelsBefore);
-    
-    // Перевіряємо тижневі досягнення
-    checkWeeklyAchievements();
-    saveRecords();
-    updateUI();
 
     document.getElementById('specialDesc').value = '';
     document.getElementById('specialStars').value = '';
@@ -237,7 +219,7 @@ export function deleteRecord(id) {
 
     // Перераховуємо weekly (може знизитись рівень після видалення)
     checkWeeklyAchievements();
-    
+
     // Якщо баланс впав нижче цілі — скидаємо goal.reached
     // щоб при наступному досягненні мети знову зарахувалось
     if (state.data.goal && state.data.goal.reached) {
@@ -247,7 +229,7 @@ export function deleteRecord(id) {
             state.data.goal.reached = false;
         }
     }
-    
+
     saveRecords();
     updateUI();
 }
