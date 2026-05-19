@@ -2,7 +2,7 @@
 // REWARDS  rewards.js — Витрати / Конвертація
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260514.1530';
+export const VERSION = 'v3.20260519.0707';
 
 // ════════════════════════════════════════════════════════════
 
@@ -48,14 +48,21 @@ export function spendStars(stars, record) {
 // ⚙️  Ініціалізація полів при відкритті вкладки
 // ════════════════════════════════════════════════════
 
+// НСК(5, minutesPerStar) — крок завжди кратний 5 і дає цілі зірки
+function lcmMinutes(mps) {
+    const gcd = (a, b) => b ? gcd(b, a % b) : a;
+    return (5 * mps) / gcd(5, mps);
+}
+
 export function renderRewards() {
     const rates = getRates();
     const timeInput = document.getElementById('timeMinutes');
     const moneyInput = document.getElementById('moneyAmount');
     if (timeInput) {
-        timeInput.step  = rates.minutesPerStar;
-        timeInput.min   = rates.minutesPerStar;
-        timeInput.placeholder = `Хвилин (мін. ${rates.minutesPerStar})`;
+        const timeStep = lcmMinutes(rates.minutesPerStar);
+        timeInput.step  = timeStep;
+        timeInput.min   = timeStep;
+        timeInput.placeholder = `Хвилин (кратно ${timeStep}, мін. ${timeStep})`;
     }
     if (moneyInput) {
         moneyInput.step  = rates.moneyPerStar;
@@ -79,10 +86,11 @@ export function updateTimePreview() {
         el.textContent = '';
         return;
     }
-    if (minutes % rates.minutesPerStar !== 0) {
+    const timeStep = lcmMinutes(rates.minutesPerStar);
+    if (minutes % timeStep !== 0) {
         el.style.color = '#f44336';
         el.style.fontSize = '13px';
-        el.textContent = `⚠️ Введіть кратне ${rates.minutesPerStar}`;
+        el.textContent = `⚠️ Введіть кратне ${timeStep} хв`;
     } else {
         el.style.color = 'var(--secondary)';
         el.style.fontSize = '18px';
@@ -94,12 +102,13 @@ export function buyTime() {
     const input = document.getElementById('timeMinutes');
     const minutes = parseInt(input.value);
     const rates = getRates();
-    if (!minutes || minutes < rates.minutesPerStar) {
-        alert(`❌ Мінімум ${rates.minutesPerStar} хвилин!`);
+    const timeStep = lcmMinutes(rates.minutesPerStar);
+    if (!minutes || minutes < timeStep) {
+        alert(`❌ Мінімум ${timeStep} хвилин!`);
         return;
     }
-    if (minutes % rates.minutesPerStar !== 0) {
-        alert(`❌ Кількість хвилин має бути кратна ${rates.minutesPerStar}!`);
+    if (minutes % timeStep !== 0) {
+        alert(`❌ Кількість хвилин має бути кратна ${timeStep}!`);
         return;
     }
     const stars = minutes / rates.minutesPerStar;
@@ -120,9 +129,16 @@ export function updateMoneyPreview() {
     const el = document.getElementById('moneyStarsPreview');
     if (!el) return;
     const rates = getRates();
-    el.textContent = amount >= 50
-        ? `= ${amount / rates.moneyPerStar} ⭐`
-        : '';
+    if (amount < 50) { el.textContent = ''; return; }
+    if (amount % rates.moneyPerStar !== 0) {
+        el.style.color = '#f44336';
+        el.style.fontSize = '13px';
+        el.textContent = `⚠️ Введіть кратне ${rates.moneyPerStar}`;
+    } else {
+        el.style.color = 'var(--secondary)';
+        el.style.fontSize = '18px';
+        el.textContent = `= ${amount / rates.moneyPerStar} ⭐`;
+    }
 }
 
 export function buyMoney() {
@@ -131,6 +147,10 @@ export function buyMoney() {
     const rates = getRates();
     if (!amount || amount < 50) {
         alert('❌ Мінімальна сума — 50 грн!');
+        return;
+    }
+    if (amount % rates.moneyPerStar !== 0) {
+        alert(`❌ Сума має бути кратна ${rates.moneyPerStar} грн!`);
         return;
     }
     const stars = amount / rates.moneyPerStar;
@@ -150,7 +170,7 @@ export function buyCustomReward() {
     const date  = document.getElementById('customRewardDate').value;
     const desc  = document.getElementById('customRewardDesc').value;
     const stars = parseInt(document.getElementById('customRewardStars').value);
-    if (!date || !desc || !stars || stars < 1) { alert('❌ Заповніть всі поля!'); return; }
+    if (!date || !desc.trim() || !stars || stars < 1) { alert('❌ Заповніть всі поля!'); return; }
     if (state.data.isParent) {
         doCustomReward(date, desc, stars);
     } else {

@@ -2,7 +2,7 @@
 // RECORDS  records.js — Records
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260518.2318';
+export const VERSION = 'v3.20260519.0707';
 
 import { state } from './state.js';
 import { isDoubleSubject } from './subjects.js';
@@ -123,10 +123,18 @@ export function addBonusRecord() {
     const [name, starsRaw, subcategory = '', counterKey = ''] = bonusType.split('|');
     const stars = parseInt(starsRaw);
 
-    // Сторінки — зчитуємо лише якщо це книга
+    // Сторінки — обов'язкове поле для книги
     const pagesInput = document.getElementById('bookPages');
+    if (counterKey === 'books') {
+        const pagesVal = pagesInput ? parseInt(pagesInput.value) : NaN;
+        if (!pagesVal || pagesVal < 1) {
+            alert('📄 Вкажіть кількість сторінок у книзі!');
+            if (pagesInput) pagesInput.focus();
+            return;
+        }
+    }
     const pages = (counterKey === 'books' && pagesInput && pagesInput.value)
-        ? parseInt(pagesInput.value) || undefined
+        ? parseInt(pagesInput.value)
         : undefined;
 
     state.data.records.push({
@@ -170,7 +178,7 @@ export function addSpecialRecord() {
     const desc = document.getElementById('specialDesc').value;
     const stars = parseInt(document.getElementById('specialStars').value);
 
-    if (!date || !desc || !stars || stars < 1) { alert('❌ Заповніть всі поля!'); return; }
+    if (!date || !desc.trim() || !stars || stars < 1) { alert('❌ Заповніть всі поля!'); return; }
 
     state.data.records.push({
         id: Date.now(),
