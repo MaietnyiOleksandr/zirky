@@ -18,7 +18,7 @@
 //     Live-таймер дедлайну з паузою при прихованій вкладці.
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260519.2004';
+export const VERSION = 'v3.20260519.2207';
 
 import { state, tasksFilter } from './state.js';
 import { isDoubleSubject } from './subjects.js';
@@ -595,6 +595,30 @@ export function clearChildDecline(id) {
 }
 
 // ════════════════════════════════════════════════════════════
+// 🗑️  Видалення дитиною свого запиту
+// ════════════════════════════════════════════════════════════
+// Дитина може видалити свій child_request тільки якщо:
+//   - запит ще pending (батьки ще не обробили)
+//   - або вже rejected (прибрати з виду без очікування 7 днів)
+// Confirmed запити НЕ можна — запис вже в Історії, його видаляє лише
+// батьки звичайним способом через 🗑️ у Історії.
+export function deleteOwnRequest(id) {
+    const task = state.data.tasks?.[id];
+    if (!task) return;
+    if (task.origin !== 'child_request') {
+        alert('Це не твій запит — видаляти його не можна');
+        return;
+    }
+    if (task.status === 'confirmed') {
+        alert('Підтверджений запит вже в Історії. Видалити його можуть лише батьки через розділ Історія.');
+        return;
+    }
+    if (!confirm(`Видалити запит "${task.title}"?`)) return;
+    fbDeleteTask(id);
+    if (window.generateNotifications) window.generateNotifications();
+}
+
+// ════════════════════════════════════════════════════════════
 // 🗑️  Повне видалення (батьки можуть видалити будь-яке завдання)
 // ════════════════════════════════════════════════════════════
 
@@ -1046,6 +1070,10 @@ function _renderChildRequestCard(task) {
             <div class="tk-card-title">${_esc(task.title)}</div>
             <div class="tk-card-stars">⭐ ${task.stars} зірок · 📅 ${_esc((task.date || '').slice(0,10))}</div>
             <div class="tk-info-hint">⏳ Очікую перевірки батьками</div>
+            <div class="tk-actions">
+                <button class="tk-action-btn tk-action-btn--cancel"
+                    onclick="deleteOwnRequest('${task.id}')">🗑️ Скасувати запит</button>
+            </div>
         </div>
     `;
 }
@@ -1056,6 +1084,9 @@ function _renderChildCompletedCard(task) {
     const dateStr = _fmtDateTime(task.confirmedAt || task.rejectedAt);
 
     const originLabel = task.origin === 'child_request' ? '📨 Мій запит' : '📋 Завдання від батьків';
+
+    // Дитина може видалити свій відхилений запит достроково (до 7 днів)
+    const canDelete = task.origin === 'child_request' && task.status === 'rejected';
 
     return `
         <div class="tk-card tk-card--completed">
@@ -1072,6 +1103,11 @@ function _renderChildCompletedCard(task) {
                 <div class="tk-reject-comment">
                     <strong>💬 Коментар батьків:</strong>
                     <div class="tk-comment-body">${_esc(task.rejectComment)}</div>
+                </div>` : ''}
+            ${canDelete ? `
+                <div class="tk-actions">
+                    <button class="tk-action-btn tk-action-btn--cancel"
+                        onclick="deleteOwnRequest('${task.id}')">🗑️ Прибрати</button>
                 </div>` : ''}
         </div>
     `;

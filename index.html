@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⭐</text></svg>">
-    <!-- version: v3.20260519.2004 -->
+    <!-- version: v3.20260519.2207 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>⭐ Зірки Успіху</title>
     <link rel="stylesheet" href="style.css">
@@ -603,8 +603,19 @@
                     <ul>
                         <li><strong>Додати оцінку:</strong> Предмет + оцінка (математика x2, діагностувальна x3)</li>
                         <li><strong>Додати бонус:</strong> Окремий запис за досягнення</li>
-                        <li><strong>Особливе нарахування:</strong> Свій опис + кількість зірок</li>
+                        <li><strong>Особливе нарахування:</strong> Свій опис + кількість зірок (доступне лише батькам)</li>
+                        <li><strong>Канікули:</strong> Період коли серії не перериваються (доступне лише батькам)</li>
                         <li>Всі записи можна видалити (кнопка 🗑️)</li>
+                    </ul>
+
+                    <h3>✅ Завдання та запити:</h3>
+                    <ul>
+                        <li><strong>Дитина має доступ до блоку "Додати"</strong> — але її записи спочатку чекають вашого підтвердження</li>
+                        <li><strong>📨 Запити від дитини:</strong> приходять у розділ "Завдання" — підтверджуйте ✅ або відхиляйте ❌ з коментарем</li>
+                        <li><strong>📋 Власні завдання:</strong> можете створити завдання для дитини з опційним дедлайном (таймер до хвилини)</li>
+                        <li><strong>Підтверджені записи</strong> — потрапляють в Історію як звичайні нарахування, нічим не відрізняються</li>
+                        <li><strong>🔔 Сповіщення</strong> — крапка на табі "Завдання" коли щось потребує уваги</li>
+                        <li><strong>📜 Автовидалення</strong> — оброблені завдання видаляються через 7 днів</li>
                     </ul>
 
                     <h3>⭐ Конвертація оцінок:</h3>
@@ -638,6 +649,28 @@
                     <div class="stars-guide-header">
                         <div class="stars-guide-title">⭐ Як заробити зірки?</div>
                         <div class="stars-guide-subtitle">Тут все про твої зірки — читай і заробляй!</div>
+                    </div>
+
+                    <!-- Як працює система -->
+                    <div class="stars-guide-card">
+                        <div class="stars-guide-card-title">💙 Як це працює</div>
+                        <div class="stars-guide-rows">
+                            <div class="stars-guide-row">
+                                <span class="stars-guide-label">➕ <b>Розділ "Додати"</b></span>
+                                <span class="stars-guide-badge stars-badge--blue">📨</span>
+                            </div>
+                            <div class="stars-guide-tip" style="margin-top:6px">Сама обирай оцінку чи бонус → надішли на перевірку батькам</div>
+                            <div class="stars-guide-row" style="margin-top:8px">
+                                <span class="stars-guide-label">✅ <b>Розділ "Завдання"</b></span>
+                                <span class="stars-guide-badge stars-badge--blue">⏳</span>
+                            </div>
+                            <div class="stars-guide-tip" style="margin-top:6px">Тут видно твої запити та завдання від батьків — статус оновлюється коли батьки підтвердять чи відхилять</div>
+                            <div class="stars-guide-row" style="margin-top:8px">
+                                <span class="stars-guide-label">📋 <b>Завдання від батьків</b></span>
+                                <span class="stars-guide-badge stars-badge--green">✔️</span>
+                            </div>
+                            <div class="stars-guide-tip" style="margin-top:6px">Виконуй завдання які тобі задали — після підтвердження отримаєш зірки</div>
+                        </div>
                     </div>
 
                     <!-- Оцінки -->
@@ -1067,7 +1100,7 @@
                  onParentTaskCategoryChange, onParentTaskBonusChange, onParentTaskDeadlineToggle,
                  confirmTask, startRejectTask, cancelRejectTask, selectRejectReason, submitRejectTask,
                  markTaskDone, startDeclineTask, cancelDeclineTask, selectDeclineReason, submitDeclineTask,
-                 clearChildDecline, deleteTaskByParent, getTasksUnreadCount } from './tasks.js';
+                 clearChildDecline, deleteTaskByParent, deleteOwnRequest, getTasksUnreadCount } from './tasks.js';
         import { getTodayDate, setTodayDates } from './utils.js';
         import { showLoading, updateUI } from './ui.js';
         import { showHelp, closeHelp } from './help.js';
@@ -1318,6 +1351,7 @@
         window.submitDeclineTask          = submitDeclineTask;
         window.clearChildDecline          = clearChildDecline;
         window.deleteTaskByParent         = deleteTaskByParent;
+        window.deleteOwnRequest           = deleteOwnRequest;
         window.getTasksUnreadCount        = getTasksUnreadCount;
 
         // ── Event listeners ───────────────────────────────────
