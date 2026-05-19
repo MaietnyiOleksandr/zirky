@@ -6,7 +6,7 @@
 //     Зміни в будь-якому модулі видні всюди.
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260515.1925';
+export const VERSION = 'v3.20260519.1040';
 
 // ════════════════════════════════════════════════════════════
 
@@ -32,6 +32,12 @@ export const state = {
             active: { theme: 'default', palette: 'default', font: 'default', buttons: 'default', background: 'default' },
         },
         backupLastDate: null,   // 'YYYY-MM-DD' — дата останнього резервного копіювання (синхронізується через Firebase)
+
+        // ── Завдання та запити (zirky-tasks/ окрема гілка Firebase) ──
+        // Структура: { [id]: taskObj }
+        //   origin: 'child_request' | 'parent_task'
+        //   status: 'pending' | 'active' | 'done' | 'confirmed' | 'rejected'
+        tasks: {},
     },
 
     // ── Firebase ──────────────────────────────────
@@ -63,3 +69,8 @@ export const state = {
 };
 
 export const historyFilter = { type: 'all', subject: 'all' };
+
+// Фільтр у табі "Завдання" — за зразком historyFilter / feedback фільтрів
+// status: 'all' | 'pending' | 'active' | 'confirmed' | 'rejected'
+// origin: 'all' | 'child_request' | 'parent_task'
+export const tasksFilter = { status: 'all', origin: 'all' };

@@ -2,7 +2,7 @@
 // FIREBASE  firebase.js — Firebase
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260514.1530';
+export const VERSION = 'v3.20260519.1040';
 
 import { state } from './state.js';
 import { firebaseConfig } from './config.js';
@@ -85,6 +85,54 @@ export function saveAllFeedback(items) {
     set(ref(db, 'zirky-feedback'), obj);
 }
 
+// ── Firebase: функції для модуля Завдань ─────────────────────
+// Окрема гілка zirky-tasks/ за зразком zirky-feedback
+// Структура: { [id]: taskObj }
+
+export function initTasksListener(callback) {
+    onValue(ref(db, 'zirky-tasks'), (snapshot) => {
+        // state.data.tasks — синхронізуємо одразу для всіх модулів
+        const data = snapshot.val() || {};
+        state.data.tasks = data;
+        if (typeof callback === 'function') callback(data);
+    });
+}
+
+export function saveTask(task) {
+    if (!task || !task.id) {
+        console.error('⚠️ saveTask: некоректне завдання', task);
+        return;
+    }
+    // Чистимо undefined-поля (Firebase не приймає undefined)
+    const clean = {};
+    for (const key in task) {
+        if (task[key] !== undefined) clean[key] = task[key];
+    }
+    set(ref(db, `zirky-tasks/${task.id}`), clean);
+}
+
+export function deleteTask(id) {
+    if (!id) return;
+    remove(ref(db, `zirky-tasks/${id}`));
+}
+
+// Batch-видалення (для cleanup 7 днів) — приймає масив id
+export function deleteTasks(ids) {
+    if (!ids || !ids.length) return;
+    const updates = {};
+    ids.forEach(id => { updates[`zirky-tasks/${id}`] = null; });
+    update(ref(db), updates);
+}
+
+// Повне перезаписування всіх завдань (для імпорту/скидання)
+export function saveAllTasks(tasksObj) {
+    if (!tasksObj || Object.keys(tasksObj).length === 0) {
+        set(ref(db, 'zirky-tasks'), null);
+        return;
+    }
+    set(ref(db, 'zirky-tasks'), tasksObj);
+}
+
 // ── Firebase: збереження даних ───────────────────────────────
 
 // Повний знімок стану для set() / saveAll()
@@ -102,6 +150,7 @@ function _buildFullData() {
         notifications:  state.data.notifications  || null,
         backupLastDate: state.data.backupLastDate  || null,
         // (zirky-notifications — окрема гілка для значків сповіщень)
+        // (zirky-tasks — окрема гілка для завдань та запитів)
         appearance:     state.data.appearance     || { child: { owned: ['default'], active: { theme: 'default', palette: 'default', font: 'default', buttons: 'default', background: 'default' } }, parent: { active: { theme: 'default', palette: 'default', font: 'default', buttons: 'default', background: 'default' } } },
     };
 }
@@ -181,4 +230,3 @@ export function saveNotifications() {
     if (!_guard()) return;
     update(ref(db, 'zirky'), { notifications: state.data.notifications || null });
 }
-
