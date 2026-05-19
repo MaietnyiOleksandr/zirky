@@ -2,7 +2,7 @@
 // UI     ui.js — Ui
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260518.2241';
+export const VERSION = 'v3.20260519.2138';
 
 // ════════════════════════════════════════════════════════════
 
@@ -36,19 +36,13 @@ export function updateUI() {
     document.getElementById('spentStats').textContent = spent + '⭐';
 
     if (!state.data.isParent) {
-        // Дитина: ховаємо "Додати", показуємо "Довідник"
-        document.querySelectorAll('.tab').forEach(t => {
-            if (t.dataset.tab === 'add') t.style.display = 'none';
-        });
+        // Дитина: показуємо "Довідник", блок "Додати" доступний (форми зсередини керуються navigation.js)
         const guideBtn = document.getElementById('tabBtnGuide');
         if (guideBtn) guideBtn.style.display = '';
         document.getElementById('parentInstructions').style.display = 'none';
         document.getElementById('childInstructions').style.display = 'block';
     } else {
-        // Батьки: показуємо "Додати", ховаємо "Довідник"
-        document.querySelectorAll('.tab').forEach(t => {
-            if (t.dataset.tab === 'add') t.style.display = '';
-        });
+        // Батьки: ховаємо "Довідник"
         const guideBtn = document.getElementById('tabBtnGuide');
         if (guideBtn) guideBtn.style.display = 'none';
         document.getElementById('parentInstructions').style.display = 'block';
