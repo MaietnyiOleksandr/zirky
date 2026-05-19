@@ -6,7 +6,7 @@
 //     showForm/switchTab, а ui.js потребував їх модулів
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260519.2004';
+export const VERSION = 'v3.20260519.2147';
 
 import { state } from './state.js';
 import { getTodayDate } from './utils.js';
@@ -57,6 +57,19 @@ function applyAddSectionVisibility() {
             (freezeForm  && freezeForm.style.display  === 'block')) {
             _showFormProgrammatic('grade');
         }
+    }
+
+    // Текст головних кнопок-сабмітів — залежить від ролі
+    //   Батьки: "Додати ..." (одразу нараховується)
+    //   Дитина: "Надіслати ..." (надсилається запит)
+    const labels = {
+        submitGradeOrRequest:      { parent: '✨ Додати оцінку',                 child: '📨 Надіслати оцінку на перевірку' },
+        submitDiagnosticOrRequest: { parent: '📝 Додати діагностувальну роботу', child: '📨 Надіслати діагностувальну на перевірку' },
+        submitBonusOrRequest:      { parent: '✨ Додати бонус',                  child: '📨 Надіслати бонус на перевірку' },
+    };
+    for (const fn in labels) {
+        const btn = document.querySelector(`#addSection button[onclick="${fn}()"]`);
+        if (btn) btn.textContent = isParent ? labels[fn].parent : labels[fn].child;
     }
 }
 
