@@ -3,7 +3,7 @@
 //     Етап 1: Фундамент — структура + Firebase
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260515.1208';
+export const VERSION = 'v3.20260519.2156';
 
 import { state }    from './state.js';
 import { nowKyiv }  from './utils.js';
@@ -54,6 +54,43 @@ export const NOTIF_TYPES = {
     feedback_comment: {
         role:       'parent',
         badges:     ['bell', 'feedback'],
+        dismissBy:  ['checkmark', 'tab'],
+        repeatDays: null,
+    },
+    // ── Завдання ──────────────────────────────────────────
+    task_new: {            // Дитині — батьки створили нове завдання
+        role:       'child',
+        badges:     ['bell', 'tasks'],
+        dismissBy:  ['checkmark', 'tab'],
+        repeatDays: null,
+    },
+    task_request: {        // Батькам — дитина надіслала запит
+        role:       'parent',
+        badges:     ['bell', 'tasks'],
+        dismissBy:  ['checkmark', 'tab'],
+        repeatDays: null,
+    },
+    task_done: {           // Батькам — дитина виконала завдання
+        role:       'parent',
+        badges:     ['bell', 'tasks'],
+        dismissBy:  ['checkmark', 'tab'],
+        repeatDays: null,
+    },
+    task_declined: {       // Батькам — дитина відмовилась
+        role:       'parent',
+        badges:     ['bell', 'tasks'],
+        dismissBy:  ['checkmark', 'tab'],
+        repeatDays: null,
+    },
+    task_confirmed: {      // Дитині — батьки підтвердили
+        role:       'child',
+        badges:     ['bell', 'tasks'],
+        dismissBy:  ['checkmark', 'tab'],
+        repeatDays: null,
+    },
+    task_rejected: {       // Дитині — батьки відхилили
+        role:       'child',
+        badges:     ['bell', 'tasks'],
         dismissBy:  ['checkmark', 'tab'],
         repeatDays: null,
     },
@@ -371,7 +408,101 @@ export function generateNotifications() {
         }
     });
 
-    // ── 3. Досягнення ─────────────────────────────────────
+    // ── 3. Завдання та запити ─────────────────────────────
+    // Коротка мітка для сповіщень: title + зірки
+    const _tkLabel = (t) => `"${(t.title || '').slice(0, 35)}${(t.title || '').length > 35 ? '…' : ''}" · ${t.stars}⭐`;
+
+    const tasks = state.data.tasks || {};
+    Object.values(tasks).forEach(t => {
+        if (!t || !t.id) return;
+
+        if (t.origin === 'child_request') {
+            // Дитячий запит: батькам — task_request (за status='pending')
+            if (t.status === 'pending') {
+                const id = `task_request_${t.id}`;
+                if (!_items[id]) {
+                    _upsertItem(_makeItem(id, 'task_request',
+                        'Запит від дитини',
+                        _tkLabel(t),
+                        { createdAt: t.createdAt }
+                    ));
+                }
+            }
+            // Підтверджено → дитині
+            if (t.status === 'confirmed' && t.confirmedAt) {
+                const id = `task_confirmed_${t.id}`;
+                if (!_items[id]) {
+                    _upsertItem(_makeItem(id, 'task_confirmed',
+                        'Запит підтверджено',
+                        `${_tkLabel(t)} — зараховано`,
+                        { createdAt: t.confirmedAt }
+                    ));
+                }
+            }
+            // Відхилено → дитині
+            if (t.status === 'rejected' && t.rejectedAt) {
+                const id = `task_rejected_${t.id}`;
+                if (!_items[id]) {
+                    _upsertItem(_makeItem(id, 'task_rejected',
+                        'Запит відхилено',
+                        `${_tkLabel(t)} — ${t.rejectComment || 'без коментаря'}`,
+                        { createdAt: t.rejectedAt }
+                    ));
+                }
+            }
+        }
+
+        if (t.origin === 'parent_task') {
+            // Нове активне завдання → дитині (task_new)
+            if (t.status === 'active' && !t.childComment) {
+                const id = `task_new_${t.id}`;
+                if (!_items[id]) {
+                    _upsertItem(_makeItem(id, 'task_new',
+                        'Нове завдання від батьків',
+                        _tkLabel(t),
+                        { createdAt: t.createdAt }
+                    ));
+                }
+            }
+            // Виконано дитиною → батькам (task_done)
+            if (t.status === 'done' && t.doneAt) {
+                const id = `task_done_${t.id}`;
+                if (!_items[id]) {
+                    _upsertItem(_makeItem(id, 'task_done',
+                        'Дитина виконала завдання',
+                        _tkLabel(t),
+                        { createdAt: t.doneAt }
+                    ));
+                }
+            }
+            // Дитина відмовилась → батькам (task_declined)
+            // Статус залишається 'active', але childComment з'являється
+            if (t.status === 'active' && t.childComment && t.declinedAt) {
+                const id = `task_declined_${t.id}`;
+                const existing = _items[id];
+                // Нова або оновлена відмова — скидаємо readBy.parent
+                if (!existing || existing.createdAt !== t.declinedAt) {
+                    _upsertItem(_makeItem(id, 'task_declined',
+                        'Дитина відмовилась',
+                        `${_tkLabel(t)} — ${t.childComment}`,
+                        { createdAt: t.declinedAt, readBy: { child: existing?.readBy?.child || null, parent: null } }
+                    ));
+                }
+            }
+        }
+    });
+
+    // Прибираємо сповіщення про завдання, яких більше немає (видалили з Firebase)
+    Object.keys(_items).forEach(notifId => {
+        const m = notifId.match(/^task_(request|done|new|declined|confirmed|rejected)_(.+)$/);
+        if (!m) return;
+        const taskId = m[2];
+        if (!tasks[taskId]) {
+            _removeItem(notifId);
+        }
+    });
+
+    // ── 4. Досягнення ─────────────────────────────────────
     records
         .filter(r => r.category === 'achievement' && r.type === 'earn')
         .forEach(r => {
@@ -583,6 +714,13 @@ const TYPE_COLORS = {
     feedback_status:  { bg: 'var(--c-purple-bg)',  border: 'var(--c-purple-border)',  text: 'var(--c-purple-text)'  },
     feedback_new:     { bg: 'var(--c-purple-bg)',  border: 'var(--c-purple-border)',  text: 'var(--c-purple-text)'  },
     feedback_comment: { bg: 'var(--c-purple-bg)',  border: 'var(--c-purple-border)',  text: 'var(--c-purple-text)'  },
+    // Завдання — блакитні (узгоджено зі стилем табу tasks)
+    task_new:         { bg: 'var(--c-tk-light)',   border: 'var(--c-tk-border)',      text: 'var(--c-tk-text)'      },
+    task_request:     { bg: 'var(--c-tk-light)',   border: 'var(--c-tk-border)',      text: 'var(--c-tk-text)'      },
+    task_done:        { bg: 'var(--c-tk-light)',   border: 'var(--c-tk-border)',      text: 'var(--c-tk-text)'      },
+    task_declined:    { bg: 'var(--c-tk-light)',   border: 'var(--c-tk-border)',      text: 'var(--c-tk-text)'      },
+    task_confirmed:   { bg: 'var(--c-tk-light)',   border: 'var(--c-tk-border)',      text: 'var(--c-tk-text)'      },
+    task_rejected:    { bg: 'var(--c-tk-light)',   border: 'var(--c-tk-border)',      text: 'var(--c-tk-text)'      },
     good_dynamics:    { bg: 'var(--c-success-bg)', border: 'var(--c-success-border)', text: 'var(--c-success-text)' },
     streak_risk:      { bg: 'var(--c-danger-bg)',  border: 'var(--c-danger-border)',  text: 'var(--c-danger-text)'  },
     no_stars:         { bg: 'var(--c-warning-bg)', border: 'var(--c-warning-border)', text: 'var(--c-warning-text)' },
@@ -597,6 +735,12 @@ const TYPE_ICONS = {
     feedback_status:  '✅',
     feedback_new:     '💬',
     feedback_comment: '✏️',
+    task_new:         '📋',
+    task_request:     '📨',
+    task_done:        '✔️',
+    task_declined:    '✖️',
+    task_confirmed:   '✅',
+    task_rejected:    '❌',
     good_dynamics:    '📈',
     streak_risk:      '🔥',
     no_stars:         '⭐',
