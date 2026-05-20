@@ -2,7 +2,7 @@
 // ⚙️   settings.js — Налаштування / Експорт / Імпорт
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260520.0857';
+export const VERSION = 'v3.20260520.0909';
 
 // ════════════════════════════════════════════════════════════
 
@@ -205,9 +205,11 @@ export async function showDataInfoModal() {
 
 export function exportData() {
     try {
-        // Додаємо метадані
+        // Знімок основних даних — БЕЗ isParent (це роль активного користувача, не дані)
+        const { isParent, ...dataWithoutRole } = state.data;
+
         const dataToExport = {
-            ...state.data,
+            ...dataWithoutRole,
             feedback: getFeedbackItems(),
             tasks:    state.data.tasks || {},   // явно: завдання та запити з гілки zirky-tasks/
             version: 1,
@@ -323,6 +325,8 @@ export function importData(event) {
             delete imported.appName;
             delete imported.feedback;
             delete imported.tasks;
+            // isParent — це роль активного користувача, не може імпортуватись
+            delete imported.isParent;
             
             // Замінюємо data
             // Мутуємо існуючий об'єкт щоб зберегти посилання
