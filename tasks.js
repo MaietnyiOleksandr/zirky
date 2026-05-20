@@ -18,7 +18,7 @@
 //     Live-таймер дедлайну з паузою при прихованій вкладці.
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260520.0725';
+export const VERSION = 'v3.20260520.0838';
 
 import { state, tasksFilter } from './state.js';
 import { isDoubleSubject } from './subjects.js';
@@ -490,6 +490,15 @@ export function confirmTask(id) {
         return;
     }
 
+    // Діалог підтвердження
+    const rewardLine = (task.origin === 'parent_task' && task.rewardStars > 0)
+        ? `\n🎁 + Винагорода: ${task.rewardStars}⭐\n💰 Всього буде нараховано: ${Number(task.stars) + Number(task.rewardStars)}⭐`
+        : `\n💰 Буде нараховано: ${task.stars}⭐`;
+    const confirmText = task.origin === 'child_request'
+        ? `Підтвердити запит дитини?\n\n"${task.title}"${rewardLine}`
+        : `Підтвердити виконання завдання?\n\n"${task.title}"${rewardLine}`;
+    if (!confirm(confirmText)) return;
+
     // 1. Створюємо стандартний запис у records[] через спільну функцію
     const record = _taskToRecord(task);
     commitRecord(record);
@@ -571,6 +580,12 @@ export function markTaskDone(id) {
     if (!task) return;
     if (task.origin !== 'parent_task') return;
     if (task.status !== 'active') return;
+
+    // Діалог підтвердження
+    const rewardLine = (task.rewardStars > 0)
+        ? `\n🎁 + Винагорода: ${task.rewardStars}⭐\n💰 Всього отримаєш: ${Number(task.stars) + Number(task.rewardStars)}⭐`
+        : `\n💰 Отримаєш: ${task.stars}⭐`;
+    if (!confirm(`Ти впевнена що виконала завдання?\n\n"${task.title}"${rewardLine}\n\nБатьки перевірять і підтвердять.`)) return;
 
     task.status = 'done';
     task.doneAt = nowKyiv();
