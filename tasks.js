@@ -18,7 +18,7 @@
 //     Live-таймер дедлайну з паузою при прихованій вкладці.
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260519.2207';
+export const VERSION = 'v3.20260520.0725';
 
 import { state, tasksFilter } from './state.js';
 import { isDoubleSubject } from './subjects.js';
@@ -346,6 +346,10 @@ function _resetParentTaskForm() {
     ids.forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
     const cb = document.getElementById('ptaskHasDeadline');
     if (cb) cb.checked = false;
+    const cbNoReward = document.getElementById('ptaskNoReward');
+    if (cbNoReward) cbNoReward.checked = false;
+    const rewardInput = document.getElementById('ptaskRewardStars');
+    if (rewardInput) { rewardInput.value = '1'; rewardInput.disabled = false; rewardInput.style.opacity = ''; }
     onParentTaskDeadlineToggle();
     onParentTaskCategoryChange();
 }
@@ -373,6 +377,19 @@ export function onParentTaskDeadlineToggle() {
     const cb = document.getElementById('ptaskHasDeadline');
     const block = document.getElementById('ptaskDeadlineBlock');
     if (block) block.style.display = (cb && cb.checked) ? 'block' : 'none';
+}
+
+export function onParentTaskNoRewardToggle() {
+    const cb = document.getElementById('ptaskNoReward');
+    const input = document.getElementById('ptaskRewardStars');
+    if (!cb || !input) return;
+    input.disabled = cb.checked;
+    if (cb.checked) {
+        input.style.opacity = '0.5';
+    } else {
+        input.style.opacity = '';
+        if (!input.value || input.value === '0') input.value = '1';
+    }
 }
 
 export function submitParentTask() {
@@ -417,6 +434,18 @@ export function submitParentTask() {
         }
     }
 
+    // Винагорода за виконання завдання
+    const noReward = document.getElementById('ptaskNoReward')?.checked || false;
+    let rewardStars = 0;
+    if (!noReward) {
+        const rs = parseInt(document.getElementById('ptaskRewardStars')?.value);
+        if (isNaN(rs) || rs < 0) {
+            alert('🎁 Вкажіть коректну кількість зірок винагороди або позначте "Без додаткової винагороди"');
+            return;
+        }
+        rewardStars = rs;
+    }
+
     const task = {
         id: _genId(),
         origin: 'parent_task',
@@ -426,6 +455,7 @@ export function submitParentTask() {
         status: 'active',
         createdAt: nowKyiv(),
         hasDeadline,
+        rewardStars,
     };
     if (deadline) task.deadline = deadline;
     if (extra.subcategory) task.subcategory = extra.subcategory;
@@ -435,7 +465,8 @@ export function submitParentTask() {
     saveTask(task);
     closeParentTaskForm();
     if (window.generateNotifications) window.generateNotifications();
-    alert(`✅ Завдання створено!\n\n${title}\nЗірок: ${stars}⭐${deadline ? '\nДедлайн: ' + _fmtDateTime(deadline) : ''}`);
+    const rewardLine = rewardStars > 0 ? `\n🎁 Винагорода: +${rewardStars}⭐` : '';
+    alert(`✅ Завдання створено!\n\n${title}\nЗірок: ${stars}⭐${rewardLine}${deadline ? '\nДедлайн: ' + _fmtDateTime(deadline) : ''}`);
 }
 
 // ════════════════════════════════════════════════════════════
@@ -462,6 +493,20 @@ export function confirmTask(id) {
     // 1. Створюємо стандартний запис у records[] через спільну функцію
     const record = _taskToRecord(task);
     commitRecord(record);
+
+    // 1b. Якщо це parent_task з винагородою — додаємо ДРУГИЙ запис категорії 'task_reward'
+    // Дитячі запити (child_request) винагороди не отримують — ми домовились
+    if (task.origin === 'parent_task' && task.rewardStars && Number(task.rewardStars) > 0) {
+        commitRecord({
+            id: Date.now() + 1,                       // унікальний id, щоб не співпав з основним
+            date: record.date,                        // та сама дата що й основний запис
+            description: `✅ Виконане завдання: ${task.title}`,
+            stars: Number(task.rewardStars),
+            type: 'earn',
+            category: 'task_reward',
+            taskId: task.id,                          // для діагностики/майбутніх фільтрів
+        });
+    }
 
     // 2. Оновлюємо task — статус confirmed
     task.status = 'confirmed';
@@ -836,6 +881,15 @@ function _renderParentTaskFormBlock() {
                     <input type="datetime-local" id="ptaskDeadlineDate" class="tk-input">
                 </div>
 
+                <div class="tk-form-group">
+                    <label class="tk-label">🎁 Додаткова винагорода за виконання завдання</label>
+                    <input type="number" id="ptaskRewardStars" class="tk-input" min="0" max="100" value="1" placeholder="Додаткові зірки">
+                    <label class="tk-checkbox" style="margin-top:6px">
+                        <input type="checkbox" id="ptaskNoReward" onchange="onParentTaskNoRewardToggle()">
+                        Без додаткової винагороди
+                    </label>
+                </div>
+
                 <div class="tk-actions">
                     <button class="tk-action-btn tk-action-btn--primary"
                         onclick="submitParentTask()">✅ Створити завдання</button>
@@ -900,6 +954,9 @@ function _renderParentTaskCard(task) {
         ? `<span data-deadline="${task.deadline}">${_deadlineLabel(task.deadline)}</span>`
         : '';
 
+    const rewardHtml = (task.rewardStars && Number(task.rewardStars) > 0)
+        ? `<span class="tk-reward-badge">🎁 +${task.rewardStars}⭐ за виконання</span>` : '';
+
     return `
         <div id="tkCard_${task.id}" class="tk-card tk-card--task ${childDeclined ? 'tk-card--declined' : ''}">
             <div class="tk-card-header">
@@ -910,7 +967,7 @@ function _renderParentTaskCard(task) {
                 </div>
             </div>
             <div class="tk-card-title">${_esc(task.title)}</div>
-            <div class="tk-card-stars">⭐ ${task.stars} зірок ${deadlineHtml}</div>
+            <div class="tk-card-stars">⭐ ${task.stars} зірок ${deadlineHtml} ${rewardHtml}</div>
 
             ${childDeclined ? `
                 <div class="tk-child-comment">
@@ -1002,6 +1059,9 @@ function _renderChildTaskCard(task) {
         ? `<span data-deadline="${task.deadline}">${_deadlineLabel(task.deadline)}</span>`
         : '';
 
+    const rewardHtml = (task.rewardStars && Number(task.rewardStars) > 0)
+        ? `<span class="tk-reward-badge">🎁 +${task.rewardStars}⭐ за виконання</span>` : '';
+
     return `
         <div id="tkCard_${task.id}" class="tk-card tk-card--task ${hasDecline ? 'tk-card--declined' : ''}">
             <div class="tk-card-header">
@@ -1012,7 +1072,7 @@ function _renderChildTaskCard(task) {
                 </div>
             </div>
             <div class="tk-card-title">${_esc(task.title)}</div>
-            <div class="tk-card-stars">⭐ ${task.stars} зірок ${deadlineHtml}</div>
+            <div class="tk-card-stars">⭐ ${task.stars} зірок ${deadlineHtml} ${rewardHtml}</div>
 
             ${hasDecline ? `
                 <div class="tk-child-comment">

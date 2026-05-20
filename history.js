@@ -2,7 +2,7 @@
 // HISTORY  history.js — History
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260518.2342';
+export const VERSION = 'v3.20260520.0725';
 
 import { getSubjectEmoji } from './subjects.js';
 
@@ -72,6 +72,7 @@ export function renderHistory() {
     if (filterType === 'diagnostic')  records = records.filter(r => r.category === 'diagnostic');
     if (filterType === 'bonus')       records = records.filter(r => r.category === 'bonus');
     if (filterType === 'special')     records = records.filter(r => r.category === 'special');
+    if (filterType === 'task_reward') records = records.filter(r => r.category === 'task_reward');
     if (filterType === 'achievement') records = records.filter(r => r.category === 'achievement');
     if (filterType === 'correction')  records = records.filter(r => r.category === 'correction');
     if (filterType === 'spend')       records = records.filter(r => r.type === 'spend');

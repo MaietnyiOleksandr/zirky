@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⭐</text></svg>">
-    <!-- version: v3.20260519.2207 -->
+    <!-- version: v3.20260520.0725 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>⭐ Зірки Успіху</title>
     <link rel="stylesheet" href="style.css">
@@ -389,6 +389,7 @@
                         <option value="diagnostic">📝 Діагностувальні</option>
                         <option value="bonus">🌟 Бонуси</option>
                         <option value="special">✨ Особливі нарахування</option>
+                        <option value="task_reward">✅ Виконані завдання</option>
                         <option value="achievement">🏆 Зірки за досягнення</option>
                         <option value="correction">🔧 Корекції балансу</option>
                         <option value="spend">🔴 Витрати</option>
@@ -1097,7 +1098,7 @@
         import { initTasks, renderTasks, applyTasksFilter,
                  submitGradeRequest, submitDiagnosticRequest, submitBonusRequest,
                  openParentTaskForm, closeParentTaskForm, submitParentTask,
-                 onParentTaskCategoryChange, onParentTaskBonusChange, onParentTaskDeadlineToggle,
+                 onParentTaskCategoryChange, onParentTaskBonusChange, onParentTaskDeadlineToggle, onParentTaskNoRewardToggle,
                  confirmTask, startRejectTask, cancelRejectTask, selectRejectReason, submitRejectTask,
                  markTaskDone, startDeclineTask, cancelDeclineTask, selectDeclineReason, submitDeclineTask,
                  clearChildDecline, deleteTaskByParent, deleteOwnRequest, getTasksUnreadCount } from './tasks.js';
@@ -1339,6 +1340,7 @@
         window.onParentTaskCategoryChange = onParentTaskCategoryChange;
         window.onParentTaskBonusChange    = onParentTaskBonusChange;
         window.onParentTaskDeadlineToggle = onParentTaskDeadlineToggle;
+        window.onParentTaskNoRewardToggle = onParentTaskNoRewardToggle;
         window.confirmTask                = confirmTask;
         window.startRejectTask            = startRejectTask;
         window.cancelRejectTask           = cancelRejectTask;

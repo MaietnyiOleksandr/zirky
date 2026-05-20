@@ -3259,6 +3259,22 @@ select:focus, input:focus {
     color: var(--c-danger-text, #721c24);
 }
 
+/* ── Бейдж винагороди за виконання завдання ── */
+.tk-reward-badge {
+    font-size: 12px;
+    font-weight: 500;
+    padding: 2px 8px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    color: #92400e;
+    border: 1px solid #fcd34d;
+}
+:root[data-palette="space"] .tk-reward-badge {
+    background: rgba(251, 191, 36, 0.18);
+    color: #fcd34d;
+    border-color: rgba(251, 191, 36, 0.4);
+}
+
 /* ── Дії та кнопки ── */
 .tk-actions {
     display: flex;
