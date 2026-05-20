@@ -2,13 +2,13 @@
 // ⚙️   settings.js — Налаштування / Експорт / Імпорт
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260520.0847';
+export const VERSION = 'v3.20260520.0857';
 
 // ════════════════════════════════════════════════════════════
 
 import { state } from './state.js';
 import { recalculateAchievements, giveRewardsForNewAchievements } from './achievements.js';
-import { saveAll, saveRecords, saveRates, saveBackupDate, saveAllFeedback } from './firebase.js';
+import { saveAll, saveRecords, saveRates, saveBackupDate, saveAllFeedback, saveAllTasks } from './firebase.js';
 import { getFeedbackItems } from './feedback.js';
 import { THEMES } from './appearance.js';
 import { dismissByAction } from './notifications.js';
@@ -209,6 +209,7 @@ export function exportData() {
         const dataToExport = {
             ...state.data,
             feedback: getFeedbackItems(),
+            tasks:    state.data.tasks || {},   // явно: завдання та запити з гілки zirky-tasks/
             version: 1,
             exportDate: new Date().toISOString(),
             appName: "Зірки Успіху"
@@ -280,12 +281,14 @@ export function importData(event) {
             const balance = imported.balance || 0;
             const exportDate = imported.exportDate ? new Date(imported.exportDate).toLocaleDateString('uk-UA') : 'невідомо';
             const feedbackCount = imported.feedback?.length || 0;
-            
+            const tasksCount = imported.tasks ? Object.keys(imported.tasks).length : 0;
+
             const confirmMsg = `📁 Файл: ${file.name}\n\n` +
                 `📊 Що буде імпортовано:\n` +
                 `• Записів: ${recordsCount}\n` +
                 `• Баланс: ${balance}⭐\n` +
                 `• Повідомлень зворотнього зв'язку: ${feedbackCount}\n` +
+                `• Завдань та запитів: ${tasksCount}\n` +
                 `• Дата експорту: ${exportDate}\n\n` +
                 `⚠️ УВАГА: Це замінить всі поточні дані!\n\n` +
                 `Продовжити?`;
@@ -310,19 +313,24 @@ export function importData(event) {
                 freezePeriods: []
             };
             
-            // Витягуємо feedback перед тим як мутувати state.data
+            // Витягуємо feedback та tasks перед тим як мутувати state.data
             const feedbackToRestore = Array.isArray(imported.feedback) ? imported.feedback : [];
+            const tasksToRestore = (imported.tasks && typeof imported.tasks === 'object') ? imported.tasks : {};
 
             // Очищаємо метадані експорту
             delete imported.version;
             delete imported.exportDate;
             delete imported.appName;
             delete imported.feedback;
+            delete imported.tasks;
             
             // Замінюємо data
             // Мутуємо існуючий об'єкт щоб зберегти посилання
             Object.assign(state.data, imported);
-            
+
+            // Відновлюємо tasks у state одразу (бо listener може запізнитись)
+            state.data.tasks = tasksToRestore;
+
             // Перераховуємо досягнення
             recalculateAchievements();
             
@@ -331,6 +339,9 @@ export function importData(event) {
 
             // Відновлюємо feedback в Firebase
             saveAllFeedback(feedbackToRestore);
+
+            // Відновлюємо tasks у Firebase (окрема гілка zirky-tasks/)
+            saveAllTasks(tasksToRestore);
             
             // Перезавантажуємо сторінку
             alert("✅ Дані успішно імпортовано!\n\nСторінка перезавантажиться.");
@@ -380,10 +391,14 @@ export function resetAllData() {
             weekly: {},
             repeatableHistory: {},
             freezePeriods: []
-        }
+        },
+        tasks: {},
     });
     
     saveAll();
+    // Очищаємо окремі гілки
+    saveAllFeedback([]);
+    saveAllTasks({});
     alert("✅ Всі дані скинуто\n\nСторінка перезавантажиться.");
     setTimeout(() => location.reload(), 500);
 }
