@@ -6,7 +6,7 @@
 //     showForm/switchTab, а ui.js потребував їх модулів
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260521.0730';
+export const VERSION = 'v3.20260521.1005';
 
 import { state } from './state.js';
 import { getTodayDate } from './utils.js';
@@ -35,19 +35,12 @@ document.addEventListener('zirky:dataLoaded', generateNotifications);
 //   Батьки бачать всі 5 форм: оцінка, діагностувальна, бонус, особливе, канікули
 //   Дитина бачить лише 3: оцінка, діагностувальна, бонус
 //   Особливе та канікули — закриті, бо їх не можна делегувати
+//
+//   Видимість кнопок "Особливе" та "Канікули" керується централізовано
+//   через applyProfileVisibility() в ui.js (id=quickActionSpecial / quickActionFreeze).
+//   Тут залишається лише поведінка: перемикання форми і тексти кнопок submit.
 function applyAddSectionVisibility() {
     const isParent = !!state.data.isParent;
-
-    // Кнопки швидкого доступу — приховуємо "Особливе" та "Канікули" для дитини
-    const buttons = document.querySelectorAll('#addSection .quick-action-btn');
-    buttons.forEach(btn => {
-        const onclickAttr = btn.getAttribute('onclick') || '';
-        const isSpecial = onclickAttr.includes("'special'");
-        const isFreeze  = onclickAttr.includes("'freeze'");
-        if (isSpecial || isFreeze) {
-            btn.style.display = isParent ? '' : 'none';
-        }
-    });
 
     // Якщо у дитини була активна закрита форма — перемикаємо на оцінку
     if (!isParent) {

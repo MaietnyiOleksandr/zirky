@@ -1,6 +1,6 @@
 /* ════════════════════════════════════════════════════
    Зірки Успіху — Стилі
-   Версія: v3.20260521.0938
+   Версія: v3.20260521.1005
    ════════════════════════════════════════════════════ */
 
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;900&family=Comfortaa:wght@400;700&family=Fredoka+One&family=Ubuntu:wght@400;700&family=Playfair+Display:wght@400;700&display=swap');
@@ -1342,11 +1342,7 @@ select:focus, input:focus {
 /* Форми в "Додати" — показуються через navigation.js */
 #diagnosticForm, #bonusForm, #specialForm, #freezeForm { display: none; }
 
-/* Інструкції — показуються через ui.js */
-#childInstructions { display: none; }
-
-/* Батьківські блоки в налаштуваннях — показуються через settings.js */
-#pinSettingsBlock, #balanceCorrectionBlock, #conversionRatesBlock, #manualRecordBlock { display: none; margin-top: 15px; }
+/* Видимість парних/дитячих елементів керується централізовано через applyProfileVisibility() в ui.js */
 
 /* ════════════════════════════════════════════════════
    ТЕМИ — фони через data-bg атрибут на <html>
@@ -3499,20 +3495,20 @@ select:focus, input:focus {
     transform: rotate(90deg);
 }
 
-/* Плавна анімація через grid trick */
+/* Плавна анімація через max-height */
 .settings-accordion-body {
-    display: grid;
-    grid-template-rows: 0fr;
-    transition: grid-template-rows 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     background: var(--card);
 }
 
 .settings-accordion-body.open {
-    grid-template-rows: 1fr;
+    max-height: 5000px;
 }
 
 .settings-accordion-inner {
-    overflow: hidden;
+    /* більше не потрібен overflow — він на body */
 }
 
 .settings-block-content {

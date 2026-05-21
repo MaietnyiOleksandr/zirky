@@ -12,7 +12,7 @@
 //       3. Додай CSS vars у style.css (опційно)
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260514.1530';
+export const VERSION = 'v3.20260521.1005';
 
 import { state } from './state.js';
 import { saveAppearance, saveRecords } from './firebase.js';
@@ -617,11 +617,9 @@ export function renderThemeShop() {
     window.__zRefundTheme    = refundTheme;
     window.__zToggleDevMode  = toggleDevMode;
 
-    // Кнопка devMode — тільки для батьків
-    const devBlock = document.getElementById('devModeBlock');
-    const devBtn   = document.getElementById('devModeBtn');
-    if (devBlock) devBlock.style.display = state.data.isParent ? 'block' : 'none';
-    if (devBtn)   devBtn.classList.toggle('active', _devMode);
+    // Активний стан кнопки devMode (видимість керується централізовано в ui.js)
+    const devBtn = document.getElementById('devModeBtn');
+    if (devBtn) devBtn.classList.toggle('active', _devMode);
 }
 
 function _renderCustomize(container, owned, active) {
