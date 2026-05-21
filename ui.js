@@ -2,7 +2,7 @@
 // UI     ui.js — Ui
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260519.2138';
+export const VERSION = 'v3.20260521.0938';
 
 // ════════════════════════════════════════════════════════════
 
@@ -50,21 +50,27 @@ export function updateUI() {
         document.getElementById('currentPin').textContent = state.data.pin;
     }
 
-    // Батьківські блоки в налаштуваннях
+    // Батьківський блок "Корекція даних" в акордеоні налаштувань
     const _isParent = !!state.data.isParent;
-    const pinBlock     = document.getElementById('pinSettingsBlock');
-    const balanceBlock = document.getElementById('balanceCorrectionBlock');
-    const ratesBlock   = document.getElementById('conversionRatesBlock');
-    if (pinBlock)     pinBlock.style.display     = _isParent ? 'block' : 'none';
-    if (balanceBlock) {
-        balanceBlock.style.display = _isParent ? 'block' : 'none';
-        if (_isParent) {
-            const el = document.getElementById('currentBalanceDisplay');
-            if (el) el.textContent = (state.data.balance || 0) + '⭐';
-        }
+    const correctionWrap = document.getElementById('settingsAccordionWrap_correction');
+    if (correctionWrap) correctionWrap.style.display = _isParent ? 'block' : 'none';
+
+    // Оновлюємо баланс всередині блоку (якщо батько)
+    if (_isParent) {
+        const el = document.getElementById('currentBalanceDisplay');
+        if (el) el.textContent = (state.data.balance || 0) + '⭐';
+        const rates = state.data.conversionRates || { minutesPerStar: 2, moneyPerStar: 1 };
+        const mEl = document.getElementById('minutesPerStar');
+        const gEl = document.getElementById('moneyPerStar');
+        if (mEl) mEl.value = rates.minutesPerStar;
+        if (gEl) gEl.value = rates.moneyPerStar;
+        const mSpan = document.getElementById('currentMinutesRate');
+        const gSpan = document.getElementById('currentMoneyRate');
+        if (mSpan) mSpan.textContent = rates.minutesPerStar;
+        if (gSpan) gSpan.textContent = rates.moneyPerStar;
+        const pinEl = document.getElementById('currentPin');
+        if (pinEl) pinEl.textContent = state.data.pin;
     }
-    const manualBlock = document.getElementById('manualRecordBlock');
-    if (manualBlock) manualBlock.style.display = _isParent ? 'block' : 'none';
 
     const subjSchedBtn = document.getElementById('scheduleSubjectsBtnWrap');
     if (subjSchedBtn) subjSchedBtn.style.display = _isParent ? 'block' : 'none';
@@ -72,23 +78,6 @@ export function updateUI() {
     // Батьківські кнопки в розкладі
     const schedParentBtns = document.getElementById('scheduleParentBtns');
     if (schedParentBtns) schedParentBtns.style.display = _isParent ? 'flex' : 'none';
-
-
-
-    if (ratesBlock) {
-        ratesBlock.style.display = _isParent ? 'block' : 'none';
-        if (_isParent) {
-            const rates = state.data.conversionRates || { minutesPerStar: 2, moneyPerStar: 1 };
-            const mEl = document.getElementById('minutesPerStar');
-            const gEl = document.getElementById('moneyPerStar');
-            if (mEl) mEl.value = rates.minutesPerStar;
-            if (gEl) gEl.value = rates.moneyPerStar;
-            const mSpan = document.getElementById('currentMinutesRate');
-            const gSpan = document.getElementById('currentMoneyRate');
-            if (mSpan) mSpan.textContent = rates.minutesPerStar;
-            if (gSpan) gSpan.textContent = rates.moneyPerStar;
-        }
-    }
 
     renderAchievementsHome();
 

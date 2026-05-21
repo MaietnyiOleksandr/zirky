@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⭐</text></svg>">
-    <!-- version: v3.20260521.0730 -->
+    <!-- version: v3.20260521.0938 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>⭐ Зірки Успіху</title>
     <link rel="stylesheet" href="style.css">
@@ -827,238 +827,307 @@
                 <div class="section-header">
                     <h2 class="section-title">⚙️ Налаштування</h2>
                     <div class="section-header-actions">
-                        <button class="btn-icon" onclick="showDataInfoModal()" title="Інформація про дані">📊</button>
-                        <button class="btn-icon" onclick="showHelp('about')" title="Про програму">ℹ️</button>
-                        <button class="btn-icon" onclick="showHelp('changelog')" title="Історія змін" id="changelogBtn">📝</button>
                         <button class="btn-icon" onclick="showHelp('settingsSection')" title="Довідка">?</button>
                     </div>
                 </div>
 
-                <!-- Кнопка "Інформація про дані" тепер у заголовку секції -->
+                <div class="settings-menu">
 
-                <!-- Експорт -->
-                <div class="card-bg">
-                    <h3 class="card-title">📤 Експорт даних</h3>
-                    <p class="text-muted font-sm mb-md">
-                        Зберігає всі дані (оцінки, винагороди, досягнення) в файл JSON.<br>
-                        <strong>Рекомендується робити резервну копію щотижня!</strong>
-                    </p>
-                    <button class="btn btn-primary" onclick="exportData()">
-                        📤 Завантажити резервну копію
-                    </button>
-                </div>
-
-                <!-- Імпорт -->
-                <div class="card-bg">
-                    <h3 class="card-title">📥 Імпорт даних</h3>
-                    <p class="text-muted font-sm mb-md">
-                        Відновлює дані з раніше збереженого файлу.<br>
-                        <strong class="text-danger">⚠️ УВАГА: Замінить всі поточні дані!</strong>
-                    </p>
-                    <input type="file" id="importFile" accept=".json" class="hidden" onchange="importData(event)">
-                    <button class="btn btn-import" onclick="document.getElementById('importFile').click()">
-                        📥 Завантажити з файлу
-                    </button>
-                </div>
-
-                <!-- Скидання -->
-                <div class="card-danger">
-                    <h3 class="card-title">🗑️ Небезпечна зона</h3>
-                    <p class="card-text mb-md">
-                        Видаляє ВСІ дані назавжди. Ця дія незворотна!
-                    </p>
-                    <button class="btn btn-reset" onclick="resetAllData()">
-                        🗑️ Скинути всі дані
-                    </button>
-                </div>
-
-                <!-- PIN (тільки для батьків) -->
-                <div id="pinSettingsBlock" class="card-warning">
-                    <h3 class="card-title">🔐 Налаштування PIN-коду</h3>
-                    <div class="card-inner">
-                        <div class="card-label">Поточний PIN:</div>
-                        <div class="card-value" id="currentPin">1234</div>
-                    </div>
-                    <p class="card-note card-note--warning">
-                        <strong>⚠️ Увага:</strong> PIN-код потрібен для доступу до батьківського режиму
-                    </p>
-                    <div class="flex-row">
-                        <input type="password" id="newPin" placeholder="Новий PIN (4 цифри)" maxlength="4" class="flex-fill">
-                        <button class="btn btn-primary btn-compact" onclick="changePin()">🔐 Змінити PIN</button>
-                    </div>
-                </div>
-
-                <!-- Корекція балансу (тільки для батьків) -->
-                <div id="balanceCorrectionBlock" class="card-balance">
-                    <h3 class="card-title">💰 Корекція балансу</h3>
-                    <div class="card-inner card-inner--lg">
-                        <div class="card-label--lg">Поточний баланс:</div>
-                        <div class="card-value--lg" id="currentBalanceDisplay">0⭐</div>
-                    </div>
-                    <p class="card-note card-note--balance">
-                        <strong>⚠️ Увага:</strong> Використовуйте тільки для виправлення помилок або відновлення даних. Корекція зберігається в історії.
-                    </p>
-                    <div class="form-group mb-sm" style="display:flex;gap:8px;align-items:center;">
-                        <select id="correctionDirection" style="width:64px;padding:8px;border-radius:8px;border:2px solid var(--border);background:var(--card);color:var(--text);font-size:16px;font-weight:700;">
-                            <option value="+">➕</option>
-                            <option value="-">➖</option>
-                        </select>
-                        <input type="number" id="correctionStars" min="1" placeholder="Зірок" style="flex:1;">
-                    </div>
-                    <div class="form-group mb-sm">
-                        <input type="text" id="correctionReason" maxlength="80" placeholder="Причина корекції (обов'язково)">
-                    </div>
-                    <button class="btn btn-primary" onclick="adjustBalance()">🔧 Додати корекцію</button>
-                </div>
-
-
-
-                <!-- Ручне додавання запису (тільки для батьків) -->
-                <div id="manualRecordBlock" class="card-warning">
-                    <h3 class="card-title">🛠️ Додати запис вручну</h3>
-                    <p class="card-note card-note--warning">
-                        <strong>⚠️ Увага:</strong> Використовуйте тільки для відновлення втрачених записів
-                    </p>
-
-                    <div class="form-group mb-sm">
-                        <label class="card-label--md">Оберіть досягнення:</label>
-                        <select id="manualRecordPreset" onchange="applyManualRecordPreset()"
-                            style="width:100%;padding:8px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-card);color:var(--text-primary)">
-                            <option value="">— Оберіть досягнення —</option>
-                            <optgroup label="🎓 Відмінник">
-                                <option data-desc="🎓 Відмінник I"   data-stars="50"   data-type="earn" data-cat="achievement">🎓 Відмінник I (+50⭐)</option>
-                                <option data-desc="🎓 Відмінник II"  data-stars="200"  data-type="earn" data-cat="achievement">🎓 Відмінник II (+200⭐)</option>
-                                <option data-desc="🎓 Відмінник III" data-stars="1000" data-type="earn" data-cat="achievement">🎓 Відмінник III (+1000⭐)</option>
-                            </optgroup>
-                            <optgroup label="💫 Зіркова">
-                                <option data-desc="💫 Зіркова I"   data-stars="10" data-type="earn" data-cat="achievement">💫 Зіркова I (+10⭐)</option>
-                                <option data-desc="💫 Зіркова II"  data-stars="30" data-type="earn" data-cat="achievement">💫 Зіркова II (+30⭐)</option>
-                                <option data-desc="💫 Зіркова III" data-stars="50" data-type="earn" data-cat="achievement">💫 Зіркова III (+50⭐)</option>
-                            </optgroup>
-                            <optgroup label="🏅 Тверда десятка">
-                                <option data-desc="🏅 Тверда десятка I"   data-stars="10" data-type="earn" data-cat="achievement">🏅 Тверда десятка I (+10⭐)</option>
-                                <option data-desc="🏅 Тверда десятка II"  data-stars="20" data-type="earn" data-cat="achievement">🏅 Тверда десятка II (+20⭐)</option>
-                                <option data-desc="🏅 Тверда десятка III" data-stars="30" data-type="earn" data-cat="achievement">🏅 Тверда десятка III (+30⭐)</option>
-                            </optgroup>
-                            <optgroup label="📚 Книголюб">
-                                <option data-desc="📚 Книголюб I"   data-stars="20"  data-type="earn" data-cat="achievement">📚 Книголюб I (+20⭐)</option>
-                                <option data-desc="📚 Книголюб II"  data-stars="40"  data-type="earn" data-cat="achievement">📚 Книголюб II (+40⭐)</option>
-                                <option data-desc="📚 Книголюб III" data-stars="100" data-type="earn" data-cat="achievement">📚 Книголюб III (+100⭐)</option>
-                            </optgroup>
-                            <optgroup label="🔥 Fire Streak">
-                                <option data-desc="🔥 Fire Streak I"   data-stars="50"  data-type="earn" data-cat="achievement">🔥 Fire Streak I (+50⭐)</option>
-                                <option data-desc="🔥 Fire Streak II"  data-stars="100" data-type="earn" data-cat="achievement">🔥 Fire Streak II (+100⭐)</option>
-                                <option data-desc="🔥 Fire Streak III" data-stars="300" data-type="earn" data-cat="achievement">🔥 Fire Streak III (+300⭐)</option>
-                            </optgroup>
-                            <optgroup label="💰 Ощадливий">
-                                <option data-desc="💰 Ощадливий I"   data-stars="10" data-type="earn" data-cat="achievement">💰 Ощадливий I (+10⭐)</option>
-                                <option data-desc="💰 Ощадливий II"  data-stars="30" data-type="earn" data-cat="achievement">💰 Ощадливий II (+30⭐)</option>
-                                <option data-desc="💰 Ощадливий III" data-stars="50" data-type="earn" data-cat="achievement">💰 Ощадливий III (+50⭐)</option>
-                            </optgroup>
-                            <optgroup label="💸 Транжира">
-                                <option data-desc="💸 Транжира I"   data-stars="10" data-type="earn" data-cat="achievement">💸 Транжира I (+10⭐)</option>
-                                <option data-desc="💸 Транжира II"  data-stars="20" data-type="earn" data-cat="achievement">💸 Транжира II (+20⭐)</option>
-                                <option data-desc="💸 Транжира III" data-stars="40" data-type="earn" data-cat="achievement">💸 Транжира III (+40⭐)</option>
-                            </optgroup>
-                            <optgroup label="🦷 Чистюля">
-                                <option data-desc="🦷 Чистюля I"   data-stars="20"  data-type="earn" data-cat="achievement">🦷 Чистюля I (+20⭐)</option>
-                                <option data-desc="🦷 Чистюля II"  data-stars="50"  data-type="earn" data-cat="achievement">🦷 Чистюля II (+50⭐)</option>
-                                <option data-desc="🦷 Чистюля III" data-stars="100" data-type="earn" data-cat="achievement">🦷 Чистюля III (+100⭐)</option>
-                            </optgroup>
-                            <optgroup label="🪮 Красуня">
-                                <option data-desc="🪮 Красуня I"   data-stars="10" data-type="earn" data-cat="achievement">🪮 Красуня I (+10⭐)</option>
-                                <option data-desc="🪮 Красуня II"  data-stars="20" data-type="earn" data-cat="achievement">🪮 Красуня II (+20⭐)</option>
-                                <option data-desc="🪮 Красуня III" data-stars="30" data-type="earn" data-cat="achievement">🪮 Красуня III (+30⭐)</option>
-                            </optgroup>
-                            <optgroup label="🚀 Швидкий старт">
-                                <option data-desc="🚀 Швидкий старт I"   data-stars="5"  data-type="earn" data-cat="achievement">🚀 Швидкий старт I (+5⭐)</option>
-                                <option data-desc="🚀 Швидкий старт II"  data-stars="10" data-type="earn" data-cat="achievement">🚀 Швидкий старт II (+10⭐)</option>
-                                <option data-desc="🚀 Швидкий старт III" data-stars="20" data-type="earn" data-cat="achievement">🚀 Швидкий старт III (+20⭐)</option>
-                            </optgroup>
-                            <optgroup label="🎯 Цілеспрямована">
-                                <option data-desc="🎯 Цілеспрямована I"   data-stars="20" data-type="earn" data-cat="achievement">🎯 Цілеспрямована I (+20⭐)</option>
-                                <option data-desc="🎯 Цілеспрямована II"  data-stars="40" data-type="earn" data-cat="achievement">🎯 Цілеспрямована II (+40⭐)</option>
-                                <option data-desc="🎯 Цілеспрямована III" data-stars="60" data-type="earn" data-cat="achievement">🎯 Цілеспрямована III (+60⭐)</option>
-                            </optgroup>
-                            <optgroup label="✏️ Власний запис">
-                                <option value="custom" data-desc="" data-stars="" data-type="earn" data-cat="bonus">✏️ Власний запис...</option>
-                            </optgroup>
-                        </select>
-                    </div>
-
-                    <!-- Поля що заповнюються автоматично або вручну для власного запису -->
-                    <div id="manualRecordFields">
-                        <div class="form-group mb-sm">
-                            <label class="card-label--md">Опис запису:</label>
-                            <input type="text" id="manualRecordDesc" placeholder="Оберіть досягнення вище" readonly
-                                style="background:var(--bg-secondary);opacity:0.7">
-                        </div>
-                        <div style="display:flex;gap:10px" class="mb-sm">
-                            <div class="form-group" style="flex:1">
-                                <label class="card-label--md">Зірки:</label>
-                                <input type="number" id="manualRecordStars" min="1" placeholder="0" readonly
-                                    style="background:var(--bg-secondary);opacity:0.7">
-                            </div>
-                            <div class="form-group" style="flex:1">
-                                <label class="card-label--md">Тип:</label>
-                                <input type="text" id="manualRecordType" placeholder="earn" readonly
-                                    style="background:var(--bg-secondary);opacity:0.7">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="form-group mb-sm">
-                        <label class="card-label--md">Дата запису:</label>
-                        <input type="date" id="manualRecordDate">
-                    </div>
-
-                    <div class="form-group mb-md" style="display:flex;align-items:center;gap:10px">
-                        <input type="checkbox" id="manualRecordAdjustBalance" checked style="width:20px;height:20px;cursor:pointer">
-                        <label for="manualRecordAdjustBalance" class="card-label--md" style="margin:0;cursor:pointer">
-                            Також оновити баланс
-                        </label>
-                    </div>
-
-                    <button class="btn btn-primary" onclick="addManualRecord()">🛠️ Додати запис</button>
-                </div>
-
-                <!-- Курси конвертації (тільки для батьків) -->
-                <div id="conversionRatesBlock" class="card-success">
-                    <h3 class="card-title">⭐ Курси конвертації</h3>
-
-                    <div class="form-group mb-sm">
-                        <label class="card-note card-note--success">
-                            🎮 Хвилин за 1 зірку (зараз: <span id="currentMinutesRate">2</span> хв)
-                        </label>
-                        <input type="number" id="minutesPerStar" min="1" placeholder="2">
-                    </div>
-
-                    <div class="form-group mb-md">
-                        <label class="card-note card-note--success">
-                            💵 Гривень за 1 зірку (зараз: <span id="currentMoneyRate">1</span> грн)
-                        </label>
-                        <input type="number" id="moneyPerStar" min="1" placeholder="1">
-                    </div>
-
-                    <button class="btn btn-primary" onclick="saveConversionRates()">
-                        💾 Зберегти курси
-                    </button>
-                </div>
-
-                <!-- Теми оформлення -->
-                <div class="card-bg mt-md">
-                    <h3 class="card-title">🎨 Теми оформлення</h3>
-                    <p class="text-muted font-sm mb-md">Купуй теми за зірки та змінюй вигляд застосунку. Після покупки можна міксувати компоненти різних тем.</p>
-                    <div id="themeShopContainer"></div>
-                    <div id="themeCustomizeContainer"></div>
-                    <div id="devModeBlock">
-                        <button class="btn-dev-mode" id="devModeBtn"
-                            onclick="window.__zToggleDevMode()">
-                            🛠️ Режим розробника (тест тем)
+                    <!-- ══ 🎨 Теми оформлення ══ -->
+                    <div class="settings-accordion-wrap">
+                        <button class="settings-menu-item" onclick="toggleSettingsBlock('themes')">
+                            <span class="settings-menu-icon">🎨</span>
+                            <span class="settings-menu-label">Теми оформлення</span>
+                            <span class="settings-menu-arrow" id="settingsArrow_themes">›</span>
                         </button>
+                        <div class="settings-accordion-body" id="settingsBlock_themes">
+                            <div class="settings-accordion-inner">
+                                <div class="settings-block-content">
+                                    <p class="text-muted font-sm mb-md">Купуй теми за зірки та змінюй вигляд застосунку. Після покупки можна міксувати компоненти різних тем.</p>
+                                    <div id="themeShopContainer"></div>
+                                    <div id="themeCustomizeContainer"></div>
+                                    <div id="devModeBlock">
+                                        <button class="btn-dev-mode" id="devModeBtn"
+                                            onclick="window.__zToggleDevMode()">
+                                            🛠️ Режим розробника (тест тем)
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </div>
 
+                    <!-- ══ 💾 Резервні копії ══ -->
+                    <div class="settings-accordion-wrap">
+                        <button class="settings-menu-item" onclick="toggleSettingsBlock('backup')">
+                            <span class="settings-menu-icon">💾</span>
+                            <span class="settings-menu-label">Резервні копії</span>
+                            <span class="settings-menu-arrow" id="settingsArrow_backup">›</span>
+                        </button>
+                        <div class="settings-accordion-body" id="settingsBlock_backup">
+                            <div class="settings-accordion-inner">
+                                <div class="settings-block-content" style="display:grid;gap:12px;">
+
+                                    <!-- Експорт -->
+                                    <div class="card-bg">
+                                        <h3 class="card-title">📤 Експорт даних</h3>
+                                        <p class="text-muted font-sm mb-md">
+                                            Зберігає всі дані (оцінки, винагороди, досягнення) в файл JSON.<br>
+                                            <strong>Рекомендується робити резервну копію щотижня!</strong>
+                                        </p>
+                                        <button class="btn btn-primary" onclick="exportData()">
+                                            📤 Завантажити резервну копію
+                                        </button>
+                                    </div>
+
+                                    <!-- Імпорт -->
+                                    <div class="card-bg">
+                                        <h3 class="card-title">📥 Імпорт даних</h3>
+                                        <p class="text-muted font-sm mb-md">
+                                            Відновлює дані з раніше збереженого файлу.<br>
+                                            <strong class="text-danger">⚠️ УВАГА: Замінить всі поточні дані!</strong>
+                                        </p>
+                                        <input type="file" id="importFile" accept=".json" class="hidden" onchange="importData(event)">
+                                        <button class="btn btn-import" onclick="document.getElementById('importFile').click()">
+                                            📥 Завантажити з файлу
+                                        </button>
+                                    </div>
+
+                                    <!-- Скидання -->
+                                    <div class="card-danger">
+                                        <h3 class="card-title">🗑️ Небезпечна зона</h3>
+                                        <p class="card-text mb-md">
+                                            Видаляє ВСІ дані назавжди. Ця дія незворотна!
+                                        </p>
+                                        <button class="btn btn-reset" onclick="resetAllData()">
+                                            🗑️ Скинути всі дані
+                                        </button>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ══ 🔧 Корекція даних (тільки батьки) ══ -->
+                    <div class="settings-accordion-wrap" id="settingsAccordionWrap_correction">
+                        <button class="settings-menu-item" onclick="toggleSettingsBlock('correction')">
+                            <span class="settings-menu-icon">🔧</span>
+                            <span class="settings-menu-label">Корекція даних</span>
+                            <span class="settings-menu-arrow" id="settingsArrow_correction">›</span>
+                        </button>
+                        <div class="settings-accordion-body" id="settingsBlock_correction">
+                            <div class="settings-accordion-inner">
+                                <div class="settings-block-content" style="display:grid;gap:12px;">
+
+                                    <!-- Корекція балансу -->
+                                    <div id="balanceCorrectionBlock" class="card-balance">
+                                        <h3 class="card-title">💰 Корекція балансу</h3>
+                                        <div class="card-inner card-inner--lg">
+                                            <div class="card-label--lg">Поточний баланс:</div>
+                                            <div class="card-value--lg" id="currentBalanceDisplay">0⭐</div>
+                                        </div>
+                                        <p class="card-note card-note--balance">
+                                            <strong>⚠️ Увага:</strong> Використовуйте тільки для виправлення помилок або відновлення даних. Корекція зберігається в історії.
+                                        </p>
+                                        <div class="form-group mb-sm" style="display:flex;gap:8px;align-items:center;">
+                                            <select id="correctionDirection" style="width:64px;padding:8px;border-radius:8px;border:2px solid var(--border);background:var(--card);color:var(--text);font-size:16px;font-weight:700;">
+                                                <option value="+">➕</option>
+                                                <option value="-">➖</option>
+                                            </select>
+                                            <input type="number" id="correctionStars" min="1" placeholder="Зірок" style="flex:1;">
+                                        </div>
+                                        <div class="form-group mb-sm">
+                                            <input type="text" id="correctionReason" maxlength="80" placeholder="Причина корекції (обов'язково)">
+                                        </div>
+                                        <button class="btn btn-primary" onclick="adjustBalance()">🔧 Додати корекцію</button>
+                                    </div>
+
+                                    <!-- Ручне додавання запису -->
+                                    <div id="manualRecordBlock" class="card-warning">
+                                        <h3 class="card-title">🛠️ Додати запис вручну</h3>
+                                        <p class="card-note card-note--warning">
+                                            <strong>⚠️ Увага:</strong> Використовуйте тільки для відновлення втрачених записів
+                                        </p>
+
+                                        <div class="form-group mb-sm">
+                                            <label class="card-label--md">Оберіть досягнення:</label>
+                                            <select id="manualRecordPreset" onchange="applyManualRecordPreset()"
+                                                style="width:100%;padding:8px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-card);color:var(--text-primary)">
+                                                <option value="">— Оберіть досягнення —</option>
+                                                <optgroup label="🎓 Відмінник">
+                                                    <option data-desc="🎓 Відмінник I"   data-stars="50"   data-type="earn" data-cat="achievement">🎓 Відмінник I (+50⭐)</option>
+                                                    <option data-desc="🎓 Відмінник II"  data-stars="200"  data-type="earn" data-cat="achievement">🎓 Відмінник II (+200⭐)</option>
+                                                    <option data-desc="🎓 Відмінник III" data-stars="1000" data-type="earn" data-cat="achievement">🎓 Відмінник III (+1000⭐)</option>
+                                                </optgroup>
+                                                <optgroup label="💫 Зіркова">
+                                                    <option data-desc="💫 Зіркова I"   data-stars="10" data-type="earn" data-cat="achievement">💫 Зіркова I (+10⭐)</option>
+                                                    <option data-desc="💫 Зіркова II"  data-stars="30" data-type="earn" data-cat="achievement">💫 Зіркова II (+30⭐)</option>
+                                                    <option data-desc="💫 Зіркова III" data-stars="50" data-type="earn" data-cat="achievement">💫 Зіркова III (+50⭐)</option>
+                                                </optgroup>
+                                                <optgroup label="🏅 Тверда десятка">
+                                                    <option data-desc="🏅 Тверда десятка I"   data-stars="10" data-type="earn" data-cat="achievement">🏅 Тверда десятка I (+10⭐)</option>
+                                                    <option data-desc="🏅 Тверда десятка II"  data-stars="20" data-type="earn" data-cat="achievement">🏅 Тверда десятка II (+20⭐)</option>
+                                                    <option data-desc="🏅 Тверда десятка III" data-stars="30" data-type="earn" data-cat="achievement">🏅 Тверда десятка III (+30⭐)</option>
+                                                </optgroup>
+                                                <optgroup label="📚 Книголюб">
+                                                    <option data-desc="📚 Книголюб I"   data-stars="20"  data-type="earn" data-cat="achievement">📚 Книголюб I (+20⭐)</option>
+                                                    <option data-desc="📚 Книголюб II"  data-stars="40"  data-type="earn" data-cat="achievement">📚 Книголюб II (+40⭐)</option>
+                                                    <option data-desc="📚 Книголюб III" data-stars="100" data-type="earn" data-cat="achievement">📚 Книголюб III (+100⭐)</option>
+                                                </optgroup>
+                                                <optgroup label="🔥 Fire Streak">
+                                                    <option data-desc="🔥 Fire Streak I"   data-stars="50"  data-type="earn" data-cat="achievement">🔥 Fire Streak I (+50⭐)</option>
+                                                    <option data-desc="🔥 Fire Streak II"  data-stars="100" data-type="earn" data-cat="achievement">🔥 Fire Streak II (+100⭐)</option>
+                                                    <option data-desc="🔥 Fire Streak III" data-stars="300" data-type="earn" data-cat="achievement">🔥 Fire Streak III (+300⭐)</option>
+                                                </optgroup>
+                                                <optgroup label="💰 Ощадливий">
+                                                    <option data-desc="💰 Ощадливий I"   data-stars="10" data-type="earn" data-cat="achievement">💰 Ощадливий I (+10⭐)</option>
+                                                    <option data-desc="💰 Ощадливий II"  data-stars="30" data-type="earn" data-cat="achievement">💰 Ощадливий II (+30⭐)</option>
+                                                    <option data-desc="💰 Ощадливий III" data-stars="50" data-type="earn" data-cat="achievement">💰 Ощадливий III (+50⭐)</option>
+                                                </optgroup>
+                                                <optgroup label="💸 Транжира">
+                                                    <option data-desc="💸 Транжира I"   data-stars="10" data-type="earn" data-cat="achievement">💸 Транжира I (+10⭐)</option>
+                                                    <option data-desc="💸 Транжира II"  data-stars="20" data-type="earn" data-cat="achievement">💸 Транжира II (+20⭐)</option>
+                                                    <option data-desc="💸 Транжира III" data-stars="40" data-type="earn" data-cat="achievement">💸 Транжира III (+40⭐)</option>
+                                                </optgroup>
+                                                <optgroup label="🦷 Чистюля">
+                                                    <option data-desc="🦷 Чистюля I"   data-stars="20"  data-type="earn" data-cat="achievement">🦷 Чистюля I (+20⭐)</option>
+                                                    <option data-desc="🦷 Чистюля II"  data-stars="50"  data-type="earn" data-cat="achievement">🦷 Чистюля II (+50⭐)</option>
+                                                    <option data-desc="🦷 Чистюля III" data-stars="100" data-type="earn" data-cat="achievement">🦷 Чистюля III (+100⭐)</option>
+                                                </optgroup>
+                                                <optgroup label="🪮 Красуня">
+                                                    <option data-desc="🪮 Красуня I"   data-stars="10" data-type="earn" data-cat="achievement">🪮 Красуня I (+10⭐)</option>
+                                                    <option data-desc="🪮 Красуня II"  data-stars="20" data-type="earn" data-cat="achievement">🪮 Красуня II (+20⭐)</option>
+                                                    <option data-desc="🪮 Красуня III" data-stars="30" data-type="earn" data-cat="achievement">🪮 Красуня III (+30⭐)</option>
+                                                </optgroup>
+                                                <optgroup label="🚀 Швидкий старт">
+                                                    <option data-desc="🚀 Швидкий старт I"   data-stars="5"  data-type="earn" data-cat="achievement">🚀 Швидкий старт I (+5⭐)</option>
+                                                    <option data-desc="🚀 Швидкий старт II"  data-stars="10" data-type="earn" data-cat="achievement">🚀 Швидкий старт II (+10⭐)</option>
+                                                    <option data-desc="🚀 Швидкий старт III" data-stars="20" data-type="earn" data-cat="achievement">🚀 Швидкий старт III (+20⭐)</option>
+                                                </optgroup>
+                                                <optgroup label="🎯 Цілеспрямована">
+                                                    <option data-desc="🎯 Цілеспрямована I"   data-stars="20" data-type="earn" data-cat="achievement">🎯 Цілеспрямована I (+20⭐)</option>
+                                                    <option data-desc="🎯 Цілеспрямована II"  data-stars="40" data-type="earn" data-cat="achievement">🎯 Цілеспрямована II (+40⭐)</option>
+                                                    <option data-desc="🎯 Цілеспрямована III" data-stars="60" data-type="earn" data-cat="achievement">🎯 Цілеспрямована III (+60⭐)</option>
+                                                </optgroup>
+                                                <optgroup label="✏️ Власний запис">
+                                                    <option value="custom" data-desc="" data-stars="" data-type="earn" data-cat="bonus">✏️ Власний запис...</option>
+                                                </optgroup>
+                                            </select>
+                                        </div>
+
+                                        <div id="manualRecordFields">
+                                            <div class="form-group mb-sm">
+                                                <label class="card-label--md">Опис запису:</label>
+                                                <input type="text" id="manualRecordDesc" placeholder="Оберіть досягнення вище" readonly
+                                                    style="background:var(--bg-secondary);opacity:0.7">
+                                            </div>
+                                            <div style="display:flex;gap:10px" class="mb-sm">
+                                                <div class="form-group" style="flex:1">
+                                                    <label class="card-label--md">Зірки:</label>
+                                                    <input type="number" id="manualRecordStars" min="1" placeholder="0" readonly
+                                                        style="background:var(--bg-secondary);opacity:0.7">
+                                                </div>
+                                                <div class="form-group" style="flex:1">
+                                                    <label class="card-label--md">Тип:</label>
+                                                    <input type="text" id="manualRecordType" placeholder="earn" readonly
+                                                        style="background:var(--bg-secondary);opacity:0.7">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group mb-sm">
+                                            <label class="card-label--md">Дата запису:</label>
+                                            <input type="date" id="manualRecordDate">
+                                        </div>
+
+                                        <div class="form-group mb-md" style="display:flex;align-items:center;gap:10px">
+                                            <input type="checkbox" id="manualRecordAdjustBalance" checked style="width:20px;height:20px;cursor:pointer">
+                                            <label for="manualRecordAdjustBalance" class="card-label--md" style="margin:0;cursor:pointer">
+                                                Також оновити баланс
+                                            </label>
+                                        </div>
+
+                                        <button class="btn btn-primary" onclick="addManualRecord()">🛠️ Додати запис</button>
+                                    </div>
+
+                                    <!-- Курси конвертації -->
+                                    <div id="conversionRatesBlock" class="card-success">
+                                        <h3 class="card-title">⭐ Курси конвертації</h3>
+                                        <div class="form-group mb-sm">
+                                            <label class="card-note card-note--success">
+                                                🎮 Хвилин за 1 зірку (зараз: <span id="currentMinutesRate">2</span> хв)
+                                            </label>
+                                            <input type="number" id="minutesPerStar" min="1" placeholder="2">
+                                        </div>
+                                        <div class="form-group mb-md">
+                                            <label class="card-note card-note--success">
+                                                💵 Гривень за 1 зірку (зараз: <span id="currentMoneyRate">1</span> грн)
+                                            </label>
+                                            <input type="number" id="moneyPerStar" min="1" placeholder="1">
+                                        </div>
+                                        <button class="btn btn-primary" onclick="saveConversionRates()">
+                                            💾 Зберегти курси
+                                        </button>
+                                    </div>
+
+                                    <!-- PIN -->
+                                    <div id="pinSettingsBlock" class="card-warning">
+                                        <h3 class="card-title">🔐 Налаштування PIN-коду</h3>
+                                        <div class="card-inner">
+                                            <div class="card-label">Поточний PIN:</div>
+                                            <div class="card-value" id="currentPin">1234</div>
+                                        </div>
+                                        <p class="card-note card-note--warning">
+                                            <strong>⚠️ Увага:</strong> PIN-код потрібен для доступу до батьківського режиму
+                                        </p>
+                                        <div class="flex-row">
+                                            <input type="password" id="newPin" placeholder="Новий PIN (4 цифри)" maxlength="4" class="flex-fill">
+                                            <button class="btn btn-primary btn-compact" onclick="changePin()">🔐 Змінити PIN</button>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ══ ℹ️ Про програму ══ -->
+                    <div class="settings-accordion-wrap">
+                        <button class="settings-menu-item" onclick="toggleSettingsBlock('about')">
+                            <span class="settings-menu-icon">ℹ️</span>
+                            <span class="settings-menu-label">Про програму</span>
+                            <span class="settings-menu-arrow" id="settingsArrow_about">›</span>
+                        </button>
+                        <div class="settings-accordion-body" id="settingsBlock_about">
+                            <div class="settings-accordion-inner">
+                                <div class="settings-sub-list">
+                                    <button class="settings-sub-item" onclick="showHelp('about')">
+                                        <span class="settings-sub-icon">📱</span>
+                                        <span class="settings-sub-label">Про програму</span>
+                                        <span class="settings-sub-arrow">›</span>
+                                    </button>
+                                    <button class="settings-sub-item" id="changelogBtn" onclick="showHelp('changelog')">
+                                        <span class="settings-sub-icon">📝</span>
+                                        <span class="settings-sub-label">Історія змін</span>
+                                        <span class="settings-sub-arrow">›</span>
+                                    </button>
+                                    <button class="settings-sub-item" onclick="showDataInfoModal()">
+                                        <span class="settings-sub-icon">📊</span>
+                                        <span class="settings-sub-label">Інформація про дані</span>
+                                        <span class="settings-sub-arrow">›</span>
+                                    </button>
+                                    <button class="settings-sub-item" onclick="showVersionsModal()">
+                                        <span class="settings-sub-icon">🗂️</span>
+                                        <span class="settings-sub-label">Версії файлів</span>
+                                        <span class="settings-sub-arrow">›</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
             </div>
 
             <!-- ── Feedback Section ── -->
@@ -1127,7 +1196,8 @@
                  schedUpdateTeacher, saveTeachersModal, openBellsModal, closeBellsModal,
                  schedUpdateBell, saveBellsModal } from './schedule.js';
         import { showDataInfoModal, closeDataInfoModal, exportData, importData,
-                 resetAllData, adjustBalance, saveConversionRates, addManualRecord, applyManualRecordPreset } from './settings.js';
+                 resetAllData, adjustBalance, saveConversionRates, addManualRecord, applyManualRecordPreset,
+                 showVersionsModal, closeVersionsModal } from './settings.js';
         import { openNotifications, closeNotifications, updateNotificationBadge,
                  updateChangelogBadge, markChangelogRead, dismissNotification,
                  dismissByAction, getUnreadItems, generateNotifications } from './notifications.js';
@@ -1243,6 +1313,18 @@
         window.saveConversionRates = saveConversionRates;
         window.showDataInfoModal   = showDataInfoModal;
         window.closeDataInfoModal  = closeDataInfoModal;
+        window.showVersionsModal   = showVersionsModal;
+        window.closeVersionsModal  = closeVersionsModal;
+
+        // Акордеон налаштувань
+        window.toggleSettingsBlock = function(id) {
+            const body  = document.getElementById('settingsBlock_' + id);
+            const arrow = document.getElementById('settingsArrow_' + id);
+            if (!body) return;
+            const isOpen = body.classList.contains('open');
+            body.classList.toggle('open', !isOpen);
+            if (arrow) arrow.classList.toggle('open', !isOpen);
+        };
         // appearance.js
         window.applyAppearance = applyAppearance;
         window.renderThemeShop = renderThemeShop;
@@ -1378,6 +1460,9 @@
             // Закриваємо dataInfoModal при кліку на фон
             const dim = document.getElementById('dataInfoModal');
             if (dim && e.target === dim) closeDataInfoModal();
+            // Закриваємо versionsModal при кліку на фон
+            const vdim = document.getElementById('versionsModal');
+            if (vdim && e.target === vdim) closeVersionsModal();
             const nim = document.getElementById('notifModal');
             if (nim && e.target === nim) closeNotifications();
         });
@@ -1415,6 +1500,17 @@
                 <button onclick="closeDataInfoModal()" class="help-close-btn">✕</button>
             </div>
             <div id="dataInfo" class="help-modal-content"></div>
+        </div>
+    </div>
+
+    <!-- Versions Modal -->
+    <div id="versionsModal" class="help-modal" style="display:none;">
+        <div class="help-modal-inner">
+            <div class="help-modal-header">
+                <h3 class="help-modal-title">🗂️ Версії файлів</h3>
+                <button onclick="closeVersionsModal()" class="help-close-btn">✕</button>
+            </div>
+            <div id="versionsModalBody" class="help-modal-content"></div>
         </div>
     </div>
 

@@ -2,7 +2,7 @@
 // ⚙️   settings.js — Налаштування / Експорт / Імпорт
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260520.0909';
+export const VERSION = 'v3.20260521.0938';
 
 // ════════════════════════════════════════════════════════════
 
@@ -17,8 +17,8 @@ import { dismissByAction } from './notifications.js';
 // // ⚙️   БЛОК: Налаштування / Експорт / Імпорт
 // ════════════════════════════════════════════════════════════
 
-async function _loadVersionsTable() {
-    const body = document.getElementById('versionsTableBody');
+async function _loadVersionsTable(containerId = 'versionsTableBody') {
+    const body = document.getElementById(containerId);
     if (!body) return;
 
     const htmlVer = (() => {
@@ -186,15 +186,8 @@ export async function showDataInfoModal() {
         </div>
 
         <div class="font-xs text-hint mt-sm">📦 Розмір даних: ${sizeKB} KB</div>
-        <div class="versions-table-block mt-sm">
-            <div style="font-size:12px;font-weight:700;color:var(--text-muted);margin-bottom:6px;">📋 Версії файлів</div>
-            <div id="versionsTableBody" class="font-xs text-hint text-center">Завантаження...</div>
-        </div>
     `;
 
-    // Завантажуємо версії файлів одразу
-    _loadVersionsTable();
-    
     // Відкриваємо модальне вікно
     const modal = document.getElementById('dataInfoModal');
     if (modal) {
@@ -553,4 +546,20 @@ export function saveConversionRates() {
     if (window.renderRewards) window.renderRewards();
 
     alert(`✅ Курси збережено!\n🎮 1⭐ = ${minutesPerStar} хв\n💵 1⭐ = ${moneyPerStar} грн`);
+}
+
+export function showVersionsModal() {
+    const modal = document.getElementById('versionsModal');
+    if (!modal) return;
+    const body = document.getElementById('versionsModalBody');
+    if (body) body.innerHTML = '<div class="font-xs text-hint text-center" style="padding:12px;">Завантаження...</div>';
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    _loadVersionsTable('versionsModalBody');
+}
+
+export function closeVersionsModal() {
+    const modal = document.getElementById('versionsModal');
+    if (modal) modal.style.display = 'none';
+    document.body.style.overflow = '';
 }
