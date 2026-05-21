@@ -12,7 +12,7 @@
 //       3. Додай CSS vars у style.css (опційно)
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260521.1005';
+export const VERSION = 'v3.20260521.1350';
 
 import { state } from './state.js';
 import { saveAppearance, saveRecords } from './firebase.js';
@@ -342,7 +342,6 @@ export function buyTheme(themeId) {
     // У режимі розробника — активуємо без купівлі і без збереження
     if (_devMode) {
         activateTheme(themeId, true);
-        renderThemeShop();
         return;
     }
 
@@ -352,7 +351,6 @@ export function buyTheme(themeId) {
     // Вже куплена — просто активуємо
     if (owned.includes(themeId)) {
         activateTheme(themeId);
-        renderThemeShop();
         return;
     }
 
@@ -374,8 +372,8 @@ export function buyTheme(themeId) {
         desc:        `🎨 Тема "${theme.name}"`,
     });
 
+    // activateTheme робить перерендер магазину + кастомізації
     activateTheme(themeId);
-    renderThemeShop();
 
     // Оновлюємо баланс у header
     import('./ui.js').then(m => m.updateUI());
@@ -398,6 +396,7 @@ export function activateTheme(themeId, devOnly = false) {
         _devActive[role] = { theme: themeId, ...theme.components };
         _resetAppearanceVars();
         _applyComponents(_devActive[role]);
+        renderThemeShop();  // ⬅ перерендер магазину/кастомізації
         return;
     }
 
@@ -406,6 +405,7 @@ export function activateTheme(themeId, devOnly = false) {
     _resetAppearanceVars();
     _applyComponents(profile.active);
     saveAppearance();
+    renderThemeShop();  // ⬅ перерендер магазину/кастомізації
 }
 
 export function setComponent(type, id) {
