@@ -1,6 +1,6 @@
 /* ════════════════════════════════════════════════════
    Зірки Успіху — Стилі
-   Версія: v3.20260521.1005
+   Версія: v3.20260521.1330
    ════════════════════════════════════════════════════ */
 
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;900&family=Comfortaa:wght@400;700&family=Fredoka+One&family=Ubuntu:wght@400;700&family=Playfair+Display:wght@400;700&display=swap');
@@ -3573,4 +3573,47 @@ select:focus, input:focus {
     border-radius: 50%;
     margin-left: 6px;
     vertical-align: middle;
+}
+
+/* badge на акордеон-заголовку (для блоку "Про програму" при оновленні версії) */
+.settings-menu-item.has-badge .settings-menu-label::after {
+    content: '';
+    display: inline-block;
+    width: 9px;
+    height: 9px;
+    background: var(--accent, #e85d75);
+    border-radius: 50%;
+    margin-left: 8px;
+    vertical-align: middle;
+    box-shadow: 0 0 0 2px var(--c-info-bg);
+}
+
+/* Компактний рядок 3 кнопок у блоці "Про програму" */
+.about-compact-row {
+    display: flex;
+    gap: 6px;
+    width: 100%;
+}
+
+.about-compact-btn {
+    flex: 1 1 0;
+    min-width: 0;
+    font-size: 13px !important;
+    padding: 10px 6px !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Бейдж на компактній кнопці "📝 Зміни" */
+.about-compact-btn.has-badge::after {
+    content: '';
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    background: #fff;
+    border-radius: 50%;
+    margin-left: 4px;
+    vertical-align: middle;
+    box-shadow: 0 0 0 1px var(--accent, #e85d75);
 }

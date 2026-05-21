@@ -2,7 +2,7 @@
 // ⚙️   settings.js — Налаштування / Експорт / Імпорт
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260521.0938';
+export const VERSION = 'v3.20260521.1330';
 
 // ════════════════════════════════════════════════════════════
 
@@ -74,14 +74,8 @@ async function _loadVersionsTable(containerId = 'versionsTableBody') {
     body.innerHTML = rows.join('') + jsRows.join('');
 }
 
-export function closeDataInfoModal() {
-    const modal = document.getElementById('dataInfoModal');
-    if (modal) modal.style.display = 'none';
-    document.body.style.overflow = '';
-}
-
-export async function showDataInfoModal() {
-    const container = document.getElementById('dataInfo');
+export async function renderDataInfoContent(containerId = 'aboutDataInfo') {
+    const container = document.getElementById(containerId);
     if (!container) return;
     
     const recordsCount      = state.data.records?.length || 0;
@@ -94,6 +88,15 @@ export async function showDataInfoModal() {
     const feedbackCount    = feedbackItems.length;
     const feedbackNew      = feedbackItems.filter(i => i.status === '⏳').length;
     const feedbackDone     = feedbackItems.filter(i => i.status === '✅').length;
+
+    // Завдання
+    const tasksArr = Object.values(state.data.tasks || {});
+    const tasksTotal     = tasksArr.length;
+    const tasksPending   = tasksArr.filter(t => t.status === 'pending').length;
+    const tasksActive    = tasksArr.filter(t => t.status === 'active').length;
+    const tasksDone      = tasksArr.filter(t => t.status === 'done').length;
+    const tasksConfirmed = tasksArr.filter(t => t.status === 'confirmed').length;
+    const tasksRejected  = tasksArr.filter(t => t.status === 'rejected').length;
 
     // Теми
     const appearance     = state.data.appearance;
@@ -121,7 +124,6 @@ export async function showDataInfoModal() {
             return new Date(backupRaw).toLocaleDateString('uk-UA',
                 { day: 'numeric', month: 'long', year: 'numeric' });
         }
-        // fallback — з останнього backup_* сповіщення
         const notifItems = window.__notifItems ? Object.values(window.__notifItems()) : [];
         const lastBackup = notifItems
             .filter(i => i.type === 'backup')
@@ -157,6 +159,16 @@ export async function showDataInfoModal() {
         </div>
 
         <div class="card-inner mt-sm" style="display:grid;gap:6px;">
+            <div style="font-size:12px;font-weight:700;color:var(--text-muted);margin-bottom:2px;">📋 Завдання та запити</div>
+            <div class="font-sm">Всього: <strong>${tasksTotal}</strong></div>
+            ${tasksPending > 0 ? `<div class="font-sm text-warning">⏳ Очікують перевірки: <strong>${tasksPending}</strong></div>` : ''}
+            ${tasksActive > 0 ? `<div class="font-sm">🎯 Активних: <strong>${tasksActive}</strong></div>` : ''}
+            ${tasksDone > 0 ? `<div class="font-sm">📤 Виконано (на перевірці): <strong>${tasksDone}</strong></div>` : ''}
+            <div class="font-sm">✅ Підтверджено: <strong>${tasksConfirmed}</strong></div>
+            ${tasksRejected > 0 ? `<div class="font-sm text-hint">❌ Відхилено: <strong>${tasksRejected}</strong></div>` : ''}
+        </div>
+
+        <div class="card-inner mt-sm" style="display:grid;gap:6px;">
             <div style="font-size:12px;font-weight:700;color:var(--text-muted);margin-bottom:2px;">💬 Зворотній зв'язок</div>
             <div class="font-sm">Всього повідомлень: <strong>${feedbackCount}</strong></div>
             ${feedbackNew  > 0 ? `<div class="font-sm text-danger">⏳ Нових (непрочитаних): <strong>${feedbackNew}</strong></div>` : ''}
@@ -187,13 +199,6 @@ export async function showDataInfoModal() {
 
         <div class="font-xs text-hint mt-sm">📦 Розмір даних: ${sizeKB} KB</div>
     `;
-
-    // Відкриваємо модальне вікно
-    const modal = document.getElementById('dataInfoModal');
-    if (modal) {
-        modal.style.display = 'flex';
-        document.body.style.overflow = 'hidden';
-    }
 }
 
 export function exportData() {

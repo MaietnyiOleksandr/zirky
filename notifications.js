@@ -3,7 +3,7 @@
 //     Етап 1: Фундамент — структура + Firebase
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260521.0730';
+export const VERSION = 'v3.20260521.1330';
 
 import { state }    from './state.js';
 import { nowKyiv }  from './utils.js';
@@ -792,11 +792,15 @@ export function openNotifications() {
             const c    = TYPE_COLORS[item.type] || TYPE_COLORS.backup;
             const icon = TYPE_ICONS[item.type]  || '🔔';
             const time = item.createdAt ? `<div class="notif-item-time">${_fmt(item.createdAt)}</div>` : '';
+            // Для типу 'changelog' — клік на тілі відкриває модалку історії змін
+            const bodyClickAttr = item.type === 'changelog'
+                ? ` onclick="window.__zOpenChangelog()" style="cursor:pointer;"`
+                : '';
             return `
             <div class="notif-item" id="notifItem_${item.id}"
                 style="background:${c.bg};border-color:${c.border};">
-                <div class="notif-item-icon">${icon}</div>
-                <div class="notif-item-body">
+                <div class="notif-item-icon"${bodyClickAttr}>${icon}</div>
+                <div class="notif-item-body"${bodyClickAttr}>
                     <div class="notif-item-title" style="color:${c.text};">${item.title}</div>
                     <div class="notif-item-text">${item.body}</div>
                     ${time}
@@ -834,6 +838,13 @@ export function openNotifications() {
                 }
             }, 300);
         }
+    };
+
+    // Клік на тілі сповіщення про changelog — відкриває модалку історії змін поверх
+    window.__zOpenChangelog = () => {
+        if (window.showHelp) window.showHelp('changelog');
+        // showHelp('changelog') автоматично викликає markChangelogRead()
+        // → бейдж сам зникне
     };
 }
 

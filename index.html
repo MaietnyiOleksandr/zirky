@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⭐</text></svg>">
-    <!-- version: v3.20260521.1005 -->
+    <!-- version: v3.20260521.1330 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>⭐ Зірки Успіху</title>
     <link rel="stylesheet" href="style.css">
@@ -1094,34 +1094,36 @@
 
                     <!-- ══ ℹ️ Про програму ══ -->
                     <div class="settings-accordion-wrap">
-                        <button class="settings-menu-item" onclick="toggleSettingsBlock('about')">
+                        <button class="settings-menu-item" id="aboutAccordionBtn" onclick="toggleSettingsBlock('about')">
                             <span class="settings-menu-icon">ℹ️</span>
                             <span class="settings-menu-label">Про програму</span>
                             <span class="settings-menu-arrow" id="settingsArrow_about">›</span>
                         </button>
                         <div class="settings-accordion-body" id="settingsBlock_about">
                             <div class="settings-accordion-inner">
-                                <div class="settings-sub-list">
-                                    <button class="settings-sub-item" onclick="showHelp('about')">
-                                        <span class="settings-sub-icon">📱</span>
-                                        <span class="settings-sub-label">Про програму</span>
-                                        <span class="settings-sub-arrow">›</span>
-                                    </button>
-                                    <button class="settings-sub-item" id="changelogBtn" onclick="showHelp('changelog')">
-                                        <span class="settings-sub-icon">📝</span>
-                                        <span class="settings-sub-label">Історія змін</span>
-                                        <span class="settings-sub-arrow">›</span>
-                                    </button>
-                                    <button class="settings-sub-item" onclick="showDataInfoModal()">
-                                        <span class="settings-sub-icon">📊</span>
-                                        <span class="settings-sub-label">Інформація про дані</span>
-                                        <span class="settings-sub-arrow">›</span>
-                                    </button>
-                                    <button class="settings-sub-item" onclick="showVersionsModal()">
-                                        <span class="settings-sub-icon">🗂️</span>
-                                        <span class="settings-sub-label">Версії файлів</span>
-                                        <span class="settings-sub-arrow">›</span>
-                                    </button>
+                                <div class="settings-block-content" style="display:grid;gap:12px;">
+
+                                    <!-- Рядок з 3 компактними кнопками -->
+                                    <div class="about-compact-row">
+                                        <button class="btn btn-primary btn-compact about-compact-btn" onclick="showHelp('about')">
+                                            📱 Про
+                                        </button>
+                                        <button class="btn btn-primary btn-compact about-compact-btn" id="changelogBtn" onclick="showHelp('changelog')">
+                                            📝 Зміни
+                                        </button>
+                                        <button class="btn btn-primary btn-compact about-compact-btn" onclick="showVersionsModal()">
+                                            🗂️ Версії
+                                        </button>
+                                    </div>
+
+                                    <!-- Картка з інформацією про дані -->
+                                    <div class="card-bg">
+                                        <h3 class="card-title">📊 Інформація про дані</h3>
+                                        <div id="aboutDataInfo">
+                                            <div class="font-sm text-hint">Завантаження...</div>
+                                        </div>
+                                    </div>
+
                                 </div>
                             </div>
                         </div>
@@ -1195,7 +1197,7 @@
                  clubAddDay, saveClubEditor, openTeachersModal, closeTeachersModal,
                  schedUpdateTeacher, saveTeachersModal, openBellsModal, closeBellsModal,
                  schedUpdateBell, saveBellsModal } from './schedule.js';
-        import { showDataInfoModal, closeDataInfoModal, exportData, importData,
+        import { renderDataInfoContent, exportData, importData,
                  resetAllData, adjustBalance, saveConversionRates, addManualRecord, applyManualRecordPreset,
                  showVersionsModal, closeVersionsModal } from './settings.js';
         import { openNotifications, closeNotifications, updateNotificationBadge,
@@ -1311,8 +1313,7 @@
         window.addManualRecord = addManualRecord;
         window.applyManualRecordPreset = applyManualRecordPreset;
         window.saveConversionRates = saveConversionRates;
-        window.showDataInfoModal   = showDataInfoModal;
-        window.closeDataInfoModal  = closeDataInfoModal;
+        window.renderDataInfoContent = renderDataInfoContent;
         window.showVersionsModal   = showVersionsModal;
         window.closeVersionsModal  = closeVersionsModal;
 
@@ -1324,6 +1325,11 @@
             const isOpen = body.classList.contains('open');
             body.classList.toggle('open', !isOpen);
             if (arrow) arrow.classList.toggle('open', !isOpen);
+
+            // При відкритті блоку "Про програму" — авторендер інфо про дані
+            if (id === 'about' && !isOpen && window.renderDataInfoContent) {
+                window.renderDataInfoContent('aboutDataInfo');
+            }
         };
         // appearance.js
         window.applyAppearance = applyAppearance;
@@ -1355,9 +1361,11 @@
             const bell = document.getElementById('notifBadge');
             if (bell) bell.style.display = badgeTargets.has('bell') ? 'block' : 'none';
 
-            // 📝 Changelog кнопка
+            // 📝 Changelog кнопка + акордеон "Про програму"
             const cl = document.getElementById('changelogBtn');
             if (cl) cl.classList.toggle('has-badge', badgeTargets.has('changelog'));
+            const aboutBtn = document.getElementById('aboutAccordionBtn');
+            if (aboutBtn) aboutBtn.classList.toggle('has-badge', badgeTargets.has('changelog'));
 
             // Таби — крапки
             const tabMap = {
@@ -1457,9 +1465,6 @@
             if (!e.target.closest('.fb-status-dropdown-wrap')) {
                 document.querySelectorAll('.fb-dropdown').forEach(d => d.style.display = 'none');
             }
-            // Закриваємо dataInfoModal при кліку на фон
-            const dim = document.getElementById('dataInfoModal');
-            if (dim && e.target === dim) closeDataInfoModal();
             // Закриваємо versionsModal при кліку на фон
             const vdim = document.getElementById('versionsModal');
             if (vdim && e.target === vdim) closeVersionsModal();
@@ -1489,17 +1494,6 @@
                 <button onclick="closeNotifications()" class="help-close-btn">✕</button>
             </div>
             <div id="notifContent"></div>
-        </div>
-    </div>
-
-    <!-- Data Info Modal -->
-    <div id="dataInfoModal" class="help-modal" style="display:none;">
-        <div class="help-modal-inner">
-            <div class="help-modal-header">
-                <h3 class="help-modal-title">📊 Інформація про дані</h3>
-                <button onclick="closeDataInfoModal()" class="help-close-btn">✕</button>
-            </div>
-            <div id="dataInfo" class="help-modal-content"></div>
         </div>
     </div>
 
