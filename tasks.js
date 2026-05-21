@@ -18,7 +18,7 @@
 //     Live-таймер дедлайну з паузою при прихованій вкладці.
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260520.0838';
+export const VERSION = 'v3.20260521.0730';
 
 import { state, tasksFilter } from './state.js';
 import { isDoubleSubject } from './subjects.js';
@@ -679,6 +679,140 @@ export function deleteOwnRequest(id) {
 }
 
 // ════════════════════════════════════════════════════════════
+// ✏️  Редагування завдання (батьки)
+// ════════════════════════════════════════════════════════════
+// Дозволено для parent_task у статусі active або done.
+// Дитячих запитів не торкаємось.
+// Редагуються: дедлайн (можна додати/змінити/зняти) і винагорода
+// (можна змінити кількість або зняти зовсім).
+
+export function startEditTask(id) {
+    const task = state.data.tasks?.[id];
+    if (!task) return;
+    if (task.origin !== 'parent_task') return;
+    if (task.status !== 'active' && task.status !== 'done') return;
+
+    const card = document.getElementById(`tkCard_${id}`);
+    if (!card) return;
+    const block = card.querySelector('.tk-edit-block');
+    if (!block) return;
+
+    // Заповнюємо поточними значеннями
+    const cbDeadline = block.querySelector('.tk-edit-has-deadline');
+    const inputDeadline = block.querySelector('.tk-edit-deadline');
+    const deadlineWrap = block.querySelector('.tk-edit-deadline-wrap');
+    if (cbDeadline) cbDeadline.checked = !!task.hasDeadline;
+    if (inputDeadline) inputDeadline.value = task.deadline || '';
+    if (deadlineWrap) deadlineWrap.style.display = task.hasDeadline ? 'block' : 'none';
+
+    const cbNoReward = block.querySelector('.tk-edit-no-reward');
+    const inputReward = block.querySelector('.tk-edit-reward');
+    const noReward = !task.rewardStars || Number(task.rewardStars) === 0;
+    if (cbNoReward) cbNoReward.checked = noReward;
+    if (inputReward) {
+        inputReward.value = noReward ? '1' : task.rewardStars;
+        inputReward.disabled = noReward;
+        inputReward.style.opacity = noReward ? '0.5' : '';
+    }
+
+    block.style.display = 'block';
+}
+
+export function cancelEditTask(id) {
+    const card = document.getElementById(`tkCard_${id}`);
+    if (!card) return;
+    const block = card.querySelector('.tk-edit-block');
+    if (block) block.style.display = 'none';
+}
+
+export function onEditDeadlineToggle(id) {
+    const card = document.getElementById(`tkCard_${id}`);
+    if (!card) return;
+    const cb = card.querySelector('.tk-edit-has-deadline');
+    const wrap = card.querySelector('.tk-edit-deadline-wrap');
+    if (wrap) wrap.style.display = (cb && cb.checked) ? 'block' : 'none';
+}
+
+export function onEditNoRewardToggle(id) {
+    const card = document.getElementById(`tkCard_${id}`);
+    if (!card) return;
+    const cb = card.querySelector('.tk-edit-no-reward');
+    const input = card.querySelector('.tk-edit-reward');
+    if (!cb || !input) return;
+    input.disabled = cb.checked;
+    input.style.opacity = cb.checked ? '0.5' : '';
+    if (!cb.checked && (!input.value || input.value === '0')) input.value = '1';
+}
+
+export function saveEditTask(id) {
+    const task = state.data.tasks?.[id];
+    if (!task) return;
+    if (task.origin !== 'parent_task') return;
+    if (task.status !== 'active' && task.status !== 'done') return;
+
+    const card = document.getElementById(`tkCard_${id}`);
+    if (!card) return;
+
+    // Дедлайн
+    const hasDeadline = !!card.querySelector('.tk-edit-has-deadline')?.checked;
+    let deadline = null;
+    if (hasDeadline) {
+        deadline = card.querySelector('.tk-edit-deadline')?.value || '';
+        if (!deadline) { alert('⏰ Вкажіть дату і час дедлайну!'); return; }
+        if (new Date(deadline).getTime() < Date.now()) {
+            if (!confirm('⚠️ Вказаний дедлайн вже минув. Все одно зберегти?')) return;
+        }
+    }
+
+    // Винагорода
+    const noReward = !!card.querySelector('.tk-edit-no-reward')?.checked;
+    let rewardStars = 0;
+    if (!noReward) {
+        const rs = parseInt(card.querySelector('.tk-edit-reward')?.value);
+        if (isNaN(rs) || rs < 0) {
+            alert('🎁 Вкажіть коректну кількість зірок винагороди або позначте "Без додаткової винагороди"');
+            return;
+        }
+        rewardStars = rs;
+    }
+
+    // Чи реально щось змінилось — щоб не створювати зайве сповіщення
+    const oldDeadline = task.hasDeadline ? (task.deadline || '') : '';
+    const newDeadline = hasDeadline ? deadline : '';
+    const deadlineChanged = oldDeadline !== newDeadline;
+    const oldReward = Number(task.rewardStars) || 0;
+    const rewardChanged = oldReward !== rewardStars;
+
+    if (!deadlineChanged && !rewardChanged) {
+        cancelEditTask(id);
+        return; // нічого не змінилось — мовчки виходимо
+    }
+
+    task.hasDeadline = hasDeadline;
+    if (hasDeadline) task.deadline = deadline;
+    else delete task.deadline;
+    task.rewardStars = rewardStars;
+    task.updatedAt = nowKyiv();
+
+    // Опис зміни для сповіщення дитини
+    const changes = [];
+    if (deadlineChanged) {
+        if (hasDeadline) changes.push(`новий дедлайн: ${_fmtDateTime(deadline)}`);
+        else changes.push('дедлайн знято');
+    }
+    if (rewardChanged) {
+        if (rewardStars > 0) changes.push(`винагорода: +${rewardStars}⭐`);
+        else changes.push('винагороду знято');
+    }
+    task.lastEditNote = changes.join(' · ');
+
+    saveTask(task);
+    cancelEditTask(id);
+    if (window.generateNotifications) window.generateNotifications();
+    renderTasks();
+}
+
+// ════════════════════════════════════════════════════════════
 // 🗑️  Повне видалення (батьки можуть видалити будь-яке завдання)
 // ════════════════════════════════════════════════════════════
 
@@ -997,8 +1131,38 @@ function _renderParentTaskCard(task) {
                     <button class="tk-action-btn tk-action-btn--danger"
                         onclick="startRejectTask('${task.id}')">❌ Відхилити</button>
                 ` : ''}
+                <button class="tk-action-btn"
+                    onclick="startEditTask('${task.id}')">✏️ Редагувати</button>
                 <button class="tk-action-btn tk-action-btn--cancel"
                     onclick="deleteTaskByParent('${task.id}')">🗑️ Видалити</button>
+            </div>
+
+            <div class="tk-edit-block" style="display:none">
+                <div class="tk-reject-title">✏️ Редагування завдання</div>
+
+                <label class="tk-checkbox" style="margin-top:6px">
+                    <input type="checkbox" class="tk-edit-has-deadline"
+                        onchange="onEditDeadlineToggle('${task.id}')">
+                    ⏰ Встановити дедлайн
+                </label>
+                <div class="tk-edit-deadline-wrap" style="display:none;margin-top:6px">
+                    <input type="datetime-local" class="tk-input tk-edit-deadline">
+                </div>
+
+                <label class="tk-label" style="margin-top:10px">🎁 Винагорода</label>
+                <input type="number" class="tk-input tk-edit-reward" min="0" max="100" value="1">
+                <label class="tk-checkbox" style="margin-top:6px">
+                    <input type="checkbox" class="tk-edit-no-reward"
+                        onchange="onEditNoRewardToggle('${task.id}')">
+                    Без додаткової винагороди
+                </label>
+
+                <div class="tk-actions" style="margin-top:8px">
+                    <button class="tk-action-btn tk-action-btn--primary"
+                        onclick="saveEditTask('${task.id}')">💾 Зберегти</button>
+                    <button class="tk-action-btn tk-action-btn--cancel"
+                        onclick="cancelEditTask('${task.id}')">✕ Скасувати</button>
+                </div>
             </div>
 
             <div class="tk-reject-block" style="display:none">
@@ -1089,6 +1253,11 @@ function _renderChildTaskCard(task) {
             <div class="tk-card-title">${_esc(task.title)}</div>
             <div class="tk-card-stars">⭐ ${task.stars} зірок ${deadlineHtml} ${rewardHtml}</div>
 
+            ${task.lastEditNote ? `
+                <div class="tk-edit-note">
+                    <strong>✏️ Оновлено батьками:</strong> ${_esc(task.lastEditNote)}
+                </div>` : ''}
+
             ${hasDecline ? `
                 <div class="tk-child-comment">
                     <strong>💬 Моя відмова:</strong>
@@ -1163,6 +1332,14 @@ function _renderChildCompletedCard(task) {
     // Дитина може видалити свій відхилений запит достроково (до 7 днів)
     const canDelete = task.origin === 'child_request' && task.status === 'rejected';
 
+    // Винагорода нараховується тільки для parent_task і тільки якщо confirmed
+    const hasReward = task.origin === 'parent_task' && isConfirmed
+        && task.rewardStars && Number(task.rewardStars) > 0;
+    const totalStars = hasReward ? Number(task.stars) + Number(task.rewardStars) : null;
+    const starsLine = hasReward
+        ? `⭐ ${task.stars} + 🎁 ${task.rewardStars} = <strong>${totalStars}⭐</strong>`
+        : `⭐ ${task.stars} зірок`;
+
     return `
         <div class="tk-card tk-card--completed">
             <div class="tk-card-header">
@@ -1173,7 +1350,7 @@ function _renderChildCompletedCard(task) {
                 </div>
             </div>
             <div class="tk-card-title">${_esc(task.title)}</div>
-            <div class="tk-card-stars">⭐ ${task.stars} зірок</div>
+            <div class="tk-card-stars">${starsLine}</div>
             ${!isConfirmed && task.rejectComment ? `
                 <div class="tk-reject-comment">
                     <strong>💬 Коментар батьків:</strong>
@@ -1196,6 +1373,14 @@ function _renderCompletedCard(task) {
 
     const originLabel = task.origin === 'child_request' ? '📨 Запит дитини' : '📋 Моє завдання';
 
+    // Винагорода — тільки для parent_task і тільки якщо confirmed
+    const hasReward = task.origin === 'parent_task' && isConfirmed
+        && task.rewardStars && Number(task.rewardStars) > 0;
+    const totalStars = hasReward ? Number(task.stars) + Number(task.rewardStars) : null;
+    const starsLine = hasReward
+        ? `⭐ ${task.stars} + 🎁 ${task.rewardStars} = <strong>${totalStars}⭐</strong>`
+        : `⭐ ${task.stars} зірок`;
+
     return `
         <div class="tk-card tk-card--completed">
             <div class="tk-card-header">
@@ -1206,7 +1391,7 @@ function _renderCompletedCard(task) {
                 </div>
             </div>
             <div class="tk-card-title">${_esc(task.title)}</div>
-            <div class="tk-card-stars">⭐ ${task.stars} зірок</div>
+            <div class="tk-card-stars">${starsLine}</div>
             ${!isConfirmed && task.rejectComment ? `
                 <div class="tk-reject-comment">
                     <strong>💬 Причина відхилення:</strong>

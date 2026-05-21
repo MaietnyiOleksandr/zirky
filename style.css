@@ -1,6 +1,6 @@
 /* ════════════════════════════════════════════════════
    Зірки Успіху — Стилі
-   Версія: v3.20260520.0725
+   Версія: v3.20260521.0730
    ════════════════════════════════════════════════════ */
 
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;900&family=Comfortaa:wght@400;700&family=Fredoka+One&family=Ubuntu:wght@400;700&family=Playfair+Display:wght@400;700&display=swap');
@@ -3332,14 +3332,26 @@ select:focus, input:focus {
     font-size: 12px;
 }
 
-/* ── Блоки відхилення / відмови ── */
-.tk-reject-block, .tk-decline-block {
+/* ── Блоки відхилення / відмови / редагування ── */
+.tk-reject-block, .tk-decline-block, .tk-edit-block {
     margin-top: 10px;
     padding: 10px;
     background: var(--c-tk-lighter);
     border-radius: 8px;
     border: 1px solid var(--c-tk-border);
 }
+
+/* ── Нотатка про останнє редагування (на дитячій картці) ── */
+.tk-edit-note {
+    margin-top: 8px;
+    padding: 6px 10px;
+    background: var(--c-tk-lighter);
+    border-left: 3px solid var(--c-tk-primary);
+    border-radius: 6px;
+    font-size: 12px;
+    color: var(--text-primary);
+}
+.tk-edit-note strong { color: var(--c-tk-text); }
 
 .tk-reject-title {
     font-size: 12px;

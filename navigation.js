@@ -6,7 +6,7 @@
 //     showForm/switchTab, а ui.js потребував їх модулів
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260519.2147';
+export const VERSION = 'v3.20260521.0730';
 
 import { state } from './state.js';
 import { getTodayDate } from './utils.js';
@@ -162,6 +162,7 @@ export function switchTab(tab, fromClick = false) {
         dismissByAction('task_declined',  'tab');
         dismissByAction('task_confirmed', 'tab');
         dismissByAction('task_rejected',  'tab');
+        dismissByAction('task_updated',   'tab');
     }
     else if (tab === 'feedback') {
         renderFeedback();

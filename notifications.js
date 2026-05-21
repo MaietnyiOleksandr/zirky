@@ -3,7 +3,7 @@
 //     Етап 1: Фундамент — структура + Firebase
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260519.2156';
+export const VERSION = 'v3.20260521.0730';
 
 import { state }    from './state.js';
 import { nowKyiv }  from './utils.js';
@@ -89,6 +89,12 @@ export const NOTIF_TYPES = {
         repeatDays: null,
     },
     task_rejected: {       // Дитині — батьки відхилили
+        role:       'child',
+        badges:     ['bell', 'tasks'],
+        dismissBy:  ['checkmark', 'tab'],
+        repeatDays: null,
+    },
+    task_updated: {        // Дитині — батьки змінили дедлайн/винагороду
         role:       'child',
         badges:     ['bell', 'tasks'],
         dismissBy:  ['checkmark', 'tab'],
@@ -464,6 +470,20 @@ export function generateNotifications() {
                     ));
                 }
             }
+            // Завдання відредаговано батьками → дитині (task_updated)
+            // Тільки якщо є lastEditNote і updatedAt
+            if ((t.status === 'active' || t.status === 'done') && t.lastEditNote && t.updatedAt) {
+                const id = `task_updated_${t.id}`;
+                const existing = _items[id];
+                // Нове редагування (updatedAt змінився) — оновлюємо сповіщення
+                if (!existing || existing.createdAt !== t.updatedAt) {
+                    _upsertItem(_makeItem(id, 'task_updated',
+                        'Завдання оновлено',
+                        `${_tkLabel(t)} — ${t.lastEditNote}`,
+                        { createdAt: t.updatedAt, readBy: { child: null, parent: existing?.readBy?.parent || null } }
+                    ));
+                }
+            }
             // Виконано дитиною → батькам (task_done)
             if (t.status === 'done' && t.doneAt) {
                 const id = `task_done_${t.id}`;
@@ -494,7 +514,7 @@ export function generateNotifications() {
 
     // Прибираємо сповіщення про завдання, яких більше немає (видалили з Firebase)
     Object.keys(_items).forEach(notifId => {
-        const m = notifId.match(/^task_(request|done|new|declined|confirmed|rejected)_(.+)$/);
+        const m = notifId.match(/^task_(request|done|new|declined|confirmed|rejected|updated)_(.+)$/);
         if (!m) return;
         const taskId = m[2];
         if (!tasks[taskId]) {
@@ -721,6 +741,7 @@ const TYPE_COLORS = {
     task_declined:    { bg: 'var(--c-tk-light)',   border: 'var(--c-tk-border)',      text: 'var(--c-tk-text)'      },
     task_confirmed:   { bg: 'var(--c-tk-light)',   border: 'var(--c-tk-border)',      text: 'var(--c-tk-text)'      },
     task_rejected:    { bg: 'var(--c-tk-light)',   border: 'var(--c-tk-border)',      text: 'var(--c-tk-text)'      },
+    task_updated:     { bg: 'var(--c-tk-light)',   border: 'var(--c-tk-border)',      text: 'var(--c-tk-text)'      },
     good_dynamics:    { bg: 'var(--c-success-bg)', border: 'var(--c-success-border)', text: 'var(--c-success-text)' },
     streak_risk:      { bg: 'var(--c-danger-bg)',  border: 'var(--c-danger-border)',  text: 'var(--c-danger-text)'  },
     no_stars:         { bg: 'var(--c-warning-bg)', border: 'var(--c-warning-border)', text: 'var(--c-warning-text)' },
@@ -741,6 +762,7 @@ const TYPE_ICONS = {
     task_declined:    '✖️',
     task_confirmed:   '✅',
     task_rejected:    '❌',
+    task_updated:     '✏️',
     good_dynamics:    '📈',
     streak_risk:      '🔥',
     no_stars:         '⭐',

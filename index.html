@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⭐</text></svg>">
-    <!-- version: v3.20260520.0725 -->
+    <!-- version: v3.20260521.0730 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>⭐ Зірки Успіху</title>
     <link rel="stylesheet" href="style.css">
@@ -1101,7 +1101,9 @@
                  onParentTaskCategoryChange, onParentTaskBonusChange, onParentTaskDeadlineToggle, onParentTaskNoRewardToggle,
                  confirmTask, startRejectTask, cancelRejectTask, selectRejectReason, submitRejectTask,
                  markTaskDone, startDeclineTask, cancelDeclineTask, selectDeclineReason, submitDeclineTask,
-                 clearChildDecline, deleteTaskByParent, deleteOwnRequest, getTasksUnreadCount } from './tasks.js';
+                 clearChildDecline, deleteTaskByParent, deleteOwnRequest,
+                 startEditTask, cancelEditTask, onEditDeadlineToggle, onEditNoRewardToggle, saveEditTask,
+                 getTasksUnreadCount } from './tasks.js';
         import { getTodayDate, setTodayDates } from './utils.js';
         import { showLoading, updateUI } from './ui.js';
         import { showHelp, closeHelp } from './help.js';
@@ -1354,6 +1356,11 @@
         window.clearChildDecline          = clearChildDecline;
         window.deleteTaskByParent         = deleteTaskByParent;
         window.deleteOwnRequest           = deleteOwnRequest;
+        window.startEditTask              = startEditTask;
+        window.cancelEditTask             = cancelEditTask;
+        window.onEditDeadlineToggle       = onEditDeadlineToggle;
+        window.onEditNoRewardToggle       = onEditNoRewardToggle;
+        window.saveEditTask               = saveEditTask;
         window.getTasksUnreadCount        = getTasksUnreadCount;
 
         // ── Event listeners ───────────────────────────────────
