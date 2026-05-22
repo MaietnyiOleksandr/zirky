@@ -2345,8 +2345,8 @@ select:focus, input:focus {
 /* top:0 right:0 + translate(50%,-50%) = кут елемента без виходу за межі */
 .z-badge {
     position: absolute;
-    top: 3px;
-    right: 3px;
+    top: 5px;
+    right: 5px;
     transform: translate(50%, -50%);
     display: block;
 }
@@ -2363,7 +2363,7 @@ html[data-badge="flag"] .z-badge {
     width: 14px;
     height: 14px;
     animation: notifPulseFlag 2s infinite;
-    font-size: 14px;
+    font-size: 11px;
     line-height: 1;
     transform: translate(40%, -40%) rotate(10deg);
 }
