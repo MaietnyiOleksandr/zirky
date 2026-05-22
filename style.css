@@ -1,6 +1,6 @@
 /* ════════════════════════════════════════════════════
    Зірки Успіху — Стилі
-   Версія: v3.20260522.0631
+   Версія: v3.20260522.0735
    ════════════════════════════════════════════════════ */
 
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;900&family=Comfortaa:wght@400;700&family=Fredoka+One&family=Ubuntu:wght@400;700&family=Playfair+Display:wght@400;700&display=swap');
@@ -3643,14 +3643,21 @@ select:focus, input:focus {
 }
 
 /* ════════════════════════════════════════════════════
-   🔴 БЕЙДЖ НА КАРТЦІ ЗАВДАННЯ (універсально через .has-badge)
+   🔴 УНІВЕРСАЛЬНИЙ БЕЙДЖ (.z-badged.has-badge)
+   ════════════════════════════════════════════════════
+   Використання:
+     <div class="card-bg z-badged has-badge">  → бейдж у куті
+     <div class="tk-card z-badged has-badge">  → бейдж у куті
+
+   Клас z-badged лише налаштовує позиціонування;
+   видимість керується класом has-badge.
    ════════════════════════════════════════════════════ */
 
-.tk-card.has-badge {
+.z-badged {
     position: relative;
 }
 
-.tk-card.has-badge::before {
+.z-badged.has-badge::before {
     content: '';
     position: absolute;
     top: -4px;

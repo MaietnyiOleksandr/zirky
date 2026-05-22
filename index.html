@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⭐</text></svg>">
-    <!-- version: v3.20260521.1330 -->
+    <!-- version: v3.20260522.0735 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>⭐ Зірки Успіху</title>
     <link rel="stylesheet" href="style.css">
@@ -859,7 +859,7 @@
 
                     <!-- ══ 💾 Резервні копії ══ -->
                     <div class="settings-accordion-wrap">
-                        <button class="settings-menu-item" onclick="toggleSettingsBlock('backup')">
+                        <button class="settings-menu-item" id="backupAccordionBtn" onclick="toggleSettingsBlock('backup')">
                             <span class="settings-menu-icon">💾</span>
                             <span class="settings-menu-label">Резервні копії</span>
                             <span class="settings-menu-arrow" id="settingsArrow_backup">›</span>
@@ -869,7 +869,7 @@
                                 <div class="settings-block-content" style="display:grid;gap:12px;">
 
                                     <!-- Експорт -->
-                                    <div class="card-bg">
+                                    <div class="card-bg z-badged" id="backupExportCard" onclick="handleBackupCardClick(event)">
                                         <h3 class="card-title">📤 Експорт даних</h3>
                                         <p class="text-muted font-sm mb-md">
                                             Зберігає всі дані (оцінки, винагороди, досягнення) в файл JSON.<br>
@@ -1175,7 +1175,7 @@
                  clearChildDecline, deleteTaskByParent, deleteOwnRequest,
                  startEditTask, cancelEditTask, onEditDeadlineToggle, onEditNoRewardToggle, saveEditTask,
                  getTasksUnreadCount } from './tasks.js';
-        import { getTodayDate, setTodayDates } from './utils.js';
+        import { getTodayDate, setTodayDates, pulseElement } from './utils.js';
         import { showLoading, updateUI } from './ui.js';
         import { showHelp, closeHelp } from './help.js';
         import { switchTab, showForm } from './navigation.js';
@@ -1202,7 +1202,8 @@
                  showVersionsModal, closeVersionsModal } from './settings.js';
         import { openNotifications, closeNotifications, updateNotificationBadge,
                  updateChangelogBadge, markChangelogRead, dismissNotification,
-                 dismissByAction, getUnreadItems, generateNotifications } from './notifications.js';
+                 dismissByAction, getUnreadItems, generateNotifications,
+                 hasUnreadByType, dismissByType } from './notifications.js';
         import { applyAppearance, renderThemeShop, buyTheme,
                  activateTheme, setComponent, startPreview, stopPreview, refundTheme,
                  toggleDevMode, isDevMode } from './appearance.js';
@@ -1331,6 +1332,26 @@
                 window.renderDataInfoContent('aboutDataInfo');
             }
         };
+
+        // Картка "📤 Експорт даних" — клік: pulse + dismiss backup-сповіщень
+        // (логіка аналогічна tasks.js → tkCardClick)
+        window.handleBackupCardClick = function(evt) {
+            // Ігноруємо кліки по інтерактивним елементам всередині картки
+            if (evt && evt.target && evt.target.closest('button, input, textarea, select, a')) return;
+
+            const card = document.getElementById('backupExportCard');
+            const hadBadge = card && card.classList.contains('has-badge');
+
+            // Анімація: glow+scale якщо був бейдж, інакше тільки scale
+            if (card) pulseElement(card, hadBadge);
+
+            // Якщо був бейдж — dismiss усі backup-сповіщення + знімаємо клас
+            if (hadBadge) {
+                dismissByType('backup');
+                card.classList.remove('has-badge');
+                // Бейдж на акордеоні також зникає (через updateBadges)
+            }
+        };
         // appearance.js
         window.applyAppearance = applyAppearance;
         window.renderThemeShop = renderThemeShop;
@@ -1366,6 +1387,13 @@
             if (cl) cl.classList.toggle('has-badge', badgeTargets.has('changelog'));
             const aboutBtn = document.getElementById('aboutAccordionBtn');
             if (aboutBtn) aboutBtn.classList.toggle('has-badge', badgeTargets.has('changelog'));
+
+            // 💾 Backup — акордеон "Резервні копії" + картка "📤 Експорт даних"
+            const hasBackup = badgeTargets.has('backup-section');
+            const backupBtn = document.getElementById('backupAccordionBtn');
+            if (backupBtn) backupBtn.classList.toggle('has-badge', hasBackup);
+            const backupCard = document.getElementById('backupExportCard');
+            if (backupCard) backupCard.classList.toggle('has-badge', hasBackup);
 
             // Таби — крапки
             const tabMap = {

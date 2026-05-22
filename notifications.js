@@ -3,7 +3,7 @@
 //     Етап 1: Фундамент — структура + Firebase
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260522.0650';
+export const VERSION = 'v3.20260522.0735';
 
 import { state }    from './state.js';
 import { nowKyiv }  from './utils.js';
@@ -130,7 +130,7 @@ export const NOTIF_TYPES = {
     },
     backup: {
         role:       'parent',
-        badges:     ['bell', 'settings'],
+        badges:     ['bell', 'settings', 'backup-section'],
         dismissBy:  ['checkmark'],
         repeatDays: 7,
     },
@@ -790,6 +790,37 @@ export function dismissTaskNotifications(taskId) {
         const id = `task_${kind}_${taskId}`;
         if (_items[id]) dismissNotification(id);
     });
+}
+
+// ════════════════════════════════════════════════════════════
+// 🎯  УНІВЕРСАЛЬНІ ХЕЛПЕРИ ЗА ТИПОМ СПОВІЩЕННЯ
+// ════════════════════════════════════════════════════════════
+//   Використовуються для бейджів на конкретних UI-блоках поза
+//   вкладкою "Завдання" (наприклад: backup → акордеон/картка
+//   "Резервні копії"). Працюють для будь-якого типу з NOTIF_TYPES.
+//
+//   Приклади:
+//     hasUnreadByType('backup')      → true/false
+//     dismissByType('backup')        → позначає всі прочитаними
+// ════════════════════════════════════════════════════════════
+
+// Чи є хоч одне непрочитане сповіщення вказаного типу (для поточної ролі).
+export function hasUnreadByType(type) {
+    if (!type) return false;
+    const role = state.data.isParent ? 'parent' : 'child';
+    return Object.values(_items).some(i =>
+        i.type === type && _isUnread(i, role)
+    );
+}
+
+// Dismiss-ить ВСІ непрочитані сповіщення вказаного типу для поточної ролі.
+// Викликається при кліку на UI-елемент, прив'язаний до цього типу.
+export function dismissByType(type) {
+    if (!type) return;
+    const role = state.data.isParent ? 'parent' : 'child';
+    Object.values(_items)
+        .filter(i => i.type === type && _isUnread(i, role))
+        .forEach(item => dismissNotification(item.id));
 }
 
 // Dismiss через модалку або відкриття вкладки (dismissBy: modal/tab)

@@ -18,7 +18,7 @@
 //     Live-таймер дедлайну з паузою при прихованій вкладці.
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260522.0631';
+export const VERSION = 'v3.20260522.0735';
 
 import { state, tasksFilter } from './state.js';
 import { isDoubleSubject } from './subjects.js';
@@ -89,7 +89,7 @@ function _esc(s) {
 
 function _cardClasses(taskId, baseClasses) {
     const hasBadge = taskId ? hasUnreadTaskNotification(taskId) : false;
-    return baseClasses + (hasBadge ? ' has-badge' : '');
+    return baseClasses + ' z-badged' + (hasBadge ? ' has-badge' : '');
 }
 
 function _handleCardClick(taskId, evt) {
