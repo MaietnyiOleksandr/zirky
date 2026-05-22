@@ -12,7 +12,7 @@
 //       3. Додай CSS vars у style.css (опційно)
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260522.1435';
+export const VERSION = 'v3.20260522.1452';
 
 import { state } from './state.js';
 import { saveAppearance, saveRecords } from './firebase.js';
@@ -206,41 +206,31 @@ export const COMPONENTS = {
     },
 
     // ── Бейджі — вигляд крапки-індикатора ──────────────
-    // vars: CSS-змінні на <html>, що керують виглядом .z-badge скрізь у програмі:
-    //   --badge-bg       фон крапки
-    //   --badge-border   контур (border: N solid color)
-    //   --badge-content  вміст ('' = крапка, '🚩' = прапорець і т.д.)
-    //   --badge-size     розмір (ширина/висота у px)
-    //   --badge-transform трансформація (наприклад rotate(10deg))
+    // vars: тільки --badge-bg і --badge-border.
+    // Позиція (-5px/-5px), розмір (10px), анімація (notifPulse)
+    // та прапорець задані жорстко в style.css через html[data-badge="..."].
     badges: {
+        // Тільки --badge-bg і --badge-border — решта (розмір, позиція,
+        // анімація, прапорець) задана жорстко в style.css через data-badge атрибут.
         default: {
             name: '🔴 Класика',
             vars: {
-                '--badge-bg':        '#f44336',
-                '--badge-border':    '2px solid #ffffff',
-                '--badge-content':   "''",
-                '--badge-size':      '10px',
-                '--badge-transform': 'none',
+                '--badge-bg':     '#f44336',
+                '--badge-border': '2px solid #ffffff',
             },
         },
         dark: {
             name: '🔴 Темний контур',
             vars: {
-                '--badge-bg':        '#f44336',
-                '--badge-border':    '2px solid #2d1b4e',
-                '--badge-content':   "''",
-                '--badge-size':      '10px',
-                '--badge-transform': 'none',
+                '--badge-bg':     '#f44336',
+                '--badge-border': '2px solid #2d1b4e',
             },
         },
         flag: {
             name: '🚩 Прапорець',
             vars: {
-                '--badge-bg':        'transparent',
-                '--badge-border':    'none',
-                '--badge-content':   "'🚩'",
-                '--badge-size':      '18px',
-                '--badge-transform': 'rotate(10deg)',
+                '--badge-bg':     'transparent',
+                '--badge-border': 'none',
             },
         },
     },

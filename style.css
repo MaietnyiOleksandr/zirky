@@ -1,6 +1,6 @@
 /* ════════════════════════════════════════════════════
    Зірки Успіху — Стилі
-   Версія: v3.20260522.1435
+   Версія: v3.20260522.1452
    ════════════════════════════════════════════════════ */
 
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;900&family=Comfortaa:wght@400;700&family=Fredoka+One&family=Ubuntu:wght@400;700&family=Playfair+Display:wght@400;700&display=swap');
@@ -636,25 +636,10 @@ select:focus, input:focus {
 
 /* Бейдж на іконці-кнопці (через ::after — span всередині button ламає onclick) */
 .btn-icon {
-    overflow: visible; /* щоб ::after виходив за межі */
+    overflow: visible; /* щоб .z-badge span виходив за межі */
 }
 .btn-icon.has-badge {
     position: relative;
-}
-/* Бейдж на btn-icon — через окремий .z-badge span всередині кнопки.
-   Цей ::after залишається як fallback якщо span не доданий. */
-.btn-icon.has-badge::after {
-    content: var(--badge-content, '');
-    position: absolute;
-    top: -3px;
-    right: -3px;
-    width: var(--badge-size, 10px);
-    height: var(--badge-size, 10px);
-    background: var(--badge-bg, #f44336);
-    border-radius: 50%;
-    border: var(--badge-border, 2px solid #ffffff);
-    pointer-events: none;
-    animation: notifPulse 2s infinite;
 }
 
 /* Компактна кнопка (без width:100%, padding менший) */
@@ -2299,65 +2284,115 @@ select:focus, input:focus {
 }
 
 /* ════════════════════════════════════════════════════
-   🔴 УНІФІКОВАНА СИСТЕМА БЕЙДЖІВ
-   Все керується CSS-змінними з тем (appearance.js):
-     --badge-bg       фон крапки          (default: #f44336)
-     --badge-border   контур              (default: 2px solid #ffffff)
-     --badge-content  вміст               (default: '')
-     --badge-size     розмір              (default: 10px)
-     --badge-transform трансформація      (default: none)
+   🔴 ЦЕНТРАЛІЗОВАНА СИСТЕМА БЕЙДЖІВ
+   ════════════════════════════════════════════════════
+   ЄДИНЕ ДЖЕРЕЛО ПРАВДИ — всі властивості визначені тут.
+   Теми (appearance.js) задають тільки CSS-змінні:
+     --badge-bg      фон крапки          (default: #f44336)
+     --badge-border  контур              (default: 2px solid #ffffff)
+
+   Позиція, розмір та анімація — НЕЗМІННІ, задані тут.
+   Прапорець (ретро) — окремий селектор за data-badge="flag".
+
+   ДВА способи показати бейдж:
+     1) <span class="z-badge z-badge--hidden" id="...">  — окремий span,
+        показується через classList.toggle('z-badge--hidden', false)
+     2) <div class="z-badged has-badge">  — через ::before псевдоелемент,
+        показується через classList.toggle('has-badge', true)
    ════════════════════════════════════════════════════ */
 
-/* Дефолтні значення (якщо тема ще не завантажена) */
+/* ── Дефолтні значення (якщо тема ще не завантажена) ── */
 :root {
-    --badge-bg:        #f44336;
-    --badge-border:    2px solid #ffffff;
-    --badge-content:   '';
-    --badge-size:      10px;
-    --badge-transform: none;
+    --badge-bg:     #f44336;
+    --badge-border: 2px solid #ffffff;
 }
 
+/* ── Анімації ──────────────────────────────────────── */
 @keyframes notifPulse {
-    0%, 100% { transform: var(--badge-transform, none) scale(1); }
-    50%       { transform: var(--badge-transform, none) scale(1.3); }
+    0%, 100% { transform: scale(1);           }
+    50%       { transform: scale(1.35);        }
+}
+@keyframes notifPulseFlag {
+    0%, 100% { transform: rotate(10deg) scale(1);    }
+    50%       { transform: rotate(10deg) scale(1.35); }
 }
 
-/* Базовий клас: використовується на окремому DOM-елементі (дзвіночок, таб-бейдж) */
-.z-badge {
-    position: absolute;
-    top: -4px;
-    right: -4px;
-    width: var(--badge-size, 10px);
-    height: var(--badge-size, 10px);
+/* ── Спільні властивості для крапки ───────────────── */
+/* Використовуємо :where() щоб специфічність залишалась низькою
+   і конкретні селектори нижче могли перекрити */
+:where(.z-badge, .z-badged.has-badge::before) {
+    width: 10px;
+    height: 10px;
     background: var(--badge-bg, #f44336);
     border-radius: 50%;
     border: var(--badge-border, 2px solid #ffffff);
     animation: notifPulse 2s infinite;
     pointer-events: none;
-    display: block;
-    /* Щоб позиціонувався відносно батька, не далі */
     z-index: 10;
 }
 
-/* Для емодзі-бейджів (🚩) — прозорий фон, вміст через content */
-.z-badge::before {
-    content: var(--badge-content, '');
-    font-size: var(--badge-size, 10px);
-    line-height: 1;
+/* ── Спосіб 1: окремий span (.z-badge) ────────────── */
+.z-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
     display: block;
-    transform: var(--badge-transform, none);
 }
 
-/* Прихований стан бейджа */
 .z-badge--hidden {
     display: none !important;
 }
 
-/* Крапка на дзвіночку (окремий span) */
-.notif-badge {
+/* Прапорець — спосіб 1 */
+html[data-badge="flag"] .z-badge {
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    width: 18px;
+    height: 18px;
+    top: -9px;
+    right: -5px;
+    animation: notifPulseFlag 2s infinite;
+    font-size: 16px;
+    line-height: 1;
+}
+html[data-badge="flag"] .z-badge::before {
+    content: '🚩';
+    display: block;
+    transform: rotate(10deg);
+}
+
+/* ── Спосіб 2: через ::before на контейнері (.z-badged) ── */
+.z-badged {
+    position: relative;
+}
+.z-badged.has-badge::before {
+    content: '';
     position: absolute;
-    top: -3px;
-    right: -3px;
+    top: -5px;
+    right: -5px;
+    display: block;
+}
+
+/* Прапорець — спосіб 2 */
+html[data-badge="flag"] .z-badged.has-badge::before {
+    content: '🚩';
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    width: 18px;
+    height: 18px;
+    top: -9px;
+    right: -5px;
+    font-size: 16px;
+    line-height: 1;
+    transform: rotate(10deg);
+    animation: notifPulseFlag 2s infinite;
+}
+
+/* ── Прихований стан ───────────────────────────────── */
+.z-badge--hidden {
+    display: none !important;
 }
 
 /* Порожній стан */
@@ -2441,12 +2476,7 @@ select:focus, input:focus {
     transform: scale(1.1);
 }
 
-/* ── Крапка-бейдж на табах ──────────────────────── */
-.tab-badge {
-    position: absolute;
-    top: 4px;
-    right: 4px;
-}
+/* .tab-badge наслідує position/size/animation від .z-badge */
 
 .tab { position: relative; }
 
@@ -3636,8 +3666,8 @@ select:focus, input:focus {
     font-size: 13px !important;
     padding: 10px 6px !important;
     white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    overflow: visible;   /* дозволяємо .z-badge виступати за межі */
+    text-overflow: clip; /* ellipsis не потрібен якщо overflow:visible */
 }
 
 /* ════════════════════════════════════════════════════
@@ -3664,48 +3694,3 @@ select:focus, input:focus {
     animation: z-pulse-scale 0.6s ease-out, z-pulse-glow-shadow 0.6s ease-out;
 }
 
-/* ════════════════════════════════════════════════════
-   🔴 УНІФІКОВАНИЙ БЕЙДЖ НА КАРТЦІ (.z-badged)
-   ════════════════════════════════════════════════════
-   Додай клас z-badged на контейнер — і has-badge для показу.
-   Вигляд повністю керується CSS-змінними теми.
-   ════════════════════════════════════════════════════ */
-
-.z-badged {
-    position: relative;
-}
-
-/* Крапка — звичайний бейдж */
-html:not([data-badge="flag"]) .z-badged.has-badge::before {
-    content: var(--badge-content, '');
-    position: absolute;
-    top: -4px;
-    right: -4px;
-    width: var(--badge-size, 10px);
-    height: var(--badge-size, 10px);
-    background: var(--badge-bg, #f44336);
-    border-radius: 50%;
-    border: var(--badge-border, 2px solid #ffffff);
-    animation: notifPulse 2s infinite;
-    z-index: 2;
-    pointer-events: none;
-}
-
-/* Прапорець (ретро) — емодзі без круглого фону */
-html[data-badge="flag"] .z-badged.has-badge::before {
-    content: '🚩';
-    position: absolute;
-    top: -10px;
-    right: -6px;
-    width: auto;
-    height: auto;
-    font-size: 16px;
-    background: transparent;
-    border: none;
-    border-radius: 0;
-    transform: rotate(10deg);
-    animation: notifPulse 2s infinite;
-    z-index: 2;
-    pointer-events: none;
-    line-height: 1;
-}
