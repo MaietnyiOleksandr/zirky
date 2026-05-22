@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⭐</text></svg>">
-    <!-- version: v3.20260522.1421 -->
+    <!-- version: v3.20260522.1435 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>⭐ Зірки Успіху</title>
     <link rel="stylesheet" href="style.css">
@@ -1329,6 +1329,10 @@
             const isOpen = body.classList.contains('open');
             body.classList.toggle('open', !isOpen);
             if (arrow) arrow.classList.toggle('open', !isOpen);
+
+            // Клас на wrap — для border-radius кнопки (закрита = повністю округла)
+            const wrap = body.closest('.settings-accordion-wrap');
+            if (wrap) wrap.classList.toggle('is-open', !isOpen);
 
             // При відкритті блоку "Про програму" — авторендер інфо про дані
             if (id === 'about' && !isOpen && window.renderDataInfoContent) {

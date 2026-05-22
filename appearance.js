@@ -12,7 +12,7 @@
 //       3. Додай CSS vars у style.css (опційно)
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260522.1421';
+export const VERSION = 'v3.20260522.1435';
 
 import { state } from './state.js';
 import { saveAppearance, saveRecords } from './firebase.js';
@@ -211,7 +211,7 @@ export const COMPONENTS = {
     //   --badge-border   контур (border: N solid color)
     //   --badge-content  вміст ('' = крапка, '🚩' = прапорець і т.д.)
     //   --badge-size     розмір (ширина/висота у px)
-    //   --badge-transform трансформація (наприклад rotate(30deg))
+    //   --badge-transform трансформація (наприклад rotate(10deg))
     badges: {
         default: {
             name: '🔴 Класика',
@@ -240,7 +240,7 @@ export const COMPONENTS = {
                 '--badge-border':    'none',
                 '--badge-content':   "'🚩'",
                 '--badge-size':      '18px',
-                '--badge-transform': 'rotate(30deg)',
+                '--badge-transform': 'rotate(10deg)',
             },
         },
     },

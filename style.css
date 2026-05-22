@@ -1,6 +1,6 @@
 /* ════════════════════════════════════════════════════
    Зірки Успіху — Стилі
-   Версія: v3.20260522.1421
+   Версія: v3.20260522.1435
    ════════════════════════════════════════════════════ */
 
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;900&family=Comfortaa:wght@400;700&family=Fredoka+One&family=Ubuntu:wght@400;700&family=Playfair+Display:wght@400;700&display=swap');
@@ -2290,6 +2290,7 @@ select:focus, input:focus {
     justify-content: center;
     transition: border-color 0.2s, background 0.2s;
     z-index: 2;
+    overflow: visible;
 }
 
 .notif-bell:hover {
@@ -2324,25 +2325,27 @@ select:focus, input:focus {
 /* Базовий клас: використовується на окремому DOM-елементі (дзвіночок, таб-бейдж) */
 .z-badge {
     position: absolute;
-    top: -3px;
-    right: -3px;
-    width: var(--badge-size);
-    height: var(--badge-size);
-    background: var(--badge-bg);
+    top: -4px;
+    right: -4px;
+    width: var(--badge-size, 10px);
+    height: var(--badge-size, 10px);
+    background: var(--badge-bg, #f44336);
     border-radius: 50%;
-    border: var(--badge-border);
+    border: var(--badge-border, 2px solid #ffffff);
     animation: notifPulse 2s infinite;
     pointer-events: none;
     display: block;
+    /* Щоб позиціонувався відносно батька, не далі */
+    z-index: 10;
 }
 
 /* Для емодзі-бейджів (🚩) — прозорий фон, вміст через content */
 .z-badge::before {
-    content: var(--badge-content);
-    font-size: var(--badge-size);
+    content: var(--badge-content, '');
+    font-size: var(--badge-size, 10px);
     line-height: 1;
     display: block;
-    transform: var(--badge-transform);
+    transform: var(--badge-transform, none);
 }
 
 /* Прихований стан бейджа */
@@ -3482,11 +3485,14 @@ select:focus, input:focus {
 
 .settings-accordion-wrap {
     border-radius: 16px;
-    overflow: hidden;
+    /* overflow:visible — щоб .z-badge з від'ємними координатами не обрізався */
+    overflow: visible;
     box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
 
+/* Кнопка-заголовок: закритий акордеон — повністю закруглена */
 .settings-menu-item {
+    position: relative; /* для .z-badge всередині */
     width: 100%;
     display: flex;
     align-items: center;
@@ -3502,6 +3508,19 @@ select:focus, input:focus {
     text-align: left;
     transition: filter 0.15s;
     -webkit-tap-highlight-color: transparent;
+    border-radius: 16px; /* закритий стан */
+    overflow: visible;
+}
+
+/* Кнопка-заголовок: відкритий акордеон — закруглена тільки зверху */
+.settings-accordion-wrap.is-open > .settings-menu-item {
+    border-radius: 16px 16px 0 0;
+}
+
+/* Тіло акордеону: закруглене знизу коли відкрите */
+.settings-accordion-body {
+    border-radius: 0 0 16px 16px;
+    overflow: hidden;
 }
 
 .settings-menu-item:active {
@@ -3684,7 +3703,7 @@ html[data-badge="flag"] .z-badged.has-badge::before {
     background: transparent;
     border: none;
     border-radius: 0;
-    transform: rotate(30deg);
+    transform: rotate(10deg);
     animation: notifPulse 2s infinite;
     z-index: 2;
     pointer-events: none;
