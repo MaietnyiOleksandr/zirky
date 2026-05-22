@@ -521,7 +521,7 @@ body::after {
     background: linear-gradient(135deg, var(--tab-active-from), var(--tab-active-to));
     color: var(--tab-active-color);
     transform: translateY(-3px);
-    box-shadow: 0 8px 20px var(--tab-active-shadow);
+    box-shadow: 0 8px 15px var(--tab-active-shadow);
 }
 
 /* ════════════════════════════════════════════════════
