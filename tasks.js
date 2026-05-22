@@ -18,7 +18,7 @@
 //     Live-таймер дедлайну з паузою при прихованій вкладці.
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260522.0735';
+export const VERSION = 'v3.20260522.1735';
 
 import { state, tasksFilter } from './state.js';
 import { isDoubleSubject } from './subjects.js';
@@ -86,31 +86,39 @@ function _esc(s) {
 //     • знімає клас has-badge з DOM
 //   Викликається з усіх рендер-функцій карток.
 // ════════════════════════════════════════════════════════════
+// 🔴  Бейдж через <span class="z-badge"> всередині картки
+// ════════════════════════════════════════════════════════════
+// Єдиний підхід — span, як і на дзвіночку, табах, акордеонах.
+// _cardBadgeSpan() — генерує HTML span (прихований або видимий).
+// _handleCardClick() — анімація + dismiss + ховає span.
 
 function _cardClasses(taskId, baseClasses) {
+    // z-badged більше не потрібен — span сам позиціонується
+    return baseClasses;
+}
+
+function _cardBadgeSpan(taskId) {
     const hasBadge = taskId ? hasUnreadTaskNotification(taskId) : false;
-    return baseClasses + ' z-badged' + (hasBadge ? ' has-badge' : '');
+    const hidden = hasBadge ? '' : ' z-badge--hidden';
+    return `<span class="z-badge${hidden}" id="cardBadge_${taskId}"></span>`;
 }
 
 function _handleCardClick(taskId, evt) {
-    // Якщо клік був по інтерактивному елементу всередині картки —
-    // ігноруємо (інакше пульсація + dismiss спрацює зайве).
     if (evt && evt.target && evt.target.closest('button, input, textarea, select, a')) return;
 
-    const card = document.getElementById(`tkCard_${taskId}`);
-    const hadBadge = card && card.classList.contains('has-badge');
+    const card    = document.getElementById(`tkCard_${taskId}`);
+    const badge   = document.getElementById(`cardBadge_${taskId}`);
+    const hadBadge = badge && !badge.classList.contains('z-badge--hidden');
 
-    // Анімація: glow+scale якщо був бейдж, тільки scale якщо не було
+    // Анімація: glow+scale якщо був бейдж, тільки scale якщо ні
     if (card) pulseElement(card, hadBadge);
 
-    // Якщо був бейдж — dismiss-имо сповіщення + знімаємо клас
     if (hadBadge) {
         dismissTaskNotifications(taskId);
-        card.classList.remove('has-badge');
+        badge.classList.add('z-badge--hidden');
     }
 }
 
-// Експортуємо handleCardClick на window для onclick-атрибутів
 if (typeof window !== 'undefined') {
     window.tkCardClick = _handleCardClick;
 }
@@ -1098,6 +1106,7 @@ function _renderParentRequestCard(task) {
 
     return `
         <div id="tkCard_${task.id}" class="${_cardClasses(task.id, 'tk-card tk-card--request')}" onclick="tkCardClick('${task.id}', event)">
+            ${_cardBadgeSpan(task.id)}
             <div class="tk-card-header">
                 <span class="tk-card-origin">📨 Запит від дитини</span>
                 <div class="tk-card-meta">
@@ -1149,6 +1158,7 @@ function _renderParentTaskCard(task) {
 
     return `
         <div id="tkCard_${task.id}" class="${_cardClasses(task.id, 'tk-card tk-card--task ' + (childDeclined ? 'tk-card--declined' : ''))}" onclick="tkCardClick('${task.id}', event)">
+            ${_cardBadgeSpan(task.id)}
             <div class="tk-card-header">
                 <span class="tk-card-origin">📋 Моє завдання</span>
                 <div class="tk-card-meta">
@@ -1284,6 +1294,7 @@ function _renderChildTaskCard(task) {
 
     return `
         <div id="tkCard_${task.id}" class="${_cardClasses(task.id, 'tk-card tk-card--task ' + (hasDecline ? 'tk-card--declined' : ''))}" onclick="tkCardClick('${task.id}', event)">
+            ${_cardBadgeSpan(task.id)}
             <div class="tk-card-header">
                 <span class="tk-card-origin">📋 Завдання від батьків</span>
                 <div class="tk-card-meta">
@@ -1345,6 +1356,7 @@ function _renderChildRequestCard(task) {
 
     return `
         <div id="tkCard_${task.id}" class="${_cardClasses(task.id, 'tk-card tk-card--request')}" onclick="tkCardClick('${task.id}', event)">
+            ${_cardBadgeSpan(task.id)}
             <div class="tk-card-header">
                 <span class="tk-card-origin">📨 Мій запит</span>
                 <div class="tk-card-meta">
@@ -1383,6 +1395,7 @@ function _renderChildCompletedCard(task) {
 
     return `
         <div id="tkCard_${task.id}" class="${_cardClasses(task.id, 'tk-card tk-card--completed')}" onclick="tkCardClick('${task.id}', event)">
+            ${_cardBadgeSpan(task.id)}
             <div class="tk-card-header">
                 <span class="tk-card-origin">${originLabel}</span>
                 <div class="tk-card-meta">
@@ -1424,6 +1437,7 @@ function _renderCompletedCard(task) {
 
     return `
         <div id="tkCard_${task.id}" class="${_cardClasses(task.id, 'tk-card tk-card--completed')}" onclick="tkCardClick('${task.id}', event)">
+            ${_cardBadgeSpan(task.id)}
             <div class="tk-card-header">
                 <span class="tk-card-origin">${originLabel}</span>
                 <div class="tk-card-meta">

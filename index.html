@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⭐</text></svg>">
-    <!-- version: v3.20260522.1435 -->
+    <!-- version: v3.20260522.1735 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>⭐ Зірки Успіху</title>
     <link rel="stylesheet" href="style.css">
@@ -870,7 +870,8 @@
                                 <div class="settings-block-content" style="display:grid;gap:12px;">
 
                                     <!-- Експорт -->
-                                    <div class="card-bg z-badged" id="backupExportCard" onclick="handleBackupCardClick(event)">
+                                    <div class="card-bg" id="backupExportCard" onclick="handleBackupCardClick(event)">
+                                        <span class="z-badge z-badge--hidden" id="badgeBackupCard"></span>
                                         <h3 class="card-title">📤 Експорт даних</h3>
                                         <p class="text-muted font-sm mb-md">
                                             Зберігає всі дані (оцінки, винагороди, досягнення) в файл JSON.<br>
@@ -1343,20 +1344,17 @@
         // Картка "📤 Експорт даних" — клік: pulse + dismiss backup-сповіщень
         // (логіка аналогічна tasks.js → tkCardClick)
         window.handleBackupCardClick = function(evt) {
-            // Ігноруємо кліки по інтерактивним елементам всередині картки
             if (evt && evt.target && evt.target.closest('button, input, textarea, select, a')) return;
 
-            const card = document.getElementById('backupExportCard');
-            const hadBadge = card && card.classList.contains('has-badge');
+            const card    = document.getElementById('backupExportCard');
+            const badge   = document.getElementById('badgeBackupCard');
+            const hadBadge = badge && !badge.classList.contains('z-badge--hidden');
 
-            // Анімація: glow+scale якщо був бейдж, інакше тільки scale
             if (card) pulseElement(card, hadBadge);
 
-            // Якщо був бейдж — dismiss усі backup-сповіщення + знімаємо клас
             if (hadBadge) {
                 dismissByType('backup');
-                card.classList.remove('has-badge');
-                // Бейдж на акордеоні також зникає (через updateBadges)
+                badge.classList.add('z-badge--hidden');
             }
         };
         // appearance.js
@@ -1406,8 +1404,7 @@
             // ─── 💾 Backup: акордеон + картка "Експорт даних" ────────────
             const hasBackup = badgeTargets.has('backup-section');
             setBadge('badgeBackupAccordion', hasBackup);
-            const backupCard = document.getElementById('backupExportCard');
-            if (backupCard) backupCard.classList.toggle('has-badge', hasBackup);
+            setBadge('badgeBackupCard',      hasBackup);
         };
         window.refundTheme    = refundTheme;
         window.toggleDevMode  = toggleDevMode;

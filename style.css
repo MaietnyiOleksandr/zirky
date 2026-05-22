@@ -1,6 +1,6 @@
 /* ════════════════════════════════════════════════════
    Зірки Успіху — Стилі
-   Версія: v3.20260522.1720
+   Версія: v3.20260522.1735
    ════════════════════════════════════════════════════ */
 
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;900&family=Comfortaa:wght@400;700&family=Fredoka+One&family=Ubuntu:wght@400;700&family=Playfair+Display:wght@400;700&display=swap');
@@ -148,7 +148,7 @@ body::after {
     50% { transform: translateY(-30px) rotate(10deg); }
 }
 
-.container { max-width: 800px; margin: 0 auto; padding: 20px; overflow-x: clip; }
+.container { max-width: 800px; margin: 0 auto; padding: 20px; overflow-x: visible; }
 
 /* ════════════════════════════════════════════════════
    HEADER
@@ -461,6 +461,10 @@ body::after {
     -webkit-overflow-scrolling: touch;
     margin-bottom: 10px;
     padding-bottom: 4px;
+    /* overflow-x:auto примусово ховає overflow-y у Chromium,
+       тому даємо padding-top щоб .z-badge span (top:0, translate -50%) вмістився */
+    padding-top: 8px;
+    margin-top: -8px;
 }
 .tabs-scroll::-webkit-scrollbar { height: 4px; }
 .tabs-scroll::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 4px; }
@@ -681,7 +685,7 @@ select:focus, input:focus {
 /* ════════════════════════════════════════════════════
    УТИЛІТАРНІ КЛАСИ — Кольорові картки
    ════════════════════════════════════════════════════ */
-.card-bg { background: var(--bg); padding: 18px; border-radius: 15px; }
+.card-bg { background: var(--bg); padding: 18px; border-radius: 15px; position: relative; }
 
 .card-inner { background: var(--card); padding: 10px 12px; border-radius: 10px; margin-bottom: 12px; }
 .card-inner--lg { padding: 12px; margin-bottom: 15px; }
@@ -2361,32 +2365,8 @@ html[data-badge="flag"] .z-badge::before {
     display: block;
 }
 
-/* ── Спосіб 2: через ::before на контейнері (.z-badged) ── */
-.z-badged {
-    position: relative;
-    overflow: visible !important;
-}
-.z-badged.has-badge::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 0;
-    transform: translate(50%, -50%);
-    display: block;
-}
-
-/* Прапорець — спосіб 2 */
-html[data-badge="flag"] .z-badged.has-badge::before {
-    content: '🚩';
-    background: transparent;
-    border: none;
-    border-radius: 0;
-    width: 14px;
-    height: 14px;
-    font-size: 14px;
-    line-height: 1;
-    animation: notifPulseFlag 2s infinite;
-}
+/* ── Спосіб 2 (z-badged) видалено ── */
+/* Бейдж скрізь через <span class="z-badge"> — один підхід для всіх елементів */
 
 /* ── Прихований стан ───────────────────────────────── */
 .z-badge--hidden {
@@ -3204,6 +3184,7 @@ html[data-badge="flag"] .z-badged.has-badge::before {
     padding: 12px 14px;
     margin-bottom: 10px;
     transition: all 0.2s;
+    position: relative; /* для .z-badge span всередині */
 }
 
 .tk-card--request {
