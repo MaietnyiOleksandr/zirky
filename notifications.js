@@ -3,7 +3,7 @@
 //     Етап 1: Фундамент — структура + Firebase
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260522.0631';
+export const VERSION = 'v3.20260522.0650';
 
 import { state }    from './state.js';
 import { nowKyiv }  from './utils.js';
@@ -519,6 +519,17 @@ export function generateNotifications() {
     // Прибираємо сповіщення про завдання, які більше неактуальні:
     //   • Завдання видалено з Firebase
     //   • Статус змінився (батьки/дитина відреагували на сповіщення)
+    //
+    // 🚩 ЗАХИСТ ВІД RACE CONDITION:
+    //   Listener-и Firebase для zirky-data, zirky-tasks, zirky-notifications
+    //   стартують паралельно. zirky:dataLoaded може спрацювати раніше, ніж
+    //   завантажаться tasks → state.data.tasks буде ще {} і цей блок
+    //   видалив би всі tasks-сповіщення назавжди. Тому пропускаємо чистку,
+    //   поки не отримано перший відгук tasks-listener-а.
+    if (!state.tasksLoaded) {
+        // tasks ще не завантажені — чистка відбудеться пізніше, коли
+        // initTasks колбек повторно викличе generateNotifications()
+    } else {
     Object.keys(_items).forEach(notifId => {
         const m = notifId.match(/^task_(request|done|new|declined|confirmed|rejected|updated)_(.+)$/);
         if (!m) return;
@@ -565,6 +576,7 @@ export function generateNotifications() {
                 break;
         }
     });
+    } // ← закриває else блок захисту tasksLoaded
 
     // ── 4. Досягнення ─────────────────────────────────────
     records

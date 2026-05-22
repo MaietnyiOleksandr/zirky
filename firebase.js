@@ -2,7 +2,7 @@
 // FIREBASE  firebase.js — Firebase
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260519.1040';
+export const VERSION = 'v3.20260522.0650';
 
 import { state } from './state.js';
 import { firebaseConfig } from './config.js';
@@ -94,6 +94,7 @@ export function initTasksListener(callback) {
         // state.data.tasks — синхронізуємо одразу для всіх модулів
         const data = snapshot.val() || {};
         state.data.tasks = data;
+        state.tasksLoaded = true;  // 🚩 перший відгук від Firebase — tasks готові
         if (typeof callback === 'function') callback(data);
     });
 }
