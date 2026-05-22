@@ -1,6 +1,6 @@
 /* ════════════════════════════════════════════════════
    Зірки Успіху — Стилі
-   Версія: v3.20260522.1708
+   Версія: v3.20260522.1720
    ════════════════════════════════════════════════════ */
 
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;900&family=Comfortaa:wght@400;700&family=Fredoka+One&family=Ubuntu:wght@400;700&family=Playfair+Display:wght@400;700&display=swap');
@@ -2308,13 +2308,14 @@ select:focus, input:focus {
 }
 
 /* ── Анімації ──────────────────────────────────────── */
+/* box-shadow pulse — не конфліктує з transform що використовується для позиції */
 @keyframes notifPulse {
-    0%, 100% { transform: scale(1);           }
-    50%       { transform: scale(1.35);        }
+    0%, 100% { box-shadow: 0 0 0 0 var(--badge-bg, #f44336); }
+    50%       { box-shadow: 0 0 0 3px transparent; }
 }
 @keyframes notifPulseFlag {
-    0%, 100% { transform: rotate(10deg) scale(1);    }
-    50%       { transform: rotate(10deg) scale(1.35); }
+    0%, 100% { transform: translate(40%, -40%) rotate(10deg) scale(1);    }
+    50%       { transform: translate(40%, -40%) rotate(10deg) scale(1.35); }
 }
 
 /* ── Спільні властивості для крапки ───────────────── */
@@ -2348,19 +2349,16 @@ html[data-badge="flag"] .z-badge {
     background: transparent;
     border: none;
     border-radius: 0;
-    width: 18px;
-    height: 18px;
-    top: 0;
-    right: 0;
-    transform: translate(40%, -40%);
+    width: 14px;
+    height: 14px;
     animation: notifPulseFlag 2s infinite;
-    font-size: 16px;
+    font-size: 14px;
     line-height: 1;
+    transform: translate(40%, -40%) rotate(10deg);
 }
 html[data-badge="flag"] .z-badge::before {
     content: '🚩';
     display: block;
-    transform: rotate(10deg);
 }
 
 /* ── Спосіб 2: через ::before на контейнері (.z-badged) ── */
@@ -2383,12 +2381,9 @@ html[data-badge="flag"] .z-badged.has-badge::before {
     background: transparent;
     border: none;
     border-radius: 0;
-    width: 18px;
-    height: 18px;
-    top: 0;
-    right: 0;
-    transform: translate(40%, -40%) rotate(10deg);
-    font-size: 16px;
+    width: 14px;
+    height: 14px;
+    font-size: 14px;
     line-height: 1;
     animation: notifPulseFlag 2s infinite;
 }
