@@ -1,6 +1,6 @@
 /* ════════════════════════════════════════════════════
    Зірки Успіху — Стилі
-   Версія: v3.20260521.1330
+   Версія: v3.20260522.0631
    ════════════════════════════════════════════════════ */
 
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;900&family=Comfortaa:wght@400;700&family=Fredoka+One&family=Ubuntu:wght@400;700&family=Playfair+Display:wght@400;700&display=swap');
@@ -3616,4 +3616,50 @@ select:focus, input:focus {
     margin-left: 4px;
     vertical-align: middle;
     box-shadow: 0 0 0 1px var(--accent, #e85d75);
+}
+
+/* ════════════════════════════════════════════════════
+   ✨ УНІВЕРСАЛЬНІ АНІМАЦІЇ — pulseElement з utils.js
+   ════════════════════════════════════════════════════ */
+
+@keyframes z-pulse-scale {
+    0%   { transform: scale(1); }
+    50%  { transform: scale(1.04); }
+    100% { transform: scale(1); }
+}
+
+@keyframes z-pulse-glow-shadow {
+    0%   { box-shadow: 0 0 0 0 rgba(232, 93, 117, 0); }
+    40%  { box-shadow: 0 0 16px 4px rgba(232, 93, 117, 0.55); }
+    100% { box-shadow: 0 0 0 0 rgba(232, 93, 117, 0); }
+}
+
+.z-pulse-scale {
+    animation: z-pulse-scale 0.6s ease-out;
+}
+
+.z-pulse-glow {
+    animation: z-pulse-scale 0.6s ease-out, z-pulse-glow-shadow 0.6s ease-out;
+}
+
+/* ════════════════════════════════════════════════════
+   🔴 БЕЙДЖ НА КАРТЦІ ЗАВДАННЯ (універсально через .has-badge)
+   ════════════════════════════════════════════════════ */
+
+.tk-card.has-badge {
+    position: relative;
+}
+
+.tk-card.has-badge::before {
+    content: '';
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    width: 12px;
+    height: 12px;
+    background: var(--accent, #e85d75);
+    border-radius: 50%;
+    box-shadow: 0 0 0 2px var(--card);
+    z-index: 2;
+    pointer-events: none;
 }

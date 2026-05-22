@@ -6,7 +6,7 @@
 //     showForm/switchTab, а ui.js потребував їх модулів
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260521.1005';
+export const VERSION = 'v3.20260522.0631';
 
 import { state } from './state.js';
 import { getTodayDate } from './utils.js';
@@ -148,14 +148,11 @@ export function switchTab(tab, fromClick = false) {
     else if (tab === 'schedule') renderSchedule();
     else if (tab === 'tasks') {
         renderTasks();
-        // При відкритті табу — скидаємо tab-сповіщення цього розділу
-        dismissByAction('task_new',       'tab');
-        dismissByAction('task_request',   'tab');
-        dismissByAction('task_done',      'tab');
-        dismissByAction('task_declined',  'tab');
-        dismissByAction('task_confirmed', 'tab');
-        dismissByAction('task_rejected',  'tab');
-        dismissByAction('task_updated',   'tab');
+        // Сповіщення про завдання НЕ скидаються при відкритті табу.
+        // Вони dismiss-яться:
+        //   • кліком на конкретну картку завдання (через dismissTaskNotifications)
+        //   • кнопкою ✓ "Ознайомлена" у сповіщенні
+        //   • автоматично при зміні статусу таски (у generateNotifications)
     }
     else if (tab === 'feedback') {
         renderFeedback();

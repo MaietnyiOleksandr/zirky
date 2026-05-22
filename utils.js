@@ -2,7 +2,7 @@
 // UTILS  utils.js — 🔧 Утиліти
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260505.1335';
+export const VERSION = 'v3.20260522.0631';
 
 // ════════════════════════════════════════════════════════════
 export function getTodayDate() {
@@ -38,4 +38,28 @@ export function migrateAppearance(raw) {
     if (!raw.parent) raw.parent = { active: { ...DEFAULT_ACTIVE } };
     if (!raw.child.owned) raw.child.owned = ['default'];
     return raw;
+}
+
+// ════════════════════════════════════════════════════════════
+// ✨  pulseElement — універсальна анімація кліку
+// ════════════════════════════════════════════════════════════
+//   Викликати на будь-якому DOM-елементі для короткої візуальної
+//   реакції на клік.
+//     withGlow=false → тільки scale (1.0 → 1.04 → 1.0), 0.6с
+//     withGlow=true  → glow + scale одночасно, 0.6с
+//
+//   Приклади:
+//     pulseElement(card);              // звичайний клік
+//     pulseElement(card, true);        // клік на картку з бейджем
+//
+//   CSS keyframes z-pulse-scale / z-pulse-glow визначено у style.css
+// ════════════════════════════════════════════════════════════
+export function pulseElement(el, withGlow = false) {
+    if (!el) return;
+    const cls = withGlow ? 'z-pulse-glow' : 'z-pulse-scale';
+    // restart animation навіть якщо клас уже стоїть
+    el.classList.remove('z-pulse-scale', 'z-pulse-glow');
+    void el.offsetWidth;
+    el.classList.add(cls);
+    setTimeout(() => el.classList.remove(cls), 700);
 }

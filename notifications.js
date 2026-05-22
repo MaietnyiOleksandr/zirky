@@ -3,7 +3,7 @@
 //     Етап 1: Фундамент — структура + Firebase
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260521.1330';
+export const VERSION = 'v3.20260522.0631';
 
 import { state }    from './state.js';
 import { nowKyiv }  from './utils.js';
@@ -58,46 +58,50 @@ export const NOTIF_TYPES = {
         repeatDays: null,
     },
     // ── Завдання ──────────────────────────────────────────
+    // Tasks-сповіщення НЕ dismiss-яться при відкритті табу.
+    // Замість цього: dismiss-яться при кліку на конкретну картку завдання
+    // АБО при зміні статусу (автоматично через _pruneOutdatedTaskNotifs).
+    // Кнопка ✓ "Ознайомлена" продовжує працювати як зазвичай.
     task_new: {            // Дитині — батьки створили нове завдання
         role:       'child',
         badges:     ['bell', 'tasks'],
-        dismissBy:  ['checkmark', 'tab'],
+        dismissBy:  ['checkmark'],
         repeatDays: null,
     },
     task_request: {        // Батькам — дитина надіслала запит
         role:       'parent',
         badges:     ['bell', 'tasks'],
-        dismissBy:  ['checkmark', 'tab'],
+        dismissBy:  ['checkmark'],
         repeatDays: null,
     },
     task_done: {           // Батькам — дитина виконала завдання
         role:       'parent',
         badges:     ['bell', 'tasks'],
-        dismissBy:  ['checkmark', 'tab'],
+        dismissBy:  ['checkmark'],
         repeatDays: null,
     },
     task_declined: {       // Батькам — дитина відмовилась
         role:       'parent',
         badges:     ['bell', 'tasks'],
-        dismissBy:  ['checkmark', 'tab'],
+        dismissBy:  ['checkmark'],
         repeatDays: null,
     },
     task_confirmed: {      // Дитині — батьки підтвердили
         role:       'child',
         badges:     ['bell', 'tasks'],
-        dismissBy:  ['checkmark', 'tab'],
+        dismissBy:  ['checkmark'],
         repeatDays: null,
     },
     task_rejected: {       // Дитині — батьки відхилили
         role:       'child',
         badges:     ['bell', 'tasks'],
-        dismissBy:  ['checkmark', 'tab'],
+        dismissBy:  ['checkmark'],
         repeatDays: null,
     },
     task_updated: {        // Дитині — батьки змінили дедлайн/винагороду
         role:       'child',
         badges:     ['bell', 'tasks'],
-        dismissBy:  ['checkmark', 'tab'],
+        dismissBy:  ['checkmark'],
         repeatDays: null,
     },
     good_dynamics: {
@@ -512,13 +516,53 @@ export function generateNotifications() {
         }
     });
 
-    // Прибираємо сповіщення про завдання, яких більше немає (видалили з Firebase)
+    // Прибираємо сповіщення про завдання, які більше неактуальні:
+    //   • Завдання видалено з Firebase
+    //   • Статус змінився (батьки/дитина відреагували на сповіщення)
     Object.keys(_items).forEach(notifId => {
         const m = notifId.match(/^task_(request|done|new|declined|confirmed|rejected|updated)_(.+)$/);
         if (!m) return;
-        const taskId = m[2];
-        if (!tasks[taskId]) {
+        const notifKind = m[1];
+        const taskId    = m[2];
+        const t = tasks[taskId];
+
+        // 1. Завдання видалено — прибираємо
+        if (!t) {
             _removeItem(notifId);
+            return;
+        }
+
+        // 2. Статус-залежне прибирання
+        // Кожен тип сповіщення живе тільки поки актуальний його стан.
+        // Як тільки стан змінився — сповіщення стає неактуальним.
+        switch (notifKind) {
+            case 'request':
+                // Жив поки status === 'pending'. Будь-яка реакція батьків → видалити.
+                if (t.status !== 'pending') _removeItem(notifId);
+                break;
+            case 'done':
+                // Жив поки дитина в стані 'done' (чекає підтвердження).
+                if (t.status !== 'done') _removeItem(notifId);
+                break;
+            case 'declined':
+                // Жив поки дитина відмовилась (active + childComment).
+                if (t.status !== 'active' || !t.childComment) _removeItem(notifId);
+                break;
+            case 'new':
+                // Жив поки нове активне завдання без жодних дій дитини.
+                if (t.status !== 'active' || t.childComment) _removeItem(notifId);
+                break;
+            case 'updated':
+                // Жив поки активне/done і є lastEditNote.
+                // Зникає коли стан перейшов у confirmed/rejected.
+                if (t.status === 'confirmed' || t.status === 'rejected') _removeItem(notifId);
+                break;
+            case 'confirmed':
+                if (t.status !== 'confirmed') _removeItem(notifId);
+                break;
+            case 'rejected':
+                if (t.status !== 'rejected') _removeItem(notifId);
+                break;
         }
     });
 
@@ -706,10 +750,39 @@ export function dismissNotification(id) {
     if (window.updateBadges) window.updateBadges();
 }
 
+// ════════════════════════════════════════════════════════════
+// 📋  ХЕЛПЕРИ ДЛЯ ВКЛАДКИ "ЗАВДАННЯ"
+// ════════════════════════════════════════════════════════════
+//   Використовуються у tasks.js для:
+//     • показу бейджа на конкретній картці завдання
+//     • dismiss-у всіх сповіщень цього завдання при кліку на картку
+// ════════════════════════════════════════════════════════════
+
+const TASK_NOTIF_KINDS = ['request', 'done', 'new', 'declined', 'confirmed', 'rejected', 'updated'];
+
+// Чи є хоч одне непрочитане сповіщення про конкретне завдання (для поточної ролі).
+export function hasUnreadTaskNotification(taskId) {
+    if (!taskId) return false;
+    const role = state.data.isParent ? 'parent' : 'child';
+    return TASK_NOTIF_KINDS.some(kind => {
+        const item = _items[`task_${kind}_${taskId}`];
+        return item && _isUnread(item, role);
+    });
+}
+
+// Dismiss-ить всі сповіщення про конкретне завдання (всі kinds).
+// Викликається при кліку на картку завдання.
+export function dismissTaskNotifications(taskId) {
+    if (!taskId) return;
+    TASK_NOTIF_KINDS.forEach(kind => {
+        const id = `task_${kind}_${taskId}`;
+        if (_items[id]) dismissNotification(id);
+    });
+}
+
 // Dismiss через модалку або відкриття вкладки (dismissBy: modal/tab)
 export function dismissByAction(type, action) {
-    const role  = state.data.isParent ? 'parent' : 'child';
-    const match = Object.values(_items).filter(i =>
+    const role  = state.data.isParent ? 'parent' : 'child';    const match = Object.values(_items).filter(i =>
         i.type === type &&
         i.dismissBy?.includes(action) &&
         _isUnread(i, role)
