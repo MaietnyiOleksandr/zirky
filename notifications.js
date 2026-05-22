@@ -3,13 +3,13 @@
 //     Етап 1: Фундамент — структура + Firebase
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260522.0735';
+export const VERSION = 'v3.20260522.1215';
 
 import { state }    from './state.js';
 import { nowKyiv }  from './utils.js';
 import { CHANGELOG } from './changelog.js';
 import { getFeedbackItems } from './feedback.js';
-import { getDatabase, ref, set, update, remove, push, onValue, query, orderByChild, endAt }
+import { getDatabase, ref, set, update, remove, onValue }
     from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 
 // ════════════════════════════════════════════════════
@@ -132,7 +132,7 @@ export const NOTIF_TYPES = {
         role:       'parent',
         badges:     ['bell', 'settings', 'backup-section'],
         dismissBy:  ['checkmark'],
-        repeatDays: 7,
+        repeatDays: 1,
     },
 };
 
@@ -162,40 +162,6 @@ function _saveItem(item) {
 // Firebase не дозволяє крапки в ключах — замінюємо на тире
 function _fbKey(id) { return id.replace(/\./g, '-'); }
 
-// ════════════════════════════════════════════════════
-// 📋  ЛОГУВАННЯ → zirky-logs (авто-очищення 30 днів)
-// ════════════════════════════════════════════════════
-
-function _writeLog(event, id, details = '') {
-    if (!_db) return;
-    const entry = {
-        ts:      _kyivNow(),
-        event,
-        id:      id || '',
-        details: details || '',
-    };
-    push(ref(_db, 'zirky-logs'), entry);
-    // Також в консоль для зручності
-    console.log(`[notif:${event}] ${id}${details ? ' | ' + details : ''}`, entry.ts);
-}
-
-function _cleanOldLogs() {
-    if (!_db) return;
-    // Видаляємо записи старші 30 днів
-    const cutoff = new Date(_kyivNow());
-    cutoff.setDate(cutoff.getDate() - 30);
-    const cutoffStr = cutoff.toISOString();
-    const logsRef = query(
-        ref(_db, 'zirky-logs'),
-        orderByChild('ts'),
-        endAt(cutoffStr)
-    );
-    onValue(logsRef, (snap) => {
-        if (!snap.exists()) return;
-        snap.forEach(child => remove(child.ref));
-    }, { onlyOnce: true });
-}
-
 // Видалити один запис
 function _removeItem(id) {
     remove(ref(_getDb(), `zirky-notifications/${_fbKey(id)}`));
@@ -204,7 +170,6 @@ function _removeItem(id) {
 
 // Публічна обгортка — для видалення з feedback.js
 export function removeNotification(id) {
-    _writeLog('remove', id, 'пов\'язане з feedback');
     _removeItem(id);
 }
 
@@ -259,7 +224,6 @@ function _compactReadItems() {
         if (CYCLIC_TYPES.has(item.type) && newestByType[item.type] && newestByType[item.type] !== item.id) {
             toDelete.push(item.id);
             delete _items[item.id];
-            _writeLog('compact', item.id, '→ delete (є новіший anchor)');
             compacted++;
             return;
         }
@@ -268,7 +232,6 @@ function _compactReadItems() {
         const slim = _toSlim(item);
         _items[item.id] = slim;
         updates[`zirky-notifications/${_fbKey(item.id)}`] = slim;
-        _writeLog('compact', item.id, '→ slim');
         compacted++;
     });
 
@@ -278,7 +241,6 @@ function _compactReadItems() {
     if (Object.keys(updates).length > 0) {
         update(ref(_getDb(), '/'), updates);
     }
-    if (compacted > 0) _writeLog('compact:done', '', `Оброблено: ${compacted}`);
 }
 
 // Ініціалізація слухача Firebase
@@ -288,7 +250,6 @@ export function initNotificationsListener() {
         const raw = snapshot.val() || {};
         _items = {};
         Object.values(raw).forEach(item => { _items[item.id] = item; });
-        _cleanOldLogs();
         _compactReadItems();
         if (window.updateBadges) window.updateBadges();
     });
@@ -664,11 +625,11 @@ export function generateNotifications() {
         const days = last
             ? Math.floor((new Date(today) - new Date(last)) / 86_400_000)
             : 999;
-        _writeLog('backup:check', '', `last=${last || 'невідомо'} days=${days}`);
         return days >= 7
             ? { title: 'Час зробити резервну копію', body: `Минуло ${days < 999 ? days + ' дн.' : 'більше тижня'} з останнього бекапу` }
             : null;
-    }, 7);
+    }, 1);  // 🔄 щоденна перевірка: умова `days >= 7` всередині condFn гарантує
+            //    показ тільки якщо реальний бекап >= 7 днів тому (state.data.backupLastDate)
 
     // Оновлюємо бейджі
     if (window.updateBadges) window.updateBadges();
@@ -751,7 +712,6 @@ export function dismissNotification(id) {
     const role = state.data.isParent ? 'parent' : 'child';
     if (!item.readBy) item.readBy = { parent: null, child: null };
     item.readBy[role] = _kyivNow();
-    _writeLog('dismiss', item.id, `role:${role} type:${item.type}`);
 
     _saveItem(item);
 
