@@ -466,10 +466,12 @@ body::after {
          - .z-badge span (виходить на top:0 з translate -50%)
          - box-shadow активного табу
          - прапорця що виходить за правий край */
-    padding-top:   10px;
     margin-top:   -10px;
-    padding-right: 15px;
-    padding-left: 15px;
+    padding-top:   10px;
+    margin-right: -10px;
+    padding-right: 10px;
+    margin-left: -10px;
+    padding-left: 10px;
 }
 .tabs-scroll::-webkit-scrollbar { height: 4px; }
 .tabs-scroll::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 4px; }
