@@ -1,6 +1,6 @@
 /* ════════════════════════════════════════════════════
    Зірки Успіху — Стилі
-   Версія: v3.20260522.1735
+   Версія: v3.20260522.1743
    ════════════════════════════════════════════════════ */
 
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;900&family=Comfortaa:wght@400;700&family=Fredoka+One&family=Ubuntu:wght@400;700&family=Playfair+Display:wght@400;700&display=swap');
@@ -461,10 +461,15 @@ body::after {
     -webkit-overflow-scrolling: touch;
     margin-bottom: 10px;
     padding-bottom: 4px;
-    /* overflow-x:auto примусово ховає overflow-y у Chromium,
-       тому даємо padding-top щоб .z-badge span (top:0, translate -50%) вмістився */
-    padding-top: 8px;
-    margin-top: -8px;
+    /* Chromium: overflow-x:auto примусово ховає overflow-y.
+       padding-top/right + негативний margin дають місце для:
+         - .z-badge span (виходить на top:0 з translate -50%)
+         - box-shadow активного табу
+         - прапорця що виходить за правий край */
+    padding-top:   8px;
+    margin-top:   -8px;
+    padding-right: 12px;
+    margin-right: -12px;
 }
 .tabs-scroll::-webkit-scrollbar { height: 4px; }
 .tabs-scroll::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 4px; }
