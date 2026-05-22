@@ -1,6 +1,6 @@
 /* ════════════════════════════════════════════════════
    Зірки Успіху — Стилі
-   Версія: v3.20260522.0735
+   Версія: v3.20260522.1421
    ════════════════════════════════════════════════════ */
 
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;900&family=Comfortaa:wght@400;700&family=Fredoka+One&family=Ubuntu:wght@400;700&family=Playfair+Display:wght@400;700&display=swap');
@@ -641,17 +641,20 @@ select:focus, input:focus {
 .btn-icon.has-badge {
     position: relative;
 }
+/* Бейдж на btn-icon — через окремий .z-badge span всередині кнопки.
+   Цей ::after залишається як fallback якщо span не доданий. */
 .btn-icon.has-badge::after {
-    content: '';
+    content: var(--badge-content, '');
     position: absolute;
     top: -3px;
     right: -3px;
-    width: 10px;
-    height: 10px;
-    background: #f44336;
+    width: var(--badge-size, 10px);
+    height: var(--badge-size, 10px);
+    background: var(--badge-bg, #f44336);
     border-radius: 50%;
-    border: 2px solid var(--card);
+    border: var(--badge-border, 2px solid #ffffff);
     pointer-events: none;
+    animation: notifPulse 2s infinite;
 }
 
 /* Компактна кнопка (без width:100%, padding менший) */
@@ -2294,22 +2297,64 @@ select:focus, input:focus {
     background: var(--card);
 }
 
-/* Червона крапка */
-.notif-badge {
-    position: absolute;
-    top: -2px;
-    right: -2px;
-    width: 12px;
-    height: 12px;
-    background: #f44336;
-    border-radius: 50%;
-    border: 2px solid var(--card);
-    animation: notifPulse 2s infinite;
+/* ════════════════════════════════════════════════════
+   🔴 УНІФІКОВАНА СИСТЕМА БЕЙДЖІВ
+   Все керується CSS-змінними з тем (appearance.js):
+     --badge-bg       фон крапки          (default: #f44336)
+     --badge-border   контур              (default: 2px solid #ffffff)
+     --badge-content  вміст               (default: '')
+     --badge-size     розмір              (default: 10px)
+     --badge-transform трансформація      (default: none)
+   ════════════════════════════════════════════════════ */
+
+/* Дефолтні значення (якщо тема ще не завантажена) */
+:root {
+    --badge-bg:        #f44336;
+    --badge-border:    2px solid #ffffff;
+    --badge-content:   '';
+    --badge-size:      10px;
+    --badge-transform: none;
 }
 
 @keyframes notifPulse {
-    0%, 100% { transform: scale(1); }
-    50%       { transform: scale(1.25); }
+    0%, 100% { transform: var(--badge-transform, none) scale(1); }
+    50%       { transform: var(--badge-transform, none) scale(1.3); }
+}
+
+/* Базовий клас: використовується на окремому DOM-елементі (дзвіночок, таб-бейдж) */
+.z-badge {
+    position: absolute;
+    top: -3px;
+    right: -3px;
+    width: var(--badge-size);
+    height: var(--badge-size);
+    background: var(--badge-bg);
+    border-radius: 50%;
+    border: var(--badge-border);
+    animation: notifPulse 2s infinite;
+    pointer-events: none;
+    display: block;
+}
+
+/* Для емодзі-бейджів (🚩) — прозорий фон, вміст через content */
+.z-badge::before {
+    content: var(--badge-content);
+    font-size: var(--badge-size);
+    line-height: 1;
+    display: block;
+    transform: var(--badge-transform);
+}
+
+/* Прихований стан бейджа */
+.z-badge--hidden {
+    display: none !important;
+}
+
+/* Крапка на дзвіночку (окремий span) */
+.notif-badge {
+    position: absolute;
+    top: -3px;
+    right: -3px;
 }
 
 /* Порожній стан */
@@ -2395,17 +2440,9 @@ select:focus, input:focus {
 
 /* ── Крапка-бейдж на табах ──────────────────────── */
 .tab-badge {
-    display: inline-block;
-    width: 8px;
-    height: 8px;
-    background: #f44336;
-    border-radius: 50%;
     position: absolute;
-    top: 6px;
-    right: 6px;
-    border: 1.5px solid var(--card);
-    animation: notifPulse 2s infinite;
-    pointer-events: none;
+    top: 4px;
+    right: 4px;
 }
 
 .tab { position: relative; }
@@ -3563,30 +3600,8 @@ select:focus, input:focus {
     color: var(--text-hint);
 }
 
-/* badge на changelog sub-item */
-.settings-sub-item.has-badge .settings-sub-label::after {
-    content: '';
-    display: inline-block;
-    width: 8px;
-    height: 8px;
-    background: var(--accent);
-    border-radius: 50%;
-    margin-left: 6px;
-    vertical-align: middle;
-}
-
-/* badge на акордеон-заголовку (для блоку "Про програму" при оновленні версії) */
-.settings-menu-item.has-badge .settings-menu-label::after {
-    content: '';
-    display: inline-block;
-    width: 9px;
-    height: 9px;
-    background: var(--accent, #e85d75);
-    border-radius: 50%;
-    margin-left: 8px;
-    vertical-align: middle;
-    box-shadow: 0 0 0 2px var(--c-info-bg);
-}
+/* badge на changelog sub-item, акордеон-заголовках, compact-btn —
+   тепер через окремий .z-badge span у правому верхньому куті елементу */
 
 /* Компактний рядок 3 кнопок у блоці "Про програму" */
 .about-compact-row {
@@ -3596,6 +3611,7 @@ select:focus, input:focus {
 }
 
 .about-compact-btn {
+    position: relative;  /* потрібно для .z-badge всередині */
     flex: 1 1 0;
     min-width: 0;
     font-size: 13px !important;
@@ -3603,19 +3619,6 @@ select:focus, input:focus {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-}
-
-/* Бейдж на компактній кнопці "📝 Зміни" */
-.about-compact-btn.has-badge::after {
-    content: '';
-    display: inline-block;
-    width: 7px;
-    height: 7px;
-    background: #fff;
-    border-radius: 50%;
-    margin-left: 4px;
-    vertical-align: middle;
-    box-shadow: 0 0 0 1px var(--accent, #e85d75);
 }
 
 /* ════════════════════════════════════════════════════
@@ -3643,30 +3646,47 @@ select:focus, input:focus {
 }
 
 /* ════════════════════════════════════════════════════
-   🔴 УНІВЕРСАЛЬНИЙ БЕЙДЖ (.z-badged.has-badge)
+   🔴 УНІФІКОВАНИЙ БЕЙДЖ НА КАРТЦІ (.z-badged)
    ════════════════════════════════════════════════════
-   Використання:
-     <div class="card-bg z-badged has-badge">  → бейдж у куті
-     <div class="tk-card z-badged has-badge">  → бейдж у куті
-
-   Клас z-badged лише налаштовує позиціонування;
-   видимість керується класом has-badge.
+   Додай клас z-badged на контейнер — і has-badge для показу.
+   Вигляд повністю керується CSS-змінними теми.
    ════════════════════════════════════════════════════ */
 
 .z-badged {
     position: relative;
 }
 
-.z-badged.has-badge::before {
-    content: '';
+/* Крапка — звичайний бейдж */
+html:not([data-badge="flag"]) .z-badged.has-badge::before {
+    content: var(--badge-content, '');
     position: absolute;
     top: -4px;
     right: -4px;
-    width: 12px;
-    height: 12px;
-    background: var(--accent, #e85d75);
+    width: var(--badge-size, 10px);
+    height: var(--badge-size, 10px);
+    background: var(--badge-bg, #f44336);
     border-radius: 50%;
-    box-shadow: 0 0 0 2px var(--card);
+    border: var(--badge-border, 2px solid #ffffff);
+    animation: notifPulse 2s infinite;
     z-index: 2;
     pointer-events: none;
+}
+
+/* Прапорець (ретро) — емодзі без круглого фону */
+html[data-badge="flag"] .z-badged.has-badge::before {
+    content: '🚩';
+    position: absolute;
+    top: -10px;
+    right: -6px;
+    width: auto;
+    height: auto;
+    font-size: 16px;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    transform: rotate(30deg);
+    animation: notifPulse 2s infinite;
+    z-index: 2;
+    pointer-events: none;
+    line-height: 1;
 }

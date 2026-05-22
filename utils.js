@@ -2,7 +2,7 @@
 // UTILS  utils.js — 🔧 Утиліти
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260522.0631';
+export const VERSION = 'v3.20260522.1421';
 
 // ════════════════════════════════════════════════════════════
 export function getTodayDate() {
@@ -22,7 +22,7 @@ export function nowKyiv() {
 }
 
 // ── Appearance: дефолт та міграція ──────────────────
-export const DEFAULT_ACTIVE = { theme: 'default', palette: 'default', font: 'default', buttons: 'default', background: 'default' };
+export const DEFAULT_ACTIVE = { theme: 'default', palette: 'default', font: 'default', buttons: 'default', background: 'default', badge: 'default' };
 
 export function migrateAppearance(raw) {
     if (!raw) return { child: { owned: ['default'], active: { ...DEFAULT_ACTIVE } }, parent: { active: { ...DEFAULT_ACTIVE } } };

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⭐</text></svg>">
-    <!-- version: v3.20260522.0735 -->
+    <!-- version: v3.20260522.1421 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>⭐ Зірки Успіху</title>
     <link rel="stylesheet" href="style.css">
@@ -114,7 +114,7 @@
             <div class="header-top">
                 <div class="logo">⭐ Зірки Успіху ⭐</div>
                 <button class="notif-bell" onclick="openNotifications()" title="Сповіщення">
-                    🔔<span class="notif-badge" id="notifBadge" style="display:none;"></span>
+                    🔔<span class="notif-badge z-badge z-badge--hidden" id="notifBadge"></span>
                 </button>
             </div>
             <div class="balance-container">
@@ -146,14 +146,14 @@
         <div class="tabs">
             <button class="tab active" data-tab="add"          onclick="switchTab('add', true)"><span class="tab-icon">➕</span><span class="tab-label">Додати</span></button>
             <button class="tab"        data-tab="schedule"      onclick="switchTab('schedule', true)"><span class="tab-icon">📋</span><span class="tab-label">Розклад</span></button>
-            <button class="tab"        data-tab="tasks"         onclick="switchTab('tasks', true)"><span class="tab-icon">✅</span><span class="tab-label">Завдання</span><span class="tab-badge" id="tabBadge_tasks" style="display:none;"></span></button>
+            <button class="tab"        data-tab="tasks"         onclick="switchTab('tasks', true)"><span class="tab-icon">✅</span><span class="tab-label">Завдання</span><span class="tab-badge z-badge z-badge--hidden" id="tabBadge_tasks"></span></button>
             <button class="tab"        data-tab="rewards"       onclick="switchTab('rewards', true)"><span class="tab-icon">🎁</span><span class="tab-label">Витрати</span></button>
-            <button class="tab"        data-tab="achievements"  onclick="switchTab('achievements', true)"><span class="tab-icon">🏆</span><span class="tab-label">Успіхи</span><span class="tab-badge" id="tabBadge_achievements" style="display:none;"></span></button>
+            <button class="tab"        data-tab="achievements"  onclick="switchTab('achievements', true)"><span class="tab-icon">🏆</span><span class="tab-label">Успіхи</span><span class="tab-badge z-badge z-badge--hidden" id="tabBadge_achievements"></span></button>
             <button class="tab"        data-tab="history"       onclick="switchTab('history', true)"><span class="tab-icon">📜</span><span class="tab-label">Історія</span></button>
-            <button class="tab"        data-tab="stats"         onclick="switchTab('stats', true)"><span class="tab-icon">📊</span><span class="tab-label">Графіки</span><span class="tab-badge" id="tabBadge_stats" style="display:none;"></span></button>
-            <button class="tab"        data-tab="feedback"      onclick="switchTab('feedback', true)"><span class="tab-icon">💬</span><span class="tab-label">Зв'язок</span><span class="tab-badge" id="tabBadge_feedback" style="display:none;"></span></button>
+            <button class="tab"        data-tab="stats"         onclick="switchTab('stats', true)"><span class="tab-icon">📊</span><span class="tab-label">Графіки</span><span class="tab-badge z-badge z-badge--hidden" id="tabBadge_stats"></span></button>
+            <button class="tab"        data-tab="feedback"      onclick="switchTab('feedback', true)"><span class="tab-icon">💬</span><span class="tab-label">Зв'язок</span><span class="tab-badge z-badge z-badge--hidden" id="tabBadge_feedback"></span></button>
             <button class="tab"        data-tab="guide"         onclick="switchTab('guide', true)" id="tabBtnGuide"><span class="tab-icon">📘</span><span class="tab-label">Довідник</span></button>
-            <button class="tab"        data-tab="settings"      onclick="switchTab('settings', true)"><span class="tab-icon">⚙️</span><span class="tab-label">Опції</span><span class="tab-badge" id="tabBadge_settings" style="display:none;"></span></button>
+            <button class="tab"        data-tab="settings"      onclick="switchTab('settings', true)"><span class="tab-icon">⚙️</span><span class="tab-label">Опції</span><span class="tab-badge z-badge z-badge--hidden" id="tabBadge_settings"></span></button>
         </div>
         </div>
 
@@ -863,6 +863,7 @@
                             <span class="settings-menu-icon">💾</span>
                             <span class="settings-menu-label">Резервні копії</span>
                             <span class="settings-menu-arrow" id="settingsArrow_backup">›</span>
+                            <span class="z-badge z-badge--hidden" id="badgeBackupAccordion"></span>
                         </button>
                         <div class="settings-accordion-body" id="settingsBlock_backup">
                             <div class="settings-accordion-inner">
@@ -1098,6 +1099,7 @@
                             <span class="settings-menu-icon">ℹ️</span>
                             <span class="settings-menu-label">Про програму</span>
                             <span class="settings-menu-arrow" id="settingsArrow_about">›</span>
+                            <span class="z-badge z-badge--hidden" id="badgeAboutAccordion"></span>
                         </button>
                         <div class="settings-accordion-body" id="settingsBlock_about">
                             <div class="settings-accordion-inner">
@@ -1110,6 +1112,7 @@
                                         </button>
                                         <button class="btn btn-primary btn-compact about-compact-btn" id="changelogBtn" onclick="showHelp('changelog')">
                                             📝 Зміни
+                                            <span class="z-badge z-badge--hidden" id="badgeChangelogBtn"></span>
                                         </button>
                                         <button class="btn btn-primary btn-compact about-compact-btn" onclick="showVersionsModal()">
                                             🗂️ Версії
@@ -1373,40 +1376,34 @@
         window.updateBadges = function() {
             const role = state.data.isParent ? 'parent' : 'child';
             const unread = window.getUnreadItems ? window.getUnreadItems(role) : [];
-
-            // Типи що мають сповіщення
-            const types = new Set(unread.map(i => i.type));
             const badgeTargets = new Set(unread.flatMap(i => i.badges || []));
 
+            // ─── Хелпер: показати/сховати окремий .z-badge span ─────────
+            const setBadge = (id, visible) => {
+                const el = document.getElementById(id);
+                if (el) el.classList.toggle('z-badge--hidden', !visible);
+            };
+
             // 🔔 Дзвіночок
-            const bell = document.getElementById('notifBadge');
-            if (bell) bell.style.display = badgeTargets.has('bell') ? 'block' : 'none';
+            setBadge('notifBadge', badgeTargets.has('bell'));
 
-            // 📝 Changelog кнопка + акордеон "Про програму"
-            const cl = document.getElementById('changelogBtn');
-            if (cl) cl.classList.toggle('has-badge', badgeTargets.has('changelog'));
-            const aboutBtn = document.getElementById('aboutAccordionBtn');
-            if (aboutBtn) aboutBtn.classList.toggle('has-badge', badgeTargets.has('changelog'));
+            // ─── Таби ────────────────────────────────────────────────────
+            setBadge('tabBadge_achievements', badgeTargets.has('achievements'));
+            setBadge('tabBadge_stats',        badgeTargets.has('stats'));
+            setBadge('tabBadge_feedback',     badgeTargets.has('feedback'));
+            setBadge('tabBadge_tasks',        badgeTargets.has('tasks'));
+            setBadge('tabBadge_settings',     badgeTargets.has('settings'));
 
-            // 💾 Backup — акордеон "Резервні копії" + картка "📤 Експорт даних"
+            // ─── 📝 Changelog: кнопка + акордеон "Про програму" ─────────
+            const hasChangelog = badgeTargets.has('changelog');
+            setBadge('badgeChangelogBtn',   hasChangelog);
+            setBadge('badgeAboutAccordion', hasChangelog);
+
+            // ─── 💾 Backup: акордеон + картка "Експорт даних" ────────────
             const hasBackup = badgeTargets.has('backup-section');
-            const backupBtn = document.getElementById('backupAccordionBtn');
-            if (backupBtn) backupBtn.classList.toggle('has-badge', hasBackup);
+            setBadge('badgeBackupAccordion', hasBackup);
             const backupCard = document.getElementById('backupExportCard');
             if (backupCard) backupCard.classList.toggle('has-badge', hasBackup);
-
-            // Таби — крапки
-            const tabMap = {
-                achievements: 'tabBadge_achievements',
-                stats:        'tabBadge_stats',
-                feedback:     'tabBadge_feedback',
-                tasks:        'tabBadge_tasks',
-                settings:     'tabBadge_settings',
-            };
-            Object.entries(tabMap).forEach(([badgeKey, elId]) => {
-                const el = document.getElementById(elId);
-                if (el) el.style.display = badgeTargets.has(badgeKey) ? 'inline-block' : 'none';
-            });
         };
         window.refundTheme    = refundTheme;
         window.toggleDevMode  = toggleDevMode;

@@ -12,7 +12,7 @@
 //       3. Додай CSS vars у style.css (опційно)
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260521.1350';
+export const VERSION = 'v3.20260522.1421';
 
 import { state } from './state.js';
 import { saveAppearance, saveRecords } from './firebase.js';
@@ -204,6 +204,46 @@ export const COMPONENTS = {
         snow:    { name: '❄️ Сніг',     emoji: '❄️' },
         retro:   { name: '📷 Ретро',    emoji: '📷' },
     },
+
+    // ── Бейджі — вигляд крапки-індикатора ──────────────
+    // vars: CSS-змінні на <html>, що керують виглядом .z-badge скрізь у програмі:
+    //   --badge-bg       фон крапки
+    //   --badge-border   контур (border: N solid color)
+    //   --badge-content  вміст ('' = крапка, '🚩' = прапорець і т.д.)
+    //   --badge-size     розмір (ширина/висота у px)
+    //   --badge-transform трансформація (наприклад rotate(30deg))
+    badges: {
+        default: {
+            name: '🔴 Класика',
+            vars: {
+                '--badge-bg':        '#f44336',
+                '--badge-border':    '2px solid #ffffff',
+                '--badge-content':   "''",
+                '--badge-size':      '10px',
+                '--badge-transform': 'none',
+            },
+        },
+        dark: {
+            name: '🔴 Темний контур',
+            vars: {
+                '--badge-bg':        '#f44336',
+                '--badge-border':    '2px solid #2d1b4e',
+                '--badge-content':   "''",
+                '--badge-size':      '10px',
+                '--badge-transform': 'none',
+            },
+        },
+        flag: {
+            name: '🚩 Прапорець',
+            vars: {
+                '--badge-bg':        'transparent',
+                '--badge-border':    'none',
+                '--badge-content':   "'🚩'",
+                '--badge-size':      '18px',
+                '--badge-transform': 'rotate(30deg)',
+            },
+        },
+    },
 };
 
 // ════════════════════════════════════════════════════
@@ -217,7 +257,7 @@ export const THEMES = [
         name:       '🌟 Класика',
         desc:       'Оригінальний вигляд застосунку',
         price:      0,
-        components: { palette: 'default',  font: 'default',    buttons: 'default', background: 'default' },
+        components: { palette: 'default',  font: 'default',    buttons: 'default', background: 'default', badge: 'default' },
         preview:    { colors: ['#FFD700', '#0057B7', '#FF6B6B', '#FFF9E6'] },
     },
     {
@@ -225,7 +265,7 @@ export const THEMES = [
         name:       '🌌 Космос',
         desc:       'Темний таємничий стиль з фіолетовим сяйвом',
         price:      100,
-        components: { palette: 'space',    font: 'fredoka',    buttons: 'pill',    background: 'stars'  },
+        components: { palette: 'space',    font: 'fredoka',    buttons: 'pill',    background: 'stars',  badge: 'dark'    },
         preview:    { colors: ['#1a0a2e', '#7B2FBE', '#00d4ff', '#2d1b4e'] },
     },
     {
@@ -233,7 +273,7 @@ export const THEMES = [
         name:       '🌿 Ліс',
         desc:       'Свіжий зелений стиль природи',
         price:      100,
-        components: { palette: 'forest',   font: 'comfortaa',  buttons: 'default', background: 'forest' },
+        components: { palette: 'forest',   font: 'comfortaa',  buttons: 'default', background: 'forest', badge: 'default' },
         preview:    { colors: ['#1B5E20', '#4CAF50', '#8BC34A', '#F1F8E9'] },
     },
     {
@@ -241,7 +281,7 @@ export const THEMES = [
         name:       '🌸 Сакура',
         desc:       'Ніжний рожевий стиль',
         price:      100,
-        components: { palette: 'sakura',   font: 'comfortaa',  buttons: 'pill',    background: 'sakura' },
+        components: { palette: 'sakura',   font: 'comfortaa',  buttons: 'pill',    background: 'sakura', badge: 'default' },
         preview:    { colors: ['#880E4F', '#E91E63', '#F48FB1', '#FFF0F5'] },
     },
     {
@@ -249,7 +289,7 @@ export const THEMES = [
         name:       '❄️ Зима',
         desc:       'Холодний кристально-синій стиль',
         price:      100,
-        components: { palette: 'winter',   font: 'ubuntu',     buttons: 'sharp',   background: 'snow'   },
+        components: { palette: 'winter',   font: 'ubuntu',     buttons: 'sharp',   background: 'snow',   badge: 'default' },
         preview:    { colors: ['#0D47A1', '#1565C0', '#29B6F6', '#E3F2FD'] },
     },
     {
@@ -257,7 +297,7 @@ export const THEMES = [
         name:       '📷 Ретро',
         desc:       'Вінтажний стиль у теплих коричневих та сепія тонах',
         price:      25,
-        components: { palette: 'retro',    font: 'playfair',   buttons: 'sharp',   background: 'retro'  },
+        components: { palette: 'retro',    font: 'playfair',   buttons: 'sharp',   background: 'retro',  badge: 'flag'    },
         preview:    { colors: ['#4A3728', '#8B6347', '#C8A96E', '#F5EDD6'] },
     },
 ];
@@ -288,17 +328,22 @@ function _ensureAppearance() {
 
 function _resetAppearanceVars() {
     const html = document.documentElement;
-    // Скидаємо CSS змінні
+    // Скидаємо CSS змінні палітр
     const allVarNames = Object.values(COMPONENTS.palettes)
         .flatMap(p => Object.keys(p.vars || {}));
     [...new Set(allVarNames)].forEach(v => html.style.removeProperty(v));
     html.style.removeProperty('--font-main');
     html.style.removeProperty('--radius-btn');
+    // Скидаємо badge CSS-змінні
+    const badgeVarNames = Object.values(COMPONENTS.badges)
+        .flatMap(b => Object.keys(b.vars || {}));
+    [...new Set(badgeVarNames)].forEach(v => html.style.removeProperty(v));
     // Скидаємо data-атрибути
     html.removeAttribute('data-bg');
     html.removeAttribute('data-palette');
     html.removeAttribute('data-font');
     html.removeAttribute('data-buttons');
+    html.removeAttribute('data-badge');
 }
 
 function _applyComponents(active) {
@@ -306,6 +351,7 @@ function _applyComponents(active) {
     const palette = COMPONENTS.palettes[active.palette] || COMPONENTS.palettes.default;
     const font    = COMPONENTS.fonts[active.font]       || COMPONENTS.fonts.default;
     const buttons = COMPONENTS.buttons[active.buttons]  || COMPONENTS.buttons.default;
+    const badge   = COMPONENTS.badges[active.badge]     || COMPONENTS.badges.default;
 
     // Палітра — CSS змінні + data-palette для CSS :root[data-palette="X"] селекторів
     Object.entries(palette.vars || {}).forEach(([k, v]) => html.style.setProperty(k, v));
@@ -318,6 +364,10 @@ function _applyComponents(active) {
     // Кнопки — data-buttons для можливих CSS селекторів
     Object.entries(buttons.vars || {}).forEach(([k, v]) => html.style.setProperty(k, v));
     html.dataset.buttons = active.buttons || 'default';
+
+    // Бейдж — CSS змінні для .z-badge скрізь у програмі
+    Object.entries(badge.vars || {}).forEach(([k, v]) => html.style.setProperty(k, v));
+    html.dataset.badge = active.badge || 'default';
 
     // Фон
     html.dataset.bg = active.background || 'default';
@@ -625,9 +675,9 @@ export function renderThemeShop() {
 function _renderCustomize(container, owned, active) {
     // owned — завжди список дитячих куплених тем
     // Збираємо доступні компоненти з куплених тем
-    const available = { palettes: new Set(['default']), fonts: new Set(['default']), buttons: new Set(['default']), backgrounds: new Set(['default']) };
-    // type → ключ у available (buttons вже множина, не додаємо 's')
-    const typeToKey = { palette: 'palettes', font: 'fonts', buttons: 'buttons', background: 'backgrounds' };
+    const available = { palettes: new Set(['default']), fonts: new Set(['default']), buttons: new Set(['default']), backgrounds: new Set(['default']), badges: new Set(['default']) };
+    // type → ключ у available
+    const typeToKey = { palette: 'palettes', font: 'fonts', buttons: 'buttons', background: 'backgrounds', badge: 'badges' };
     owned.forEach(themeId => {
         const theme = THEMES.find(t => t.id === themeId);
         if (!theme) return;
@@ -652,10 +702,11 @@ function _renderCustomize(container, owned, active) {
         <div class="card-bg mt-md">
             <h3 class="card-title">🎛️ Кастомізація</h3>
             <p class="text-muted font-sm mb-md">Міксуй компоненти куплених тем на свій смак</p>
-            ${makeRow('palette',    '🎨 Кольори', COMPONENTS.palettes,    available.palettes)}
-            ${makeRow('font',       '🔤 Шрифт',   COMPONENTS.fonts,       available.fonts)}
-            ${makeRow('buttons',    '🖱️ Кнопки',  COMPONENTS.buttons,     available.buttons)}
-            ${makeRow('background', '🌄 Фон',      COMPONENTS.backgrounds, available.backgrounds)}
+            ${makeRow('palette',    '🎨 Кольори',  COMPONENTS.palettes,    available.palettes)}
+            ${makeRow('font',       '🔤 Шрифт',    COMPONENTS.fonts,       available.fonts)}
+            ${makeRow('buttons',    '🖱️ Кнопки',   COMPONENTS.buttons,     available.buttons)}
+            ${makeRow('background', '🌄 Фон',       COMPONENTS.backgrounds, available.backgrounds)}
+            ${makeRow('badge',      '🔴 Бейдж',     COMPONENTS.badges,      available.badges)}
         </div>
     `;
 
