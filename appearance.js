@@ -12,7 +12,7 @@
 //       3. Додай CSS vars у style.css (опційно)
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260524.2332';
+export const VERSION = 'v3.20260525.0004';
 
 import { state } from './state.js';
 import { saveAppearance, saveRecords } from './firebase.js';
@@ -181,7 +181,7 @@ export const COMPONENTS = {
             }
         },
         goose: {
-            name: '🦢 Гуси',
+            name: '🪿 Гуси',
             // Прапорець decorated: палітра приносить декоративні зображення.
             // Активує селектори :root[data-decorated="true"] у style.css.
             // Зображення задаються через CSS-змінні --decor-* нижче.
@@ -189,7 +189,7 @@ export const COMPONENTS = {
             vars: {
                 // ── Кольори ────────────────────────────────────
                 '--primary':           '#FF9843',
-                '--secondary':         '#B8956A',
+                '--secondary':         '#5A4A3A',
                 '--accent':            '#7DB874',
                 '--bg':                '#FDFBF8',
                 '--card':              '#FFFCF9',
@@ -258,7 +258,7 @@ export const COMPONENTS = {
         sakura:  { name: '🌸 Сакура',   emoji: '🌸' },
         snow:    { name: '❄️ Сніг',     emoji: '❄️' },
         retro:   { name: '📷 Ретро',    emoji: '📷' },
-        goose:   { name: '🦢 Гуси',     emoji: '🦢' },
+        goose:   { name: '🪿 Гуси',     emoji: '🪿' },
     },
 
     // ── Бейджі — вигляд крапки-індикатора ──────────────
@@ -355,7 +355,7 @@ export const THEMES = [
     },
     {
         id:         'goose',
-        name:       '🦢 Гуси',
+        name:       '🪿 Гуси',
         desc:       'Оригінальний вигляд для фанатів гусей',
         price:      100,
         components: { palette: 'goose',    font: 'rubik',      buttons: 'pill',    background: 'goose',  badge: 'goose'   },

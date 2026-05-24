@@ -1,6 +1,6 @@
 /* ════════════════════════════════════════════════════
    Зірки Успіху — Стилі
-   Версія: v3.20260524.2332
+   Версія: v3.20260525.0004
    ════════════════════════════════════════════════════ */
 
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;900&family=Comfortaa:wght@400;700&family=Fredoka+One&family=Ubuntu:wght@400;700&family=Playfair+Display:wght@400;700&family=Rubik:wght@400;500;700&display=swap');
@@ -1364,7 +1364,7 @@ select:focus, input:focus {
 :root[data-bg="snow"] body::after  { content: '⛄'; opacity: 0.07; }
 
 /* Гуси */
-:root[data-bg="goose"] body::before { content: '🦢'; opacity: 0.08; }
+:root[data-bg="goose"] body::before { content: '🪿'; opacity: 0.08; }
 :root[data-bg="goose"] body::after  { content: '🥚'; opacity: 0.07; }
 
 /* ════════════════════════════════════════════════════
@@ -3691,16 +3691,16 @@ html[data-badge="flag"] .z-badge::before {
    Активуються через атрибут data-decorated="true" на <html>
    (встановлюється в appearance.js коли активна палітра має
    властивість decorated: true).
-   
+
    Конкретні зображення підставляються через CSS-змінні --decor-*
    які задаються в палітрі (див. COMPONENTS.palettes у appearance.js).
-   
+
    ▶ Як додати декор у нову тему:
       1. У палітрі додай  decorated: true
       2. Задай URL зображень через --decor-XXX
       3. Жодних інших змін не потрібно — правила нижче
          автоматично підхоплять зображення з нової палітри.
-   
+
    ▶ Як прибрати один декор: видалити відповідну --decor-XXX змінну
    ▶ Як замінити: змінити URL у --decor-XXX
    ▶ Як вимкнути весь декор у темі: прибрати decorated: true
@@ -3716,10 +3716,10 @@ html[data-badge="flag"] .z-badge::before {
 :root[data-decorated="true"] #addSection .quick-actions::after {
     content: '';
     position: absolute;
-    bottom: -10px;
-    right: -24px;
-    width: 110px;
-    height: 90px;
+    bottom: -8px;
+    right: -20px;
+    width: 75px;
+    height: 60px;
     background: var(--decor-add, none) right bottom/contain no-repeat;
     transform: scaleX(-1);
     pointer-events: none;
@@ -3731,32 +3731,28 @@ html[data-badge="flag"] .z-badge::before {
 }
 
 /* ── Розклад — гусь з щоденником виглядає з правого краю ──── */
+/* Прив'язуємо до самої секції, бо schedule-table-wrap має overflow:hidden */
 :root[data-decorated="true"] #scheduleSection {
     position: relative;
-    overflow: visible;
 }
-:root[data-decorated="true"] .schedule-table-wrap {
-    position: relative;
-}
-:root[data-decorated="true"] .schedule-table-wrap::after {
+:root[data-decorated="true"] #scheduleSection::after {
     content: '';
     position: absolute;
-    top: 50%;
+    top: 70px;
     right: -28px;
-    transform: translateY(-50%);
-    width: 190px;
-    height: 320px;
+    width: 180px;
+    height: 300px;
     background: var(--decor-schedule, none) right center/contain no-repeat;
     pointer-events: none;
     z-index: 0;
 }
-:root[data-decorated="true"] .schedule-table {
+:root[data-decorated="true"] .schedule-table-wrap {
     position: relative;
     z-index: 1;
 }
 :root[data-decorated="true"] .schedule-table tbody td,
 :root[data-decorated="true"] .schedule-table tbody th {
-    background: rgba(255, 252, 249, 0.78);
+    background: rgba(255, 252, 249, 0.82);
 }
 
 /* ── Завдання — стурбований гусь на фоні tasksBlock ────────── */
@@ -3799,53 +3795,57 @@ html[data-badge="flag"] .z-badge::before {
 }
 
 /* ── Empty state «Зворотній зв'язок» — сплячий гусь ────────── */
+/* background-size: auto зберігає природний розмір зображення */
 :root[data-decorated="true"] .fb-empty {
     position: relative;
-    padding: 180px 20px 30px;
+    padding-top: 110px;
     background-image: var(--decor-empty-feedback, none);
     background-repeat: no-repeat;
     background-position: center 10px;
-    background-size: auto 160px;
+    background-size: auto;
 }
 
 /* ── Empty state «Історія» — заміна emoji-іконки на гуся ───── */
+/* opacity: 1 явно — бо .empty-icon за замовчуванням має opacity 0.3 */
 :root[data-decorated="true"] .empty-state .empty-icon {
-    font-size: 0; /* ховаємо emoji */
+    font-size: 0;       /* ховаємо emoji */
+    opacity: 1;         /* override 0.3 з .empty-icon */
     width: 100%;
     height: 180px;
     background: var(--decor-empty-history, none) center/contain no-repeat;
     margin-bottom: 10px;
 }
 
-/* ── Витрати — багатий гусь з зірками внизу секції ─────────── */
-:root[data-decorated="true"] #rewardsSection {
+/* ── Витрати — багатий гусь МІЖ карткою "Гроші" і "Особливе списання" */
+/* 2-га .reward-card = "Гроші", після неї йде "Особливе списання" */
+:root[data-decorated="true"] #rewardsSection .reward-card:nth-of-type(2) {
     position: relative;
-    padding-bottom: 280px;
+    margin-bottom: 220px;
 }
-:root[data-decorated="true"] #rewardsSection::after {
+:root[data-decorated="true"] #rewardsSection .reward-card:nth-of-type(2)::after {
     content: '';
     position: absolute;
-    bottom: 20px;
-    right: 30px;
-    width: 240px;
-    height: 240px;
-    background: var(--decor-rewards, none) right bottom/contain no-repeat;
+    top: calc(100% + 10px);
+    left: 50%;
+    transform: translateX(-50%);
+    width: 220px;
+    height: 200px;
+    background: var(--decor-rewards, none) center/contain no-repeat;
     pointer-events: none;
-    z-index: 0;
 }
 
 /* ── Графіки — летючий гусь внизу секції ───────────────────── */
 :root[data-decorated="true"] #statsSection {
     position: relative;
-    padding-bottom: 260px;
+    padding-bottom: 220px;
 }
 :root[data-decorated="true"] #statsSection::after {
     content: '';
     position: absolute;
     bottom: 20px;
     right: 30px;
-    width: 240px;
-    height: 220px;
+    width: 200px;
+    height: 180px;
     background: var(--decor-stats, none) right bottom/contain no-repeat;
     pointer-events: none;
     z-index: 0;
@@ -3869,12 +3869,15 @@ html[data-badge="flag"] .z-badge::before {
     z-index: 0;
 }
 
-/* ── Теми — гусь у краватці на фоні themeCustomizeContainer ── */
-:root[data-decorated="true"] #themeCustomizeContainer {
+/* ── Теми — гусь у краватці у фоні картки кастомізації ─────── */
+/* Прив'язуємо до .card-bg всередині themeCustomizeContainer (бо сам контейнер
+   має inline display:none/block та inline-стилі, а реальний візуальний блок -
+   це .card-bg всередині). */
+:root[data-decorated="true"] #themeCustomizeContainer .card-bg {
     position: relative;
     overflow: hidden;
 }
-:root[data-decorated="true"] #themeCustomizeContainer::before {
+:root[data-decorated="true"] #themeCustomizeContainer .card-bg::before {
     content: '';
     position: absolute;
     top: 50%;
@@ -3887,7 +3890,7 @@ html[data-badge="flag"] .z-badge::before {
     pointer-events: none;
     z-index: 0;
 }
-:root[data-decorated="true"] #themeCustomizeContainer > * {
+:root[data-decorated="true"] #themeCustomizeContainer .card-bg > * {
     position: relative;
     z-index: 1;
 }
@@ -3911,20 +3914,24 @@ html[data-badge="flag"] .z-badge::before {
 }
 
 /* ── Модалка довідки «Досягнення» — гусь на кубку справа ──── */
-:root[data-decorated="true"] #helpModal[data-section="achievementsSection"] #helpModalContent > p:first-child {
+/* Прив'язуємо гуся до контейнера, перші 2 <p> отримують padding-right
+   щоб і перший і другий абзац обтікали гуся зліва */
+:root[data-decorated="true"] #helpModal[data-section="achievementsSection"] #helpModalContent {
     position: relative;
-    min-height: 180px;
-    padding-right: 170px;
 }
-:root[data-decorated="true"] #helpModal[data-section="achievementsSection"] #helpModalContent > p:first-child::after {
+:root[data-decorated="true"] #helpModal[data-section="achievementsSection"] #helpModalContent::before {
     content: '';
     position: absolute;
-    top: -10px;
+    top: 0;
     right: 0;
     width: 150px;
     height: 200px;
     background: var(--decor-help-achievements, none) center/contain no-repeat;
     pointer-events: none;
+    z-index: 1;
+}
+:root[data-decorated="true"] #helpModal[data-section="achievementsSection"] #helpModalContent > p:nth-of-type(-n+2) {
+    padding-right: 170px;
 }
 
 /* ── Модалка сповіщень — голови з дзвіночком знизу + HONK зверху */
