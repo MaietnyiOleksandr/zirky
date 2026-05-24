@@ -2,7 +2,7 @@
 // ❓  help.js — Інструкції по розділах
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260521.1421';
+export const VERSION = 'v3.20260524.2332';
 
 import { state } from './state.js';
 import { CHANGELOG } from './changelog.js';
@@ -682,6 +682,10 @@ export function showHelp(sectionId) {
     const content = document.getElementById('helpModalContent');
 
     title.textContent = TITLES[sectionId] || '❓ Довідка';
+
+    // data-section дозволяє CSS таргетити модалку конкретного розділу
+    // (зокрема для декоративних зображень у темах з decorated: true)
+    modal.dataset.section = sectionId;
 
     if (sectionId === 'changelog') {
         content.innerHTML = renderChangelogHTML();

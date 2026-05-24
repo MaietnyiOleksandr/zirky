@@ -12,7 +12,7 @@
 //       3. Додай CSS vars у style.css (опційно)
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260522.1452';
+export const VERSION = 'v3.20260524.2332';
 
 import { state } from './state.js';
 import { saveAppearance, saveRecords } from './firebase.js';
@@ -180,6 +180,60 @@ export const COMPONENTS = {
                 '--shadow':            '0 8px 24px rgba(74,55,40,0.2)',
             }
         },
+        goose: {
+            name: '🦢 Гуси',
+            // Прапорець decorated: палітра приносить декоративні зображення.
+            // Активує селектори :root[data-decorated="true"] у style.css.
+            // Зображення задаються через CSS-змінні --decor-* нижче.
+            decorated: true,
+            vars: {
+                // ── Кольори ────────────────────────────────────
+                '--primary':           '#FF9843',
+                '--secondary':         '#B8956A',
+                '--accent':            '#7DB874',
+                '--bg':                '#FDFBF8',
+                '--card':              '#FFFCF9',
+                '--text':              '#3C3530',
+                '--bg-gradient':       'linear-gradient(135deg, #F4F0EB 0%, #FDFBF8 50%, #FFF4E6 100%)',
+                '--btn-primary-from':  '#FF9843',
+                '--btn-primary-to':    '#FF7A1F',
+                '--btn-primary-color': '#ffffff',
+                '--btn-primary-shadow':'rgba(255,152,67,0.4)',
+                '--tab-active-from':   '#FF9843',
+                '--tab-active-to':     '#FF7A1F',
+                '--tab-active-color':  '#ffffff',
+                '--tab-active-shadow': 'rgba(255,152,67,0.4)',
+                '--goal-from':         '#7DB874',
+                '--goal-to':           '#5A9050',
+                '--goal-text':         '#ffffff',
+                '--goal-shadow':       'rgba(125,184,116,0.3)',
+                '--progress-from':     '#FF9843',
+                '--progress-to':       '#7DB874',
+                '--border-light':      '#E8E4DF',
+                '--border-input':      '#D8D2CB',
+                '--text-muted':        '#6F6358',
+                '--text-hint':         '#9A8A7A',
+                '--shadow':            '0 8px 24px rgba(184,149,106,0.18)',
+
+                // ── Декоративні зображення (CSS-змінні URL) ─────
+                // Універсальні правила в style.css використовують ці змінні
+                // через var(--decor-XXX). Якщо змінна не задана — буде none.
+                '--decor-add':                 'url("geese/goose-head-1.webp")',
+                '--decor-schedule':            'url("geese/goose-diary.webp")',
+                '--decor-tasks':               'url("geese/goose-worried.webp")',
+                '--decor-rewards':             'url("geese/goose-rich.webp")',
+                '--decor-stats':               'url("geese/goose-fly-2.webp")',
+                '--decor-guide':               'url("geese/goose-help.webp")',
+                '--decor-settings':            'url("geese/goose-options.webp")',
+                '--decor-themes':              'url("geese/goose-dress.webp")',
+                '--decor-empty-tasks':         'url("geese/goose-standing.webp")',
+                '--decor-empty-history':       'url("geese/goose-sleep.webp")',
+                '--decor-empty-feedback':      'url("geese/goose-sleep-2.webp")',
+                '--decor-help-achievements':   'url("geese/goose-achievement.webp")',
+                '--decor-notif-bottom':        'url("geese/goose-heads-bottom-bell.webp")',
+                '--decor-notif-top':           'url("geese/goose-head-up.webp")',
+            }
+        },
     },
 
     fonts: {
@@ -188,6 +242,7 @@ export const COMPONENTS = {
         fredoka:   { name: '✏️ Fredoka',   value: "'Fredoka One', cursive"     },
         ubuntu:    { name: '✏️ Ubuntu',    value: "'Ubuntu', sans-serif"       },
         playfair:  { name: '✏️ Playfair',  value: "'Playfair Display', serif"  },
+        rubik:     { name: '✏️ Rubik',     value: "'Rubik', sans-serif"        },
     },
 
     buttons: {
@@ -203,6 +258,7 @@ export const COMPONENTS = {
         sakura:  { name: '🌸 Сакура',   emoji: '🌸' },
         snow:    { name: '❄️ Сніг',     emoji: '❄️' },
         retro:   { name: '📷 Ретро',    emoji: '📷' },
+        goose:   { name: '🦢 Гуси',     emoji: '🦢' },
     },
 
     // ── Бейджі — вигляд крапки-індикатора ──────────────
@@ -231,6 +287,13 @@ export const COMPONENTS = {
             vars: {
                 '--badge-bg':     'transparent',
                 '--badge-border': 'none',
+            },
+        },
+        goose: {
+            name: '🟢 Гусячий',
+            vars: {
+                '--badge-bg':     '#7DB874',
+                '--badge-border': '2px solid #F4F0EB',
             },
         },
     },
@@ -290,6 +353,14 @@ export const THEMES = [
         components: { palette: 'retro',    font: 'playfair',   buttons: 'sharp',   background: 'retro',  badge: 'flag'    },
         preview:    { colors: ['#4A3728', '#8B6347', '#C8A96E', '#F5EDD6'] },
     },
+    {
+        id:         'goose',
+        name:       '🦢 Гуси',
+        desc:       'Оригінальний вигляд для фанатів гусей',
+        price:      100,
+        components: { palette: 'goose',    font: 'rubik',      buttons: 'pill',    background: 'goose',  badge: 'goose'   },
+        preview:    { colors: ['#FF9843', '#7DB874', '#B8956A', '#FDFBF8'] },
+    },
 ];
 
 // Дефолтний стан для кожного профілю
@@ -334,6 +405,7 @@ function _resetAppearanceVars() {
     html.removeAttribute('data-font');
     html.removeAttribute('data-buttons');
     html.removeAttribute('data-badge');
+    html.removeAttribute('data-decorated');
 }
 
 function _applyComponents(active) {
@@ -346,6 +418,14 @@ function _applyComponents(active) {
     // Палітра — CSS змінні + data-palette для CSS :root[data-palette="X"] селекторів
     Object.entries(palette.vars || {}).forEach(([k, v]) => html.style.setProperty(k, v));
     html.dataset.palette = active.palette || 'default';
+
+    // Прапорець decorated — палітра приносить декоративні зображення.
+    // CSS-правила під :root[data-decorated="true"] активуються автоматично.
+    // Для додавання декору в нову тему — просто додай decorated: true та потрібні
+    // --decor-* CSS-змінні в палітру. Жодних змін в цьому файлі не потрібно.
+    if (palette.decorated) {
+        html.dataset.decorated = 'true';
+    }
 
     // Шрифт — data-font для можливих CSS селекторів
     html.style.setProperty('--font-main', font.value);
