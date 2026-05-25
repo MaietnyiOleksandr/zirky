@@ -1,6 +1,6 @@
 /* ════════════════════════════════════════════════════
    Зірки Успіху — Стилі
-   Версія: v3.20260525.0620
+   Версія: v3.20260525.0630
    ════════════════════════════════════════════════════ */
 
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;900&family=Comfortaa:wght@400;700&family=Fredoka+One&family=Ubuntu:wght@400;700&family=Playfair+Display:wght@400;700&family=Rubik:wght@400;500;700&display=swap');
@@ -3751,21 +3751,27 @@ html[data-badge="flag"] .z-badge::before {
 :root[data-decorated="true"] .schedule-table-wrap {
     position: relative;
     z-index: 1;
+    background: transparent;
+    box-shadow: none;
+}
+/* Сама таблиця має background:var(--card) — перекриває гуся, треба прибрати */
+:root[data-decorated="true"] .schedule-table {
+    background: transparent !important;
 }
 /* Робимо рядки розкладу напівпрозорими щоб гусь проглядався крізь них */
 :root[data-decorated="true"] .schedule-table tbody td,
 :root[data-decorated="true"] .schedule-table tbody th {
-    background: rgba(255, 252, 249, 0.6);
+    background: rgba(255, 252, 249, 0.55) !important;
 }
 :root[data-decorated="true"] .schedule-table .schedule-row,
 :root[data-decorated="true"] .schedule-table .schedule-row:nth-child(even) {
-    background: transparent;
+    background: transparent !important;
 }
 :root[data-decorated="true"] .schedule-table .schedule-row.schedule-club {
     background: rgba(255, 152, 67, 0.08) !important;
 }
 :root[data-decorated="true"] .schedule-table .schedule-separator td {
-    background: rgba(125, 184, 116, 0.18);
+    background: rgba(125, 184, 116, 0.2) !important;
 }
 
 /* ── Завдання — стурбований гусь на фоні tasksBlock ────────── */
@@ -3947,13 +3953,13 @@ html[data-badge="flag"] .z-badge::before {
     padding-right: 170px;
 }
 
-/* ── Модалка сповіщень — HONK виглядає з-за верхнього краю + голови з дзвіночком знизу */
+/* ── Модалка сповіщень — HONK на фоні зверху + голови з дзвіночком знизу */
 :root[data-decorated="true"] #notifModal .help-modal-inner {
     position: relative;
     overflow: hidden;
 }
-/* Гусь "HONK!" — верхній край на рівні modal-inner, виглядає з-за краю.
-   Розмір 187×79 — як в оригіналі (без розтягування) */
+/* Гусь "HONK!" — на фоні зверху, позаду заголовка та кнопки закриття.
+   z-index: 0 — нижче ніж заголовок і кнопка */
 :root[data-decorated="true"] #notifModal .help-modal-inner::before {
     content: '';
     position: absolute;
@@ -3963,21 +3969,22 @@ html[data-badge="flag"] .z-badge::before {
     height: 79px;
     background: var(--decor-notif-top, none) center top/187px 79px no-repeat;
     pointer-events: none;
-    z-index: 2;
+    z-index: 0;
 }
-/* Заголовок отримує відступ справа щоб не наїжджав на гуся */
+/* Заголовок і кнопка закриття — поверх гуся */
 :root[data-decorated="true"] #notifModal .help-modal-header {
-    padding-right: 220px;
+    position: relative;
+    z-index: 1;
 }
-/* Голови з дзвіночком знизу — розмір 250×91 як в оригіналі */
+/* Голови з дзвіночком знизу — зменшені щоб не перекривали кнопку закриття останнього сповіщення */
 :root[data-decorated="true"] #notifModal .help-modal-inner::after {
     content: '';
     position: absolute;
     bottom: 0;
     right: 0;
-    width: 250px;
-    height: 91px;
-    background: var(--decor-notif-bottom, none) right bottom/250px 91px no-repeat;
+    width: 180px;
+    height: 65px;
+    background: var(--decor-notif-bottom, none) right bottom/180px 65px no-repeat;
     pointer-events: none;
     z-index: 0;
 }
