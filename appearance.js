@@ -12,7 +12,7 @@
 //       3. Додай CSS vars у style.css (опційно)
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260525.0620';
+export const VERSION = 'v3.20260525.0655';
 
 import { state } from './state.js';
 import { saveAppearance, saveRecords } from './firebase.js';
@@ -194,7 +194,7 @@ export const COMPONENTS = {
                 '--bg':                '#FDFBF8',
                 '--card':              '#FFFCF9',
                 '--text':              '#3C3530',
-                '--bg-gradient':       'linear-gradient(135deg, #F4F0EB 0%, #FDFBF8 50%, #FFF4E6 100%)',
+                '--bg-gradient':       'linear-gradient(to bottom, #DCEEF7 0%, #F0F5EC 55%, #DDEED5 100%)',
                 '--btn-primary-from':  '#FF9843',
                 '--btn-primary-to':    '#FF7A1F',
                 '--btn-primary-color': '#ffffff',
