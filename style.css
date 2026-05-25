@@ -1,6 +1,6 @@
 /* ════════════════════════════════════════════════════
    Зірки Успіху — Стилі
-   Версія: v3.20260525.0004
+   Версія: v3.20260525.0559
    ════════════════════════════════════════════════════ */
 
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;900&family=Comfortaa:wght@400;700&family=Fredoka+One&family=Ubuntu:wght@400;700&family=Playfair+Display:wght@400;700&family=Rubik:wght@400;500;700&display=swap');
@@ -3738,10 +3738,10 @@ html[data-badge="flag"] .z-badge::before {
 :root[data-decorated="true"] #scheduleSection::after {
     content: '';
     position: absolute;
-    top: 70px;
-    right: -28px;
-    width: 180px;
-    height: 300px;
+    top: 60px;
+    right: -40px;
+    width: 220px;
+    height: 360px;
     background: var(--decor-schedule, none) right center/contain no-repeat;
     pointer-events: none;
     z-index: 0;
@@ -3752,7 +3752,7 @@ html[data-badge="flag"] .z-badge::before {
 }
 :root[data-decorated="true"] .schedule-table tbody td,
 :root[data-decorated="true"] .schedule-table tbody th {
-    background: rgba(255, 252, 249, 0.82);
+    background: rgba(255, 252, 249, 0.65);
 }
 
 /* ── Завдання — стурбований гусь на фоні tasksBlock ────────── */
@@ -3934,33 +3934,30 @@ html[data-badge="flag"] .z-badge::before {
     padding-right: 170px;
 }
 
-/* ── Модалка сповіщень — голови з дзвіночком знизу + HONK зверху */
+/* ── Модалка сповіщень — HONK справа від заголовка + голови з дзвіночком знизу */
 :root[data-decorated="true"] #notifModal .help-modal-inner {
     position: relative;
     overflow: hidden;
 }
-:root[data-decorated="true"] #notifModal .help-modal-inner::before {
+/* Гусь "HONK!" — одразу після тексту заголовка, інлайново */
+:root[data-decorated="true"] #notifModal .help-modal-title::after {
     content: '';
-    position: absolute;
-    top: 8px;
-    left: 14px;
-    width: 100px;
-    height: 38px;
-    background: var(--decor-notif-top, none) left top/contain no-repeat;
-    pointer-events: none;
-    z-index: 2;
+    display: inline-block;
+    width: 70px;
+    height: 28px;
+    vertical-align: middle;
+    margin-left: 10px;
+    background: var(--decor-notif-top, none) left center/contain no-repeat;
 }
+/* Голови з дзвіночком знизу — природний розмір зображення */
 :root[data-decorated="true"] #notifModal .help-modal-inner::after {
     content: '';
     position: absolute;
     bottom: 0;
     right: 0;
-    width: 220px;
-    height: 70px;
-    background: var(--decor-notif-bottom, none) right bottom/contain no-repeat;
+    width: 150px;
+    height: 50px;
+    background: var(--decor-notif-bottom, none) right bottom/auto 100% no-repeat;
     pointer-events: none;
     z-index: 0;
-}
-:root[data-decorated="true"] #notifModal .help-modal-header {
-    padding-left: 120px;
 }
