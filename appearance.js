@@ -12,7 +12,7 @@
 //       3. Додай CSS vars у style.css (опційно)
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260525.0004';
+export const VERSION = 'v3.20260525.0620';
 
 import { state } from './state.js';
 import { saveAppearance, saveRecords } from './firebase.js';
@@ -357,7 +357,7 @@ export const THEMES = [
         id:         'goose',
         name:       '🪿 Гуси',
         desc:       'Оригінальний вигляд для фанатів гусей',
-        price:      100,
+        price:      120,
         components: { palette: 'goose',    font: 'rubik',      buttons: 'pill',    background: 'goose',  badge: 'goose'   },
         preview:    { colors: ['#FF9843', '#7DB874', '#B8956A', '#FDFBF8'] },
     },

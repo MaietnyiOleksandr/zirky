@@ -1,6 +1,6 @@
 /* ════════════════════════════════════════════════════
    Зірки Успіху — Стилі
-   Версія: v3.20260525.0559
+   Версія: v3.20260525.0620
    ════════════════════════════════════════════════════ */
 
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;900&family=Comfortaa:wght@400;700&family=Fredoka+One&family=Ubuntu:wght@400;700&family=Playfair+Display:wght@400;700&family=Rubik:wght@400;500;700&display=swap');
@@ -1443,16 +1443,17 @@ select:focus, input:focus {
     background: var(--card);
     border-radius: 18px;
     overflow: hidden;
-    border: 3px solid transparent;
+    border: 2px solid var(--border-light);
     transition: all 0.3s;
 }
 
 .theme-card--active {
     border-color: var(--primary);
+    border-width: 3px;
     box-shadow: 0 4px 16px var(--btn-primary-shadow, rgba(255,215,0,0.3));
 }
 
-.theme-card--owned { border-color: var(--border-light); }
+.theme-card--owned { border-color: var(--secondary); }
 
 .theme-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.12); }
 
@@ -3731,18 +3732,19 @@ html[data-badge="flag"] .z-badge::before {
 }
 
 /* ── Розклад — гусь з щоденником виглядає з правого краю ──── */
-/* Прив'язуємо до самої секції, бо schedule-table-wrap має overflow:hidden */
+/* Прив'язуємо до самої секції, бо schedule-table-wrap має overflow:hidden.
+   Розмір 162×317 — як в оригіналі (без розтягування) */
 :root[data-decorated="true"] #scheduleSection {
     position: relative;
 }
 :root[data-decorated="true"] #scheduleSection::after {
     content: '';
     position: absolute;
-    top: 60px;
-    right: -40px;
-    width: 220px;
-    height: 360px;
-    background: var(--decor-schedule, none) right center/contain no-repeat;
+    top: 80px;
+    right: -20px;
+    width: 162px;
+    height: 317px;
+    background: var(--decor-schedule, none) right center/162px 317px no-repeat;
     pointer-events: none;
     z-index: 0;
 }
@@ -3750,9 +3752,20 @@ html[data-badge="flag"] .z-badge::before {
     position: relative;
     z-index: 1;
 }
+/* Робимо рядки розкладу напівпрозорими щоб гусь проглядався крізь них */
 :root[data-decorated="true"] .schedule-table tbody td,
 :root[data-decorated="true"] .schedule-table tbody th {
-    background: rgba(255, 252, 249, 0.65);
+    background: rgba(255, 252, 249, 0.6);
+}
+:root[data-decorated="true"] .schedule-table .schedule-row,
+:root[data-decorated="true"] .schedule-table .schedule-row:nth-child(even) {
+    background: transparent;
+}
+:root[data-decorated="true"] .schedule-table .schedule-row.schedule-club {
+    background: rgba(255, 152, 67, 0.08) !important;
+}
+:root[data-decorated="true"] .schedule-table .schedule-separator td {
+    background: rgba(125, 184, 116, 0.18);
 }
 
 /* ── Завдання — стурбований гусь на фоні tasksBlock ────────── */
@@ -3869,24 +3882,24 @@ html[data-badge="flag"] .z-badge::before {
     z-index: 0;
 }
 
-/* ── Теми — гусь у краватці у фоні картки кастомізації ─────── */
+/* ── Теми — гусь у краватці у НИЗУ картки кастомізації ─────── */
 /* Прив'язуємо до .card-bg всередині themeCustomizeContainer (бо сам контейнер
    має inline display:none/block та inline-стилі, а реальний візуальний блок -
    це .card-bg всередині). */
 :root[data-decorated="true"] #themeCustomizeContainer .card-bg {
     position: relative;
     overflow: hidden;
+    padding-bottom: 220px;
 }
 :root[data-decorated="true"] #themeCustomizeContainer .card-bg::before {
     content: '';
     position: absolute;
-    top: 50%;
-    right: 10px;
-    transform: translateY(-50%);
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
     width: 190px;
-    height: 240px;
-    background: var(--decor-themes, none) center/contain no-repeat;
-    opacity: 0.45;
+    height: 200px;
+    background: var(--decor-themes, none) center bottom/contain no-repeat;
     pointer-events: none;
     z-index: 0;
 }
@@ -3934,30 +3947,37 @@ html[data-badge="flag"] .z-badge::before {
     padding-right: 170px;
 }
 
-/* ── Модалка сповіщень — HONK справа від заголовка + голови з дзвіночком знизу */
+/* ── Модалка сповіщень — HONK виглядає з-за верхнього краю + голови з дзвіночком знизу */
 :root[data-decorated="true"] #notifModal .help-modal-inner {
     position: relative;
     overflow: hidden;
 }
-/* Гусь "HONK!" — одразу після тексту заголовка, інлайново */
-:root[data-decorated="true"] #notifModal .help-modal-title::after {
+/* Гусь "HONK!" — верхній край на рівні modal-inner, виглядає з-за краю.
+   Розмір 187×79 — як в оригіналі (без розтягування) */
+:root[data-decorated="true"] #notifModal .help-modal-inner::before {
     content: '';
-    display: inline-block;
-    width: 70px;
-    height: 28px;
-    vertical-align: middle;
-    margin-left: 10px;
-    background: var(--decor-notif-top, none) left center/contain no-repeat;
+    position: absolute;
+    top: 0;
+    right: 24px;
+    width: 187px;
+    height: 79px;
+    background: var(--decor-notif-top, none) center top/187px 79px no-repeat;
+    pointer-events: none;
+    z-index: 2;
 }
-/* Голови з дзвіночком знизу — природний розмір зображення */
+/* Заголовок отримує відступ справа щоб не наїжджав на гуся */
+:root[data-decorated="true"] #notifModal .help-modal-header {
+    padding-right: 220px;
+}
+/* Голови з дзвіночком знизу — розмір 250×91 як в оригіналі */
 :root[data-decorated="true"] #notifModal .help-modal-inner::after {
     content: '';
     position: absolute;
     bottom: 0;
     right: 0;
-    width: 150px;
-    height: 50px;
-    background: var(--decor-notif-bottom, none) right bottom/auto 100% no-repeat;
+    width: 250px;
+    height: 91px;
+    background: var(--decor-notif-bottom, none) right bottom/250px 91px no-repeat;
     pointer-events: none;
     z-index: 0;
 }
