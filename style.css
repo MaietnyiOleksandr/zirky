@@ -1,6 +1,6 @@
 /* ════════════════════════════════════════════════════
    Зірки Успіху — Стилі
-   Версія: v3.20260525.0630
+   Версія: v3.20260525.0706
    ════════════════════════════════════════════════════ */
 
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;900&family=Comfortaa:wght@400;700&family=Fredoka+One&family=Ubuntu:wght@400;700&family=Playfair+Display:wght@400;700&family=Rubik:wght@400;500;700&display=swap');
@@ -3707,6 +3707,26 @@ html[data-badge="flag"] .z-badge::before {
    ▶ Як вимкнути весь декор у темі: прибрати decorated: true
    ════════════════════════════════════════════════════════════ */
 
+/* Анімації для голів що виглядають з-за країв.
+   Запускаються при появі секції (display:none → display:block) або
+   відкритті модалки. Затримка 0.5s — голова "вистрибує" з-за краю. */
+@keyframes gooseSlideFromRight {
+    0%   { transform: translateX(120%);  opacity: 0; }
+    100% { transform: translateX(0);     opacity: 1; }
+}
+@keyframes gooseSlideFromRightFlip {
+    0%   { transform: translateX(-120%) scaleX(-1); opacity: 0; }
+    100% { transform: translateX(0)     scaleX(-1); opacity: 1; }
+}
+@keyframes gooseSlideFromTop {
+    0%   { transform: translateY(-100%); opacity: 0; }
+    100% { transform: translateY(0);     opacity: 1; }
+}
+@keyframes gooseSlideFromBottom {
+    0%   { transform: translateY(100%);  opacity: 0; }
+    100% { transform: translateY(0);     opacity: 1; }
+}
+
 /* ── Додати — голова гуся у правому нижньому куті content ─── */
 :root[data-decorated="true"] #addSection {
     position: relative;
@@ -3725,6 +3745,7 @@ html[data-badge="flag"] .z-badge::before {
     transform: scaleX(-1);
     pointer-events: none;
     z-index: 0;
+    animation: gooseSlideFromRightFlip 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.5s both;
 }
 :root[data-decorated="true"] #addSection .quick-actions > * {
     position: relative;
@@ -3747,6 +3768,7 @@ html[data-badge="flag"] .z-badge::before {
     background: var(--decor-schedule, none) right center/162px 317px no-repeat;
     pointer-events: none;
     z-index: 0;
+    animation: gooseSlideFromRight 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.5s both;
 }
 :root[data-decorated="true"] .schedule-table-wrap {
     position: relative;
@@ -3970,6 +3992,7 @@ html[data-badge="flag"] .z-badge::before {
     background: var(--decor-notif-top, none) center top/187px 79px no-repeat;
     pointer-events: none;
     z-index: 0;
+    animation: gooseSlideFromTop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.5s both;
 }
 /* Заголовок і кнопка закриття — поверх гуся */
 :root[data-decorated="true"] #notifModal .help-modal-header {
@@ -3987,4 +4010,5 @@ html[data-badge="flag"] .z-badge::before {
     background: var(--decor-notif-bottom, none) right bottom/180px 65px no-repeat;
     pointer-events: none;
     z-index: 0;
+    animation: gooseSlideFromBottom 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.5s both;
 }
