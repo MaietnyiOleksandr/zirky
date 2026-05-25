@@ -1,6 +1,6 @@
 /* ════════════════════════════════════════════════════
    Зірки Успіху — Стилі
-   Версія: v3.20260525.0706
+   Версія: v3.20260525.0713
    ════════════════════════════════════════════════════ */
 
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;900&family=Comfortaa:wght@400;700&family=Fredoka+One&family=Ubuntu:wght@400;700&family=Playfair+Display:wght@400;700&family=Rubik:wght@400;500;700&display=swap');
@@ -3745,7 +3745,7 @@ html[data-badge="flag"] .z-badge::before {
     transform: scaleX(-1);
     pointer-events: none;
     z-index: 0;
-    animation: gooseSlideFromRightFlip 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.5s both;
+    animation: gooseSlideFromRightFlip 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.5s both;
 }
 :root[data-decorated="true"] #addSection .quick-actions > * {
     position: relative;
@@ -3768,7 +3768,7 @@ html[data-badge="flag"] .z-badge::before {
     background: var(--decor-schedule, none) right center/162px 317px no-repeat;
     pointer-events: none;
     z-index: 0;
-    animation: gooseSlideFromRight 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.5s both;
+    animation: gooseSlideFromRight 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.5s both;
 }
 :root[data-decorated="true"] .schedule-table-wrap {
     position: relative;
@@ -3981,7 +3981,8 @@ html[data-badge="flag"] .z-badge::before {
     overflow: hidden;
 }
 /* Гусь "HONK!" — на фоні зверху, позаду заголовка та кнопки закриття.
-   z-index: 0 — нижче ніж заголовок і кнопка */
+   z-index: 0 — нижче ніж заголовок і кнопка.
+   Показується лише коли є непрочитані сповіщення (відсутній .notif-empty) */
 :root[data-decorated="true"] #notifModal .help-modal-inner::before {
     content: '';
     position: absolute;
@@ -3992,7 +3993,11 @@ html[data-badge="flag"] .z-badge::before {
     background: var(--decor-notif-top, none) center top/187px 79px no-repeat;
     pointer-events: none;
     z-index: 0;
-    animation: gooseSlideFromTop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.5s both;
+    animation: gooseSlideFromTop 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) 1s both;
+}
+/* Коли список сповіщень порожній — ховаємо HONK повністю */
+:root[data-decorated="true"] #notifModal:has(.notif-empty) .help-modal-inner::before {
+    display: none;
 }
 /* Заголовок і кнопка закриття — поверх гуся */
 :root[data-decorated="true"] #notifModal .help-modal-header {
@@ -4010,5 +4015,5 @@ html[data-badge="flag"] .z-badge::before {
     background: var(--decor-notif-bottom, none) right bottom/180px 65px no-repeat;
     pointer-events: none;
     z-index: 0;
-    animation: gooseSlideFromBottom 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.5s both;
+    animation: gooseSlideFromBottom 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.5s both;
 }
