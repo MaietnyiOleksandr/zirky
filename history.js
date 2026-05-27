@@ -2,7 +2,7 @@
 // HISTORY  history.js — History
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260520.0725';
+export const VERSION = 'v3.20260527.1007';
 
 import { getSubjectEmoji } from './subjects.js';
 
@@ -94,7 +94,12 @@ export function renderHistory() {
         });
     }
 
-    records.sort((a, b) => new Date(b.date) - new Date(a.date));
+    records.sort((a, b) => {
+        const dateA = a.date.slice(0, 10);
+        const dateB = b.date.slice(0, 10);
+        if (dateA !== dateB) return dateB > dateA ? 1 : -1; // різні дні → по даті
+        return b.id - a.id;                                  // один день → реальний час додавання
+    });
 
     // Порожній стан
     if (records.length === 0) {
