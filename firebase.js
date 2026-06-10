@@ -2,7 +2,7 @@
 // 🔥  firebase.js — Firebase
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260608.0802';
+export const VERSION = 'v4.20260610.0745';
 
 import { state, defaultChildData } from './state.js';
 import { firebaseConfig } from './config.js';
@@ -216,8 +216,8 @@ function _guard() {
 // Повне збереження дитячих даних — тільки для import/reset у settings.js
 export function saveAll() {
     if (!_guard()) return;
-    const childId = state.activeChildId || 'child_1';
-    set(ref(db, `zirky/children/${childId}`), {
+    // update замість set — не чіпаємо tasks/feedback/notifications_feed
+    update(_childRef(), {
         records:      state.data.records      || [],
         balance:      state.data.balance      || 0,
         goal:         state.data.goal         || null,
