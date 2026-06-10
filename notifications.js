@@ -3,13 +3,13 @@
 //     Етап 1: Фундамент — структура + Firebase
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260522.1215';
+export const VERSION = 'v4.20260605.1448';
 
 import { state }    from './state.js';
 import { nowKyiv }  from './utils.js';
 import { CHANGELOG } from './changelog.js';
 import { getFeedbackItems } from './feedback.js';
-import { getDatabase, ref, set, update, remove, onValue }
+import { ref, set, update, remove, onValue }
     from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 
 // ════════════════════════════════════════════════════
@@ -23,7 +23,7 @@ import { getDatabase, ref, set, update, remove, onValue }
 export const NOTIF_TYPES = {
     changelog: {
         role:       'both',
-        badges:     ['bell', 'changelog'],
+        badges:     ['bell', 'changelog', 'settings'],
         dismissBy:  ['checkmark', 'modal'],
         repeatDays: null,
     },
@@ -137,26 +137,26 @@ export const NOTIF_TYPES = {
 };
 
 // ════════════════════════════════════════════════════
-// 🔥  FIREBASE — окрема гілка zirky-notifications
+// 🔥  FIREBASE — zirky/children/${childId}/notifications_feed/
 // ════════════════════════════════════════════════════
 
-let _db = null;
+let _db    = null;   // встановлюється з firebase.js через initNotificationsListener(childId, db)
 let _items = {};   // поточний стан: { id: NotifItem }
 
 // 🐛 DEBUG — доступ до _items з консолі браузера
 if (typeof window !== 'undefined') window.__notifItems = () => _items;
 
-// Викликається з firebase.js після ініціалізації
-export function setNotifDb(db) { _db = db; }
-
-function _getDb() {
-    if (!_db) throw new Error('🔔 NotifDB не ініціалізовано — setNotifDb() не викликано');
-    return _db;
+// Шлях до гілки сповіщень активної дитини
+function _notifPath(childId, key) {
+    const cid = childId || state.activeChildId || 'child_1';
+    return key
+        ? `zirky/children/${cid}/notifications_feed/${key}`
+        : `zirky/children/${cid}/notifications_feed`;
 }
 
 // Зберегти один запис
 function _saveItem(item) {
-    set(ref(_getDb(), `zirky-notifications/${_fbKey(item.id)}`), item);
+    set(ref(_db, _notifPath(null, _fbKey(item.id))), item);
 }
 
 // Firebase не дозволяє крапки в ключах — замінюємо на тире
@@ -164,7 +164,7 @@ function _fbKey(id) { return id.replace(/\./g, '-'); }
 
 // Видалити один запис
 function _removeItem(id) {
-    remove(ref(_getDb(), `zirky-notifications/${_fbKey(id)}`));
+    remove(ref(_db, _notifPath(null, _fbKey(id))));
     delete _items[id];
 }
 
@@ -231,21 +231,26 @@ function _compactReadItems() {
         // Інакше → slim
         const slim = _toSlim(item);
         _items[item.id] = slim;
-        updates[`zirky-notifications/${_fbKey(item.id)}`] = slim;
+        updates[_notifPath(null, _fbKey(item.id))] = slim;
         compacted++;
     });
 
     if (toDelete.length > 0) {
-        toDelete.forEach(id => remove(ref(_getDb(), `zirky-notifications/${_fbKey(id)}`)));
+        toDelete.forEach(id => remove(ref(_db, _notifPath(null, _fbKey(id)))));
     }
     if (Object.keys(updates).length > 0) {
-        update(ref(_getDb(), '/'), updates);
+        update(ref(_db, '/'), updates);
     }
 }
 
-// Ініціалізація слухача Firebase
-export function initNotificationsListener() {
-    onValue(ref(_getDb(), 'zirky-notifications'), (snapshot) => {
+// Ініціалізація слухача Firebase.
+// Приймає childId і db (переданий з firebase.js щоб уникнути циклічного імпорту).
+// Повертає функцію відписки — зберігається у firebase.js._unsubNotifs.
+export function initNotificationsListener(childId, db) {
+    if (db) _db = db;   // зберігаємо для _saveItem/_removeItem/_compactReadItems
+    const cid  = childId || state.activeChildId || 'child_1';
+    const path = _notifPath(cid);
+    const unsub = onValue(ref(_db, path), (snapshot) => {
         // Відновлюємо _items за item.id (не Firebase-ключем, бо в ключах крапки замінені)
         const raw = snapshot.val() || {};
         _items = {};
@@ -253,6 +258,7 @@ export function initNotificationsListener() {
         _compactReadItems();
         if (window.updateBadges) window.updateBadges();
     });
+    return unsub;
 }
 
 // ════════════════════════════════════════════════════
@@ -482,7 +488,7 @@ export function generateNotifications() {
     //   • Статус змінився (батьки/дитина відреагували на сповіщення)
     //
     // 🚩 ЗАХИСТ ВІД RACE CONDITION:
-    //   Listener-и Firebase для zirky-data, zirky-tasks, zirky-notifications
+    //   Listener-и Firebase для zirky-data, tasks, notifications_feed
     //   стартують паралельно. zirky:dataLoaded може спрацювати раніше, ніж
     //   завантажаться tasks → state.data.tasks буде ще {} і цей блок
     //   видалив би всі tasks-сповіщення назавжди. Тому пропускаємо чистку,
@@ -612,7 +618,7 @@ export function generateNotifications() {
 
     _generateConditional('backup', today, () => {
         // Беремо дату з state, або як fallback — з останнього backup_* запису в _items
-        let last = state.data.backupLastDate || '';
+        let last = state.parent.backupLastDate || '';
         if (!last) {
             const lastBackupItem = Object.values(_items)
                 .filter(i => i.type === 'backup')

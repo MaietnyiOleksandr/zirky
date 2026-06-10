@@ -6,77 +6,187 @@
 //     Зміни в будь-якому модулі видні всюди.
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260522.0650';
+export const VERSION = 'v4.20260606.0746';
+
+// ════════════════════════════════════════════════════════════
+
+// ── Дані дитини за замовчуванням ─────────────────────────
+//   Використовується при switchChild() та при першому вході.
+//   teachers і bells живуть всередині schedule — не виносимо окремо.
+export function defaultChildData() {
+    return {
+        records:     [],
+        balance:     0,
+        goal:        null,
+        achievements: {
+            counters:          {},
+            streaks:           {},
+            levels:            {},
+            weekly:            {},
+            repeatableHistory: {},
+            freezePeriods:     [],
+        },
+        appearance: {
+            owned:  ['default'],
+            active: { theme: 'default', palette: 'default', font: 'default', buttons: 'default', background: 'default', badge: 'default' },
+            child:  null,
+            parent: null,
+        },
+        schedule:  null,   // { days, bells, teachers, twoWeeks } — всі поля всередині
+        subjects:  null,
+        clubs:     null,
+        tasks:     {},
+        feedback:  {},
+        notifications_feed: {},
+    };
+}
+
+// ── Скидання UI-стану при перемиканні профілю ─────────────
+//   Викликається у switchChild() перед завантаженням нового профілю.
+export function resetUIState(s) {
+    s.pinValue            = '';
+    s.rewardPinValue      = '';
+    s.pendingCustomReward = null;
+    s.pendingRewardIndex  = null;
+    s.editingFreezeIndex  = undefined;
+    s.currentViewMonth     = new Date();
+    s.currentTasksMonth    = new Date();
+    s.currentFeedbackMonth = new Date();
+    s.showAllTasks         = false;
+    s.showAllFeedback      = false;
+    s.showPeriod          = 'month';
+    s.chartPeriod         = 'week';
+    s.chartOffset         = 0;
+    s.balancePeriod       = 'week';
+    s.balanceOffset       = 0;
+    s.heatmapOffset       = 0;
+    s.heatmapMode         = 'earn';
+    s.donutPeriod         = 'month';
+    s.donutOffset         = 0;
+    s.donutDrilldown      = null;
+
+    // ── Скидання фільтрів ─────────────────────────────────────
+    // Важливо: childId-фільтр обов'язково скидати щоб батько
+    // не бачив порожній список після перемикання на іншу дитину.
+    historyFilter.type    = 'all';
+    historyFilter.subject = 'all';
+
+    tasksFilter.status  = 'all';
+    tasksFilter.origin  = 'all';
+    tasksFilter.childId = 'all';
+
+    feedbackFilter.cat    = 'all';
+    feedbackFilter.status = 'all';
+    feedbackFilter.childId = 'all';
+
+    // ── Скидання кешу порівняння ──────────────────────────────
+    // allChildrenData може містити застарілі дані іншого профілю
+    s.allChildrenData = {};
+}
 
 // ════════════════════════════════════════════════════════════
 
 export const state = {
 
-    // ── Прапор готовності даних tasks (НЕ записується у Firebase) ──
-    //   Встановлюється у true після першого відгуку initTasksListener.
-    //   Потрібен, щоб generateNotifications не видаляв сповіщення про
-    //   завдання, поки zirky-tasks listener ще не повернувся.
-    tasksLoaded: false,
+    // ── Прапори готовності даних (НЕ записуються у Firebase) ──
+    tasksLoaded: false,   // true після першого відгуку initTasksListener
 
-    // ── Основні дані (завантажуються з Firebase) ──
-    data: {
-        records: [],
-        balance: 0,
-        pin: '1234',
-        isParent: false,
-        goal: null,
-        achievements: {
-            counters: {},
-            streaks: {},
-            levels: {},
-            weekly: {},
-            repeatableHistory: {},
-            freezePeriods: []
-        },
-        appearance: {
-            owned:  ['default'],
-            active: { theme: 'default', palette: 'default', font: 'default', buttons: 'default', background: 'default' },
-        },
-        backupLastDate: null,   // 'YYYY-MM-DD' — дата останнього резервного копіювання (синхронізується через Firebase)
+    // ── Дані поточної дитини (завантажуються з Firebase) ──────
+    //   Завжди містить структуру defaultChildData().
+    //   При switchChild() замінюється повністю через Object.assign.
+    data: defaultChildData(),
 
-        // ── Завдання та запити (zirky-tasks/ окрема гілка Firebase) ──
-        // Структура: { [id]: taskObj }
-        //   origin: 'child_request' | 'parent_task'
-        //   status: 'pending' | 'active' | 'done' | 'confirmed' | 'rejected'
-        tasks: {},
+    // ── Дані батька (завантажуються з Firebase zirky/parent/) ─
+    parent: {
+        pin:                 '1234',
+        conversionRates:     { minutesPerStar: 2, moneyPerStar: 1 },
+        backupLastDate:      null,
+        activeChildrenCount: 1,
+        appearance:          null,   // { active: { theme, palette, ... } }
+        showComparison:      false,
+        loginHistory:        [],
+        blockedUntil:        null,
+        failedAttempts:      0,
+        blockingNotifiedAt:  null,
+
+        // ── Метадані дітей (zirky/parent/children/) ──
+        //   { child_1: { name, avatar, color, pin, useOwnRates, ... }, ... }
+        children: {},
+
+        // ── UI-стан батьківського профілю ──
+        isParent: false,   // true коли батько авторизований
     },
 
-    // ── Firebase ──────────────────────────────────
+    // ── Активний профіль дитини ───────────────────────────────
+    activeChildId: null,   // 'child_1' | 'child_2' | ... | null (батьків екран)
+
+    // ── Агреговані дані по всіх дітях (для порівняння/stats) ─
+    //   Заповнюються лише коли батько відкриває порівняльну статистику.
+    //   { child_1: { records, balance, achievements }, child_2: { ... } }
+    allChildrenData: {},
+
+    // ── Firebase ──────────────────────────────────────────────
     dbRef: null,
 
-    // ── UI стан ───────────────────────────────────
-    pinValue: '',
-    currentViewMonth: new Date(),
-    showPeriod: 'month',   // 'month' або 'all'
-    chartPeriod: 'week',   // 'week', 'month', 'year'
-    chartOffset: 0,        // 0 = поточний, -1 = попередній
+    // ── UI стан ───────────────────────────────────────────────
+    pinValue:          '',
+    currentViewMonth:      new Date(),
+    currentTasksMonth:     new Date(),
+    currentFeedbackMonth:  new Date(),
+    showAllTasks:          false,
+    showAllFeedback:       false,
+    showPeriod:        'month',   // 'month' | 'all'
+    chartPeriod:       'week',    // 'week' | 'month' | 'year'
+    chartOffset:       0,         // 0 = поточний, -1 = попередній
 
-    balancePeriod: 'week', // 'week', 'month', 'year'
-    balanceOffset: 0,      // 0 = поточний, -1 = попередній
+    balancePeriod:     'week',    // 'week' | 'month' | 'year'
+    balanceOffset:     0,
 
-    heatmapOffset: 0,      // 0 = поточний місяць
-    heatmapMode:  'earn',  // 'earn' | 'spend'
+    heatmapOffset:     0,         // 0 = поточний місяць
+    heatmapMode:       'earn',    // 'earn' | 'spend'
 
-    donutPeriod:    'month', // 'week', 'month', 'year', 'all'
-    donutOffset:    0,
-    donutDrilldown: null,    // null | { category: string }
+    donutPeriod:       'month',   // 'week' | 'month' | 'year' | 'all'
+    donutOffset:       0,
+    donutDrilldown:    null,      // null | { category: string }
 
-    // ── Тимчасові дані ────────────────────────────
+    // ── Тимчасові дані ────────────────────────────────────────
     pendingCustomReward: null,
-    rewardPinValue: '',
-    pendingRewardIndex: null, // Індекс винагороди що очікує PIN підтвердження     // Зберігається спільно між auth.js та rewards.js
-    editingFreezeIndex: undefined,
+    rewardPinValue:      '',
+    pendingRewardIndex:  null,
+    editingFreezeIndex:  undefined,
 
 };
 
 export const historyFilter = { type: 'all', subject: 'all' };
 
-// Фільтр у табі "Завдання" — за зразком historyFilter / feedback фільтрів
+// Фільтр у табі «Завдання»
 // status: 'all' | 'pending' | 'active' | 'confirmed' | 'rejected'
 // origin: 'all' | 'child_request' | 'parent_task'
-export const tasksFilter = { status: 'all', origin: 'all' };
+// childId: 'all' | 'child_1' | 'child_2' | ...
+export const tasksFilter = { status: 'all', origin: 'all', childId: 'all' };
+
+// Фільтр у табі «Фідбек» (батьківський вигляд)
+// cat:    'all' | <категорія>
+// status: 'all' | '⏳' | '🔄' | '✅' | '❌'
+// childId: 'all' | 'child_1' | 'child_2' | ...
+export const feedbackFilter = { cat: 'all', status: 'all', childId: 'all' };
+
+// ── Геттери сумісності: state.data.* → state.parent.* ────────────
+// Старі модулі (ui.js, navigation.js, appearance.js, rewards.js тощо)
+// читають state.data.isParent і state.data.pin — геттери прозоро
+// перенаправляють до state.parent без змін у цих модулях.
+Object.defineProperty(state.data, 'isParent', {
+    get() { return state.parent.isParent; },
+    set(v) { state.parent.isParent = v; },
+    enumerable:   true,
+    configurable: true,
+});
+
+// state.data.pin → state.parent.pin
+// Використовується у rewards.js (rewardPinOverlay) та appearance.js (купівля теми).
+Object.defineProperty(state.data, 'pin', {
+    get() { return state.parent.pin; },
+    set(v) { state.parent.pin = v; },
+    enumerable:   true,
+    configurable: true,
+});

@@ -2,7 +2,7 @@
 // 📚  subjects.js — Єдине джерело правди для предметів
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260514.1530';
+export const VERSION = 'v4.20260605.2208';
 
 import { state } from './state.js';
 import { saveSubjects } from './firebase.js';

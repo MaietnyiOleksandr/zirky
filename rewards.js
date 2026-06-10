@@ -2,7 +2,7 @@
 // REWARDS  rewards.js — Витрати / Конвертація
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260519.0707';
+export const VERSION = 'v4.20260605.0700';
 
 // ════════════════════════════════════════════════════════════
 
@@ -17,8 +17,17 @@ import { nowKyiv } from './utils.js';
 // 🔧  Допоміжні
 // ════════════════════════════════════════════════════
 
+// Повертає актуальні ставки конвертації для поточної дитини.
+// Якщо useOwnRates=true і дитина має власні conversionRates — беремо їх.
+// Інакше — беремо глобальні ставки батька (state.parent.conversionRates),
+// і лише якщо їх немає — дефолт з config.js.
 function getRates() {
-    return state.data.conversionRates || conversionRates;
+    const childId = state.activeChildId;
+    const meta    = childId ? state.parent.children?.[childId] : null;
+    if (meta?.useOwnRates && meta?.conversionRates) {
+        return meta.conversionRates;
+    }
+    return state.parent.conversionRates || conversionRates;
 }
 
 export function spendStars(stars, record) {

@@ -2,16 +2,67 @@
 // 🏆  achievements.js — Система досягнень
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260518.2318';
+export const VERSION = 'v4.20260609.1540';
 
 // ════════════════════════════════════════════════════════════
 
 import { state } from './state.js';
 import { ACHIEVEMENTS } from './config.js';
-import { nowKyiv } from './utils.js';
+import { g, achText, nowKyiv } from './utils.js';
+
+// Хелпер для level.desc — підтримує рядок і {boy,girl}
+function _levelDesc(level, childId) {
+    const d = level?.desc;
+    if (!d) return '';
+    if (typeof d === 'object') return g(childId, d);
+    return d;
+}
 
 // ════════════════════════════════════════════════════════════
-// 🏆  БЛОК: Досягнення
+// 🔄  МІГРАЦІЯ — проставляємо achId у старих записах
+//   Ідемпотентна: пропускає записи де achId вже є.
+//   Залишається у коді назавжди — спрацьовує один раз на профіль.
+// ════════════════════════════════════════════════════════════
+
+// Карта: підрядок опису → achId (обидва варіанти назв)
+const _DESC_TO_ACH_ID = (() => {
+    const map = {};
+    Object.values(ACHIEVEMENTS).forEach(ach => {
+        const names = typeof ach.name === 'object'
+            ? Object.values(ach.name)
+            : [ach.name];
+        names.forEach(n => { if (n) map[n] = ach.id; });
+    });
+    return map;
+})();
+
+export function migrateAchievementIds() {
+    const records = state.data.records;
+    if (!Array.isArray(records)) return;
+
+    let changed = false;
+    records.forEach(r => {
+        if (r.category !== 'achievement' || r.achId) return;
+        const desc = r.description || '';
+        for (const [namePart, achId] of Object.entries(_DESC_TO_ACH_ID)) {
+            if (desc.includes(namePart)) {
+                r.achId = achId;
+                // Рівень: шукаємо тир-рівень у рядку (I, II, III…)
+                const tierMatch = desc.match(/\b(I{1,3}|IV|V?I{0,3})\s*$/);
+                const tierMap = { 'I':0,'II':1,'III':2,'IV':3,'V':4,'VI':5,'VII':6,'VIII':7,'IX':8,'X':9 };
+                if (tierMatch) r.achLevel = tierMap[tierMatch[1].trim()] ?? 0;
+                else r.achLevel = 0;
+                changed = true;
+                break;
+            }
+        }
+    });
+
+    if (changed) {
+        // Зберігаємо оновлені записи у Firebase
+        import('./firebase.js').then(({ saveAll }) => saveAll());
+    }
+}
 // ════════════════════════════════════════════════════════════
 export function initAchievements() {
     if (!state.data.achievements) {
@@ -193,14 +244,18 @@ export function recalculateAchievements() {
     });
     
     const allDays = Object.keys(dayGroups).sort();
-    let teethStreak = { current: 0, best: 0 };
-    let hairStreak = { current: 0, best: 0 };
+    let teethStreak   = { current: 0, best: 0 };
+    let hairStreak    = { current: 0, best: 0 };
+    let workoutStreak = { current: 0, best: 0 };
     let lastDay = null;
     
     allDays.forEach(day => {
-        const records = dayGroups[day];
-        const teethCount = records.filter(r => r.description && r.description.includes('Почистити зуби')).length;
-        const hairCount = records.filter(r => r.description && r.description.includes('Причесати волосся')).length;
+        const records      = dayGroups[day];
+        const teethCount   = records.filter(r => r.description && r.description.includes('Почистити зуби')).length;
+        // hair — лише «Причесати волосся» (тільки для дівчаток)
+        const hairCount    = records.filter(r => r.description && r.description.includes('Причесати волосся')).length;
+        // workout — лише «Зробити зарядку» (для всіх)
+        const workoutCount = records.filter(r => r.description && r.description.includes('Зробити зарядку')).length;
         
         // Teeth streak
         if (teethCount >= 2) {
@@ -222,13 +277,12 @@ export function recalculateAchievements() {
             teethStreak.current = 0;
         }
         
-        // Hair streak
+        // Hair streak (тільки для дівчаток — «Причесати волосся»)
         if (hairCount >= 1) {
             if (lastDay) {
                 const yesterday = new Date(day);
                 yesterday.setDate(yesterday.getDate() - 1);
                 const yesterdayStr = yesterday.toISOString().split('T')[0];
-                
                 if (lastDay === yesterdayStr) {
                     hairStreak.current += 1;
                 } else {
@@ -241,16 +295,39 @@ export function recalculateAchievements() {
         } else {
             hairStreak.current = 0;
         }
-        
+
+        // Workout streak («Зробити зарядку» — для всіх)
+        if (workoutCount >= 1) {
+            if (lastDay) {
+                const yesterday = new Date(day);
+                yesterday.setDate(yesterday.getDate() - 1);
+                const yesterdayStr = yesterday.toISOString().split('T')[0];
+                if (lastDay === yesterdayStr) {
+                    workoutStreak.current += 1;
+                } else {
+                    workoutStreak.current = 1;
+                }
+            } else {
+                workoutStreak.current = 1;
+            }
+            workoutStreak.best = Math.max(workoutStreak.best, workoutStreak.current);
+        } else {
+            workoutStreak.current = 0;
+        }
+
         lastDay = day;
     });
-    
-    state.data.achievements.streaks.teeth = teethStreak;
-    state.data.achievements.streaks.hair = hairStreak;
+
+    state.data.achievements.streaks.teeth   = teethStreak;
+    state.data.achievements.streaks.hair    = hairStreak;
+    state.data.achievements.streaks.workout = workoutStreak;
     
     // Визначаємо поточний рівень для кожного досягнення
+    // Пропускаємо досягнення що не відповідають gender дитини
+    const childGender = state.parent?.children?.[state.activeChildId]?.gender || 'girl';
     Object.keys(ACHIEVEMENTS).forEach(achId => {
         const ach = ACHIEVEMENTS[achId];
+        if (ach.gender && ach.gender !== childGender) return;
         let currentValue = 0;
         
         // Отримуємо поточне значення
@@ -330,21 +407,22 @@ export function checkGoalReached(recordDate = null) {
     if (levelIndex < goalAch.levels.length) {
         const level = goalAch.levels[levelIndex];
         const tierName = ['I','II','III','IV','V','VI','VII','VIII','IX','X'][levelIndex] ?? String(levelIndex+1);
-        const fullName = `${goalAch.icon} ${goalAch.name} ${tierName}`;
+        const goalIcon = typeof goalAch.icon === 'object' ? g(state.activeChildId, goalAch.icon) : goalAch.icon;
+        const fullName = `${goalIcon} ${achText(goalAch, state.activeChildId)} ${tierName}`;
         
         // Нараховуємо зірки
         state.data.balance = Number(state.data.balance) + level.reward;
         state.data.records.push({
-            id: Date.now() + Math.random(),
-            // +1с щоб досягнення завжди було ПІСЛЯ оцінки в історії
-            date: recordDate
+            id:          Date.now() + Math.random(),
+            date:        recordDate
                 ? new Date(new Date(recordDate).getTime() + 1000).toISOString()
                 : nowKyiv(),
             description: fullName,
-            stars: level.reward,
-            type: 'earn',
-            category: 'achievement',
-            achId: 'цілеспрямована'
+            achId:       'цілеспрямована',
+            achLevel:    levelIndex,
+            stars:       level.reward,
+            type:        'earn',
+            category:    'achievement',
         });
         
         // Показуємо сповіщення
@@ -423,15 +501,18 @@ export function checkWeeklyAchievements() {
             for (let i = achievedLevel; i < currentWeekLevel; i++) {
                 const level = ach.levels[i];
                 const tierName = ['I','II','III','IV','V','VI','VII','VIII','IX','X'][ach.levels.indexOf(level)] ?? String(ach.levels.indexOf(level)+1);
-                const fullName = `${ach.icon} ${ach.name} ${tierName}`;
+                const fullName = `${(typeof ach.icon === 'object' ? g(state.activeChildId, ach.icon) : ach.icon)} ${achText(ach, state.activeChildId)} ${tierName}`;
                 
                 // Видаляємо запис з цього тижня і повертаємо зірки
                 const before = state.data.records.length;
                 state.data.records = state.data.records.filter(r => {
-                    if (r.category !== 'achievement' || r.description !== fullName) return true;
+                    if (r.category !== 'achievement') return true;
                     const rDate = new Date(r.date);
                     if (rDate < weekStart || rDate > weekEnd) return true;
-                    // Видаляємо і повертаємо зірки
+                    // Новий: по achId+achLevel; старий: по description
+                    const matches = (r.achId === achId && r.achLevel === i) ||
+                                    (!r.achId && r.description === fullName);
+                    if (!matches) return true;
                     state.data.balance = Number(state.data.balance) - (r.stars || 0);
                     return false;
                 });
@@ -448,24 +529,26 @@ export function checkWeeklyAchievements() {
     // Видаємо бонуси
     newWeeklyUnlocks.forEach(({ achId, ach, level, levelNum }) => {
         const tierName = ['I','II','III','IV','V','VI','VII','VIII','IX','X'][ach.levels.indexOf(level)] ?? String(ach.levels.indexOf(level)+1);
-        const fullName = `${ach.icon} ${ach.name} ${tierName}`;
+        const fullName = `${(typeof ach.icon === 'object' ? g(state.activeChildId, ach.icon) : ach.icon)} ${achText(ach, state.activeChildId)} ${tierName}`;
         
         state.data.balance = Number(state.data.balance) + level.reward;
+        const achLvlIdx = ach.levels.indexOf(level);
         state.data.records.push({
-            id: Date.now() + Math.random(),
-            // +1с щоб досягнення завжди було ПІСЛЯ оцінки в історії
-            date: nowKyiv(),
+            id:          Date.now() + Math.random(),
+            date:        nowKyiv(),
             description: fullName,
-            stars: level.reward,
-            type: 'earn',
-            category: 'achievement'
+            achId:       achId,
+            achLevel:    achLvlIdx,
+            stars:       level.reward,
+            type:        'earn',
+            category:    'achievement'
         });
-        
+
         setTimeout(() => {
             alert(`🎉 Тижневе досягнення!
 
 ${fullName}
-${level.desc}
+${_levelDesc(level, state.activeChildId)}
 
 +${level.reward}⭐ нараховано!`);
         }, 500);
@@ -499,12 +582,15 @@ export function removeRewardsForLostAchievements(levelsBefore) {
                 if (!level) continue;
                 
                 const tierName = ['I','II','III','IV','V','VI','VII','VIII','IX','X'][ach.levels.indexOf(level)] ?? String(ach.levels.indexOf(level)+1);
-                const fullName = ach.levels.length > 1 ? `${ach.icon} ${ach.name} ${tierName}` : `${ach.icon} ${ach.name}`;
+                const fullName = ach.levels.length > 1 ? `${(typeof ach.icon === 'object' ? g(state.activeChildId, ach.icon) : ach.icon)} ${achText(ach, state.activeChildId)} ${tierName}` : `${(typeof ach.icon === 'object' ? g(state.activeChildId, ach.icon) : ach.icon)} ${achText(ach, state.activeChildId)}`;
                 
                 // Знаходимо записи про цей рівень
-                const recordsToRemove = state.data.records.filter(r => 
-                    r.category === 'achievement' && 
-                    r.description === fullName
+                // Нові: по achId+achLevel; старі (до міграції): по description
+                const recordsToRemove = state.data.records.filter(r =>
+                    r.category === 'achievement' && (
+                        (r.achId === achId && r.achLevel === i) ||
+                        (!r.achId && r.description === fullName)
+                    )
                 );
                 
                 // Видаляємо
@@ -549,7 +635,7 @@ export function giveRewardsForNewAchievements(levelsBefore) {
                 
                 const levelNum = i + 1;
                 const tierName = ['I','II','III','IV','V','VI','VII','VIII','IX','X'][ach.levels.indexOf(level)] ?? String(ach.levels.indexOf(level)+1);
-                const fullName = ach.levels.length > 1 ? `${ach.icon} ${ach.name} ${tierName}` : `${ach.icon} ${ach.name}`;
+                const fullName = ach.levels.length > 1 ? `${(typeof ach.icon === 'object' ? g(state.activeChildId, ach.icon) : ach.icon)} ${achText(ach, state.activeChildId)} ${tierName}` : `${(typeof ach.icon === 'object' ? g(state.activeChildId, ach.icon) : ach.icon)} ${achText(ach, state.activeChildId)}`;
                 
                 // Для repeatable - зберігаємо історію
                 if (isRepeatable) {
@@ -568,13 +654,14 @@ export function giveRewardsForNewAchievements(levelsBefore) {
                     
                     // Створюємо запис
                     state.data.records.push({
-                        id: Date.now() + Math.random(),
-                        // +1с щоб досягнення завжди було ПІСЛЯ оцінки в історії
-            date: nowKyiv(),
+                        id:          Date.now() + Math.random(),
+                        date:        nowKyiv(),
                         description: fullName + repeatText,
-                        stars: level.reward,
-                        type: 'earn',
-                        category: 'achievement'
+                        achId:       achId,
+                        achLevel:    i,
+                        stars:       level.reward,
+                        type:        'earn',
+                        category:    'achievement'
                     });
                     
                     // Показуємо popup
@@ -582,7 +669,7 @@ export function giveRewardsForNewAchievements(levelsBefore) {
                         alert(`🎉 ${repeatCount > 1 ? 'Знову отримано!' : 'Нове досягнення!'}
 
 ${fullName}${repeatText}
-${level.desc}
+${_levelDesc(level, state.activeChildId)}
 
 +${level.reward}⭐ нараховано!`);
                         if (window.generateNotifications) window.generateNotifications();
@@ -591,26 +678,33 @@ ${level.desc}
                     // Звичайні досягнення — перевіряємо чи бонус вже є в records
                     // (захист від ситуації коли levels є але запис був видалений старим removeRewards)
                     const alreadyRewarded = state.data.records.some(r =>
-                        r.category === 'achievement' && r.description === fullName
+                        r.category === 'achievement' && (
+                            // Нові записи — по achId+achLevel
+                            (r.achId === achId && r.achLevel === i) ||
+                            // Старі записи (до міграції) — по description
+                            (!r.achId && r.description === fullName)
+                        )
                     );
                     if (alreadyRewarded) continue;
 
                     state.data.balance = Number(state.data.balance) + level.reward;
                     
                     state.data.records.push({
-                        id: Date.now() + Math.random(),
-                        date: nowKyiv(),
+                        id:          Date.now() + Math.random(),
+                        date:        nowKyiv(),
                         description: fullName,
-                        stars: level.reward,
-                        type: 'earn',
-                        category: 'achievement'
+                        achId:       achId,
+                        achLevel:    i,
+                        stars:       level.reward,
+                        type:        'earn',
+                        category:    'achievement'
                     });
                     
                     setTimeout(() => {
                         alert(`🎉 Нове досягнення!
 
 ${fullName}
-${level.desc}
+${_levelDesc(level, state.activeChildId)}
 
 +${level.reward}⭐ нараховано!`);
                             if (window.generateNotifications) window.generateNotifications();
@@ -630,8 +724,14 @@ export function renderAchievements() {
     
     const achievementsHTML = [];
     
+    const childGender = state.parent?.children?.[state.activeChildId]?.gender || 'girl';
+
     Object.keys(ACHIEVEMENTS).forEach(achId => {
         const ach = ACHIEVEMENTS[achId];
+
+        // Пропускаємо досягнення що не відповідають gender дитини
+        if (ach.gender && ach.gender !== childGender) return;
+
         const currentLevel = state.data.achievements.levels[achId] || 0;
         
         // Отримуємо поточне значення
@@ -741,7 +841,7 @@ export function renderAchievements() {
         // Опис рівнів (короткий)
         const levelsDesc = ach.levels.map((l, i) => {
             const medal = i === 0 ? '🥉' : i === 1 ? '🥈' : '🥇';
-            return `${medal} ${l.desc} → +${l.reward}⭐`;
+            return `${medal} ${_levelDesc(l, state.activeChildId)} → +${l.reward}⭐`;
         }).join(' • ');
         
         // Best value текст
@@ -775,13 +875,13 @@ export function renderAchievements() {
         const cardHTML = `
             <div class="achievement-card ${currentTier}">
                 <div class="achievement-header">
-                    <div class="achievement-icon-large">${ach.icon}</div>
+                    <div class="achievement-icon-large">${typeof ach.icon === 'object' ? g(state.activeChildId, ach.icon) : ach.icon}</div>
                     <div class="achievement-info">
-                        <div class="achievement-name">${ach.name} ${levelMedal}</div>
+                        <div class="achievement-name">${achText(ach, state.activeChildId)} ${levelMedal}</div>
                         <div class="achievement-best">${bestText}</div>
                     </div>
                 </div>
-                <div class="achievement-desc">${ach.desc}</div>
+                <div class="achievement-desc">${achText(ach, state.activeChildId, 'desc')}</div>
                 <div class="achievement-progress-bar">
                     <div class="achievement-progress-fill" style="width: ${progressPercent}%">
                         ${progressPercent >= 20 ? `<span class="achievement-progress-text">${Math.round(progressPercent)}%</span>` : ''}
@@ -871,7 +971,7 @@ export function renderAchievementsHome() {
                 // Використовуємо іконку досягнення
                 const currentLevel = state.data.achievements.levels[achId] || 0;
                 const tier = currentLevel === 0 ? '' : ach.levels[currentLevel - 1].tier;
-                html += `<div class="badge-home ${tier}" data-ach-id="${achId}">${ach.icon}</div>`;
+                html += `<div class="badge-home ${tier}" data-ach-id="${achId}">${typeof ach.icon === 'object' ? g(state.activeChildId, ach.icon) : ach.icon}</div>`;
             }
         });
         html += '</div>';
@@ -895,7 +995,7 @@ export function renderAchievementsHome() {
                 // Створюємо tooltip
                 const tooltip = document.createElement('div');
                 tooltip.className = 'achievement-tooltip';
-                tooltip.innerHTML = `${ach.name}<br><small style="font-size: 11px; opacity: 0.9;">${ach.desc}</small>`;
+                tooltip.innerHTML = `${achText(ach, state.activeChildId)}<br><small style="font-size: 11px; opacity: 0.9;">${achText(ach, state.activeChildId, 'desc')}</small>`;
                 // Ставимо горизонтальну позицію ДО appendChild — без мерехтіння
                 const rect = this.getBoundingClientRect();
                 tooltip.style.left      = (rect.left + rect.width / 2) + 'px';

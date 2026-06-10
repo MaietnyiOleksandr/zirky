@@ -1,7 +1,4 @@
-/* ════════════════════════════════════════════════════
-   Зірки Успіху — Стилі
-   Версія: v3.20260525.0713
-   ════════════════════════════════════════════════════ */
+/* version: v4.20260606.0746 */
 
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;900&family=Comfortaa:wght@400;700&family=Fredoka+One&family=Ubuntu:wght@400;700&family=Playfair+Display:wght@400;700&family=Rubik:wght@400;500;700&display=swap');
 
@@ -821,6 +818,10 @@ select:focus, input:focus {
 
 .login-btn:hover { transform: scale(1.05); box-shadow: 0 8px 24px var(--btn-primary-shadow); }
 .login-btn.child { background: linear-gradient(135deg, var(--secondary), #4A90E2); color: white; }
+
+/* #loginChildrenCards — grid-item, тому login-btn всередині має займати всю ширину */
+#loginChildrenCards { display: contents; }
+#loginChildrenCards > .login-btn { width: 100%; }
 
 .pin-overlay {
     position: fixed;
@@ -1856,7 +1857,7 @@ select:focus, input:focus {
     padding: 14px;
     margin-bottom: 10px;
     box-shadow: 0 1px 4px rgba(0,0,0,0.07);
-    border-left: 4px solid var(--border-light);
+    border-left: 4px solid transparent;
 }
 
 .fb-card-header {
@@ -4016,4 +4017,679 @@ html[data-badge="flag"] .z-badge::before {
     pointer-events: none;
     z-index: 0;
     animation: gooseSlideFromBottom 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.5s both;
+}
+
+/* ── Activity Modal Table ── */
+.activity-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+.activity-table td {
+    padding: 6px 8px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+}
+.activity-table tr:last-child td { border-bottom: none; }
+
+/* ════════════════════════════════════════════════════════════
+   📊  compare.js — Порівняльна статистика
+   ════════════════════════════════════════════════════════════ */
+
+.compare-cards {
+    display: grid;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.compare-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px;
+}
+
+.compare-card--active {
+    border-color: var(--accent);
+}
+
+.compare-card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.compare-card-avatar { font-size: 28px; flex-shrink: 0; }
+
+.compare-card-name {
+    font-weight: bold;
+    font-size: 15px;
+}
+
+.compare-card-badge {
+    font-size: 11px;
+    color: var(--accent);
+    margin-top: 2px;
+}
+
+.compare-card-balance {
+    margin-left: auto;
+    font-size: 20px;
+    font-weight: bold;
+    color: var(--accent);
+}
+
+.compare-card-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+}
+
+.compare-stat {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    padding: 4px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.compare-stat:nth-last-child(-n+2) { border-bottom: none; }
+
+.compare-stat-label { color: var(--text-hint); }
+.compare-stat-value { font-weight: bold; }
+
+.compare-chart-wrap {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px;
+}
+
+.compare-chart-title {
+    font-size: 13px;
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: var(--text-hint);
+}
+
+.compare-legend {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    font-size: 12px;
+    margin-bottom: 8px;
+}
+
+.compare-legend-item {
+    display: flex;
+    align-items: center;
+}
+
+/* ════════════════════════════════════════════════════════════
+   4б  БАТЬКІВСЬКИЙ CHILD-BAR
+   Sticky рядок під навігаційними табами.
+   Показується тільки батькам (керується через JS display).
+   ════════════════════════════════════════════════════════════ */
+
+#parentChildBar {
+    position: sticky;
+    top: 0;
+    z-index: 90;
+    background: var(--card);
+    border-radius: var(--radius);
+    margin-bottom: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+    border-left: 4px solid var(--profile-color, var(--accent));
+    transition: border-color 0.3s;
+}
+
+.parent-child-bar-inner {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    min-height: 44px;
+}
+
+.parent-child-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    background: var(--profile-color, var(--accent));
+    transition: background 0.3s;
+}
+
+.parent-child-avatar {
+    font-size: 20px;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.parent-child-name {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--text);
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.parent-child-switch {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 4px 6px;
+    border-radius: 8px;
+    transition: background 0.2s, transform 0.2s;
+    flex-shrink: 0;
+}
+.parent-child-switch:hover {
+    background: var(--border-light);
+    transform: rotate(30deg);
+}
+
+/* ── Дропдаун вибору дитини ──────────────────────────── */
+.child-dropdown {
+    display: none;
+    flex-direction: column;
+    gap: 2px;
+    padding: 0 8px 8px;
+    animation: fadeIn 0.15s;
+}
+.child-dropdown.open {
+    display: flex;
+}
+
+.child-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    background: none;
+    border: 1px solid var(--border-light);
+    border-radius: 12px;
+    cursor: pointer;
+    font-family: var(--font-main);
+    font-size: 14px;
+    color: var(--text);
+    transition: background 0.15s, border-color 0.15s;
+    text-align: left;
+}
+.child-dropdown-item:hover {
+    background: var(--border-light);
+}
+.child-dropdown-item.active {
+    border-color: var(--item-color, var(--accent));
+    background: color-mix(in srgb, var(--item-color, var(--accent)) 10%, transparent);
+}
+
+.child-dropdown-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    background: var(--item-color, var(--accent));
+}
+.child-dropdown-avatar { font-size: 18px; flex-shrink: 0; }
+.child-dropdown-name   { flex: 1; font-weight: 600; }
+.child-dropdown-check  { color: var(--success); font-weight: 900; margin-left: auto; }
+
+/* ════════════════════════════════════════════════════════════
+   Таби дітей у розділі «Про програму»
+   ════════════════════════════════════════════════════════════ */
+
+.di-child-tabs {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+.di-child-tab {
+    padding: 6px 14px;
+    border: none;
+    border-radius: 20px;
+    background: var(--card);
+    color: var(--text);
+    font-family: var(--font-main);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+}
+.di-child-tab:hover {
+    background: var(--primary-light, var(--card-hover));
+}
+.di-child-tab.active {
+    background: var(--primary);
+    color: #fff;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+}
+
+/* ── Чекбокс «Показати за весь час» ─────────────────────── */
+.show-all-cb {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+    cursor: pointer;
+    margin-top: 6px;
+    user-select: none;
+}
+.show-all-cb input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--primary);
+    cursor: pointer;
+}
+
+/* ── Діалог вибору статі ─────────────────────────────────── */
+.gender-dialog-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+.gender-dialog {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 28px 24px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+    min-width: 260px;
+}
+.gender-dialog-title {
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--text);
+    text-align: center;
+}
+.gender-dialog-buttons {
+    display: flex;
+    gap: 12px;
+}
+.gender-btn {
+    padding: 12px 22px;
+    border: 2px solid var(--primary);
+    border-radius: 12px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-main);
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.18s, color 0.18s;
+}
+.gender-btn:hover {
+    background: var(--primary);
+    color: #fff;
+}
+.gender-cancel {
+    border: none;
+    background: none;
+    color: var(--text-muted);
+    font-family: var(--font-main);
+    font-size: 13px;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 6px;
+}
+.gender-cancel:hover { color: var(--text); }
+
+/* ── Radio-кнопки статі у формі профілю ─────────────────── */
+.gender-radio-group {
+    display: flex;
+    gap: 16px;
+}
+.gender-radio-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+.gender-radio-label input[type="radio"] {
+    accent-color: var(--primary);
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+/* ════════════════════════════════════════════════════════════
+   4б  ЛОГІН-ОВЕРЛЕЙ — картки вибору дитини
+   ════════════════════════════════════════════════════════════ */
+
+.login-children-label {
+    font-size: 14px;
+    color: var(--modal-text-muted);
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.login-children-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 12px;
+}
+
+.login-child-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 18px 12px;
+    background: var(--card);
+    border: 2px solid var(--card-color, var(--accent));
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-family: var(--font-main);
+    color: var(--modal-text);
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 2px 8px color-mix(in srgb, var(--card-color, var(--accent)) 25%, transparent);
+}
+.login-child-card:hover {
+    transform: scale(1.04);
+    box-shadow: 0 6px 20px color-mix(in srgb, var(--card-color, var(--accent)) 35%, transparent);
+}
+/* Аватар у картці — рамка кольором профілю */
+.login-child-avatar {
+    border: 3px solid var(--card-color, var(--accent));
+    border-radius: 50%;
+    padding: 4px;
+    line-height: 1;
+}
+
+.login-child-avatar { font-size: 36px; line-height: 1; }
+.login-child-name   { font-size: 15px; font-weight: 700; text-align: center; }
+
+/* ════════════════════════════════════════════════════════════
+   4в/4г  ПІДПИС ДИТИНИ НА КАРТКАХ (батьківський вигляд)
+   ════════════════════════════════════════════════════════════ */
+
+/* border-left через CSS-змінну --child-color (задається інлайн на елементі) */
+.tk-card--child {
+    border-left: 4px solid var(--child-color, var(--accent)) !important;
+}
+.fb-card--child {
+    border-left: 4px solid var(--child-color, var(--accent)) !important;
+}
+
+/* Підпис дитини — колір з --child-color */
+.tk-child-label,
+.fb-child-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--child-color, var(--text-muted));
+    white-space: nowrap;
+}
+
+/* ════════════════════════════════════════════════════════════
+   6в/6г  РАМКА ПРОФІЛЮ
+   data-border-line      — стиль лінії (solid/dashed/dotted/double)
+   data-border-animation — анімація (none/pulse/glow/bounce/shimmer/rainbow)
+   --profile-color       — колір рамки
+   Рамка на всіх 4 сторонях через border. Анімації тільки border-color
+   та box-shadow — контент не рухається, розмітка не зміщується.
+   ════════════════════════════════════════════════════════════ */
+
+/* ── Базова рамка ────────────────────────────────────────── */
+[data-border-line] .header,
+[data-border-line] #parentChildBar {
+    border: 3px solid var(--profile-color, transparent);
+    border-radius: var(--radius, 14px);
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+/* ── Стилі лінії ─────────────────────────────────────────── */
+[data-border-line="solid"] .header,
+[data-border-line="solid"] #parentChildBar  { border-style: solid;  }
+[data-border-line="dashed"] .header,
+[data-border-line="dashed"] #parentChildBar { border-style: dashed; }
+[data-border-line="dotted"] .header,
+[data-border-line="dotted"] #parentChildBar { border-style: dotted; }
+[data-border-line="double"] .header,
+[data-border-line="double"] #parentChildBar { border-style: double; border-width: 4px; }
+
+/* ── Анімації ────────────────────────────────────────────── */
+
+/* pulse — рамка пульсує прозорістю */
+@keyframes bPulse {
+    0%, 100% { border-color: var(--profile-color); }
+    50%       { border-color: color-mix(in srgb, var(--profile-color) 20%, transparent); }
+}
+[data-border-animation="pulse"] .header,
+[data-border-animation="pulse"] #parentChildBar {
+    animation: bPulse 2s ease-in-out infinite;
+}
+
+/* glow — зовнішнє сяйво через box-shadow */
+@keyframes bGlow {
+    0%, 100% { box-shadow: 0 0 6px 1px color-mix(in srgb, var(--profile-color) 50%, transparent); }
+    50%       { box-shadow: 0 0 22px 5px color-mix(in srgb, var(--profile-color) 80%, transparent),
+                            0 0 44px 10px color-mix(in srgb, var(--profile-color) 30%, transparent); }
+}
+[data-border-animation="glow"] .header,
+[data-border-animation="glow"] #parentChildBar {
+    animation: bGlow 2s ease-in-out infinite;
+}
+
+/* bounce — рамка пульсує товщиною */
+@keyframes bBounce {
+    0%, 100% { border-width: 3px; }
+    40%       { border-width: 6px; }
+    70%       { border-width: 2px; }
+}
+[data-border-animation="bounce"] .header,
+[data-border-animation="bounce"] #parentChildBar {
+    animation: bBounce 1s ease-in-out infinite;
+}
+
+/* shimmer — спалах до білого і назад */
+@keyframes bShimmer {
+    0%, 70%, 100% { border-color: var(--profile-color); }
+    35%            { border-color: color-mix(in srgb, var(--profile-color) 30%, white); }
+}
+[data-border-animation="shimmer"] .header,
+[data-border-animation="shimmer"] #parentChildBar {
+    animation: bShimmer 1.8s ease-in-out infinite;
+}
+
+/* rainbow — плавна зміна відтінку */
+@keyframes bRainbow {
+    0%   { filter: hue-rotate(0deg); }
+    100% { filter: hue-rotate(360deg); }
+}
+[data-border-animation="rainbow"] .header,
+[data-border-animation="rainbow"] #parentChildBar {
+    animation: bRainbow 4s linear infinite;
+}
+
+/* login-child-avatar — стилі у блоці login-child-card вище */
+
+/* ════════════════════════════════════════════════════════════
+   ПРОФІЛІ ДІТЕЙ — картки в акордіоні батька
+   ════════════════════════════════════════════════════════════ */
+
+.profile-card {
+    display: grid;
+    gap: 12px;
+    margin-bottom: 12px;
+    border-left: 4px solid var(--accent);
+}
+
+.profile-card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.profile-card-avatar {
+    font-size: 28px;
+    line-height: 1;
+}
+
+.profile-card-name {
+    font-size: 16px;
+    color: var(--text);
+    flex: 1;
+}
+
+.badge-warning {
+    font-size: 12px;
+    color: var(--c-warning-text);
+    background: color-mix(in srgb, var(--c-warning-text) 12%, transparent);
+    padding: 2px 8px;
+    border-radius: 99px;
+}
+
+/* Кольорова палітра профілю */
+.profile-color-grid {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 4px;
+}
+
+.profile-color-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--btn-color);
+    border: 3px solid transparent;
+    cursor: pointer;
+    transition: border-color 0.15s, transform 0.15s;
+    padding: 0;
+}
+.profile-color-btn:hover {
+    transform: scale(1.15);
+}
+.profile-color-btn.active {
+    border-color: var(--text);
+    transform: scale(1.1);
+}
+
+.profile-card-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+/* Кнопка "Додати дитину" */
+.btn-add-profile {
+    width: 100%;
+    padding: 14px;
+    margin-top: 4px;
+    background: none;
+    border: 2px dashed var(--border-light);
+    border-radius: var(--radius);
+    color: var(--text-muted);
+    font-family: var(--font-main);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s, background 0.2s;
+}
+.btn-add-profile:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 6%, transparent);
+}
+
+/* PIN помилка — тряска поля вводу */
+@keyframes pinShake {
+    0%, 100% { transform: translateX(0); }
+    20%       { transform: translateX(-8px); }
+    40%       { transform: translateX(8px); }
+    60%       { transform: translateX(-5px); }
+    80%       { transform: translateX(5px); }
+}
+.pin-shake {
+    animation: pinShake 0.4s ease-in-out;
+    border-color: var(--c-warning-text) !important;
+}
+
+/* ════════════════════════════════════════════════════════════
+   7б  ВИБІР РАМКИ ПРОФІЛЮ
+   ════════════════════════════════════════════════════════════ */
+
+.border-block { display: grid; gap: 10px; }
+
+/* Сітка стилів анімації */
+.border-style-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.border-style-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 12px;
+    background: var(--card);
+    border: 2px solid var(--border-light);
+    border-radius: 20px;
+    font-family: var(--font-main);
+    font-size: 13px;
+    color: var(--text);
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s, transform 0.15s;
+    position: relative;
+}
+.border-style-btn:hover {
+    border-color: var(--accent);
+    transform: scale(1.03);
+}
+.border-style-btn.active {
+    border-color: var(--profile-color, var(--accent));
+    background: color-mix(in srgb, var(--profile-color, var(--accent)) 10%, var(--card));
+    font-weight: 700;
+}
+.border-style-btn.locked {
+    opacity: 0.7;
+}
+
+/* Badge куплено / ціна */
+.border-style-badge {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 99px;
+    white-space: nowrap;
+}
+.border-style-badge.owned {
+    color: var(--success);
+}
+.border-style-badge.buy {
+    background: color-mix(in srgb, var(--accent) 15%, transparent);
+    color: var(--accent);
+}
+
+/* Кнопки дій */
+.border-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 4px;
+}
+
+/* Розділювач в акордіоні */
+.settings-divider {
+    border: none;
+    border-top: 1px solid var(--border-light);
+    margin: 4px 0;
 }

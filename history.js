@@ -2,7 +2,7 @@
 // HISTORY  history.js — History
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260527.1007';
+export const VERSION = 'v4.20260605.2208';
 
 import { getSubjectEmoji } from './subjects.js';
 

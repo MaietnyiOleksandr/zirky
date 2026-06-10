@@ -2,7 +2,9 @@
 // UTILS  utils.js — 🔧 Утиліти
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260522.1421';
+export const VERSION = 'v4.20260607.0746';
+
+import { state } from './state.js';
 
 // ════════════════════════════════════════════════════════════
 export function getTodayDate() {
@@ -62,4 +64,35 @@ export function pulseElement(el, withGlow = false) {
     void el.offsetWidth;
     el.classList.add(cls);
     setTimeout(() => el.classList.remove(cls), 700);
+}
+
+// ════════════════════════════════════════════════════════════
+// 🚻  g() — гендерна підстановка
+//
+//   Повертає boy або girl залежно від gender дитини.
+//   Якщо gender не вказано — повертає boy як fallback.
+//
+//   Використання:
+//     g(childId, 'отримав', 'отримала')
+//     g(childId, { boy: 'Відмінник', girl: 'Відмінниця' })
+//     g(childId, achObj.name)  // якщо name — об'єкт {boy,girl}
+// ════════════════════════════════════════════════════════════
+export function g(childId, boy, girl) {
+    // Підтримка виклику g(childId, {boy, girl})
+    if (typeof boy === 'object' && boy !== null && 'boy' in boy) {
+        girl = boy.girl;
+        boy  = boy.boy;
+    }
+    const meta   = state.parent?.children?.[childId];
+    const gender = meta?.gender || 'girl';
+    return gender === 'girl' ? (girl ?? boy) : boy;
+}
+
+// achText(ach, childId, field) — зручна обгортка для полів досягнень
+// field: 'name' | 'desc'
+export function achText(ach, childId, field = 'name') {
+    const val = ach[field];
+    if (!val) return '';
+    if (typeof val === 'object') return g(childId, val);
+    return val;
 }

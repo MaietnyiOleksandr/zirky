@@ -2,10 +2,12 @@
 // 📊  stats.js — Статистика та графіки
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260518.2202';
+export const VERSION = 'v4.20260608.0802';
 
 import { state } from './state.js';
 import { getSubjectEmoji } from './subjects.js';
+import { ACHIEVEMENTS } from './config.js';
+import { achText } from './utils.js';
 
 // Зчитуємо CSS змінну з поточної теми
 function cssVar(name, fallback = '') {
@@ -920,17 +922,35 @@ const BONUS_GROUPS = {
     'Активність': {
         icon: '🏸', color: '#534AB7',
         subcategory: 'activity',
-        descFallback: [],
+        descFallback: ['Зробити зарядку'],
     },
 };
 
 // Імена досягнень для групування
-const ACH_NAMES = [
-    'Відмінник', 'Зіркова', 'Тверда десятка', 'Книголюб',
-    'Fire Streak', 'Ощадливий', 'Транжира', 'Чистюля',
-    'Красуня', 'Швидкий старт', 'Цілеспрямована',
-    'Старанна', 'Мегамозок', 'Помічниця', 'Господиня', 'Активна',
-];
+// Динамічні імена досягнень — для fallback пошуку по description (старі записи без achId)
+function _achNames() {
+    return Object.values(ACHIEVEMENTS).flatMap(ach => {
+        const n = ach.name;
+        if (typeof n === 'object') return Object.values(n);
+        return [n];
+    }).filter(Boolean);
+}
+
+// Отримати achId з запису — новий: r.achId; старий: пошук по description
+function _getAchId(r) {
+    if (r.achId) return r.achId;
+    const desc = r.description || '';
+    const names = _achNames();
+    const matched = names.find(n => desc.includes(n));
+    if (!matched) return null;
+    // Знаходимо achId по назві
+    return Object.values(ACHIEVEMENTS).find(ach => {
+        const n = ach.name;
+        return typeof n === 'object'
+            ? Object.values(n).includes(matched)
+            : n === matched;
+    })?.id || null;
+}
 // Кольори для сегментів суб'єктів/досягнень (10+)
 const PALETTE = [
     '#378ADD','#1D9E75','#EF9F27','#D4537E','#7F77DD',
@@ -1141,10 +1161,11 @@ function updateSourceDonut() {
             catRecs.forEach(r => {
                 const desc = r.description || '';
                 for (const [gname, gdata] of Object.entries(BONUS_GROUPS)) {
-                    // Нові записи — по subcategory; старі — по description (fallback)
-                    const matchesSub  = r.subcategory && r.subcategory === gdata.subcategory;
-                    const matchesDesc = !r.subcategory && gdata.descFallback.some(m => desc.includes(m));
-                    if (matchesSub || matchesDesc) {
+                    // descFallback перевіряємо першим — він перекриває subcategory
+                    // (напр. «Зробити зарядку» має subcategory=hygiene але йде в Активність)
+                    const matchesDesc = gdata.descFallback.some(m => desc.includes(m));
+                    const matchesSub  = !matchesDesc && r.subcategory && r.subcategory === gdata.subcategory;
+                    if (matchesDesc || matchesSub) {
                         grpStars[gname] += (r.stars || 0);
                         break;
                     }
@@ -1162,10 +1183,16 @@ function updateSourceDonut() {
         } else if (cat === 'achievement') {
             const byAch = {};
             catRecs.forEach(r => {
-                const desc = r.description || '';
-                const matched = ACH_NAMES.find(n => desc.includes(n));
-                const key = matched || 'Інше';
-                byAch[key] = (byAch[key] || 0) + (r.stars || 0);
+                const achId = _getAchId(r);
+                let label;
+                if (achId && ACHIEVEMENTS[achId]) {
+                    const ach = ACHIEVEMENTS[achId];
+                    const icon = typeof ach.icon === 'object' ? g(state.activeChildId, ach.icon) : ach.icon;
+                    label = `${icon} ${achText(ach, state.activeChildId)}`;
+                } else {
+                    label = r.description?.split(' ').slice(0, 2).join(' ') || 'Інше';
+                }
+                byAch[label] = (byAch[label] || 0) + (r.stars || 0);
             });
             const sorted = Object.entries(byAch).sort((a, b) => b[1] - a[1]);
             total = sorted.reduce((s, [, v]) => s + v, 0);
@@ -1212,4 +1239,122 @@ export function changeDonutOffset(delta) {
 export function drillDonut(category) {
     state.donutDrilldown = category ? { category } : null;
     updateSourceDonut();
+}
+
+// ════════════════════════════════════════════════════════════
+// 📊  ЧИСТІ ФУНКЦІЇ-ЕКСТРАКТОРИ (для compare.js)
+//     Не мають side-effects, не пишуть в DOM.
+//     Приймають масив records, повертають дані.
+// ════════════════════════════════════════════════════════════
+
+// Рахує зароблені/витрачені зірки по датах за вказаний період
+// Повертає: [{ date, earned, spent, label }]
+export function buildChartData(records, period, offset) {
+    const now = new Date();
+    let periods = [], labelFormat;
+
+    if (period === 'week') {
+        const dow = now.getDay();
+        const daysFromMon = (dow === 0 ? 6 : dow - 1);
+        const weekStart = new Date(now);
+        weekStart.setDate(now.getDate() - daysFromMon + offset * 7);
+        weekStart.setHours(0, 0, 0, 0);
+        for (let i = 0; i < 7; i++) {
+            const d = new Date(weekStart);
+            d.setDate(weekStart.getDate() + i);
+            periods.push(d);
+        }
+        labelFormat = d => ['Пн','Вт','Ср','Чт','Пт','Сб','Нд'][(d.getDay() + 6) % 7];
+    } else if (period === 'month') {
+        const target = new Date(now.getFullYear(), now.getMonth() + offset, 1);
+        const days = new Date(target.getFullYear(), target.getMonth() + 1, 0).getDate();
+        for (let i = 1; i <= days; i++) periods.push(new Date(target.getFullYear(), target.getMonth(), i));
+        labelFormat = d => d.getDate();
+    } else {
+        const yr = now.getFullYear() + offset;
+        for (let i = 0; i < 12; i++) periods.push(new Date(yr, i, 1));
+        labelFormat = (_, i) => ['Сі','Лю','Бе','Кв','Тр','Че','Ли','Се','Ве','Жо','Ли','Гр'][i];
+    }
+
+    return periods.map((d, i) => {
+        const recs = records.filter(r => {
+            const rd = new Date(r.date);
+            if (period === 'year') return rd.getMonth() === d.getMonth() && rd.getFullYear() === d.getFullYear();
+            return rd.toDateString() === d.toDateString();
+        });
+        return {
+            date:   d,
+            earned: recs.filter(r => r.type === 'earn' && r.category !== 'correction').reduce((s, r) => s + r.stars, 0),
+            spent:  recs.filter(r => r.type === 'spend').reduce((s, r) => s + r.stars, 0),
+            label:  labelFormat(d, i),
+        };
+    });
+}
+
+// Рахує баланс наростаючим підсумком по датах
+// Повертає: [{ date, balance, label }]
+export function buildBalanceData(records, period, offset) {
+    const now = new Date();
+    let periods = [], labelFormat, isYear = false;
+
+    if (period === 'week') {
+        const dow = now.getDay();
+        const daysFromMon = (dow === 0 ? 6 : dow - 1);
+        const weekStart = new Date(now);
+        weekStart.setDate(now.getDate() - daysFromMon + offset * 7);
+        weekStart.setHours(0, 0, 0, 0);
+        for (let i = 0; i < 7; i++) {
+            const d = new Date(weekStart);
+            d.setDate(weekStart.getDate() + i);
+            periods.push(d);
+        }
+        labelFormat = d => ['Пн','Вт','Ср','Чт','Пт','Сб','Нд'][(d.getDay() + 6) % 7];
+    } else if (period === 'month') {
+        const target = new Date(now.getFullYear(), now.getMonth() + offset, 1);
+        const days = new Date(target.getFullYear(), target.getMonth() + 1, 0).getDate();
+        for (let i = 1; i <= days; i++) periods.push(new Date(target.getFullYear(), target.getMonth(), i));
+        labelFormat = d => d.getDate();
+    } else {
+        isYear = true;
+        const yr = now.getFullYear() + offset;
+        for (let i = 0; i < 12; i++) periods.push(new Date(yr, i, 1));
+        labelFormat = (_, i) => ['Сі','Лю','Бе','Кв','Тр','Че','Ли','Се','Ве','Жо','Ли','Гр'][i];
+    }
+
+    const today = new Date(); today.setHours(23, 59, 59, 999);
+
+    const balanceAt = (endDate) => {
+        const cutoff = new Date(endDate);
+        if (!isYear) cutoff.setHours(23, 59, 59, 999);
+        else { cutoff.setMonth(cutoff.getMonth() + 1, 0); cutoff.setHours(23, 59, 59, 999); }
+        return Math.max(0, records.reduce((sum, r) => {
+            if (new Date(r.date) > cutoff) return sum;
+            if (r.type === 'earn')  return sum + (r.stars || 0);
+            if (r.type === 'spend') return sum - (r.stars || 0);
+            return sum;
+        }, 0));
+    };
+
+    return periods.map((d, i) => ({
+        date:    d,
+        balance: d <= today ? balanceAt(d) : null,
+        label:   labelFormat(d, i),
+    }));
+}
+
+// Рахує загальну статистику за масивом records
+// Повертає: { totalEarned, totalSpent, currentBalance, streak, avgPerWeek }
+export function buildSummaryStats(records, achievements) {
+    const totalEarned  = records.filter(r => r.type === 'earn' && r.category !== 'correction').reduce((s, r) => s + r.stars, 0);
+    const totalSpent   = records.filter(r => r.type === 'spend').reduce((s, r) => s + r.stars, 0);
+    const balance      = achievements?.counters?._runningBalance ?? Math.max(0, totalEarned - totalSpent);
+    const streak       = achievements?.streaks?.earning?.current || 0;
+
+    // Середнє за тиждень (останні 4 тижні)
+    const fourWeeksAgo = new Date();
+    fourWeeksAgo.setDate(fourWeeksAgo.getDate() - 28);
+    const recent = records.filter(r => r.type === 'earn' && r.category !== 'correction' && new Date(r.date) >= fourWeeksAgo);
+    const avgPerWeek = Math.round(recent.reduce((s, r) => s + r.stars, 0) / 4);
+
+    return { totalEarned, totalSpent, currentBalance: balance, streak, avgPerWeek };
 }

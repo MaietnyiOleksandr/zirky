@@ -8,7 +8,7 @@
 //   та з tasks.js при підтвердженні запиту/завдання.
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260519.1029';
+export const VERSION = 'v4.20260605.2208';
 
 import { state } from './state.js';
 import { isDoubleSubject } from './subjects.js';

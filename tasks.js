@@ -14,19 +14,19 @@
 //     zirky-tasks/ та однакову схему даних, розрізняючи себе
 //     полем `origin`.
 //
-//     Автовидалення confirmed/rejected через 7 днів.
 //     Live-таймер дедлайну з паузою при прихованій вкладці.
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260522.1735';
+export const VERSION = 'v4.20260606.0746';
 
 import { state, tasksFilter } from './state.js';
 import { isDoubleSubject } from './subjects.js';
 import { gradeToStars } from './config.js';
 import { commitRecord } from './records.js';
-import { saveTask, deleteTask as fbDeleteTask, deleteTasks as fbDeleteTasks, initTasksListener } from './firebase.js';
+import { saveTask, deleteTask as fbDeleteTask, deleteTasks as fbDeleteTasks, initTasksListener, db } from './firebase.js';
 import { nowKyiv, pulseElement } from './utils.js';
 import { hasUnreadTaskNotification, dismissTaskNotifications } from './notifications.js';
+import { get, ref } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 
 // ════════════════════════════════════════════════════════════
 // 🎛️  Константи
@@ -52,7 +52,7 @@ const DECLINE_REASONS_CHILD = [
     'Не маю змоги зараз',
 ];
 
-const CLEANUP_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
+const WEEK_MS = 7 * 24 * 60 * 60 * 1000; // для статистики «за тиждень»
 
 // ════════════════════════════════════════════════════════════
 // 🔧  Приватні утиліти
@@ -169,6 +169,56 @@ function _taskToRecord(task) {
 }
 
 // ════════════════════════════════════════════════════════════
+// 👨‍👩‍👧  КЕШ ЗАВДАНЬ ВСІХ ДІТЕЙ (тільки для батьківського вигляду)
+// ════════════════════════════════════════════════════════════
+// { child_1: { task_id: taskObj, ... }, child_2: { ... } }
+// Завантажується одноразово через get() при renderTasks() для батька.
+// Скидається при switchChild() через resetAllTasksCache().
+
+let _allTasksCache = {};
+let _allTasksCacheLoaded = false;
+
+export function resetAllTasksCache() {
+    _allTasksCache = {};
+    _allTasksCacheLoaded = false;
+}
+
+async function _loadAllChildrenTasks() {
+    const children = state.parent.children || {};
+    const childIds = Object.keys(children);
+    _allTasksCache = {};
+
+    for (const childId of childIds) {
+        if (childId === state.activeChildId) {
+            // Активна дитина — беремо з state.data.tasks
+            _allTasksCache[childId] = state.data.tasks || {};
+        } else {
+            try {
+                const snap = await get(ref(db, `zirky/children/${childId}/tasks`));
+                _allTasksCache[childId] = snap.val() || {};
+            } catch(e) {
+                console.warn(`tasks: не вдалося завантажити tasks для ${childId}`, e);
+                _allTasksCache[childId] = {};
+            }
+        }
+    }
+    _allTasksCacheLoaded = true;
+}
+
+// Повертає всі завдання як масив з полем childId на кожному
+function _allTasksForParent() {
+    const children = state.parent.children || {};
+    const result = [];
+    for (const childId of Object.keys(children)) {
+        const tasks = _allTasksCache[childId] || {};
+        for (const task of Object.values(tasks)) {
+            result.push({ ...task, childId });
+        }
+    }
+    return result.sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+}
+
+// ════════════════════════════════════════════════════════════
 // ⏰  Live-таймер дедлайну
 // ════════════════════════════════════════════════════════════
 
@@ -224,28 +274,6 @@ export function updateTaskTimers() {
         const dl = el.getAttribute('data-deadline');
         el.innerHTML = _deadlineLabel(dl);
     });
-}
-
-// ════════════════════════════════════════════════════════════
-// 🧹  Автовидалення старих завершених/відхилених (7 днів)
-// ════════════════════════════════════════════════════════════
-
-export function cleanupOldTasks() {
-    const tasks = state.data.tasks || {};
-    const now = Date.now();
-    const toDelete = [];
-    for (const id in tasks) {
-        const t = tasks[id];
-        if (t.status !== 'confirmed' && t.status !== 'rejected') continue;
-        const ts = t.confirmedAt || t.rejectedAt;
-        if (!ts) continue;
-        if (now - new Date(ts).getTime() > CLEANUP_DAYS_MS) {
-            toDelete.push(id);
-        }
-    }
-    if (toDelete.length) {
-        fbDeleteTasks(toDelete);
-    }
 }
 
 // ════════════════════════════════════════════════════════════
@@ -511,7 +539,12 @@ export function submitParentTask() {
     if (extra.counterKey)  task.counterKey  = extra.counterKey;
     if (extra.pages)       task.pages       = extra.pages;
 
-    saveTask(task);
+    // Якщо є вибір дитини у формі — зберігаємо для правильної дитини
+    const targetChildId = document.getElementById('ptaskChildId')?.value || state.activeChildId || 'child_1';
+    task.childId = targetChildId;
+    saveTask(task, targetChildId);
+    // Скидаємо кеш щоб наступний renderTasks() перезавантажив дані
+    resetAllTasksCache();
     closeParentTaskForm();
     if (window.generateNotifications) window.generateNotifications();
     const rewardLine = rewardStars > 0 ? `\n🎁 Винагорода: +${rewardStars}⭐` : '';
@@ -708,7 +741,7 @@ export function clearChildDecline(id) {
 // ════════════════════════════════════════════════════════════
 // Дитина може видалити свій child_request тільки якщо:
 //   - запит ще pending (батьки ще не обробили)
-//   - або вже rejected (прибрати з виду без очікування 7 днів)
+//   - або вже rejected (прибрати з виду)
 // Confirmed запити НЕ можна — запис вже в Історії, його видаляє лише
 // батьки звичайним способом через 🗑️ у Історії.
 export function deleteOwnRequest(id) {
@@ -892,12 +925,26 @@ export function initTasks() {
 // 🎨  Рендер табу
 // ════════════════════════════════════════════════════════════
 
-export function renderTasks() {
+export async function renderTasks() {
     const container = document.getElementById('tasksBlock');
     if (!container) return;
-    cleanupOldTasks(); // викликаємо при кожному відкритті табу
-    container.innerHTML = state.data.isParent ? _renderParentView() : _renderChildView();
-    // Запускаємо таймер тільки якщо є завдання з дедлайном
+
+    if (state.data.isParent) {
+        // Батько: завантажуємо кеш якщо ще не завантажено
+        if (!_allTasksCacheLoaded) {
+            container.innerHTML = '<div class="tk-empty">Завантаження...</div>';
+            await _loadAllChildrenTasks();
+        } else {
+            // Оновлюємо дані активної дитини з state.data.tasks
+            _allTasksCache[state.activeChildId] = state.data.tasks || {};
+        }
+        container.innerHTML = _renderParentView();
+    } else {
+        container.innerHTML = _renderChildView();
+    }
+
+    _updateTasksMonthNav();
+
     if (document.querySelector('[data-deadline]')) {
         updateTaskTimers();
         if (!document.hidden) _startTimer();
@@ -906,26 +953,94 @@ export function renderTasks() {
     }
 }
 
-export function applyTasksFilter(type, value) {
-    if (type === 'status') tasksFilter.status = value;
-    if (type === 'origin') tasksFilter.origin = value;
+// ── Навігація по місяцях для завершених завдань ──────────────
+export function changeTasksMonth(delta) {
+    state.currentTasksMonth.setMonth(state.currentTasksMonth.getMonth() + delta);
     renderTasks();
+}
+
+export function toggleShowAllTasks(checked) {
+    state.showAllTasks = checked;
+    renderTasks();
+}
+
+function _updateTasksMonthNav() {
+    const navEl      = document.getElementById('tasksMonthNav');
+    const labelEl    = document.getElementById('tasksCurrentMonth');
+    const prevBtn    = document.getElementById('tasksPrevMonthBtn');
+    const nextBtn    = document.getElementById('tasksNextMonthBtn');
+    const cbEl       = document.getElementById('tasksShowAllCb');
+    const selectorEl = document.getElementById('tasksMonthSelector');
+    if (!navEl || !labelEl) return;
+
+    const all       = state.data.isParent ? _allTasksForParent() : Object.values(state.data.tasks || {});
+    const completed = all.filter(t => t.status === 'confirmed' || t.status === 'rejected');
+
+    if (completed.length === 0) {
+        navEl.style.display = 'none';
+        return;
+    }
+
+    // Синхронізуємо чекбокс
+    if (cbEl) cbEl.checked = state.showAllTasks;
+
+    // Навігатор — ховаємо якщо «показати все»
+    if (selectorEl) selectorEl.style.display = state.showAllTasks ? 'none' : '';
+
+    if (!state.showAllTasks) {
+        const dates    = completed.map(t => new Date(t.confirmedAt || t.rejectedAt || t.createdAt));
+        const minDate  = new Date(Math.min(...dates));
+        const now      = new Date();
+        const minMonth = new Date(minDate.getFullYear(), minDate.getMonth(), 1);
+        const maxMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        const cur      = new Date(state.currentTasksMonth.getFullYear(), state.currentTasksMonth.getMonth(), 1);
+
+        if (cur < minMonth) state.currentTasksMonth = new Date(minMonth);
+        if (cur > maxMonth) state.currentTasksMonth = new Date(maxMonth);
+
+        const monthNames = ['Січень','Лютий','Березень','Квітень','Травень','Червень',
+                            'Липень','Серпень','Вересень','Жовтень','Листопад','Грудень'];
+        labelEl.textContent = `${monthNames[state.currentTasksMonth.getMonth()]} ${state.currentTasksMonth.getFullYear()}`;
+
+        if (prevBtn) prevBtn.disabled = cur <= minMonth;
+        if (nextBtn) nextBtn.disabled = cur >= maxMonth;
+    }
+
+    navEl.style.display = '';
+}
+
+export function applyTasksFilter(type, value) {
+    if (type === 'status')  tasksFilter.status  = value;
+    if (type === 'origin')  tasksFilter.origin  = value;
+    if (type === 'childId') tasksFilter.childId = value;
+    renderTasks();
+}
+
+function _filterCompletedByMonth(list) {
+    if (state.showAllTasks) return list;
+    const m = state.currentTasksMonth;
+    return list.filter(t => {
+        const d = new Date(t.confirmedAt || t.rejectedAt || t.createdAt);
+        return d.getMonth()    === m.getMonth() &&
+               d.getFullYear() === m.getFullYear();
+    });
 }
 
 function _applyFilter(list) {
     let res = list;
-    if (tasksFilter.status !== 'all') res = res.filter(t => t.status === tasksFilter.status);
-    if (tasksFilter.origin !== 'all') res = res.filter(t => t.origin === tasksFilter.origin);
+    if (tasksFilter.status  !== 'all') res = res.filter(t => t.status  === tasksFilter.status);
+    if (tasksFilter.origin  !== 'all') res = res.filter(t => t.origin  === tasksFilter.origin);
+    if (tasksFilter.childId !== 'all') res = res.filter(t => t.childId === tasksFilter.childId);
     return res;
 }
 
 // ── Спільна частина фільтрів ──────────────────────────────────
-function _renderFilterBar(showOriginFilter = true) {
-    const all = _allTasks();
+function _renderFilterBar(showOriginFilter = true, allList = null) {
+    const all = allList || _allTasks();
     if (all.length < 2) return '';
 
     const filtered = _applyFilter(all);
-    const isFiltered = tasksFilter.status !== 'all' || tasksFilter.origin !== 'all';
+    const isFiltered = tasksFilter.status !== 'all' || tasksFilter.origin !== 'all' || tasksFilter.childId !== 'all';
 
     const statusBtns = [
         ['all', 'Усі'],
@@ -948,6 +1063,23 @@ function _renderFilterBar(showOriginFilter = true) {
             onclick="applyTasksFilter('origin','${val}')">${label}</button>
     `).join('') : '';
 
+    // Фільтр по дитині — тільки якщо дітей більше однієї
+    const children = state.parent.children || {};
+    const childIds = Object.keys(children);
+    const childFilterBtns = (state.data.isParent && childIds.length > 1) ? `
+        <div class="tk-filter-row">
+            <button class="tk-filter-btn${tasksFilter.childId === 'all' ? ' active' : ''}"
+                onclick="applyTasksFilter('childId','all')">👨‍👩‍👧 Всі</button>
+            ${childIds.map(id => {
+                const meta = children[id] || {};
+                const name = meta.name || id;
+                const color = meta.color || 'var(--accent)';
+                return `<button class="tk-filter-btn${tasksFilter.childId === id ? ' active' : ''}"
+                    style="${tasksFilter.childId === id ? `border-color:${color};` : ''}"
+                    onclick="applyTasksFilter('childId','${id}')">${meta.avatar?.value || '👤'} ${name}</button>`;
+            }).join('')}
+        </div>` : '';
+
     const countHint = isFiltered
         ? `<span class="tk-filter-count">${filtered.length} з ${all.length}</span>`
         : '';
@@ -956,6 +1088,7 @@ function _renderFilterBar(showOriginFilter = true) {
         <div class="tk-filter-section">
             <div class="tk-filter-row">${statusBtns}</div>
             ${showOriginFilter ? `<div class="tk-filter-row">${originBtns}${countHint}</div>` : `<div class="tk-filter-row">${countHint}</div>`}
+            ${childFilterBtns}
         </div>`;
 }
 
@@ -964,19 +1097,19 @@ function _renderFilterBar(showOriginFilter = true) {
 // ════════════════════════════════════════════════════════════
 
 function _renderParentView() {
-    const all = _allTasks();
+    const all      = _allTasksForParent();
     const filtered = _applyFilter(all);
 
-    // Розділяємо за станами для логічних секцій
     const pendingRequests = filtered.filter(t => t.origin === 'child_request' && t.status === 'pending');
     const activeTasks     = filtered.filter(t => t.origin === 'parent_task' && (t.status === 'active' || t.status === 'done'));
-    const completed       = filtered.filter(t => t.status === 'confirmed' || t.status === 'rejected');
+    const allCompleted    = filtered.filter(t => t.status === 'confirmed' || t.status === 'rejected');
+    const completed       = _filterCompletedByMonth(allCompleted);
 
     return `
         ${_renderParentTaskFormBlock()}
 
         ${pendingRequests.length ? `
-            <h4 class="tk-list-title">📨 Запити дитини на підтвердження (${pendingRequests.length})</h4>
+            <h4 class="tk-list-title">📨 Запити на підтвердження (${pendingRequests.length})</h4>
             <div>${pendingRequests.map(_renderParentRequestCard).join('')}</div>
         ` : ''}
 
@@ -985,12 +1118,12 @@ function _renderParentView() {
             <div>${activeTasks.map(_renderParentTaskCard).join('')}</div>
         ` : ''}
 
-        ${completed.length ? `
-            <h4 class="tk-list-title mt-lg">📜 Завершені (7 днів)</h4>
-            <div>${completed.map(_renderCompletedCard).join('')}</div>
+        ${allCompleted.length ? `
+            <h4 class="tk-list-title mt-lg">📜 Завершені${completed.length !== allCompleted.length ? ` (${completed.length} з ${allCompleted.length})` : ` (${completed.length})`}</h4>
+            ${completed.length ? `<div>${completed.map(_renderCompletedCard).join('')}</div>` : '<div class="tk-empty">Немає завершених за цей місяць</div>'}
         ` : ''}
 
-        ${all.length > 0 ? _renderFilterBar(true) : ''}
+        ${all.length > 0 ? _renderFilterBar(true, all) : ''}
 
         ${all.length === 0 ? '<div class="tk-empty">Завдань ще немає. Створіть перше завдання вище 🙂</div>' : ''}
         ${all.length > 0 && filtered.length === 0 ? '<div class="tk-empty">🔍 Немає завдань за цим фільтром</div>' : ''}
@@ -1005,6 +1138,18 @@ function _renderParentTaskFormBlock() {
 
             <div id="parentTaskForm" class="tk-form" style="display:none">
                 <div class="tk-form-title">📋 Нове завдання для дитини</div>
+
+                ${Object.keys(state.parent.children || {}).length > 1 ? `
+                <div class="tk-form-group">
+                    <label class="tk-label">👤 Для кого</label>
+                    <select id="ptaskChildId" class="tk-select">
+                        ${Object.entries(state.parent.children || {}).map(([id, meta]) =>
+                            `<option value="${id}" ${id === state.activeChildId ? 'selected' : ''}>
+                                ${meta.avatar?.value || '👤'} ${meta.name || id}
+                            </option>`
+                        ).join('')}
+                    </select>
+                </div>` : ''}
 
                 <div class="tk-form-group">
                     <label class="tk-label">Тип завдання</label>
@@ -1101,14 +1246,21 @@ function _renderParentTaskFormBlock() {
 
 // Карточка дитячого запиту (батьківський вигляд)
 function _renderParentRequestCard(task) {
-    const cfg = STATUS_CONFIG.pending;
-    const dateStr = _fmtDateTime(task.createdAt);
+    const cfg      = STATUS_CONFIG.pending;
+    const dateStr  = _fmtDateTime(task.createdAt);
+    const childMeta  = (state.parent.children || {})[task.childId] || {};
+    const childColor = childMeta.color || '';
+    const childLabel = task.childId
+        ? `<span class="tk-child-label">${childMeta.avatar?.value || '👤'} ${childMeta.name || task.childId}</span>`
+        : '';
 
     return `
-        <div id="tkCard_${task.id}" class="${_cardClasses(task.id, 'tk-card tk-card--request')}" onclick="tkCardClick('${task.id}', event)">
+        <div id="tkCard_${task.id}" class="${_cardClasses(task.id, 'tk-card tk-card--request')}${childColor ? ' tk-card--child' : ''}"
+            ${childColor ? `style="--child-color:${childColor}"` : ''}
+            onclick="tkCardClick('${task.id}', event)">
             ${_cardBadgeSpan(task.id)}
             <div class="tk-card-header">
-                <span class="tk-card-origin">📨 Запит від дитини</span>
+                <span class="tk-card-origin">📨 Запит від дитини${childLabel ? ' · ' : ''}${childLabel}</span>
                 <div class="tk-card-meta">
                     <span class="tk-card-date">${dateStr}</span>
                     <span class="tk-status-badge ${cfg.cls}">${cfg.label}</span>
@@ -1145,9 +1297,14 @@ function _renderParentRequestCard(task) {
 
 // Карточка батьківського завдання (батьківський вигляд)
 function _renderParentTaskCard(task) {
-    const cfg = STATUS_CONFIG[task.status] || STATUS_CONFIG.active;
-    const dateStr = _fmtDateTime(task.createdAt);
+    const cfg        = STATUS_CONFIG[task.status] || STATUS_CONFIG.active;
+    const dateStr    = _fmtDateTime(task.createdAt);
     const childDeclined = !!task.childComment;
+    const childMeta  = (state.parent.children || {})[task.childId] || {};
+    const childColor = childMeta.color || '';
+    const childLabel = task.childId
+        ? `<span class="tk-child-label">${childMeta.avatar?.value || '👤'} ${childMeta.name || task.childId}</span>`
+        : '';
 
     const deadlineHtml = task.hasDeadline && task.deadline
         ? `<span data-deadline="${task.deadline}">${_deadlineLabel(task.deadline)}</span>`
@@ -1157,10 +1314,12 @@ function _renderParentTaskCard(task) {
         ? `<span class="tk-reward-badge">🎁 +${task.rewardStars}⭐ за виконання</span>` : '';
 
     return `
-        <div id="tkCard_${task.id}" class="${_cardClasses(task.id, 'tk-card tk-card--task ' + (childDeclined ? 'tk-card--declined' : ''))}" onclick="tkCardClick('${task.id}', event)">
+        <div id="tkCard_${task.id}" class="${_cardClasses(task.id, 'tk-card tk-card--task ' + (childDeclined ? 'tk-card--declined' : '') + (state.data.isParent && childColor ? ' tk-card--child' : ''))}"
+            ${state.data.isParent && childColor ? `style="--child-color:${childColor}"` : ''}
+            onclick="tkCardClick('${task.id}', event)">
             ${_cardBadgeSpan(task.id)}
             <div class="tk-card-header">
-                <span class="tk-card-origin">📋 Моє завдання</span>
+                <span class="tk-card-origin">📋 ${state.data.isParent ? 'Завдання батьків' + (childLabel ? ' · ' + childLabel : '') : 'Моє завдання'}</span>
                 <div class="tk-card-meta">
                     <span class="tk-card-date">${dateStr}</span>
                     <span class="tk-status-badge ${cfg.cls}">${cfg.label}</span>
@@ -1243,10 +1402,11 @@ function _renderChildView() {
     const all = _allTasks();
     const filtered = _applyFilter(all);
 
-    const activeTasks = filtered.filter(t => t.origin === 'parent_task' && t.status === 'active');
-    const doneTasks   = filtered.filter(t => t.origin === 'parent_task' && t.status === 'done');
-    const myRequests  = filtered.filter(t => t.origin === 'child_request');
-    const completed   = filtered.filter(t => t.status === 'confirmed' || t.status === 'rejected');
+    const activeTasks  = filtered.filter(t => t.origin === 'parent_task' && t.status === 'active');
+    const doneTasks    = filtered.filter(t => t.origin === 'parent_task' && t.status === 'done');
+    const myRequests   = filtered.filter(t => t.origin === 'child_request');
+    const allCompleted = filtered.filter(t => t.status === 'confirmed' || t.status === 'rejected');
+    const completed    = _filterCompletedByMonth(allCompleted);
 
     return `
         <p class="tk-intro">📋 Виконуй завдання від батьків та надсилай їм свої запити на нарахування зірок 💙</p>
@@ -1266,9 +1426,9 @@ function _renderChildView() {
             <div>${myRequests.filter(t => t.status === 'pending').map(_renderChildRequestCard).join('')}</div>
         ` : ''}
 
-        ${completed.length ? `
-            <h4 class="tk-list-title mt-lg">📜 Завершено (7 днів)</h4>
-            <div>${completed.map(_renderChildCompletedCard).join('')}</div>
+        ${allCompleted.length ? `
+            <h4 class="tk-list-title mt-lg">📜 Завершено${completed.length !== allCompleted.length ? ` (${completed.length} з ${allCompleted.length})` : ` (${completed.length})`}</h4>
+            ${completed.length ? `<div>${completed.map(_renderChildCompletedCard).join('')}</div>` : '<div class="tk-empty">Немає завершених за цей місяць</div>'}
         ` : ''}
 
         ${all.length > 0 ? _renderFilterBar(true) : ''}
@@ -1382,7 +1542,7 @@ function _renderChildCompletedCard(task) {
 
     const originLabel = task.origin === 'child_request' ? '📨 Мій запит' : '📋 Завдання від батьків';
 
-    // Дитина може видалити свій відхилений запит достроково (до 7 днів)
+    // Дитина може видалити свій відхилений запит
     const canDelete = task.origin === 'child_request' && task.status === 'rejected';
 
     // Винагорода нараховується тільки для parent_task і тільки якщо confirmed
@@ -1427,6 +1587,14 @@ function _renderCompletedCard(task) {
 
     const originLabel = task.origin === 'child_request' ? '📨 Запит дитини' : '📋 Моє завдання';
 
+    // childId — з task або fallback на activeChildId (для старих записів без childId)
+    const resolvedChildId = task.childId || state.activeChildId;
+    const childMeta  = (state.parent.children || {})[resolvedChildId] || {};
+    const childColor = childMeta.color || '';
+    const childLabel = resolvedChildId
+        ? `<span class="tk-child-label">${childMeta.avatar?.value || '👤'} ${childMeta.name || resolvedChildId}</span>`
+        : '';
+
     // Винагорода — тільки для parent_task і тільки якщо confirmed
     const hasReward = task.origin === 'parent_task' && isConfirmed
         && task.rewardStars && Number(task.rewardStars) > 0;
@@ -1436,10 +1604,12 @@ function _renderCompletedCard(task) {
         : `⭐ ${task.stars} зірок`;
 
     return `
-        <div id="tkCard_${task.id}" class="${_cardClasses(task.id, 'tk-card tk-card--completed')}" onclick="tkCardClick('${task.id}', event)">
+        <div id="tkCard_${task.id}" class="${_cardClasses(task.id, 'tk-card tk-card--completed')}${childColor ? ' tk-card--child' : ''}"
+            ${childColor ? `style="--child-color:${childColor}"` : ''}
+            onclick="tkCardClick('${task.id}', event)">
             ${_cardBadgeSpan(task.id)}
             <div class="tk-card-header">
-                <span class="tk-card-origin">${originLabel}</span>
+                <span class="tk-card-origin">${originLabel}${childLabel ? ' · ' + childLabel : ''}</span>
                 <div class="tk-card-meta">
                     <span class="tk-card-date">${dateStr}</span>
                     <span class="tk-status-badge ${cfg.cls}">${cfg.label}</span>

@@ -47,29 +47,49 @@
 
 ---
 
-## 🔥 Firebase — структура гілок
+## 🔥 Firebase — структура гілок (v4)
 
 ```
-zirky/                    ← основні дані (onValue слухач в initFirebase)
-  records: []             ← всі записи (зірки)
-  balance: 0              ← НЕ є джерелом правди — береться з _runningBalance
-  pin: '1234'
-  goal: { target, label, reached }
-  achievements: { counters, streaks, levels, weekly, repeatableHistory, freezePeriods }
-  appearance: { child: { owned, active }, parent: { active } }
-  schedule: { ... }
-  notifications: { ... }
-  subjects: [ ... ]
-  clubs: [ ... ]
-  conversionRates: { minutesPerStar, moneyPerStar }
-  backupLastDate: 'YYYY-MM-DD'
+zirky/
+  parent/                        ← спільні батьківські дані
+    pin: '1234'
+    conversionRates: { minutesPerStar, moneyPerStar }
+    backupLastDate: 'YYYY-MM-DD'
+    activeChildrenCount: 1
+    appearance: { active: { theme, palette, ... } }
+    showComparison: false
+    loginHistory: []               ← масив 20 останніх входів батьків
+    blockedUntil: null
+    failedAttempts: 0
+    blockingNotifiedAt: null
+    children/                    ← мета-дані профілів (не повні дані!)
+      child_1/
+        name, avatar, color, pin, useOwnRates, startTab
+        border: { active, ownedColors, ownedStyles }
+        loginHistory: []           ← масив 20 останніх входів дитини
+        failedAttempts: 0
+        blockedUntil: null
+        blockingNotifiedAt: null
 
-zirky-tasks/              ← завдання та запити (окремий onValue в initTasksListener)
-  [task.id]: { taskObj }
-
-zirky-feedback/           ← зворотній зв'язок батьки↔дитина
-  [item.id]: { feedbackObj }
+  children/                      ← повні дані кожної дитини (ізольовані)
+    child_1/
+      records: []                ← НЕ є джерелом правди для balance!
+      balance: 0                 ← береться з _runningBalance у achievements
+      achievements: { counters, streaks, levels, weekly, repeatableHistory, freezePeriods }
+      appearance: { child: { owned, active }, parent: { active } }
+      goal: null
+      schedule: { days, bells, teachers, twoWeeks }
+      subjects: []
+      clubs: []
+      tasks/                     ← завдання цієї дитини
+        [task.id]: { taskObj }
+      feedback/                  ← фідбек цієї дитини
+        [item.id]: { feedbackObj }
+      notifications_feed/        ← сповіщення цієї дитини
+        [notif.id]: { notifObj }
 ```
+
+> ⚠️ Старі гілки `zirky-tasks/`, `zirky-feedback/`, `zirky-notifications/` — видалені при міграції на v4.
 
 ---
 
@@ -114,12 +134,15 @@ commitRecord(recordData)
 
 ---
 
-## 🎭 Режими: батьки / дитина
+## 🎭 Режими: батьки / дитина (v4)
 
-- `state.data.isParent` — `true` якщо ввійшов через PIN, `false` для дитини
-- PIN зберігається у `state.data.pin` (Firebase), за замовчуванням `'1234'`
-- Провалений PIN → `enterAsChild('pin_failed')` (дитина входить автоматично)
-- Деякі кнопки/функції рендеряться лише при `isParent === true`
+- `state.parent.isParent` — `true` якщо батько авторизований через PIN
+- `state.data.isParent` — геттер, прозоро перенаправляє до `state.parent.isParent` (сумісність)
+- Батьківський PIN: `state.parent.pin` (Firebase: `zirky/parent/pin`)
+- Дитячий PIN: `state.parent.children[childId].pin` (Firebase: `zirky/parent/children/child_1/pin`)
+- `state.data.pin` — геттер → `state.parent.pin` (для `rewardPinOverlay`, сумісність)
+- Невірний PIN → повернення до екрану вибору профілю (без автовходу)
+- Блокування PIN — окреме для кожного профілю (батьки і кожна дитина), зберігається у Firebase
 
 ---
 
@@ -243,7 +266,24 @@ window.commitRecord = commitRecord;
 
 ## 📐 Правила роботи над проектом
 
-1. **Версія** — оновлювати у кожному зміненому файлі: `v3.YYYYMMDD.HHMM`
+1. **Версія** — оновлювати у кожному зміненому файлі при будь-якій зміні:
+
+   | Тип файлу | Де і як | Формат |
+   |---|---|---|
+   | `*.js` | рядок `export const VERSION = '...'` | `'vMAJOR.YYYYMMDD.HHMM'` |
+   | `index.html` | коментар `<!-- version: ... -->` | `v4.YYYYMMDD.HHMM` |
+   | `style.css` | коментар `/* version: ... */` (перший рядок) | `v4.YYYYMMDD.HHMM` |
+
+   **MAJOR** = мажорна версія (`4`). Змінюється лише при великій міграції.  
+   **YYYYMMDD** = дата редагування за Києвом (Claude проставляє коректно).  
+   **HHMM** = час редагування за Києвом:
+   - якщо розробник вказав час у повідомленні — береться звідти (`"Зроби це. 21:47"` → `2147`)
+   - якщо є повідомлення з підтвердженням із часом — береться звідти
+   - інакше — `0000` як явний маркер «час не уточнено»
+
+   Приклад: `v4.20260605.2208`
+
+
 2. **Видавати** тільки змінені файли, не весь архів
 3. **Перед кодуванням** — запитати підтвердження (крім випадків коли завдання змінити код дається напряму)
 4. **Думати** українською

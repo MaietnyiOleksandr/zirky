@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⭐</text></svg>">
-    <!-- version: v3.20260522.1735 -->
+    <!-- version: v4.20260609.0424 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>⭐ Зірки Успіху</title>
     <link rel="stylesheet" href="style.css">
@@ -11,7 +11,7 @@
 <body>
 
     <!-- Початковий екран входу -->
-    <div class="login-overlay" id="loginOverlay">
+    <div class="login-overlay" id="loginOverlay" style="display:none;">
         <div class="login-box">
             <button class="login-info-btn" onclick="showHelp('about')" title="Про програму">ℹ️</button>
             <h2>⭐ Зірки Успіху ⭐</h2>
@@ -20,9 +20,12 @@
                 <button class="login-btn" onclick="showPinInput()">
                     👨‍👩‍👧 Батьки
                 </button>
-                <button class="login-btn child" onclick="enterAsChild()">
-                    👧 Дитина
-                </button>
+                <div id="loginChildrenCards">
+                    <!-- Заповнюється через renderLoginChildren() при відкритті -->
+                    <button class="login-btn child" onclick="enterAsChild('child_1')">
+                        👧 Дитина
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -30,7 +33,7 @@
     <!-- PIN входу -->
     <div class="pin-overlay" id="pinOverlay">
         <div class="pin-box">
-            <h2>🔐 Введіть PIN</h2>
+            <h2 id="pinOverlayTitle">🔐 Введіть PIN</h2>
             <input type="password" class="pin-input" id="pinInput" maxlength="4">
             <div class="pin-buttons">
                 <button class="pin-btn" onclick="addPin('1')">1</button>
@@ -50,7 +53,7 @@
     </div>
 
     <!-- Індикатор завантаження -->
-    <div id="loadingOverlay" class="loading-overlay">
+    <div id="loadingOverlay" class="loading-overlay" style="display:none;">
         <div class="loading-star">⭐</div>
         <div class="loading-text">Завантаження...</div>
     </div>
@@ -157,6 +160,19 @@
         </div>
         </div>
 
+        <!-- 4б: Батьківський child-bar (sticky, під табами, тільки для батьків) -->
+        <div id="parentChildBar" style="display:none;">
+            <div class="parent-child-bar-inner">
+                <span id="parentChildDot" class="parent-child-dot"></span>
+                <span id="parentChildAvatar" class="parent-child-avatar"></span>
+                <span id="parentChildName" class="parent-child-name"></span>
+                <button class="parent-child-switch" onclick="toggleChildDropdown()" title="Перемкнути профіль">
+                    🔄
+                </button>
+            </div>
+            <div id="childDropdown" class="child-dropdown"></div>
+        </div>
+
         <!-- Content -->
         <div class="content">
 
@@ -249,25 +265,44 @@
                             <optgroup label="📚 Навчання">
                                 <option value="📝 Виконано Д/З|2|study|homework">📝 Виконано Д/З (+2⭐)</option>
                                 <option value="🎯 Важке завдання|5|study|hard_tasks">🎯 Важке завдання (+5⭐)</option>
-                                <option value="📖 Прочитав книгу|10|study|books">📖 Прочитав книгу (+10⭐)</option>
+                                <option
+                                    data-boy="📖 Прочитав книгу|10|study|books"
+                                    data-girl="📖 Прочитала книгу|10|study|books"
+                                    value="📖 Прочитала книгу|10|study|books">📖 Прочитала книгу (+10⭐)</option>
                             </optgroup>
                             <optgroup label="🤝 Допомога батькам">
                                 <option value="🤝 Допомога батькам: проста|3|help|help">🤝 Допомога: проста (+3⭐)</option>
                                 <option value="💪 Допомога батькам: важка|5|help|help">💪 Допомога: важка (+5⭐)</option>
                             </optgroup>
                             <optgroup label="🏠 По дому">
-                                <option value="🧹 Прибрала кімнату|3|home_chore|home_chores">🧹 Прибрала кімнату (+3⭐)</option>
-                                <option value="👕 Поскладала одяг|3|home_chore|home_chores">👕 Поскладала одяг (+3⭐)</option>
-                                <option value="🛏️ Застелила ліжко|2|home_chore|home_chores">🛏️ Застелила ліжко (+2⭐)</option>
-                                <option value="🫧 Помила посуд|3|home_chore|home_chores">🫧 Помила посуд (+3⭐)</option>
-                                <option value="🍳 Допомогла готувати|5|home_chore|home_chores">🍳 Допомогла готувати (+5⭐)</option>
+                                <option
+                                    data-boy="🧹 Прибрав кімнату|3|home_chore|home_chores"
+                                    data-girl="🧹 Прибрала кімнату|3|home_chore|home_chores"
+                                    value="🧹 Прибрала кімнату|3|home_chore|home_chores">🧹 Прибрала кімнату (+3⭐)</option>
+                                <option
+                                    data-boy="👕 Поскладав одяг|3|home_chore|home_chores"
+                                    data-girl="👕 Поскладала одяг|3|home_chore|home_chores"
+                                    value="👕 Поскладала одяг|3|home_chore|home_chores">👕 Поскладала одяг (+3⭐)</option>
+                                <option
+                                    data-boy="🛏️ Застелив ліжко|2|home_chore|home_chores"
+                                    data-girl="🛏️ Застелила ліжко|2|home_chore|home_chores"
+                                    value="🛏️ Застелила ліжко|2|home_chore|home_chores">🛏️ Застелила ліжко (+2⭐)</option>
+                                <option
+                                    data-boy="🫧 Помив посуд|3|home_chore|home_chores"
+                                    data-girl="🫧 Помила посуд|3|home_chore|home_chores"
+                                    value="🫧 Помила посуд|3|home_chore|home_chores">🫧 Помила посуд (+3⭐)</option>
+                                <option
+                                    data-boy="🔧 Допоміг ремонтувати|5|home_chore|home_chores"
+                                    data-girl="🍳 Допомогла готувати|5|home_chore|home_chores"
+                                    value="🍳 Допомогла готувати|5|home_chore|home_chores">🍳 Допомогла готувати (+5⭐)</option>
                             </optgroup>
                             <optgroup label="🏸 Активність">
                                 <option value="🚶 Прогулянка 30+ хв|3|activity|activity">🚶 Прогулянка 30+ хв (+3⭐)</option>
                                 <option value="🏃 Тренування 60+ хв|5|activity|activity">🏃 Тренування 60+ хв (+5⭐)</option>
+                                <option value="🏋️ Зробити зарядку|5|hygiene|">🏋️ Зробити зарядку (+5⭐)</option>
                             </optgroup>
                             <optgroup label="🧼 Гігієна">
-                                <option value="💇 Причесати волосся|5|hygiene|">💇 Причесатись (+5⭐)</option>
+                                <option value="💇 Причесати волосся|5|hygiene|" class="opt-girl">💇 Причесатись (+5⭐)</option>
                                 <option value="🪥 Почистити зуби|2|hygiene|">🪥 Почистити зуби (+2⭐)</option>
                             </optgroup>
                         </select>
@@ -365,6 +400,17 @@
                 <div class="section-header">
                     <h2 class="section-title">✅ Завдання</h2>
                     <button class="btn-icon" onclick="showHelp('tasksSection')" title="Довідка">?</button>
+                </div>
+                <div id="tasksMonthNav" style="display:none;">
+                    <div id="tasksMonthSelector" class="month-selector">
+                        <button class="month-btn" id="tasksPrevMonthBtn" onclick="changeTasksMonth(-1)">◀</button>
+                        <div class="month-display month-display--sm" id="tasksCurrentMonth"></div>
+                        <button class="month-btn" id="tasksNextMonthBtn" onclick="changeTasksMonth(1)">▶</button>
+                    </div>
+                    <label class="show-all-cb">
+                        <input type="checkbox" id="tasksShowAllCb" onchange="toggleShowAllTasks(this.checked)">
+                        Показати за весь час
+                    </label>
                 </div>
                 <div id="tasksBlock"></div>
             </div>
@@ -584,6 +630,17 @@
                         <div class="text-hint font-sm text-center">Завантаження...</div>
                     </div>
                 </div>
+
+                <!-- ── Порівняння профілів (тільки батьки, всередині Графіків) ── -->
+                <div id="compareSectionWrap" style="display:none;">
+                    <div class="section-header" style="margin-top:8px;">
+                        <h2 class="section-title">📊 Порівняння профілів</h2>
+                    </div>
+                    <div id="compareSection">
+                        <div class="text-hint font-sm text-center" style="padding:24px;">Завантаження...</div>
+                    </div>
+                </div>
+
             </div>
 
             <!-- ══ Інструкції ══════════════════════════════════ -->
@@ -716,7 +773,9 @@
                                 <span class="stars-guide-badge stars-badge--blue">+5⭐</span>
                             </div>
                             <div class="stars-guide-row">
-                                <span class="stars-guide-label">📖 Прочитала книгу</span>
+                                <span class="stars-guide-label gender-label"
+                                    data-boy="📖 Прочитав книгу"
+                                    data-girl="📖 Прочитала книгу">📖 Прочитала книгу</span>
                                 <span class="stars-guide-badge stars-badge--blue">+10⭐</span>
                             </div>
                         </div>
@@ -743,23 +802,33 @@
                         <div class="stars-guide-card-title">🏠 Домашні справи</div>
                         <div class="stars-guide-rows">
                             <div class="stars-guide-row">
-                                <span class="stars-guide-label">🧹 Прибрала кімнату</span>
+                                <span class="stars-guide-label gender-label"
+                                    data-boy="🧹 Прибрав кімнату"
+                                    data-girl="🧹 Прибрала кімнату">🧹 Прибрала кімнату</span>
                                 <span class="stars-guide-badge stars-badge--green">+3⭐</span>
                             </div>
                             <div class="stars-guide-row">
-                                <span class="stars-guide-label">👕 Поскладала одяг</span>
+                                <span class="stars-guide-label gender-label"
+                                    data-boy="👕 Поскладав одяг"
+                                    data-girl="👕 Поскладала одяг">👕 Поскладала одяг</span>
                                 <span class="stars-guide-badge stars-badge--green">+3⭐</span>
                             </div>
                             <div class="stars-guide-row">
-                                <span class="stars-guide-label">🛏️ Застелила ліжко</span>
+                                <span class="stars-guide-label gender-label"
+                                    data-boy="🛏️ Застелив ліжко"
+                                    data-girl="🛏️ Застелила ліжко">🛏️ Застелила ліжко</span>
                                 <span class="stars-guide-badge stars-badge--green">+2⭐</span>
                             </div>
                             <div class="stars-guide-row">
-                                <span class="stars-guide-label">🫧 Помила посуд</span>
+                                <span class="stars-guide-label gender-label"
+                                    data-boy="🫧 Помив посуд"
+                                    data-girl="🫧 Помила посуд">🫧 Помила посуд</span>
                                 <span class="stars-guide-badge stars-badge--green">+3⭐</span>
                             </div>
                             <div class="stars-guide-row">
-                                <span class="stars-guide-label">🍳 Допомогла готувати</span>
+                                <span class="stars-guide-label gender-label"
+                                    data-boy="🔧 Допоміг ремонтувати"
+                                    data-girl="🍳 Допомогла готувати">🍳 Допомогла готувати</span>
                                 <span class="stars-guide-badge stars-badge--green">+5⭐</span>
                             </div>
                         </div>
@@ -777,6 +846,10 @@
                                 <span class="stars-guide-label">🏃 Тренування 60+ хв / 10000+ кроків</span>
                                 <span class="stars-guide-badge stars-badge--purple">+5⭐</span>
                             </div>
+                            <div class="stars-guide-row">
+                                <span class="stars-guide-label">🏋️ Зробити зарядку</span>
+                                <span class="stars-guide-badge stars-badge--purple">+5⭐</span>
+                            </div>
                         </div>
                     </div>
 
@@ -784,7 +857,7 @@
                     <div class="stars-guide-card">
                         <div class="stars-guide-card-title">🧼 Гігієна</div>
                         <div class="stars-guide-rows">
-                            <div class="stars-guide-row">
+                            <div class="stars-guide-row opt-girl">
                                 <span class="stars-guide-label">💇 Причесатись</span>
                                 <span class="stars-guide-badge stars-badge--pink">+5⭐</span>
                             </div>
@@ -857,8 +930,26 @@
                         </div>
                     </div>
 
-                    <!-- ══ 💾 Резервні копії ══ -->
+                    <!-- ══ 👤 Профілі ══ -->
                     <div class="settings-accordion-wrap">
+                        <button class="settings-menu-item" onclick="toggleSettingsBlock('profiles'); renderProfilesAccordion();">
+                            <span class="settings-menu-icon">👤</span>
+                            <span class="settings-menu-label" id="profilesAccordionLabel">Мій профіль</span>
+                            <span class="settings-menu-arrow" id="settingsArrow_profiles">›</span>
+                        </button>
+                        <div class="settings-accordion-body" id="settingsBlock_profiles">
+                            <div class="settings-accordion-inner">
+                                <div class="settings-block-content" style="display:grid;gap:0;">
+                                    <div id="profilesAccordionContent">
+                                        <div class="text-hint font-sm text-center">Завантаження...</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ══ 💾 Резервні копії ══ -->
+                    <div class="settings-accordion-wrap" id="settingsAccordionWrap_backup">
                         <button class="settings-menu-item" id="backupAccordionBtn" onclick="toggleSettingsBlock('backup')">
                             <span class="settings-menu-icon">💾</span>
                             <span class="settings-menu-label">Резервні копії</span>
@@ -1107,6 +1198,7 @@
                                 <div class="settings-block-content" style="display:grid;gap:12px;">
 
                                     <!-- Рядок з 3 компактними кнопками -->
+                                    <!-- Кнопки інфо-панелі 2×2 -->
                                     <div class="about-compact-row">
                                         <button class="btn btn-primary btn-compact about-compact-btn" onclick="showHelp('about')">
                                             📱 Про
@@ -1115,8 +1207,13 @@
                                             📝 Зміни
                                             <span class="z-badge z-badge--hidden" id="badgeChangelogBtn"></span>
                                         </button>
+                                    </div>
+                                    <div class="about-compact-row">
                                         <button class="btn btn-primary btn-compact about-compact-btn" onclick="showVersionsModal()">
                                             🗂️ Версії
+                                        </button>
+                                        <button class="btn btn-primary btn-compact about-compact-btn" id="activityBtn" onclick="showActivityModal()" style="display:none;">
+                                            👁️ Активність
                                         </button>
                                     </div>
 
@@ -1133,14 +1230,34 @@
                         </div>
                     </div>
 
+                    <!-- Кнопка "Змінити профіль" -->
+                    <div style="padding: 4px 0 8px;">
+                        <button class="btn btn-secondary" style="width:100%;" onclick="switchProfile()">
+                            🔄 Змінити профіль
+                        </button>
+                    </div>
+
                 </div>
             </div>
+
+
 
             <!-- ── Feedback Section ── -->
             <div class="section" id="feedbackSection">
                 <div class="section-header">
                     <h2 class="section-title">💬 Зворотній зв'язок</h2>
                     <button class="btn-icon" onclick="showHelp('feedbackSection')" title="Довідка">?</button>
+                </div>
+                <div id="feedbackMonthNav" style="display:none;">
+                    <div id="feedbackMonthSelector" class="month-selector">
+                        <button class="month-btn" id="feedbackPrevMonthBtn" onclick="changeFeedbackMonth(-1)">◀</button>
+                        <div class="month-display month-display--sm" id="feedbackCurrentMonth"></div>
+                        <button class="month-btn" id="feedbackNextMonthBtn" onclick="changeFeedbackMonth(1)">▶</button>
+                    </div>
+                    <label class="show-all-cb">
+                        <input type="checkbox" id="feedbackShowAllCb" onchange="toggleShowAllFeedback(this.checked)">
+                        Показати за весь час
+                    </label>
                 </div>
                 <div class="card-purple">
                     <div id="feedbackBlock">
@@ -1157,19 +1274,19 @@
     <script type="module">
         import { state } from './state.js';
         import { firebaseConfig, ACHIEVEMENTS, gradeToStars } from './config.js';
-        import { showPinInput, enterAsChild, addPin, clearPin, cancelPin, checkPin, changePin, showRewardPin, addRewardPin, clearRewardPin, cancelRewardPin, togglePeriod } from './auth.js';
+        import { showProfileSelect, showPinInput, enterAsChild, addPin, clearPin, cancelPin, checkPin, changePin, showRewardPin, addRewardPin, clearRewardPin, cancelRewardPin, togglePeriod, updateParentChildBar, toggleChildDropdown, switchChildFromBar, renderLoginChildren, closeAllAccordions } from './auth.js';
         import { renderAchievements, renderAchievementsHome } from './achievements.js';
         import { renderGoal, showGoalModal, cancelGoal, saveGoal, deleteGoal } from './goals.js';
         import { addFreezePeriod, deleteFreezePeriod, editFreezePeriod, renderFreezePeriods } from './freeze.js';
-        import { initFirebase, initFeedbackListener } from './firebase.js';
-        import { initFeedbackData, renderFeedback,
+        import { initFirebase, initParentData } from './firebase.js';
+        import { initFeedbackData, renderFeedback, changeFeedbackMonth, toggleShowAllFeedback,
                  selectFeedbackCategory, submitFeedback,
                  startEditFeedback, cancelEditFeedback, saveEditFeedback,
                  deleteFeedback, deleteFeedbackConfirm, setFeedbackStatus,
                  saveParentComment, startEditParentComment, cancelEditParentComment,
                  deleteParentComment, toggleChildComment, cancelChildComment,
                  saveChildComment, toggleFbDropdown, closeFbDropdown,
-                 applyFeedbackFilter } from './feedback.js';
+                 applyFeedbackFilter, resetAllFeedbackCache } from './feedback.js';
         import { initTasks, renderTasks, applyTasksFilter,
                  submitGradeRequest, submitDiagnosticRequest, submitBonusRequest,
                  openParentTaskForm, closeParentTaskForm, submitParentTask,
@@ -1178,7 +1295,7 @@
                  markTaskDone, startDeclineTask, cancelDeclineTask, selectDeclineReason, submitDeclineTask,
                  clearChildDecline, deleteTaskByParent, deleteOwnRequest,
                  startEditTask, cancelEditTask, onEditDeadlineToggle, onEditNoRewardToggle, saveEditTask,
-                 getTasksUnreadCount } from './tasks.js';
+                 changeTasksMonth, toggleShowAllTasks, getTasksUnreadCount, resetAllTasksCache } from './tasks.js';
         import { getTodayDate, setTodayDates, pulseElement } from './utils.js';
         import { showLoading, updateUI } from './ui.js';
         import { showHelp, closeHelp } from './help.js';
@@ -1191,6 +1308,7 @@
                  updateBalanceChart, changeBalancePeriod, changeBalanceOffset,
                  updateHeatmap, changeHeatmapMode, changeHeatmapOffset,
                  renderSourceDonut, changeDonutPeriod, changeDonutOffset, drillDonut } from './stats.js';
+        import { initCompare, renderCompare, resetCompareCache } from './compare.js';
         import { buildSubjectSelects, openSubjectsEditor, closeSubjectsEditor,
                  subjAddNew, subjDelete, subjUpdateField, subjUpdateClub,
                  saveSubjectsEditor } from './subjects.js';
@@ -1203,18 +1321,37 @@
                  schedUpdateBell, saveBellsModal } from './schedule.js';
         import { renderDataInfoContent, exportData, importData,
                  resetAllData, adjustBalance, saveConversionRates, addManualRecord, applyManualRecordPreset,
-                 showVersionsModal, closeVersionsModal } from './settings.js';
+                 showVersionsModal, closeVersionsModal,
+                 switchProfile, showActivityModal, closeActivityModal,
+                 renderProfilesAccordion, saveChildProfile, setChildColor, unblockChild, addChildProfile,
+                 deleteChildProfile, toggleOwnRatesUI, commitAndSaveBorder, cancelBorder, renderBorderBlock } from './settings.js';
         import { openNotifications, closeNotifications, updateNotificationBadge,
                  updateChangelogBadge, markChangelogRead, dismissNotification,
                  dismissByAction, getUnreadItems, generateNotifications,
                  hasUnreadByType, dismissByType } from './notifications.js';
         import { applyAppearance, renderThemeShop, buyTheme,
                  activateTheme, setComponent, startPreview, stopPreview, refundTheme,
-                 toggleDevMode, isDevMode } from './appearance.js';
+                 toggleDevMode, isDevMode, stopAllPreviews,
+                 applyActiveBorder, previewBorder, previewBorderLine, previewBorderColor,
+                 resetPendingBorder, getPendingBorder, commitPendingBorder,
+                 resetBorderToNone, setProfileColor,
+                 BORDER_COLORS_FREE, BORDER_LINES, BORDER_ANIMATIONS } from './appearance.js';
 
         // ── Глобальні функції для onclick ─────────────────────
+        window.showProfileSelect = showProfileSelect;
+        // При кожному показі loginOverlay — оновлюємо картки дітей
+        const _origShowProfileSelect = window.showProfileSelect;
+        window.showProfileSelect = function() {
+            _origShowProfileSelect();
+            if (window.renderLoginChildren) window.renderLoginChildren();
+        };
         window.showPinInput = showPinInput;
         window.enterAsChild = enterAsChild;
+        window.updateParentChildBar = updateParentChildBar;
+        window.closeAllAccordions   = closeAllAccordions;
+        window.toggleChildDropdown  = toggleChildDropdown;
+        window.switchChildFromBar   = switchChildFromBar;
+        window.renderLoginChildren  = renderLoginChildren;
         window.addPin = addPin;
         window.clearPin = clearPin;
         window.cancelPin = cancelPin;
@@ -1257,7 +1394,11 @@
         window.addSpecialRecord = addSpecialRecord;
         window.deleteRecord = deleteRecord;
         window.renderHistory = renderHistory;
-        window.changeMonth = changeMonth;
+        window.changeMonth             = changeMonth;
+        window.changeTasksMonth        = changeTasksMonth;
+        window.changeFeedbackMonth     = changeFeedbackMonth;
+        window.toggleShowAllTasks      = toggleShowAllTasks;
+        window.toggleShowAllFeedback   = toggleShowAllFeedback;
         window.applyHistoryFilter = applyHistoryFilter;
         window.renderRewards = renderRewards;
         window.buyTime = buyTime;
@@ -1268,6 +1409,8 @@
         window.renderStats = renderStats;
         window.updateChart = updateChart;
         window.changeChartPeriod = changeChartPeriod;
+        window.initCompare  = initCompare;
+        window.renderCompare = renderCompare;
         window.initSchedule         = initSchedule;
         window.renderSchedule       = renderSchedule;
         window.scheduleNavDay       = scheduleNavDay;
@@ -1321,6 +1464,21 @@
         window.renderDataInfoContent = renderDataInfoContent;
         window.showVersionsModal   = showVersionsModal;
         window.closeVersionsModal  = closeVersionsModal;
+        window.switchProfile       = switchProfile;
+        window.showActivityModal   = showActivityModal;
+        window.closeActivityModal  = closeActivityModal;
+        window.renderProfilesAccordion = renderProfilesAccordion;
+        window.saveChildProfile    = saveChildProfile;
+        window.setChildColor       = setChildColor;
+        window.unblockChild        = unblockChild;
+        window.addChildProfile     = addChildProfile;
+        window.deleteChildProfile  = deleteChildProfile;
+        window.toggleOwnRatesUI    = toggleOwnRatesUI;
+        window.commitAndSaveBorder = commitAndSaveBorder;
+        window.cancelBorder        = cancelBorder;
+        window.renderBorderBlock   = renderBorderBlock;
+        window.closeVersionsModal  = closeVersionsModal;
+        window._state              = state; // тимчасово для дебагу
 
         // Акордеон налаштувань
         window.toggleSettingsBlock = function(id) {
@@ -1338,6 +1496,11 @@
             // При відкритті блоку "Про програму" — авторендер інфо про дані
             if (id === 'about' && !isOpen && window.renderDataInfoContent) {
                 window.renderDataInfoContent('aboutDataInfo');
+            }
+
+            // При ЗАКРИТТІ акордіону профілів — скидаємо pending border
+            if (id === 'profiles' && isOpen) {
+                if (window.resetPendingBorder) window.resetPendingBorder();
             }
         };
 
@@ -1358,7 +1521,20 @@
             }
         };
         // appearance.js
-        window.applyAppearance = applyAppearance;
+        window.applyAppearance    = applyAppearance;
+        window.stopAllPreviews    = stopAllPreviews;
+        window.applyActiveBorder  = applyActiveBorder;
+        window.previewBorder      = previewBorder;
+        window.previewBorderColor  = previewBorderColor;
+        window.previewBorderLine   = previewBorderLine;
+        window.resetPendingBorder  = resetPendingBorder;
+        window.getPendingBorder    = getPendingBorder;
+        window.commitPendingBorder = commitPendingBorder;
+        window.setProfileColor     = setProfileColor;
+        window.resetBorderToNone   = resetBorderToNone;
+        window.BORDER_COLORS_FREE  = BORDER_COLORS_FREE;
+        window.BORDER_LINES        = BORDER_LINES;
+        window.BORDER_ANIMATIONS   = BORDER_ANIMATIONS;
         window.renderThemeShop = renderThemeShop;
         window.buyTheme        = buyTheme;
         window.activateTheme   = activateTheme;
@@ -1376,7 +1552,7 @@
 
         // ── updateBadges — центральна функція крапок ──────
         window.updateBadges = function() {
-            const role = state.data.isParent ? 'parent' : 'child';
+            const role = state.parent.isParent ? 'parent' : 'child';
             const unread = window.getUnreadItems ? window.getUnreadItems(role) : [];
             const badgeTargets = new Set(unread.flatMap(i => i.badges || []));
 
@@ -1427,6 +1603,7 @@
         window.cancelChildComment = cancelChildComment;
         window.saveChildComment = saveChildComment;
         window.applyFeedbackFilter       = applyFeedbackFilter;
+        window.resetAllFeedbackCache     = resetAllFeedbackCache;
         window.renderAchievements = renderAchievements;
         window.renderAchievementsHome = renderAchievementsHome;
 
@@ -1434,21 +1611,23 @@
         // У дитячому режимі → надсилається запит на перевірку (child_request)
         // У батьківському → одразу нараховується запис (звичайна логіка)
         window.submitGradeOrRequest = function () {
-            if (state.data.isParent) addGradeRecord();
-            else                     submitGradeRequest();
+            if (state.parent.isParent) addGradeRecord();
+            else                       submitGradeRequest();
         };
         window.submitDiagnosticOrRequest = function () {
-            if (state.data.isParent) addDiagnosticWork();
-            else                     submitDiagnosticRequest();
+            if (state.parent.isParent) addDiagnosticWork();
+            else                       submitDiagnosticRequest();
         };
         window.submitBonusOrRequest = function () {
-            if (state.data.isParent) addBonusRecord();
-            else                     submitBonusRequest();
+            if (state.parent.isParent) addBonusRecord();
+            else                       submitBonusRequest();
         };
 
         // ── Tasks API (експорти tasks.js на window для onclick) ──
         window.renderTasks                = renderTasks;
         window.applyTasksFilter           = applyTasksFilter;
+        window.resetAllTasksCache         = resetAllTasksCache;
+        window.resetCompareCache          = resetCompareCache;
         window.submitGradeRequest         = submitGradeRequest;
         window.submitDiagnosticRequest    = submitDiagnosticRequest;
         window.submitBonusRequest         = submitBonusRequest;
@@ -1491,6 +1670,12 @@
             if (!e.target.closest('.fb-status-dropdown-wrap')) {
                 document.querySelectorAll('.fb-dropdown').forEach(d => d.style.display = 'none');
             }
+            // Закриваємо activityModal при кліку на фон
+            const adim = document.getElementById('activityModal');
+            if (adim) adim.addEventListener('click', (e) => {
+                if (e.target === adim) closeActivityModal();
+            });
+
             // Закриваємо versionsModal при кліку на фон
             const vdim = document.getElementById('versionsModal');
             if (vdim && e.target === vdim) closeVersionsModal();
@@ -1500,15 +1685,23 @@
 
         // ── Ініціалізація ─────────────────────────────────────
         setTodayDates();
-        initFirebase();
+
+        // Спочатку завантажуємо parent/ (pin, conversionRates, children)
+        // Тільки після цього показуємо екран вибору профілю
+        initParentData().then(() => {
+            document.getElementById('loginOverlay').style.display = 'flex';
+            renderLoginChildren();
+        });
+
         initSchedule();
-        initFeedbackListener((rawData) => {
+
+        // initFeedbackData виставляється глобально для auth.js/_subscribeToChild
+        window.initFeedbackData = function(rawData) {
             initFeedbackData(rawData);
             renderFeedback();
             if (window.generateNotifications) window.generateNotifications();
             if (window.updateBadges) window.updateBadges();
-        });
-        initTasks();
+        };
 
     </script>
 
@@ -1531,6 +1724,17 @@
                 <button onclick="closeVersionsModal()" class="help-close-btn">✕</button>
             </div>
             <div id="versionsModalBody" class="help-modal-content"></div>
+        </div>
+    </div>
+
+    <!-- Activity Modal -->
+    <div id="activityModal" class="help-modal" style="display:none;">
+        <div class="help-modal-inner">
+            <div class="help-modal-header">
+                <h3 class="help-modal-title">👁️ Активність профілів</h3>
+                <button onclick="closeActivityModal()" class="help-close-btn">✕</button>
+            </div>
+            <div id="activityModalBody" class="help-modal-content"></div>
         </div>
     </div>
 

@@ -2,7 +2,7 @@
 // 📋  schedule.js — Розклад уроків
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260515.1157';
+export const VERSION = 'v4.20260605.2208';
 
 import { state } from './state.js';
 import { saveSchedule } from './firebase.js';

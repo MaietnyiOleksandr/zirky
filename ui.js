@@ -11,7 +11,7 @@
 //   Жодних розкиданих .style.display = ... по інших модулях.
 // ════════════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260521.1005';
+export const VERSION = 'v4.20260609.0424';
 
 import { state } from './state.js';
 import { buildSubjectSelects } from './subjects.js';
@@ -34,6 +34,7 @@ const PROFILE_VISIBILITY = [
 
     // Налаштування — блок "Корекція даних"
     { id: 'settingsAccordionWrap_correction', show: 'parent'                  },
+    { id: 'settingsAccordionWrap_backup',     show: 'parent'                  },
 
     // Розклад — батьківські кнопки
     { id: 'scheduleSubjectsBtnWrap',          show: 'parent'                  },
@@ -41,6 +42,8 @@ const PROFILE_VISIBILITY = [
 
     // Теми — кнопка режиму розробника
     { id: 'devModeBlock',                     show: 'parent'                  },
+    { id: 'activityBtn',                      show: 'parent'                  },
+    { id: 'compareSectionWrap',               show: 'parent'                  },
 
     // Блок "Додати" — кнопки, що не делегуються дитині
     { id: 'quickActionSpecial',               show: 'parent'                  },
@@ -88,19 +91,35 @@ export function updateUI() {
     // 👤 Видимість елементів за профілем — централізовано
     applyProfileVisibility();
 
+    // 4б — оновлюємо батьківський child-bar
+    if (window.updateParentChildBar) window.updateParentChildBar();
+
+    // Гендерні елементи guide та форм (opt-boy / opt-girl)
+    const gender = state.parent.children?.[state.activeChildId]?.gender || 'girl';
+    document.querySelectorAll('.opt-girl').forEach(el => el.hidden = gender !== 'girl');
+    document.querySelectorAll('.opt-boy').forEach(el => el.hidden  = gender !== 'boy');
+
+    // Гендерні назви і value опцій у bonusForm
+    _updateBonusGender(gender);
+
     // 📝 Оновлення значень у видимих батьківських полях
     //    (видимість встановлюється вище, тут — лише значення)
+
+    // Назва акордіону профілів
+    const profilesLabel = document.getElementById('profilesAccordionLabel');
+    if (profilesLabel) profilesLabel.textContent = state.data.isParent ? 'Дитячі профілі' : 'Мій профіль';
+
     if (state.data.isParent) {
         // PIN
         const pinEl = document.getElementById('currentPin');
-        if (pinEl) pinEl.textContent = state.data.pin;
+        if (pinEl) pinEl.textContent = state.parent.pin;
 
         // Баланс у блоці корекції
         const balEl = document.getElementById('currentBalanceDisplay');
         if (balEl) balEl.textContent = (state.data.balance || 0) + '⭐';
 
         // Курси конвертації
-        const rates = state.data.conversionRates || { minutesPerStar: 2, moneyPerStar: 1 };
+        const rates = state.parent.conversionRates || { minutesPerStar: 2, moneyPerStar: 1 };
         const mEl    = document.getElementById('minutesPerStar');
         const gEl    = document.getElementById('moneyPerStar');
         const mSpan  = document.getElementById('currentMinutesRate');
@@ -126,6 +145,34 @@ export function updateUI() {
 export function showLoading(show) {
     const overlay = document.getElementById('loadingOverlay');
     if (overlay) overlay.style.display = show ? 'flex' : 'none';
+}
+
+// ════════════════════════════════════════════════════════════
+// 🚻  _updateBonusGender — оновлення гендерних назв у bonusForm
+// ════════════════════════════════════════════════════════════
+// Для кожної option що має data-boy і data-girl:
+//   оновлює .value і .textContent відповідно до гендеру дитини.
+// Так record.description правильно записується у Firebase.
+function _updateBonusGender(gender) {
+    const select = document.getElementById('bonusType');
+    if (select) {
+        const currentVal = select.value;
+        select.querySelectorAll('option[data-boy][data-girl]').forEach(opt => {
+            const val   = opt.getAttribute(gender === 'girl' ? 'data-girl' : 'data-boy');
+            const parts = val.split('|');
+            opt.value       = val;
+            opt.textContent = `${parts[0]} (+${parts[1]}⭐)`;
+        });
+        if (currentVal) {
+            const stillExists = [...select.options].some(o => o.value === currentVal);
+            if (stillExists) select.value = currentVal;
+        }
+    }
+
+    // Гендерні мітки у guide
+    document.querySelectorAll('.gender-label[data-boy][data-girl]').forEach(el => {
+        el.textContent = el.getAttribute(gender === 'girl' ? 'data-girl' : 'data-boy');
+    });
 }
 
 // ── Слухаємо зміни стану (від freeze.js та інших) ────────────

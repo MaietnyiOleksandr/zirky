@@ -6,27 +6,23 @@
 //     showForm/switchTab, а ui.js потребував їх модулів
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260522.0631';
+export const VERSION = 'v4.20260609.1100';
 
 import { state } from './state.js';
 import { getTodayDate } from './utils.js';
-import { db } from './firebase.js';
 import { renderAchievements, renderAchievementsHome } from './achievements.js';
 import { renderGoal } from './goals.js';
 import { renderFreezePeriods } from './freeze.js';
 import { renderHistory } from './history.js';
 import { renderRewards } from './rewards.js';
 import { renderStats, checkStreakWarning } from './stats.js';
-// showDataInfo більше не викликається автоматично — тільки через кнопку
 import { renderFeedback } from './feedback.js';
 import { renderSchedule } from './schedule.js';
 import { renderTasks } from './tasks.js';
-import { applyAppearance, renderThemeShop } from './appearance.js';
-import { dismissByAction, setNotifDb, initNotificationsListener, generateNotifications } from './notifications.js';
+import { applyAppearance, renderThemeShop, stopPreview, resetPendingBorder, resetBorderToNone } from './appearance.js';
+import { dismissByAction, generateNotifications } from './notifications.js';
+import { initCompare } from './compare.js';
 
-// ── Ініціалізація notifications (перенесено з firebase.js) ──
-setNotifDb(db);
-initNotificationsListener();
 document.addEventListener('zirky:dataLoaded', generateNotifications);
 
 // ════════════════════════════════════════════════════
@@ -87,7 +83,7 @@ export function showForm(type) {
     }
 
     document.querySelectorAll('.quick-action-btn').forEach(btn => btn.classList.remove('active'));
-    event.target.classList.add('active');
+    if (event?.target?.classList) event.target.classList.add('active');
     document.getElementById('gradeForm').style.display = 'none';
     document.getElementById('diagnosticForm').style.display = 'none';
     document.getElementById('bonusForm').style.display = 'none';
@@ -118,6 +114,10 @@ export function showForm(type) {
 // Додавання записів
 
 export function switchTab(tab, fromClick = false) {
+    // Зупиняємо preview теми якщо активний
+    stopPreview(false);
+    resetPendingBorder();   // скидаємо pending рамку при зміні табу
+
     // Довідник → одразу на instructions
     if (tab === 'guide') {
         return switchTab('instructions');
@@ -144,7 +144,10 @@ export function switchTab(tab, fromClick = false) {
         }
     }
     else if (tab === 'achievements') renderAchievements();
-    else if (tab === 'stats') renderStats();
+    else if (tab === 'stats') {
+        renderStats();
+        if (state.parent.isParent) initCompare();
+    }
     else if (tab === 'schedule') renderSchedule();
     else if (tab === 'tasks') {
         renderTasks();
@@ -174,11 +177,15 @@ document.addEventListener('zirky:dataLoaded', () => {
     // бо при dataLoaded ще невідомо хто заходить (isParent = false)
     const activeSection = document.querySelector('.section.active');
     if (activeSection) {
-        if (activeSection.id === 'historySection') renderHistory();
-        if (activeSection.id === 'statsSection') renderStats();
-        if (activeSection.id === 'rewardsSection') renderRewards();
-        if (activeSection.id === 'tasksSection') renderTasks();
-        if (activeSection.id === 'addSection') applyAddSectionVisibility();
+        if (activeSection.id === 'historySection')      renderHistory();
+        if (activeSection.id === 'statsSection')        renderStats();
+        if (activeSection.id === 'rewardsSection')      renderRewards();
+        if (activeSection.id === 'tasksSection')        renderTasks();
+        if (activeSection.id === 'addSection')          applyAddSectionVisibility();
+        // Секції що раніше не оброблялись — дані приходять після switchTab
+        if (activeSection.id === 'scheduleSection')     renderSchedule();
+        if (activeSection.id === 'feedbackSection')     renderFeedback();
+        if (activeSection.id === 'achievementsSection') { if (window.renderAchievements) window.renderAchievements(); }
     }
     checkStreakWarning();
 });

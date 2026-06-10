@@ -12,10 +12,10 @@
 //       3. Додай CSS vars у style.css (опційно)
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v3.20260525.0655';
+export const VERSION = 'v4.20260604.1232';
 
 import { state } from './state.js';
-import { saveAppearance, saveRecords } from './firebase.js';
+import { saveAppearance, saveParentAppearance, saveRecords, saveBorder, saveChildMeta } from './firebase.js';
 import { spendStars } from './rewards.js';
 import { DEFAULT_ACTIVE, migrateAppearance } from './utils.js';
 
@@ -364,6 +364,72 @@ export const THEMES = [
 ];
 
 // Дефолтний стан для кожного профілю
+// ════════════════════════════════════════════════════
+// 🎨  РАМКА ПРОФІЛЮ — каталоги (6в)
+// ════════════════════════════════════════════════════
+
+export const BORDER_COLORS_FREE = [
+    { id: 'red',    hex: '#ff6b6b' },
+    { id: 'orange', hex: '#ff9500' },
+    { id: 'yellow', hex: '#ffd60a' },
+    { id: 'green',  hex: '#34c759' },
+    { id: 'teal',   hex: '#5ac8fa' },
+    { id: 'blue',   hex: '#007aff' },
+    { id: 'purple', hex: '#af52de' },
+    { id: 'pink',   hex: '#ff2d55' },
+    { id: 'brown',  hex: '#a2845e' },
+    { id: 'white',  hex: '#f2f2f7' },
+];
+
+// Стиль лінії рамки (всі безкоштовні)
+export const BORDER_LINES = [
+    { id: 'solid',  name: '▬ Суцільна' },
+    { id: 'dashed', name: '╌ Пунктир'  },
+    { id: 'dotted', name: '· · Крапки' },
+    { id: 'double', name: '═ Подвійна' },
+];
+
+// Анімація рамки (через ::before псевдоелемент)
+export const BORDER_ANIMATIONS = [
+    { id: 'none',    name: '— Без анімації', free: true },
+    { id: 'pulse',   name: '💫 Пульсація',   stars: 80  },
+    { id: 'glow',    name: '✨ Сяйво',       stars: 80  },
+    { id: 'bounce',  name: '🏀 Пульс',       stars: 80  },
+    { id: 'shimmer', name: '🌟 Спалах',      stars: 80  },
+    { id: 'rainbow', name: '🌈 Веселка',     stars: 80  },
+];
+
+// Залишаємо BORDER_STYLES як alias для зворотної сумісності
+export const BORDER_STYLES = BORDER_ANIMATIONS;
+
+// ─── Дефолтна рамка для нового профілю ───────────────
+export const DEFAULT_BORDER = {
+    line:            'solid',  // стиль лінії
+    animation:       'none',   // анімація
+    ownedAnimations: [],       // куплені анімації
+};
+
+// ─── Гарантує наявність border у мета-даних дитини ───
+function _ensureBorder(childId) {
+    const cid = childId || state.activeChildId;
+    if (!state.parent.children?.[cid]) return;
+    const meta = state.parent.children[cid];
+    if (!meta.border) meta.border = { ...DEFAULT_BORDER };
+    // Міграція старої структури { style, ownedStyles } → нова { line, animation, ownedAnimations }
+    if (meta.border.style && !meta.border.line) {
+        // Старий style був або line або animation — перевіряємо
+        const wasLine = BORDER_LINES.some(l => l.id === meta.border.style);
+        meta.border.line      = wasLine ? meta.border.style : DEFAULT_BORDER.line;
+        meta.border.animation = DEFAULT_BORDER.animation;
+        delete meta.border.style;
+    }
+    if (!meta.border.line)            meta.border.line            = DEFAULT_BORDER.line;
+    if (!meta.border.animation)       meta.border.animation       = DEFAULT_BORDER.animation;
+    if (!meta.border.ownedAnimations) meta.border.ownedAnimations = [];
+    // Чистимо застарілі поля
+    delete meta.border.ownedStyles;
+}
+
 export const DEFAULT_APPEARANCE = {
     child:  { owned: ['default'], active: { ...DEFAULT_ACTIVE } },
     parent: { active: { ...DEFAULT_ACTIVE } },
@@ -374,8 +440,18 @@ export const DEFAULT_APPEARANCE = {
 // ════════════════════════════════════════════════════
 // Повертає appearance-профіль поточного користувача (child або parent)
 function _getProfile() {
+    if (state.data.isParent) {
+        // Батьківський appearance живе в state.parent.appearance
+        return state.parent.appearance || DEFAULT_APPEARANCE.parent;
+    }
     const app = state.data.appearance || DEFAULT_APPEARANCE;
-    return state.data.isParent ? (app.parent || DEFAULT_APPEARANCE.parent) : (app.child || DEFAULT_APPEARANCE.child);
+    return app.child || DEFAULT_APPEARANCE.child;
+}
+
+// Зберігає appearance залежно від ролі: батько → state.parent, дитина → state.data
+function _saveCurrentAppearance() {
+    if (state.data.isParent) saveParentAppearance();
+    else                     saveAppearance();
 }
 
 // Забезпечує що appearance ініціалізований у новому форматі
@@ -450,6 +526,10 @@ export function applyAppearance() {
     const active  = profile.active || DEFAULT_ACTIVE;
     _resetAppearanceVars();
     _applyComponents(active);
+    // 6в — застосовуємо рамку профілю (тільки якщо дитина активна)
+    if (!state.parent.isParent && state.activeChildId) {
+        applyActiveBorder(state.activeChildId);
+    }
 }
 
 // ════════════════════════════════════════════════════
@@ -524,7 +604,7 @@ export function activateTheme(themeId, devOnly = false) {
     profile.active = { theme: themeId, ...theme.components };
     _resetAppearanceVars();
     _applyComponents(profile.active);
-    saveAppearance();
+    _saveCurrentAppearance();
     renderThemeShop();  // ⬅ перерендер магазину/кастомізації
 }
 
@@ -552,7 +632,7 @@ export function setComponent(type, id) {
 
     _resetAppearanceVars();
     _applyComponents(profile.active);
-    saveAppearance();
+    _saveCurrentAppearance();
     renderThemeShop();
 }
 
@@ -569,6 +649,9 @@ let _devMode = false;
 export function isDevMode() { return _devMode; }
 
 export function toggleDevMode() {
+    // DevMode — тільки для батьків
+    if (!state.parent.isParent) return;
+
     _devMode = !_devMode;
     if (!_devMode) {
         // Скидаємо devActive для поточного профілю і відновлюємо реальну тему
@@ -592,6 +675,179 @@ export function toggleDevMode() {
     }
 }
 
+export function stopAllPreviews() {
+    stopPreview(false);
+    resetBorderPreview();
+}
+
+// ════════════════════════════════════════════════════
+// 🖼️  РАМКА ПРОФІЛЮ — застосування і preview (6в)
+// ════════════════════════════════════════════════════
+
+// Застосовує активну рамку дитини до DOM
+// — встановлює --profile-color і data-border-style на <html>
+export function applyActiveBorder(childId) {
+    const cid  = childId || state.activeChildId;
+    const meta = state.parent.children?.[cid];
+    if (!meta) return;
+    _ensureBorder(cid);
+
+    const color     = meta.color                || '#4dabf7';
+    const line      = meta.border?.line         || 'solid';
+    const animation = meta.border?.animation    || 'none';
+
+    document.documentElement.style.setProperty('--profile-color', color);
+    document.documentElement.setAttribute('data-border-line', line);
+    document.documentElement.setAttribute('data-border-animation', animation);
+}
+
+// Скидає рамку до нейтрального стану (logout / дитина входить)
+export function resetBorderToNone() {
+    document.documentElement.style.removeProperty('--profile-color');
+    document.documentElement.removeAttribute('data-border-line');
+    document.documentElement.removeAttribute('data-border-animation');
+}
+
+// ─── Preview рамки ────────────────────────────────────
+// ─── Pending border — проміжний стан між вибором і збереженням ───
+// { color: '#hex', style: 'solid' } або null
+let _pendingBorder       = null;
+let _pendingBorderChildId = null;
+// Оригінал до preview (для скидання)
+let _originalBorder      = null;
+
+// Починає редагування рамки для childId — зберігає оригінал
+function _initPendingBorder(childId) {
+    const meta = state.parent.children?.[childId];
+    if (!meta) return;
+    _ensureBorder(childId);
+    if (_pendingBorderChildId !== childId) {
+        resetPendingBorder();
+        _pendingBorderChildId = childId;
+        _originalBorder = {
+            color:     meta.color                     || '#4dabf7',
+            line:      meta.border?.line              || 'solid',
+            animation: meta.border?.animation         || 'none',
+        };
+        _pendingBorder = { ..._originalBorder };
+    }
+}
+
+// Встановлює pending color — тільки DOM, не пише в state/Firebase
+export function previewBorderColor(hex, childId) {
+    const cid = childId || state.activeChildId;
+    _initPendingBorder(cid);
+    if (!_pendingBorder) return;
+    _pendingBorder.color = hex;
+    document.documentElement.style.setProperty('--profile-color', hex);
+}
+
+// Встановлює pending line (стиль лінії) — тільки DOM
+export function previewBorderLine(line, childId) {
+    const cid = childId || state.activeChildId;
+    _initPendingBorder(cid);
+    if (!_pendingBorder) return;
+    _pendingBorder.line = line;
+    document.documentElement.setAttribute('data-border-line', line);
+}
+
+// Встановлює pending animation — тільки DOM
+export function previewBorder(animation, childId) {
+    const cid = childId || state.activeChildId;
+    _initPendingBorder(cid);
+    if (!_pendingBorder) return;
+    _pendingBorder.animation = animation;
+    document.documentElement.setAttribute('data-border-animation', animation);
+}
+
+// Скидає pending до оригіналу і повертає DOM
+export function resetPendingBorder() {
+    if (_originalBorder) {
+        document.documentElement.style.setProperty('--profile-color', _originalBorder.color);
+        document.documentElement.setAttribute('data-border-line', _originalBorder.line || 'solid');
+        document.documentElement.setAttribute('data-border-animation', _originalBorder.animation || 'none');
+    }
+    _pendingBorder        = null;
+    _pendingBorderChildId = null;
+    _originalBorder       = null;
+}
+
+// Alias для зворотної сумісності
+export function resetBorderPreview() { resetPendingBorder(); }
+
+// Повертає поточний pending або null
+export function getPendingBorder() { return _pendingBorder ? { ..._pendingBorder } : null; }
+
+// Зберігає pending border в state + Firebase + запис в історію (для платних стилів)
+export function commitPendingBorder(childId) {
+    const cid = childId || _pendingBorderChildId || state.activeChildId;
+    if (!_pendingBorder || !cid) return false;
+    const meta = state.parent.children?.[cid];
+    if (!meta) return false;
+    _ensureBorder(cid);
+
+    const newAnimation = _pendingBorder.animation;
+    const newLine      = _pendingBorder.line;
+    const newColor     = _pendingBorder.color;
+
+    // Купівля платної анімації якщо ще не куплено
+    const animDef = BORDER_ANIMATIONS.find(a => a.id === newAnimation);
+    const needBuy = animDef && !animDef.free
+                 && !meta.border.ownedAnimations.includes(newAnimation)
+                 && !_devMode;
+
+    if (needBuy) {
+        if (cid !== state.activeChildId) {
+            alert('Платні анімації може придбати лише сама дитина у своєму профілі.');
+            return false;
+        }
+        const balance = Number(state.data.balance);
+        if (balance < animDef.stars) {
+            const missing = animDef.stars - balance;
+            alert(`⭐ Ще ${missing} зірок — і мрія твоя!`);
+            return false;
+        }
+        const spent = spendStars(animDef.stars, {
+            category:    'appearance',
+            description: `Анімація рамки «${animDef.name}»`,
+        });
+        if (!spent) return false;
+        meta.border.ownedAnimations.push(newAnimation);
+    }
+
+    // Записуємо в state
+    meta.color             = newColor;
+    meta.border.line       = newLine;
+    meta.border.animation  = newAnimation;
+
+    // Firebase (статичні імпорти вже є у файлі)
+    saveBorder(cid);
+    saveChildMeta(cid);
+
+    // Оновлюємо DOM
+    applyActiveBorder(cid);
+    if (window.updateParentChildBar) window.updateParentChildBar();
+
+    // Скидаємо pending
+    _pendingBorder        = null;
+    _pendingBorderChildId = null;
+    _originalBorder       = { color: newColor, line: newLine, animation: newAnimation };
+
+    return true;
+}
+
+// ─── Активація кольору профілю (без pending) ───────────
+// Використовується тільки коли треба одразу зберегти колір
+// без проміжного pending стану (наприклад saveChildProfile).
+export function setProfileColor(hex, childId) {
+    const cid  = childId || state.activeChildId;
+    const meta = state.parent.children?.[cid];
+    if (!meta) return;
+    meta.color = hex;
+    document.documentElement.style.setProperty('--profile-color', hex);
+    if (window.updateParentChildBar) window.updateParentChildBar();
+}
+
 export function startPreview(themeId) {
     const theme = THEMES.find(t => t.id === themeId);
     if (!theme) return;
@@ -600,7 +856,7 @@ export function startPreview(themeId) {
     if (_previewTimer) stopPreview(false);
 
     // Зберігаємо поточний стан
-    _previewOriginal = { ...(state.data.appearance?.active || DEFAULT_APPEARANCE.active) };
+    _previewOriginal = { ...(_getProfile().active || DEFAULT_APPEARANCE.active) };
 
     // Застосовуємо тему
     _resetAppearanceVars();
