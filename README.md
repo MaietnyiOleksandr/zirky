@@ -7,10 +7,10 @@
 
 ## 🗂 Загальний опис
 
-Веб-застосунок для мотивації дитини: батьки нараховують зірки за оцінки та поведінку, дитина витрачає їх на винагороди. Один HTML-файл + ES-модулі + Firebase Realtime Database. Без фреймворків, без збірника.
+Веб-застосунок для мотивації дитини: батьки нараховують зірки за оцінки та поведінку, дитина витрачає їх на винагороди. Підтримує **кілька дитячих профілів** під одним батьківським акаунтом. Один HTML-файл + ES-модулі + Firebase Realtime Database. Без фреймворків, без збірника.
 
 **Стек:** Vanilla JS (ES modules), Firebase 10.7.1 (Realtime DB), CSS custom properties  
-**Хостинг:** будь-який статичний (файли відкриваються напряму)
+**Хостинг:** будь-який статичний (GitHub Pages і т.п.)
 
 ---
 
@@ -20,30 +20,31 @@
 |---|---|
 | `index.html` | Весь HTML + `<script type="module">` що імпортує все і виставляє `window.*` |
 | `style.css` | Всі стилі, CSS-змінні, теми, декор-селектори |
-| `state.js` | Єдиний спільний об'єкт `state` — всі модулі читають/пишуть його |
-| `config.js` | Firebase конфіг, `ACHIEVEMENTS`, `gradeToStars`, `conversionRates` |
-| `firebase.js` | Ініціалізація DB, `initFirebase()`, `saveRecords()`, `saveAppearance()` та ін. |
-| `auth.js` | Вхід батьків (PIN) / дитини, `state.data.isParent` |
+| `state.js` | Спільний об'єкт `state`, `defaultChildData()`, `resetUIState()`, геттери сумісності |
+| `config.js` | Firebase конфіг, `ACHIEVEMENTS` (з `gender`, `id`), `gradeToStars`, `conversionRates` |
+| `firebase.js` | Ініціалізація DB, `initParentData()`, `initChildListener()`, `saveAll()`, `saveRecords()` та ін. |
+| `auth.js` | Вхід батьків (PIN) / дитини, мульти-профільна логіка, блокування PIN |
+| `navigation.js` | `switchTab()`, `showForm()`, обробка подій `zirky:*` |
+| `ui.js` | `updateUI()`, `applyProfileVisibility()` — загальне оновлення інтерфейсу |
 | `records.js` | `commitRecord()` — єдина точка входу для додавання запису |
-| `tasks.js` | Завдання батьків + запити дитини, рендер, фільтри |
+| `tasks.js` | Завдання батьків + запити дитини, рендер, фільтри (+ фільтр по childId) |
 | `rewards.js` | Магазин винагород, витрати зірок |
-| `achievements.js` | `recalculateAchievements()`, перевірка рівнів, стріки, `_runningBalance` |
+| `achievements.js` | `recalculateAchievements()`, `migrateAchievementIds()`, стріки, gender-фільтрація |
 | `stats.js` | Графіки, теплова карта, донат, баланс-динаміка |
+| `compare.js` | Порівняльна статистика всіх профілів (тільки для батька) |
 | `schedule.js` | Розклад занять |
 | `history.js` | Історія записів, фільтри, навігація по місяцях |
-| `notifications.js` | Генерація сповіщень, значки, `generateNotifications()` |
-| `navigation.js` | `switchTab()`, `showForm()`, обробка подій `zirky:*` |
-| `appearance.js` | Теми, компоненти, `THEMES`, `COMPONENTS`, `applyTheme()` |
-| `settings.js` | Налаштування, резервне копіювання, конвертація |
-| `ui.js` | `updateUI()`, `showLoading()` — загальне оновлення інтерфейсу |
-| `help.js` | Довідка, `showHelp()`, `closeHelp()` |
-| `changelog.js` | Журнал змін, значок нових версій |
-| `subjects.js` | Предмети та гуртки, `isDoubleSubject()`, `buildSubjectSelects()` |
-| `records.js` | Оцінки, бонуси, діагностика, спеціальні записи, видалення |
+| `notifications.js` | Генерація сповіщень на профіль, `initNotificationsListener()` |
+| `appearance.js` | Теми, компоненти, рамка профілю, `applyAppearance()`, `applyActiveBorder()` |
+| `settings.js` | Налаштування, профілі дітей, резервне копіювання, конвертація |
+| `help.js` | Довідка, гендерні підписи через `G()` |
+| `changelog.js` | Журнал змін |
+| `subjects.js` | Предмети та гуртки, `buildSubjectSelects()` |
 | `goals.js` | Мета накопичення, `saveGoal()`, `renderGoal()` |
 | `freeze.js` | Канікули/заморозка стріку, `addFreezePeriod()` |
-| `utils.js` | `nowKyiv()`, `getTodayDate()`, `pulseElement()`, `migrateAppearance()` |
-| `geese/*.webp` | Зображення гусей для декоративної теми «Гуси» |
+| `feedback.js` | Фідбек дитини → батько, фільтри (+ фільтр по childId), кеш по всіх профілях |
+| `utils.js` | `nowKyiv()`, `g()`, `achText()`, `migrateAppearance()`, `pulseElement()` |
+| `geese/*.webp` | Зображення для декоративної теми «Гуси» |
 
 ---
 
@@ -51,41 +52,42 @@
 
 ```
 zirky/
-  parent/                        ← спільні батьківські дані
+  parent/                          ← спільні батьківські дані
     pin: '1234'
     conversionRates: { minutesPerStar, moneyPerStar }
     backupLastDate: 'YYYY-MM-DD'
     activeChildrenCount: 1
-    appearance: { active: { theme, palette, ... } }
+    appearance: { active: { theme, palette, font, buttons, background, badge } }
     showComparison: false
-    loginHistory: []               ← масив 20 останніх входів батьків
+    loginHistory: []               ← масив 20 останніх входів батька
     blockedUntil: null
     failedAttempts: 0
     blockingNotifiedAt: null
-    children/                    ← мета-дані профілів (не повні дані!)
+    children/                      ← мета-дані профілів (не повні дані дитини!)
       child_1/
-        name, avatar, color, pin, useOwnRates, startTab
-        border: { active, ownedColors, ownedStyles }
+        name, avatar, color, pin, gender, useOwnRates, startTab
+        conversionRates: null | { minutesPerStar, moneyPerStar }
+        border: { line, animation, ownedAnimations }
         loginHistory: []           ← масив 20 останніх входів дитини
         failedAttempts: 0
         blockedUntil: null
         blockingNotifiedAt: null
 
-  children/                      ← повні дані кожної дитини (ізольовані)
+  children/                        ← повні дані кожної дитини (ізольовані)
     child_1/
-      records: []                ← НЕ є джерелом правди для balance!
-      balance: 0                 ← береться з _runningBalance у achievements
+      records: []
+      balance: 0                   ← береться з _runningBalance у achievements
       achievements: { counters, streaks, levels, weekly, repeatableHistory, freezePeriods }
       appearance: { child: { owned, active }, parent: { active } }
       goal: null
       schedule: { days, bells, teachers, twoWeeks }
       subjects: []
       clubs: []
-      tasks/                     ← завдання цієї дитини
+      tasks/
         [task.id]: { taskObj }
-      feedback/                  ← фідбек цієї дитини
+      feedback/
         [item.id]: { feedbackObj }
-      notifications_feed/        ← сповіщення цієї дитини
+      notifications_feed/
         [notif.id]: { notifObj }
 ```
 
@@ -93,22 +95,81 @@ zirky/
 
 ---
 
+## 👥 Мульти-профільна система (v4)
+
+- До **5 дитячих профілів** під одним батьківським акаунтом
+- Кожна дитина має окремий PIN, стартовий таб, колір, рамку, стать (`gender: 'boy' | 'girl'`)
+- Дані кожної дитини повністю ізольовані: `zirky/children/${childId}/`
+- **Sticky child-bar** для батька: швидке перемикання між профілями без виходу
+- `state.activeChildId` — який профіль зараз активний (`'child_1'` | `'child_2'` | ...)
+- `state.parent.children` — мета-дані всіх профілів (name, pin, gender, border тощо)
+
+**Порядок ініціалізації:**
+```
+initParentData()           ← завантажує zirky/parent/ один раз
+  → показує loginOverlay
+  → user вибирає профіль
+  → _doEnterAsChild(childId) або checkPin (батько)
+    → _subscribeToChild(childId)
+      → initChildListener()      ← підписка на zirky/children/${childId}/
+      → initTasksListener()      ← підписка на tasks/
+      → initFeedbackListener()   ← підписка на feedback/
+      → initNotificationsListener()
+    → updateUI() + zirky:dataLoaded
+```
+
+---
+
+## ⚧ Гендерна система
+
+`gender: 'boy' | 'girl'` зберігається в `state.parent.children[childId].gender`.
+
+**Утиліти (`utils.js`):**
+```js
+g(childId, boy, girl)           // повертає boy або girl залежно від гендеру
+achText(ach, childId, field)    // правильна назва/desc досягнення для гендеру
+```
+
+**В `config.js`:**
+- `name: { boy: 'Відмінник', girl: 'Відмінниця' }` — гендерна назва
+- `gender: 'girl'` — досягнення лише для певної статі (напр. «Красуня»)
+- `id: 'відмінник'` — стабільний ключ для `record.achId` (не змінювати після релізу!)
+
+**В `help.js`:**
+```js
+const G = (boy, girl) => g(childId, boy, girl);
+// Використовується для гендерних підписів у довіднику
+```
+
+---
+
+## 🎭 Режими: батьки / дитина
+
+- `state.parent.isParent` — `true` якщо батько авторизований через PIN
+- `state.data.isParent` — геттер → `state.parent.isParent` (сумісність старих модулів)
+- `state.data.pin` — геттер → `state.parent.pin` (сумісність)
+- Блокування PIN — окреме для кожного профілю, зберігається у Firebase
+
+---
+
 ## 📝 Структура запису (record)
 
 ```js
 {
-  id:          Date.now(),          // Unix ms — також є точним часом додавання!
-  date:        'YYYY-MM-DDT12:00:00', // або nowKyiv() для витрат/досягнень
+  id:          Date.now(),
+  date:        'YYYY-MM-DDT12:00:00',
   type:        'earn' | 'spend' | 'freeze' | 'info',
   category:    'grade' | 'diagnostic' | 'bonus' | 'special' | 'task_reward'
                | 'achievement' | 'correction',
   stars:       Number,
-  subject:     String,              // для оцінок
-  grade:       String,              // '8'–'12'
-  description: String,              // або desc — є обидва варіанти (легасі)
-  counterKey:  String,              // для бонусів що рахуються в досягненнях
-  pages:       Number,              // для книг
-  freezeId:    String,              // для type='freeze'
+  subject:     String,
+  grade:       String,            // '8'–'12'
+  description: String,
+  counterKey:  String,
+  achId:       String,            // стабільний id досягнення (після міграції v4)
+  achLevel:    Number,            // рівень досягнення на момент отримання
+  pages:       Number,
+  freezeId:    String,
 }
 ```
 
@@ -116,39 +177,25 @@ zirky/
 
 ## ⚡ Пайплайн додавання запису — `commitRecord()`
 
-Всі записи (оцінки, бонуси, підтверджені завдання) проходять **один шлях** через `records.js`:
-
 ```
 commitRecord(recordData)
-  1. Видалити undefined-поля (Firebase не приймає undefined)
+  1. Видалити undefined-поля
   2. state.data.records.push(record)
-  3. Оновити state.data.balance (+/-)
+  3. Оновити state.data.balance
   4. checkGoalReached()
   5. Зберегти levelsBefore
-  6. recalculateAchievements()   ← перераховує ВСЕ з нуля
+  6. recalculateAchievements()
   7. giveRewardsForNewAchievements(levelsBefore)
   8. checkWeeklyAchievements()
-  9. saveRecords()               ← Firebase
+  9. saveRecords()
   10. updateUI()
 ```
 
 ---
 
-## 🎭 Режими: батьки / дитина (v4)
-
-- `state.parent.isParent` — `true` якщо батько авторизований через PIN
-- `state.data.isParent` — геттер, прозоро перенаправляє до `state.parent.isParent` (сумісність)
-- Батьківський PIN: `state.parent.pin` (Firebase: `zirky/parent/pin`)
-- Дитячий PIN: `state.parent.children[childId].pin` (Firebase: `zirky/parent/children/child_1/pin`)
-- `state.data.pin` — геттер → `state.parent.pin` (для `rewardPinOverlay`, сумісність)
-- Невірний PIN → повернення до екрану вибору профілю (без автовходу)
-- Блокування PIN — окреме для кожного профілю (батьки і кожна дитина), зберігається у Firebase
-
----
-
 ## 🗂 Таби навігації
 
-`switchTab(tabName)` активує секцію `#{tabName}Section` і викликає відповідний render.
+`switchTab(tabName)` активує секцію `#{tabName}Section`.
 
 | tab | Секція |
 |---|---|
@@ -160,94 +207,63 @@ commitRecord(recordData)
 | `history` | Історія |
 | `achievements` | Досягнення |
 | `feedback` | Зворотній зв'язок |
-| `settings` | Налаштування (включає магазин тем) |
+| `settings` | Налаштування |
 | `instructions` | Довідка (`guide` → alias) |
 
 **Програмне перемикання:**
 ```js
 document.dispatchEvent(new CustomEvent('zirky:switchTab', { detail: 'history' }));
 document.dispatchEvent(new CustomEvent('zirky:showForm',  { detail: 'freeze' }));
+document.dispatchEvent(new CustomEvent('zirky:dataLoaded'));  // після приходу даних Firebase
 ```
 
 ---
 
 ## 🎨 Система тем (appearance.js)
 
-Кожна тема = набір компонентів: `palette`, `font`, `buttons`, `background`, `badge`.  
 Дитина купує тему цілком, потім може міксувати компоненти куплених тем.
 
-**Активна тема зберігається:**
+**Активна тема:**
 ```js
 state.data.appearance.child.active  = { theme, palette, font, buttons, background, badge }
 state.data.appearance.parent.active = { theme, palette, font, buttons, background, badge }
 ```
 
+**Рамка профілю** — зберігається у `state.parent.children[childId].border`:
+```js
+border: {
+  line:            'solid' | 'dashed' | 'dotted' | ...   // стиль лінії
+  animation:       'none'  | 'pulse'  | 'rainbow' | ...  // анімація
+  ownedAnimations: []                                     // куплені анімації
+}
+```
+Застосовується через `applyActiveBorder(childId)` → CSS-атрибути `data-border-line`, `data-border-animation`, `--profile-color`.
+
 **Декоративні теми** (`decorated: true` у палітрі):
 - Виставляють `html[data-decorated="true"]`
 - CSS-змінні `--decor-*` задають зображення для слотів: `tasks`, `rewards`, `schedule`, `stats`, `settings`, `themes`, `guide`, `add`, `empty-tasks`, `empty-history`, `empty-feedback`, `help-achievements`, `notif-top`, `notif-bottom`
-- У `style.css` вже є всі потрібні селектори — нічого там не змінювати
+- У `style.css` вже є всі селектори — нічого там не змінювати
 
-**Щоб додати нову тему:** запис у `THEMES` + запис у `COMPONENTS`.
+**Щоб додати нову тему:** запис у `THEMES` + запис у `COMPONENTS` в `appearance.js`.
 
 ---
 
 ## 💰 Баланс — неочевидно!
 
 `state.data.balance` **не є** джерелом правди.  
-Реальний баланс живе в:
-```js
-state.data.achievements.counters._runningBalance
-```
-Він перераховується щоразу в `recalculateAchievements()` — прохід по всіх записах.  
-`state.data.balance` оновлюється з нього після кожного перерахунку.  
-Це захист від розбіжностей при синхронізації Firebase.
+Реальний баланс живе в `state.data.achievements.counters._runningBalance` — перераховується щоразу в `recalculateAchievements()`. `state.data.balance` оновлюється з нього після кожного перерахунку.
 
 ---
 
 ## 🕐 Дати — неочевидно!
 
-Два різних підходи в залежності від типу запису:
-
 | Тип запису | Поле `date` | Причина |
 |---|---|---|
-| Оцінки, бонуси, спеціальні | `input.value + 'T12:00:00'` | Батько може вносити заднім числом — дата вибирається вручну |
-| Витрати (`spend`) | `nowKyiv()` | Прив'язані до реального моменту покупки |
-| Досягнення | `nowKyiv()` | Автоматичні — реальний момент отримання |
+| Оцінки, бонуси, спеціальні | `input.value + 'T12:00:00'` | Батько може вносити заднім числом |
+| Витрати (`spend`) | `nowKyiv()` | Реальний момент покупки |
+| Досягнення | `nowKyiv()` | Автоматичні |
 
-**`id: Date.now()`** — завжди реальний Unix-мілісекундний timestamp.  
-Тому сортування в `history.js` порівнює лише `date.slice(0,10)` (тільки дату),  
-а для записів одного дня сортує за `id` — це і є реальний час додавання.
-
----
-
-## 🔌 ES модулі → window (onclick у HTML)
-
-`index.html` має один `<script type="module">`, який імпортує всі функції і **вручну** виставляє їх на `window`:
-```js
-window.switchTab = switchTab;
-window.commitRecord = commitRecord;
-// ... і ще ~80 функцій
-```
-Це потрібно бо `onclick="..."` у HTML не бачить ES-модульний scope.  
-Нові функції що викликаються з HTML **обов'язково** треба додавати до цього списку.
-
----
-
-## 📋 Структура завдання (task)
-
-```js
-{
-  id:        'task_<timestamp>_<random>',
-  origin:    'child_request' | 'parent_task',
-  status:    'pending' | 'active' | 'done' | 'confirmed' | 'rejected',
-  category:  String,
-  desc:      String,
-  stars:     Number,
-  date:      'YYYY-MM-DD',          // дата виконання (вибирається у формі)
-  createdAt: nowKyiv(),             // реальний час створення
-  confirmedAt / rejectedAt / doneAt / declinedAt / updatedAt: nowKyiv()
-}
-```
+`id: Date.now()` — завжди реальний Unix-timestamp. Сортування в `history.js` порівнює лише `date.slice(0,10)`, а для записів одного дня сортує за `id`.
 
 ---
 
@@ -256,35 +272,51 @@ window.commitRecord = commitRecord;
 | type | Логіка |
 |---|---|
 | `cumulative` | Лічильник по `counterKey` в записах |
-| `streak` | Дні підряд з нарахуванням зірок (з урахуванням `freezePeriods`) |
-| `repeatable_streak` | Стрік що скидається і перезапускається (зуби, волосся) |
+| `streak` | Дні підряд (з урахуванням `freezePeriods`) |
+| `repeatable_streak` | Стрік що скидається і перезапускається (зуби, волосся, зарядка) |
 | `weekly` | Зірки за поточний тиждень |
 | `balance` | Поточний баланс |
 | `goal_counter` | Лічильник досягнутих цілей |
 
 ---
 
+## 🔌 ES модулі → window
+
+`index.html` має один `<script type="module">` який імпортує всі функції і виставляє їх на `window`. Нові функції що викликаються з HTML **обов'язково** треба додавати до цього списку.
+
+---
+
+## 📋 Структура завдання (task)
+
+```js
+{
+  id:          'task_<timestamp>_<random>',
+  origin:      'child_request' | 'parent_task',
+  status:      'pending' | 'active' | 'done' | 'confirmed' | 'rejected',
+  category:    String,
+  title:       String,
+  stars:       Number,
+  date:        'YYYY-MM-DD',
+  createdAt:   nowKyiv(),
+  childId:     'child_1',        // до якого профілю належить
+}
+```
+
+---
+
 ## 📐 Правила роботи над проектом
 
-1. **Версія** — оновлювати у кожному зміненому файлі при будь-якій зміні:
+1. **Версія** — оновлювати у кожному зміненому файлі:
 
-   | Тип файлу | Де і як | Формат |
+   | Тип файлу | Де | Формат |
    |---|---|---|
-   | `*.js` | рядок `export const VERSION = '...'` | `'vMAJOR.YYYYMMDD.HHMM'` |
+   | `*.js` | `export const VERSION = '...'` | `'vMAJOR.YYYYMMDD.HHMM'` |
    | `index.html` | коментар `<!-- version: ... -->` | `v4.YYYYMMDD.HHMM` |
-   | `style.css` | коментар `/* version: ... */` (перший рядок) | `v4.YYYYMMDD.HHMM` |
+   | `style.css` | коментар `/* version: ... */` | `v4.YYYYMMDD.HHMM` |
 
-   **MAJOR** = мажорна версія (`4`). Змінюється лише при великій міграції.  
-   **YYYYMMDD** = дата редагування за Києвом (Claude проставляє коректно).  
-   **HHMM** = час редагування за Києвом:
-   - якщо розробник вказав час у повідомленні — береться звідти (`"Зроби це. 21:47"` → `2147`)
-   - якщо є повідомлення з підтвердженням із часом — береться звідти
-   - інакше — `0000` як явний маркер «час не уточнено»
+   **MAJOR** = `4`. **HHMM** — з повідомлення підтвердження, інакше `0000`.
 
-   Приклад: `v4.20260605.2208`
-
-
-2. **Видавати** тільки змінені файли, не весь архів
-3. **Перед кодуванням** — запитати підтвердження (крім випадків коли завдання змінити код дається напряму)
+2. **Видавати** тільки змінені файли
+3. **Перед кодуванням** — запитати підтвердження (крім прямих завдань)
 4. **Думати** українською
-5. **На початку чату** — користувач завантажує архів з актуальною версією
+5. **На початку чату** — завантажити архів з актуальною версією
