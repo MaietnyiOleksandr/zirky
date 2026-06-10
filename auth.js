@@ -7,7 +7,7 @@ function _shortAgent() {
     return navigator?.userAgent?.slice(0, 200) || '';
 }
 
-export const VERSION = 'v4.20260609.1130';
+export const VERSION = 'v4.20260610.2218';
 
 import { state, resetUIState, defaultChildData } from './state.js';
 import { savePin, saveParentLoginData, saveChildLoginHistory, saveChildBlockData, initChildListener,
@@ -541,18 +541,25 @@ export function renderLoginChildren() {
         return;
     }
 
-    // Кілька дітей — картки
+    // Кілька дітей — картки з рамкою, анімацією та шрифтом профілю
     container.innerHTML = `
         <div class="login-children-label">Оберіть профіль:</div>
         <div class="login-children-grid">
             ${childIds.map(id => {
-                const meta   = children[id] || {};
-                const name   = meta.name   || id;
-                const avatar = meta.avatar?.value || '👤';
-                const color  = meta.color  || '#4dabf7';
+                const meta      = children[id] || {};
+                const name      = meta.name         || id;
+                const avatar    = meta.avatar?.value || '👤';
+                const color     = meta.color         || '#4dabf7';
+                const border    = meta.border        || {};
+                const line      = border.line        || 'solid';
+                const animation = border.animation   || 'none';
+                const fontKey   = meta.fontKey       || 'default';
                 return `
                     <button class="login-child-card" onclick="enterAsChild('${id}')"
-                            style="--card-color:${color}">
+                            style="--profile-color:${color}"
+                            data-border-line="${line}"
+                            data-border-animation="${animation}"
+                            data-font="${fontKey}">
                         <span class="login-child-avatar">${avatar}</span>
                         <span class="login-child-name">${name}</span>
                     </button>`;

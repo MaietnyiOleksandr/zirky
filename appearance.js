@@ -12,7 +12,7 @@
 //       3. Додай CSS vars у style.css (опційно)
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260604.1232';
+export const VERSION = 'v4.20260610.2218';
 
 import { state } from './state.js';
 import { saveAppearance, saveParentAppearance, saveRecords, saveBorder, saveChildMeta } from './firebase.js';
@@ -450,8 +450,19 @@ function _getProfile() {
 
 // Зберігає appearance залежно від ролі: батько → state.parent, дитина → state.data
 function _saveCurrentAppearance() {
-    if (state.data.isParent) saveParentAppearance();
-    else                     saveAppearance();
+    if (state.data.isParent) {
+        saveParentAppearance();
+    } else {
+        saveAppearance();
+        // Синхронізуємо fontKey у meta дитини — для login-child-card
+        // (appearance завантажується після входу, meta — при старті)
+        const cid = state.activeChildId;
+        if (cid && state.parent.children?.[cid]) {
+            const fontKey = state.data.appearance?.child?.active?.font || 'default';
+            state.parent.children[cid].fontKey = fontKey;
+            saveChildMeta(cid);
+        }
+    }
 }
 
 // Забезпечує що appearance ініціалізований у новому форматі
