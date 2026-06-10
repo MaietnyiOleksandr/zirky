@@ -7,7 +7,7 @@ function _shortAgent() {
     return navigator?.userAgent?.slice(0, 200) || '';
 }
 
-export const VERSION = 'v4.20260610.2218';
+export const VERSION = 'v4.20260610.2242';
 
 import { state, resetUIState, defaultChildData } from './state.js';
 import { savePin, saveParentLoginData, saveChildLoginHistory, saveChildBlockData, initChildListener,
@@ -560,8 +560,10 @@ export function renderLoginChildren() {
                             data-border-line="${line}"
                             data-border-animation="${animation}"
                             data-font="${fontKey}">
-                        <span class="login-child-avatar">${avatar}</span>
-                        <span class="login-child-name">${name}</span>
+                        <span class="login-child-card-inner">
+                            <span class="login-child-avatar">${avatar}</span>
+                            <span class="login-child-name">${name}</span>
+                        </span>
                     </button>`;
             }).join('')}
         </div>`;

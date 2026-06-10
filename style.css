@@ -1,4 +1,4 @@
-/* version: v4.20260610.2234 */
+/* version: v4.20260610.2242 */
 
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;900&family=Comfortaa:wght@400;700&family=Fredoka+One&family=Ubuntu:wght@400;700&family=Playfair+Display:wght@400;700&family=Rubik:wght@400;500;700&display=swap');
 
@@ -4387,29 +4387,33 @@ html[data-badge="flag"] .z-badge::before {
 
 .login-child-card {
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-    padding: 18px 12px;
-    background: linear-gradient(135deg, var(--secondary), #4A90E2);
-    border: 2px solid transparent;
+    padding: 3px;
+    border: 3px solid var(--profile-color, var(--accent));
     border-radius: 18px;
     cursor: pointer;
     font-family: var(--font-main);
-    color: white;
     font-weight: 900;
     transition: transform 0.3s, box-shadow 0.3s;
     box-shadow: 0 4px 12px color-mix(in srgb, var(--profile-color, var(--secondary)) 30%, transparent);
+    background: transparent;
+    color: white;
 }
 .login-child-card:hover {
     transform: scale(1.04);
-    box-shadow: 0 6px 20px color-mix(in srgb, var(--card-color, var(--accent)) 35%, transparent);
+    box-shadow: 0 6px 20px color-mix(in srgb, var(--profile-color, var(--accent)) 40%, transparent);
+}
+.login-child-card-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 15px 12px;
+    background: linear-gradient(135deg, var(--secondary), #4A90E2);
+    border-radius: 14px;
+    width: 100%;
 }
 
-/* ── Рамка профілю на login-child-card ── */
-.login-child-card[data-border-line] {
-    border: 3px solid var(--profile-color, var(--accent));
-}
+/* ── Стиль лінії рамки ── */
 .login-child-card[data-border-line="solid"]  { border-style: solid;  }
 .login-child-card[data-border-line="dashed"] { border-style: dashed; }
 .login-child-card[data-border-line="dotted"] { border-style: dotted; }
