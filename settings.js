@@ -2,7 +2,7 @@
 // ⚙️   settings.js — Налаштування / Експорт / Імпорт
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260607.0746';
+export const VERSION = 'v4.20260610.2201';
 
 // ════════════════════════════════════════════════════════════
 
@@ -1019,11 +1019,15 @@ function _renderParentProfiles(container) {
         // Параметри стартової вкладки
         const startTabVal = meta.startTab || 'schedule';
         const tabOptions = [
-            { value: 'schedule', label: '📅 Розклад' },
-            { value: 'tasks',    label: '✅ Завдання' },
-            { value: 'rewards',  label: '🎁 Нагороди' },
-            { value: 'history',  label: '📜 Історія'  },
-            { value: 'add',      label: '⭐ Додати запис' },
+            { value: 'schedule',     label: '📅 Розклад'     },
+            { value: 'tasks',        label: '✅ Завдання'     },
+            { value: 'rewards',      label: '🎁 Нагороди'     },
+            { value: 'achievements', label: '🏆 Успіхи'       },
+            { value: 'history',      label: '📜 Історія'      },
+            { value: 'stats',        label: '📊 Графіки'      },
+            { value: 'feedback',     label: '💬 Зв'язок'     },
+            { value: 'guide',        label: '📘 Довідник'     },
+            { value: 'add',          label: '⭐ Додати запис' },
         ].map(o => `<option value="${o.value}"${startTabVal === o.value ? ' selected' : ''}>${o.label}</option>`).join('');
 
         // Параметри власних ставок
