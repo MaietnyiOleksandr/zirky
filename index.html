@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⭐</text></svg>">
-    <!-- version: v4.20260609.0424 -->
+    <!-- version: v4.20260611.1436 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>⭐ Зірки Успіху</title>
     <link rel="stylesheet" href="style.css">
@@ -925,6 +925,7 @@
                                             🛠️ Режим розробника (тест тем)
                                         </button>
                                     </div>
+                                    <div id="borderSectionContainer"></div>
                                 </div>
                             </div>
                         </div>
@@ -1324,7 +1325,7 @@
                  showVersionsModal, closeVersionsModal,
                  switchProfile, showActivityModal, closeActivityModal,
                  renderProfilesAccordion, saveChildProfile, setChildColor, unblockChild, addChildProfile,
-                 deleteChildProfile, toggleOwnRatesUI, commitAndSaveBorder, cancelBorder, renderBorderBlock } from './settings.js';
+                 deleteChildProfile, toggleOwnRatesUI } from './settings.js';
         import { openNotifications, closeNotifications, updateNotificationBadge,
                  updateChangelogBadge, markChangelogRead, dismissNotification,
                  dismissByAction, getUnreadItems, generateNotifications,
@@ -1335,7 +1336,9 @@
                  applyActiveBorder, previewBorder, previewBorderLine, previewBorderColor,
                  resetPendingBorder, getPendingBorder, commitPendingBorder,
                  resetBorderToNone, setProfileColor,
-                 BORDER_COLORS_FREE, BORDER_LINES, BORDER_ANIMATIONS } from './appearance.js';
+                 BORDER_COLORS_FREE, BORDER_LINES, BORDER_ANIMATIONS,
+                 renderBorderBlock, commitAndSaveBorder, cancelBorder,
+                 renderBorderSection } from './appearance.js';
 
         // ── Глобальні функції для onclick ─────────────────────
         window.showProfileSelect = showProfileSelect;
@@ -1477,6 +1480,7 @@
         window.commitAndSaveBorder = commitAndSaveBorder;
         window.cancelBorder        = cancelBorder;
         window.renderBorderBlock   = renderBorderBlock;
+        window.renderBorderSection  = renderBorderSection;
         window.closeVersionsModal  = closeVersionsModal;
         window._state              = state; // тимчасово для дебагу
 

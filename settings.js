@@ -2,7 +2,7 @@
 // ⚙️   settings.js — Налаштування / Експорт / Імпорт
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260610.2228';
+export const VERSION = 'v4.20260611.1436';
 
 // ════════════════════════════════════════════════════════════
 
@@ -10,7 +10,7 @@ import { state, defaultChildData, resetUIState } from './state.js';
 import { recalculateAchievements, giveRewardsForNewAchievements } from './achievements.js';
 import { db, saveAll, savePin, saveRecords, saveRates, saveBackupDate, saveAllFeedback, saveAllTasks, saveChildMeta, initNewChildData, unsubscribeAllListeners, deleteChild } from './firebase.js';
 import { getFeedbackItems } from './feedback.js';
-import { THEMES, stopAllPreviews, applyAppearance, BORDER_COLORS_FREE, DEFAULT_BORDER } from './appearance.js';
+import { THEMES, stopAllPreviews, applyAppearance, BORDER_COLORS_FREE } from './appearance.js';
 import { dismissByAction } from './notifications.js';
 import { get, ref, set, update } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 
@@ -911,70 +911,6 @@ export function toggleOwnRatesUI(childId) {
 }
 
 
-// ─── Рендер блоку вибору рамки ────────────────────────────────
-// childId — чий профіль редагується
-function _renderBorderBlock(childId) {
-    const meta           = state.parent.children?.[childId] || {};
-    const border         = meta.border || {};
-    const activeColor    = meta.color             || '#4dabf7';
-    const activeLine     = border.line            || 'solid';
-    const activeAnim     = border.animation       || 'none';
-    const ownedAnims     = border.ownedAnimations || [];
-
-    // Колірна палітра
-    const colorOpts = BORDER_COLORS_FREE.map(({ hex }) => `
-        <button class="profile-color-btn${activeColor === hex ? ' active' : ''}"
-            style="--btn-color:${hex}"
-            onclick="previewBorderColor('${hex}','${childId}');renderBorderBlock('${childId}')">
-        </button>`).join('');
-
-    // Стиль лінії (всі безкоштовні)
-    const lineOpts = BORDER_LINES.map(l => `
-        <button class="border-style-btn${activeLine === l.id ? ' active' : ''}"
-            onclick="previewBorderLine('${l.id}','${childId}');renderBorderBlock('${childId}')">
-            ${l.name}
-        </button>`).join('');
-
-    // Анімація
-    const animOpts = BORDER_ANIMATIONS.map(a => {
-        const isActive = activeAnim === a.id;
-        const isOwned  = a.free || ownedAnims.includes(a.id);
-        const badge    = a.free
-            ? ''
-            : isOwned
-                ? '<span class="border-style-badge owned">✅</span>'
-                : `<span class="border-style-badge buy">⭐${a.stars}</span>`;
-        return `
-            <button class="border-style-btn${isActive ? ' active' : ''}${!isOwned ? ' locked' : ''}"
-                onclick="previewBorder('${a.id}','${childId}');renderBorderBlock('${childId}')">
-                ${a.name}${badge}
-            </button>`;
-    }).join('');
-
-    return `
-        <div class="form-group border-block" id="borderBlock_${childId}">
-            <label class="card-label">🎨 Колір профілю</label>
-            <div class="profile-color-grid">${colorOpts}</div>
-
-            <label class="card-label" style="margin-top:10px;">▬ Стиль лінії</label>
-            <div class="border-style-grid">${lineOpts}</div>
-
-            <label class="card-label" style="margin-top:10px;">✨ Анімація</label>
-            <div class="border-style-grid">${animOpts}</div>
-
-            <div class="border-actions">
-                <button class="btn btn-primary btn-compact"
-                    onclick="commitAndSaveBorder('${childId}')">
-                    💾 Зберегти рамку
-                </button>
-                <button class="btn btn-compact"
-                    onclick="cancelBorder('${childId}')">
-                    ✖ Скасувати
-                </button>
-            </div>
-        </div>`;
-}
-
 function _renderChildProfile(container) {
     const childId = state.activeChildId || 'child_1';
     const meta    = state.parent.children?.[childId] || {};
@@ -997,8 +933,6 @@ function _renderChildProfile(container) {
                 💾 Зберегти
             </button>
 
-            <hr class="settings-divider">
-            ${_renderBorderBlock(childId)}
         </div>
     `;
 }
@@ -1025,7 +959,7 @@ function _renderParentProfiles(container) {
             { value: 'achievements', label: '🏆 Успіхи'       },
             { value: 'history',      label: '📜 Історія'      },
             { value: 'stats',        label: '📊 Графіки'      },
-            { value: 'feedback',     label: '💬 Зв`язок'     },
+            { value: 'feedback',     label: '💬 Зв'язок'     },
             { value: 'guide',        label: '📘 Довідник'     },
             { value: 'add',          label: '⭐ Додати запис' },
         ].map(o => `<option value="${o.value}"${startTabVal === o.value ? ' selected' : ''}>${o.label}</option>`).join('');
@@ -1111,8 +1045,6 @@ function _renderParentProfiles(container) {
                     }
                 </div>
 
-                <hr class="settings-divider">
-                ${_renderBorderBlock(childId)}
             </div>
         `;
     }).join('');
@@ -1217,6 +1149,7 @@ export async function addChildProfile() {
         color:          freeColor,
         avatar:         { type: 'emoji', value: defaultAvatar, id: 'default' },
         border:         { ...DEFAULT_BORDER },
+        fontKey:        'default',
         startTab:       'schedule',
         useOwnRates:    false,
         failedAttempts: 0,
@@ -1273,28 +1206,3 @@ function _promptGender() {
     });
 }
 
-// ════════════════════════════════════════════════════════════
-// 7б  РАМКА ПРОФІЛЮ — дії з pending border
-// ════════════════════════════════════════════════════════════
-
-// Перемальовує тільки блок рамки (без повного ре-рендеру акордіону)
-export function renderBorderBlock(childId) {
-    const el = document.getElementById(`borderBlock_${childId}`);
-    if (!el) return;
-    // Тимчасово підміняємо вміст через innerHTML
-    const tmp = document.createElement('div');
-    tmp.innerHTML = _renderBorderBlock(childId);
-    el.replaceWith(tmp.firstElementChild);
-}
-
-// Зберігає pending border (колір + стиль)
-export function commitAndSaveBorder(childId) {
-    const ok = window.commitPendingBorder?.(childId);
-    if (ok) renderBorderBlock(childId);
-}
-
-// Скасовує pending border — повертає DOM до оригіналу
-export function cancelBorder(childId) {
-    window.resetPendingBorder?.();
-    renderBorderBlock(childId);
-}

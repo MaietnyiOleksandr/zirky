@@ -7,7 +7,7 @@ function _shortAgent() {
     return navigator?.userAgent?.slice(0, 200) || '';
 }
 
-export const VERSION = 'v4.20260610.2242';
+export const VERSION = 'v4.20260611.1436';
 
 import { state, resetUIState, defaultChildData } from './state.js';
 import { savePin, saveParentLoginData, saveChildLoginHistory, saveChildBlockData, initChildListener,
@@ -502,6 +502,8 @@ export function switchChildFromBar(childId) {
     if (window.resetAllTasksCache)    window.resetAllTasksCache();
     if (window.resetAllFeedbackCache) window.resetAllFeedbackCache();
     if (window.resetCompareCache)     window.resetCompareCache();
+    // Скидаємо pending border — щоб не застосувати до іншого профілю
+    if (window.resetPendingBorder)    window.resetPendingBorder();
 
     // Одразу оновлюємо UI — гендерні назви бонусів і порожній список предметів
     // з'являються без затримки, не чекаємо onValue від Firebase

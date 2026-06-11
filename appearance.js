@@ -12,7 +12,7 @@
 //       3. Додай CSS vars у style.css (опційно)
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260610.2218';
+export const VERSION = 'v4.20260611.1436';
 
 import { state } from './state.js';
 import { saveAppearance, saveParentAppearance, saveRecords, saveBorder, saveChildMeta } from './firebase.js';
@@ -671,6 +671,8 @@ export function toggleDevMode() {
         _ensureAppearance();
         _resetAppearanceVars();
         _applyComponents(_getProfile().active || DEFAULT_ACTIVE);
+        // Скидаємо вибрану дитину в dev-тесті рамок
+        renderBorderSection._devChildId = null;
     }
     renderThemeShop();
 
@@ -1007,6 +1009,9 @@ export function renderThemeShop() {
     // Активний стан кнопки devMode (видимість керується централізовано в ui.js)
     const devBtn = document.getElementById('devModeBtn');
     if (devBtn) devBtn.classList.toggle('active', _devMode);
+
+    // Секція рамки — показується лише для дитини
+    renderBorderSection();
 }
 
 function _renderCustomize(container, owned, active) {
@@ -1114,4 +1119,140 @@ export function refundTheme(themeId) {
         import('./ui.js').then(m => m.updateUI());
         alert(`✅ Тему "${theme.name}" повернуто.\n+${theme.price}⭐ повернуто на рахунок.`);
     });
+}
+
+// ════════════════════════════════════════════════════
+// 🖼️  РАМКА ПРОФІЛЮ — рендер блоку налаштувань
+// ════════════════════════════════════════════════════
+
+// Повертає HTML блоку налаштування рамки для дитини childId
+function _renderBorderBlock(childId) {
+    const meta        = state.parent.children?.[childId] || {};
+    const border      = meta.border || {};
+    const activeColor = meta.color             || '#4dabf7';
+    const activeLine  = border.line            || 'solid';
+    const activeAnim  = border.animation       || 'none';
+    const ownedAnims  = border.ownedAnimations || [];
+
+    const colorOpts = BORDER_COLORS_FREE.map(({ hex }) => `
+        <button class="profile-color-btn${activeColor === hex ? ' active' : ''}"
+            style="--btn-color:${hex}"
+            onclick="previewBorderColor('${hex}','${childId}');renderBorderBlock('${childId}')">
+        </button>`).join('');
+
+    const lineOpts = BORDER_LINES.map(l => `
+        <button class="border-style-btn${activeLine === l.id ? ' active' : ''}"
+            onclick="previewBorderLine('${l.id}','${childId}');renderBorderBlock('${childId}')">
+            ${l.name}
+        </button>`).join('');
+
+    const animOpts = BORDER_ANIMATIONS.map(a => {
+        const isActive = activeAnim === a.id;
+        const isOwned  = a.free || ownedAnims.includes(a.id);
+        const badge    = a.free
+            ? ''
+            : isOwned
+                ? '<span class="border-style-badge owned">✅</span>'
+                : `<span class="border-style-badge buy">⭐${a.stars}</span>`;
+        return `
+            <button class="border-style-btn${isActive ? ' active' : ''}${!isOwned ? ' locked' : ''}"
+                onclick="previewBorder('${a.id}','${childId}');renderBorderBlock('${childId}')">
+                ${a.name}${badge}
+            </button>`;
+    }).join('');
+
+    return `
+        <div class="form-group border-block" id="borderBlock_${childId}">
+            <label class="card-label">🎨 Колір профілю</label>
+            <div class="profile-color-grid">${colorOpts}</div>
+
+            <label class="card-label" style="margin-top:10px;">▬ Стиль лінії</label>
+            <div class="border-style-grid">${lineOpts}</div>
+
+            <label class="card-label" style="margin-top:10px;">✨ Анімація</label>
+            <div class="border-style-grid">${animOpts}</div>
+
+            <div class="border-actions">
+                <button class="btn btn-primary btn-compact"
+                    onclick="commitAndSaveBorder('${childId}')">
+                    💾 Зберегти рамку
+                </button>
+                <button class="btn btn-compact"
+                    onclick="cancelBorder('${childId}')">
+                    ✖ Скасувати
+                </button>
+            </div>
+        </div>`;
+}
+
+// Перемальовує тільки borderBlock у DOM (без повного ре-рендеру)
+export function renderBorderBlock(childId) {
+    const el = document.getElementById(`borderBlock_${childId}`);
+    if (!el) return;
+    const tmp = document.createElement('div');
+    tmp.innerHTML = _renderBorderBlock(childId);
+    el.replaceWith(tmp.firstElementChild);
+}
+
+// Зберігає pending border
+export function commitAndSaveBorder(childId) {
+    const ok = commitPendingBorder(childId);
+    if (ok) renderBorderBlock(childId);
+}
+
+// Скасовує pending border
+export function cancelBorder(childId) {
+    resetPendingBorder();
+    renderBorderBlock(childId);
+}
+
+// Рендерить секцію рамки в #borderSectionContainer (розділ Теми).
+// Для дитини — повні налаштування рамки.
+// Для батька в devMode — тест рамок без збереження.
+export function renderBorderSection() {
+    const container = document.getElementById('borderSectionContainer');
+    if (!container) return;
+
+    if (state.data.isParent) {
+        // Батько бачить блок тільки у devMode
+        if (!_devMode) { container.innerHTML = ''; return; }
+
+        const children = state.parent.children || {};
+        const childIds = Object.keys(children);
+        if (!childIds.length) { container.innerHTML = ''; return; }
+
+        // Зберігаємо вибрану дитину між перерендерами
+        if (!renderBorderSection._devChildId || !children[renderBorderSection._devChildId]) {
+            renderBorderSection._devChildId = childIds[0];
+        }
+        const selectedId = renderBorderSection._devChildId;
+
+        const tabs = childIds.map(id => {
+            const name = children[id]?.name || id;
+            const isActive = id === selectedId;
+            return `<button class="border-dev-tab${isActive ? ' active' : ''}"
+                onclick="window.__zBorderDevSelect('${id}')">${name}</button>`;
+        }).join('');
+
+        container.innerHTML = `
+            <div class="settings-block-content" style="margin-top:16px;">
+                <p class="text-muted font-sm mb-md">🛠️ Тест рамок — зміни зберігаються у профілях дітей.</p>
+                <div class="border-dev-tabs">${tabs}</div>
+                ${_renderBorderBlock(selectedId)}
+            </div>`;
+
+        window.__zBorderDevSelect = (childId) => {
+            renderBorderSection._devChildId = childId;
+            renderBorderSection();
+        };
+        return;
+    }
+
+    // Дитина — звичайні налаштування рамки
+    const childId = state.activeChildId || 'child_1';
+    container.innerHTML = `
+        <div class="settings-block-content" style="margin-top:16px;">
+            <p class="text-muted font-sm mb-md">Налаштуй рамку свого профілю — колір, стиль лінії та анімацію.</p>
+            ${_renderBorderBlock(childId)}
+        </div>`;
 }
