@@ -17,14 +17,14 @@
 //     Live-таймер дедлайну з паузою при прихованій вкладці.
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260606.0746';
+export const VERSION = 'v4.20260611.2050';
 
 import { state, tasksFilter } from './state.js';
 import { isDoubleSubject } from './subjects.js';
 import { gradeToStars } from './config.js';
 import { commitRecord } from './records.js';
 import { saveTask, deleteTask as fbDeleteTask, deleteTasks as fbDeleteTasks, initTasksListener, db } from './firebase.js';
-import { nowKyiv, pulseElement } from './utils.js';
+import { nowKyiv, pulseElement, g } from './utils.js';
 import { hasUnreadTaskNotification, dismissTaskNotifications } from './notifications.js';
 import { get, ref } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 
@@ -667,7 +667,7 @@ export function markTaskDone(id) {
     const rewardLine = (task.rewardStars > 0)
         ? `\n🎁 + Винагорода: ${task.rewardStars}⭐\n💰 Всього отримаєш: ${Number(task.stars) + Number(task.rewardStars)}⭐`
         : `\n💰 Отримаєш: ${task.stars}⭐`;
-    if (!confirm(`Ти впевнена що виконала завдання?\n\n"${task.title}"${rewardLine}\n\nБатьки перевірять і підтвердять.`)) return;
+    if (!confirm(`Ти ${g(state.activeChildId, 'впевнений', 'впевнена')} що ${g(state.activeChildId, 'виконав', 'виконала')} завдання?\n\n"${task.title}"${rewardLine}\n\nБатьки перевірять і підтвердять.`)) return;
 
     task.status = 'done';
     task.doneAt = nowKyiv();
@@ -1481,7 +1481,7 @@ function _renderChildTaskCard(task) {
             ${isActive && !hasDecline ? `
                 <div class="tk-actions">
                     <button class="tk-action-btn tk-action-btn--primary"
-                        onclick="markTaskDone('${task.id}')">✔️ Виконала</button>
+                        onclick="markTaskDone('${task.id}')">✔️ ${g(state.activeChildId, 'Виконав', 'Виконала')}</button>
                     <button class="tk-action-btn tk-action-btn--danger"
                         onclick="startDeclineTask('${task.id}')">✖️ Не можу</button>
                 </div>
@@ -1498,7 +1498,7 @@ function _renderChildTaskCard(task) {
                         <button class="tk-action-btn tk-action-btn--danger"
                             onclick="submitDeclineTask('${task.id}')">✖️ Відмовитись</button>
                         <button class="tk-action-btn tk-action-btn--cancel"
-                            onclick="cancelDeclineTask('${task.id}')">↩️ Передумала</button>
+                            onclick="cancelDeclineTask('${task.id}')">↩️ ${g(state.activeChildId, 'Передумав', 'Передумала')}</button>
                     </div>
                 </div>
             ` : ''}
