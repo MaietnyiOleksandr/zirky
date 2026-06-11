@@ -2,7 +2,7 @@
 // ⚙️   settings.js — Налаштування / Експорт / Імпорт
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260611.1436';
+export const VERSION = 'v4.20260611.1442';
 
 // ════════════════════════════════════════════════════════════
 
@@ -959,7 +959,7 @@ function _renderParentProfiles(container) {
             { value: 'achievements', label: '🏆 Успіхи'       },
             { value: 'history',      label: '📜 Історія'      },
             { value: 'stats',        label: '📊 Графіки'      },
-            { value: 'feedback',     label: '💬 Зв'язок'     },
+            { value: 'feedback',     label: '💬 Зворотній зв\'язок' },
             { value: 'guide',        label: '📘 Довідник'     },
             { value: 'add',          label: '⭐ Додати запис' },
         ].map(o => `<option value="${o.value}"${startTabVal === o.value ? ' selected' : ''}>${o.label}</option>`).join('');
