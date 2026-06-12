@@ -17,7 +17,7 @@
 //     Live-таймер дедлайну з паузою при прихованій вкладці.
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260611.2050';
+export const VERSION = 'v4.20260612.0500';
 
 import { state, tasksFilter } from './state.js';
 import { isDoubleSubject } from './subjects.js';
@@ -216,6 +216,18 @@ function _allTasksForParent() {
         }
     }
     return result.sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+}
+
+// Шукає завдання по id у _allTasksCache (всі діти) або state.data.tasks (дитячий режим).
+// Батьківські дії мають використовувати цю функцію — не state.data.tasks?.[id].
+function _getTaskById(id) {
+    if (state.data.isParent) {
+        for (const [childId, tasks] of Object.entries(_allTasksCache)) {
+            if (tasks[id]) return { ...tasks[id], childId };
+        }
+        return null;
+    }
+    return state.data.tasks?.[id] ?? null;
 }
 
 // ════════════════════════════════════════════════════════════
@@ -556,7 +568,7 @@ export function submitParentTask() {
 // ════════════════════════════════════════════════════════════
 
 export function confirmTask(id) {
-    const task = state.data.tasks?.[id];
+    const task = _getTaskById(id);
     if (!task) { alert('Завдання не знайдено'); return; }
 
     // Захист від подвійного підтвердження
@@ -632,7 +644,7 @@ export function selectRejectReason(id, reason) {
 }
 
 export function submitRejectTask(id) {
-    const task = state.data.tasks?.[id];
+    const task = _getTaskById(id);
     if (!task) return;
     if (task.status === 'rejected' || task.status === 'confirmed') return;
 
@@ -769,7 +781,7 @@ export function deleteOwnRequest(id) {
 // (можна змінити кількість або зняти зовсім).
 
 export function startEditTask(id) {
-    const task = state.data.tasks?.[id];
+    const task = _getTaskById(id);
     if (!task) return;
     if (task.origin !== 'parent_task') return;
     if (task.status !== 'active' && task.status !== 'done') return;
@@ -827,7 +839,7 @@ export function onEditNoRewardToggle(id) {
 }
 
 export function saveEditTask(id) {
-    const task = state.data.tasks?.[id];
+    const task = _getTaskById(id);
     if (!task) return;
     if (task.origin !== 'parent_task') return;
     if (task.status !== 'active' && task.status !== 'done') return;
@@ -899,7 +911,7 @@ export function saveEditTask(id) {
 // ════════════════════════════════════════════════════════════
 
 export function deleteTaskByParent(id) {
-    const task = state.data.tasks?.[id];
+    const task = _getTaskById(id);
     if (!task) return;
     if (!confirm(`Видалити завдання "${task.title}"?\n\nЯкщо воно вже було підтверджене — запис в Історії залишиться.`)) return;
     fbDeleteTask(id);
