@@ -3,7 +3,7 @@
 //     Етап 1: Фундамент — структура + Firebase
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260605.1448';
+export const VERSION = 'v4.20260612.1333';
 
 import { state }    from './state.js';
 import { nowKyiv }  from './utils.js';
@@ -343,7 +343,7 @@ export function generateNotifications() {
                 _upsertItem(_makeItem(id, 'feedback_reply',
                     'Відповідь батьків',
                     `До: ${_fbLabel(item)}`,
-                    { createdAt: item.commentAt, readBy: { parent: existing?.readBy?.parent || null, child: null } }
+                    { createdAt: item.commentAt, feedbackId: item.id, readBy: { parent: existing?.readBy?.parent || null, child: null } }
                 ));
             }
         }
@@ -356,7 +356,7 @@ export function generateNotifications() {
                 _upsertItem(_makeItem(id, 'feedback_status',
                     'Оновлено статус запиту',
                     `${_fbLabel(item)} → ${item.status} ${NAMES[item.status] || ''}`,
-                    { createdAt: item.statusChangedAt, readBy: { parent: existing?.readBy?.parent || null, child: null } }
+                    { createdAt: item.statusChangedAt, feedbackId: item.id, readBy: { parent: existing?.readBy?.parent || null, child: null } }
                 ));
             }
         }
@@ -364,10 +364,16 @@ export function generateNotifications() {
         if (item.date) {
             const id = `fb_new_${item.id}`;
             if (!_items[id]) {
+                // Ім'я дитини — лише у батьківському профілі
+                const fbChildId  = item.childId || state.activeChildId;
+                const fbMeta     = (state.parent?.children || {})[fbChildId] || {};
+                const fbWho      = state.data.isParent && fbMeta.name
+                    ? `від ${fbMeta.avatar?.value || '👤'} ${fbMeta.name}: `
+                    : '';
                 _upsertItem(_makeItem(id, 'feedback_new',
-                    'Нове повідомлення від дитини',
-                    `${item.category} · ${_fbLabel(item)}`,
-                    { createdAt: item.date }
+                    'Нове повідомлення',
+                    `${fbWho}${item.category} · ${_fbLabel(item)}`,
+                    { createdAt: item.date, feedbackId: item.id }
                 ));
             }
         }
@@ -379,7 +385,7 @@ export function generateNotifications() {
                 _upsertItem(_makeItem(id, 'feedback_comment',
                     'Дитина прокоментувала',
                     `До: ${_fbLabel(item)}`,
-                    { createdAt: item.childCommentAt, readBy: { child: existing?.readBy?.child || null, parent: null } }
+                    { createdAt: item.childCommentAt, feedbackId: item.id, readBy: { child: existing?.readBy?.child || null, parent: null } }
                 ));
             }
         }
@@ -738,6 +744,36 @@ export function dismissNotification(id) {
 
 const TASK_NOTIF_KINDS = ['request', 'done', 'new', 'declined', 'confirmed', 'rejected', 'updated'];
 
+// ════════════════════════════════════════════════════════════
+// 💬  ХЕЛПЕРИ ДЛЯ КАРТОК ФІДБЕКУ
+// ════════════════════════════════════════════════════════════
+//   Аналог TASK_NOTIF_KINDS для вкладки "Зв'язок":
+//     • бейдж на конкретній картці фідбеку
+//     • dismiss при кліку на картку
+// ════════════════════════════════════════════════════════════
+
+const FB_NOTIF_PREFIXES = ['fb_new_', 'fb_reply_', 'fb_status_', 'fb_comment_'];
+
+// Чи є непрочитане сповіщення пов'язане з конкретним фідбек-item.
+export function hasUnreadFeedbackNotif(feedbackItemId) {
+    if (!feedbackItemId) return false;
+    const role = state.data.isParent ? 'parent' : 'child';
+    return FB_NOTIF_PREFIXES.some(prefix => {
+        const item = _items[`${prefix}${feedbackItemId}`];
+        return item && _isUnread(item, role);
+    });
+}
+
+// Dismiss усіх сповіщень пов'язаних з конкретним фідбек-item.
+// Викликається при кліку на картку фідбеку.
+export function dismissFeedbackNotifs(feedbackItemId) {
+    if (!feedbackItemId) return;
+    FB_NOTIF_PREFIXES.forEach(prefix => {
+        const id = `${prefix}${feedbackItemId}`;
+        if (_items[id]) dismissNotification(id);
+    });
+}
+
 // Чи є хоч одне непрочитане сповіщення про конкретне завдання (для поточної ролі).
 export function hasUnreadTaskNotification(taskId) {
     if (!taskId) return false;
@@ -874,10 +910,15 @@ export function openNotifications() {
             const c    = TYPE_COLORS[item.type] || TYPE_COLORS.backup;
             const icon = TYPE_ICONS[item.type]  || '🔔';
             const time = item.createdAt ? `<div class="notif-item-time">${_fmt(item.createdAt)}</div>` : '';
-            // Для типу 'changelog' — клік на тілі відкриває модалку історії змін
-            const bodyClickAttr = item.type === 'changelog'
-                ? ` onclick="window.__zOpenChangelog()" style="cursor:pointer;"`
-                : '';
+            // Клік на тілі сповіщення — навігація залежно від типу
+            let bodyClickAttr = '';
+            if (item.type === 'changelog') {
+                bodyClickAttr = ` onclick="window.__zOpenChangelog()" style="cursor:pointer;"`;
+            } else if (item.type.startsWith('feedback_')) {
+                bodyClickAttr = ` onclick="window.__zSwitchTab('feedback')" style="cursor:pointer;"`;
+            } else if (item.type.startsWith('task_')) {
+                bodyClickAttr = ` onclick="window.__zSwitchTab('tasks')" style="cursor:pointer;"`;
+            }
             return `
             <div class="notif-item" id="notifItem_${item.id}"
                 style="background:${c.bg};border-color:${c.border};">
@@ -927,6 +968,12 @@ export function openNotifications() {
         if (window.showHelp) window.showHelp('changelog');
         // showHelp('changelog') автоматично викликає markChangelogRead()
         // → бейдж сам зникне
+    };
+
+    // Клік на тілі сповіщення feedback/task — закриває панель і переходить на таб
+    window.__zSwitchTab = (tab) => {
+        closeNotifications();
+        if (window.switchTab) window.switchTab(tab, true);
     };
 }
 

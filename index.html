@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⭐</text></svg>">
-    <!-- version: v4.20260611.1436 -->
+    <!-- version: v4.20260612.1333 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>⭐ Зірки Успіху</title>
     <link rel="stylesheet" href="style.css">
@@ -1329,7 +1329,8 @@
         import { openNotifications, closeNotifications, updateNotificationBadge,
                  updateChangelogBadge, markChangelogRead, dismissNotification,
                  dismissByAction, getUnreadItems, generateNotifications,
-                 hasUnreadByType, dismissByType } from './notifications.js';
+                 hasUnreadByType, dismissByType,
+                 hasUnreadFeedbackNotif, dismissFeedbackNotifs } from './notifications.js';
         import { applyAppearance, renderThemeShop, buyTheme,
                  activateTheme, setComponent, startPreview, stopPreview, refundTheme,
                  toggleDevMode, isDevMode, stopAllPreviews,
@@ -1585,6 +1586,12 @@
             const hasBackup = badgeTargets.has('backup-section');
             setBadge('badgeBackupAccordion', hasBackup);
             setBadge('badgeBackupCard',      hasBackup);
+
+            // ─── 💬 Крапки на картках фідбеку ───────────────────────────
+            document.querySelectorAll('[id^="fbCardBadge_"]').forEach(el => {
+                const feedbackId = el.id.replace('fbCardBadge_', '');
+                el.classList.toggle('z-badge--hidden', !hasUnreadFeedbackNotif(feedbackId));
+            });
         };
         window.refundTheme    = refundTheme;
         window.toggleDevMode  = toggleDevMode;
@@ -1608,6 +1615,16 @@
         window.saveChildComment = saveChildComment;
         window.applyFeedbackFilter       = applyFeedbackFilter;
         window.resetAllFeedbackCache     = resetAllFeedbackCache;
+
+        // Клік на картку фідбеку — dismiss бейджа, ігноруємо кліки на кнопки
+        window.fbCardClick = (feedbackItemId, evt) => {
+            if (evt && evt.target.closest('button, input, textarea, select, a, [role="button"]')) return;
+            if (!hasUnreadFeedbackNotif(feedbackItemId)) return;
+            dismissFeedbackNotifs(feedbackItemId);
+            // Прибрати крапку з картки без повного ререндеру
+            const badge = document.getElementById(`fbCardBadge_${feedbackItemId}`);
+            if (badge) badge.classList.add('z-badge--hidden');
+        };
         window.renderAchievements = renderAchievements;
         window.renderAchievementsHome = renderAchievementsHome;
 

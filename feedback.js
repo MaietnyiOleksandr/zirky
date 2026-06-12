@@ -2,10 +2,10 @@
 // 💬  feedback.js — Зворотній зв'язок
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260606.0746';
+export const VERSION = 'v4.20260612.1333';
 
 import { state, feedbackFilter } from './state.js';
-import { notifyFeedbackChanged, removeNotification, getUnreadItems } from './notifications.js';
+import { notifyFeedbackChanged, removeNotification, getUnreadItems, hasUnreadFeedbackNotif, dismissFeedbackNotifs } from './notifications.js';
 import { nowKyiv } from './utils.js';
 import { saveFeedbackItem, deleteFeedbackItem, db } from './firebase.js';
 import { get, ref } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
@@ -304,7 +304,9 @@ function _renderChildCard(item) {
 
     return `
         <div id="feedbackCard_${item.id}" class="fb-card"
-            style="border-left-color:${cfg.border};">
+            style="border-left-color:${cfg.border};"
+            onclick="window.fbCardClick && window.fbCardClick('${item.id}', event)">
+            <span class="z-badge${hasUnreadFeedbackNotif(item.id) ? '' : ' z-badge--hidden'}" id="fbCardBadge_${item.id}"></span>
 
             <div class="fb-card-header">
                 <span class="fb-card-category">${item.category}</span>
@@ -427,7 +429,9 @@ function _renderParentCard(item) {
 
     return `
         <div id="feedbackCard_${item.id}" class="fb-card${childColor ? ' fb-card--child' : ''}"
-            ${childColor ? `style="--child-color:${childColor}"` : ''}>
+            ${childColor ? `style="--child-color:${childColor}"` : ''}
+            onclick="window.fbCardClick && window.fbCardClick('${item.id}', event)">
+            <span class="z-badge${hasUnreadFeedbackNotif(item.id) ? '' : ' z-badge--hidden'}" id="fbCardBadge_${item.id}"></span>
 
             <div class="fb-card-header">
                 <span class="fb-card-category">${item.category}${childLabel ? ' · ' + childLabel : ''}</span>
