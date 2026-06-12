@@ -17,7 +17,7 @@
 //     Live-таймер дедлайну з паузою при прихованій вкладці.
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260612.0735';
+export const VERSION = 'v4.20260612.1056';
 
 import { state, tasksFilter } from './state.js';
 import { isDoubleSubject } from './subjects.js';
@@ -181,6 +181,20 @@ let _allTasksCacheLoaded = false;
 export function resetAllTasksCache() {
     _allTasksCache = {};
     _allTasksCacheLoaded = false;
+}
+
+// Оновлює або додає task у _allTasksCache для відповідної дитини.
+// Викликається після кожної мутації (create, edit, confirm) щоб UI одразу відображав зміни.
+function _updateTaskInCache(task) {
+    const childId = task.childId || state.activeChildId;
+    if (!_allTasksCache[childId]) _allTasksCache[childId] = {};
+    _allTasksCache[childId][task.id] = { ...task };
+}
+
+// Видаляє task з _allTasksCache.
+function _deleteTaskFromCache(id, childId) {
+    const cid = childId || state.activeChildId;
+    if (_allTasksCache[cid]) delete _allTasksCache[cid][id];
 }
 
 async function _loadAllChildrenTasks() {
@@ -555,8 +569,7 @@ export function submitParentTask() {
     const targetChildId = document.getElementById('ptaskChildId')?.value || state.activeChildId || 'child_1';
     task.childId = targetChildId;
     saveTask(task, targetChildId);
-    // Скидаємо кеш щоб наступний renderTasks() перезавантажив дані
-    resetAllTasksCache();
+    _updateTaskInCache(task);
     closeParentTaskForm();
     if (window.generateNotifications) window.generateNotifications();
     const rewardLine = rewardStars > 0 ? `\n🎁 Винагорода: +${rewardStars}⭐` : '';
@@ -625,6 +638,7 @@ export async function confirmTask(id) {
     task.status = 'confirmed';
     task.confirmedAt = nowKyiv();
     saveTask(task);
+    _updateTaskInCache(task);
 
     if (window.generateNotifications) window.generateNotifications();
     renderTasks();
@@ -953,6 +967,7 @@ export function saveEditTask(id) {
     task.lastEditNote = changes.join(' · ');
 
     saveTask(task);
+    _updateTaskInCache(task);
     cancelEditTask(id);
     if (window.generateNotifications) window.generateNotifications();
     renderTasks();
@@ -966,7 +981,9 @@ export function deleteTaskByParent(id) {
     const task = _getTaskById(id);
     if (!task) return;
     if (!confirm(`Видалити завдання "${task.title}"?\n\nЯкщо воно вже було підтверджене — запис в Історії залишиться.`)) return;
-    fbDeleteTask(id);
+    fbDeleteTask(id, task.childId);
+    _deleteTaskFromCache(id, task.childId);
+    renderTasks();
     if (window.generateNotifications) window.generateNotifications();
 }
 
