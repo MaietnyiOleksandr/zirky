@@ -17,7 +17,7 @@
 //     Live-таймер дедлайну з паузою при прихованій вкладці.
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260612.1056';
+export const VERSION = 'v4.20260612.1301';
 
 import { state, tasksFilter } from './state.js';
 import { isDoubleSubject } from './subjects.js';
@@ -571,6 +571,7 @@ export function submitParentTask() {
     saveTask(task, targetChildId);
     _updateTaskInCache(task);
     closeParentTaskForm();
+    renderTasks();
     if (window.generateNotifications) window.generateNotifications();
     const rewardLine = rewardStars > 0 ? `\n🎁 Винагорода: +${rewardStars}⭐` : '';
     alert(`✅ Завдання створено!\n\n${title}\nЗірок: ${stars}⭐${rewardLine}${deadline ? '\nДедлайн: ' + _fmtDateTime(deadline) : ''}`);
