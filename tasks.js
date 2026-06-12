@@ -17,7 +17,7 @@
 //     Live-таймер дедлайну з паузою при прихованій вкладці.
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260612.0500';
+export const VERSION = 'v4.20260612.0735';
 
 import { state, tasksFilter } from './state.js';
 import { isDoubleSubject } from './subjects.js';
@@ -26,7 +26,7 @@ import { commitRecord } from './records.js';
 import { saveTask, deleteTask as fbDeleteTask, deleteTasks as fbDeleteTasks, initTasksListener, db } from './firebase.js';
 import { nowKyiv, pulseElement, g } from './utils.js';
 import { hasUnreadTaskNotification, dismissTaskNotifications } from './notifications.js';
-import { get, ref } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+import { get, ref, update } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 
 // ════════════════════════════════════════════════════════════
 // 🎛️  Константи
@@ -567,7 +567,7 @@ export function submitParentTask() {
 // ✅  ДІЇ — підтвердження / відхилення (батьки)
 // ════════════════════════════════════════════════════════════
 
-export function confirmTask(id) {
+export async function confirmTask(id) {
     const task = _getTaskById(id);
     if (!task) { alert('Завдання не знайдено'); return; }
 
@@ -593,22 +593,32 @@ export function confirmTask(id) {
         : `Підтвердити виконання завдання?\n\n"${task.title}"${rewardLine}`;
     if (!confirm(confirmText)) return;
 
-    // 1. Створюємо стандартний запис у records[] через спільну функцію
-    const record = _taskToRecord(task);
-    commitRecord(record);
+    // Визначаємо чи завдання належить активній дитині чи іншій
+    const isActiveChild = !task.childId || task.childId === state.activeChildId;
 
-    // 1b. Якщо це parent_task з винагородою — додаємо ДРУГИЙ запис категорії 'task_reward'
-    // Дитячі запити (child_request) винагороди не отримують — ми домовились
-    if (task.origin === 'parent_task' && task.rewardStars && Number(task.rewardStars) > 0) {
-        commitRecord({
-            id: Date.now() + 1,                       // унікальний id, щоб не співпав з основним
-            date: record.date,                        // та сама дата що й основний запис
-            description: `✅ Виконане завдання: ${task.title}`,
-            stars: Number(task.rewardStars),
-            type: 'earn',
-            category: 'task_reward',
-            taskId: task.id,                          // для діагностики/майбутніх фільтрів
-        });
+    if (isActiveChild) {
+        // ── Активна дитина: стандартний шлях через commitRecord ──────────
+        // commitRecord оновлює state.data + Firebase через saveRecords()
+        const record = _taskToRecord(task);
+        commitRecord(record);
+
+        // 1b. parent_task з винагородою — додатковий запис 'task_reward'
+        if (task.origin === 'parent_task' && task.rewardStars && Number(task.rewardStars) > 0) {
+            commitRecord({
+                id: Date.now() + 1,
+                date: record.date,
+                description: `✅ Виконане завдання: ${task.title}`,
+                stars: Number(task.rewardStars),
+                type: 'earn',
+                category: 'task_reward',
+                taskId: task.id,
+            });
+        }
+    } else {
+        // ── Інша дитина: пишемо записи напряму у Firebase ────────────────
+        // state.data містить дані активної дитини — не чіпаємо.
+        // balance і achievements перерахуються коли ця дитина залогіниться.
+        await _commitRecordForChild(task);
     }
 
     // 2. Оновлюємо task — статус confirmed
@@ -618,6 +628,48 @@ export function confirmTask(id) {
 
     if (window.generateNotifications) window.generateNotifications();
     renderTasks();
+}
+
+// Записує records у Firebase напряму для дитини що не є activeChild.
+// Не торкається state.data — баланс і досягнення перерахуються при вході дитини.
+async function _commitRecordForChild(task) {
+    const childId = task.childId;
+    const childRef = ref(db, `zirky/children/${childId}`);
+
+    try {
+        const snap = await get(childRef);
+        const data = snap.val() || {};
+
+        const records = Array.isArray(data.records) ? [...data.records] : [];
+        let balance = Number(data.balance) || 0;
+
+        // Основний запис
+        const record = _taskToRecord(task);
+        // Видаляємо undefined-поля (Firebase не приймає)
+        Object.keys(record).forEach(k => record[k] === undefined && delete record[k]);
+        records.push(record);
+        balance += Number(record.stars) || 0;
+
+        // Додатковий запис для task_reward
+        if (task.origin === 'parent_task' && task.rewardStars && Number(task.rewardStars) > 0) {
+            const rewardRecord = {
+                id: Date.now() + 1,
+                date: record.date,
+                description: `✅ Виконане завдання: ${task.title}`,
+                stars: Number(task.rewardStars),
+                type: 'earn',
+                category: 'task_reward',
+                taskId: task.id,
+            };
+            records.push(rewardRecord);
+            balance += Number(task.rewardStars);
+        }
+
+        await update(childRef, { records, balance });
+    } catch (e) {
+        console.error('_commitRecordForChild: помилка запису для', childId, e);
+        alert('⚠️ Зірки нараховано, але виникла помилка збереження. Перевірте баланс дитини.');
+    }
 }
 
 export function startRejectTask(id) {

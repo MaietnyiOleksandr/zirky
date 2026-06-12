@@ -2,7 +2,7 @@
 // ⚙️   settings.js — Налаштування / Експорт / Імпорт
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260611.1442';
+export const VERSION = 'v4.20260612.0735';
 
 // ════════════════════════════════════════════════════════════
 
@@ -1166,7 +1166,6 @@ export async function addChildProfile() {
 
         // Оновлюємо activeChildrenCount
         state.parent.activeChildrenCount = Object.keys(state.parent.children).length;
-        const { update, ref } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js');
         update(ref(db, 'zirky/parent'), {
             activeChildrenCount: state.parent.activeChildrenCount,
         });
