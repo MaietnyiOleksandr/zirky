@@ -7,7 +7,7 @@ function _shortAgent() {
     return navigator?.userAgent?.slice(0, 200) || '';
 }
 
-export const VERSION = 'v4.20260611.1436';
+export const VERSION = 'v4.20260613.0738';
 
 import { state, resetUIState, defaultChildData } from './state.js';
 import { savePin, saveParentLoginData, saveChildLoginHistory, saveChildBlockData, initChildListener,
@@ -16,7 +16,7 @@ import { nowKyiv } from './utils.js';
 import { updateUI } from './ui.js';
 import { switchTab } from './navigation.js';
 import { applyAppearance, applyActiveBorder } from './appearance.js';
-import { initNotificationsListener } from './notifications.js';
+import { initNotificationsListener, generateLoginFailedNotif } from './notifications.js';
 import { initCompare } from './compare.js';
 
 // ════════════════════════════════════════════════════════════
@@ -189,8 +189,10 @@ export function checkPin() {
         state.parent.failedAttempts = (state.parent.failedAttempts || 0) + 1;
         // Записуємо невдалу спробу в loginHistory
         if (!state.parent.loginHistory) state.parent.loginHistory = [];
-        state.parent.loginHistory.unshift({ at: nowKyiv(), type: 'failed', agent: _shortAgent() });
+        const _parentFailAt = nowKyiv();
+        state.parent.loginHistory.unshift({ at: _parentFailAt, type: 'failed', agent: _shortAgent() });
         if (state.parent.loginHistory.length > 20) state.parent.loginHistory.length = 20;
+        generateLoginFailedNotif('parent', _parentFailAt);
         state.pinValue = '';
         document.getElementById('pinInput').value = '';
 
@@ -320,7 +322,10 @@ function _checkChildPin() {
     } else {
         // ── Невірний PIN ──────────────────────────────────────
         meta.failedAttempts = (meta.failedAttempts || 0) + 1;
+        const _childFailAt = nowKyiv();
         saveChildLoginHistory(childId, 'failed', _shortAgent());
+        const _childName = state.parent.children?.[childId]?.name || childId;
+        generateLoginFailedNotif(_childName, _childFailAt);
 
         // Логіка блокування: 3 спроби → 30 с; 5 → 5 хв; 6+ → +5 хв кожна
         let blockMs = 0;

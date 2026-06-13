@@ -2,10 +2,10 @@
 // 💬  feedback.js — Зворотній зв'язок
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260612.1333';
+export const VERSION = 'v4.20260613.0749';
 
 import { state, feedbackFilter } from './state.js';
-import { notifyFeedbackChanged, removeNotification, getUnreadItems, hasUnreadFeedbackNotif, dismissFeedbackNotifs } from './notifications.js';
+import { notifyFeedbackChanged, removeNotification, hasUnreadFeedbackNotif, dismissFeedbackNotifs } from './notifications.js';
 import { nowKyiv } from './utils.js';
 import { saveFeedbackItem, deleteFeedbackItem, db } from './firebase.js';
 import { get, ref } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
@@ -558,34 +558,11 @@ export function deleteFeedback(id) {
     if (!found) return;
     const { item, childId } = found;
 
-    // Перевіряємо чи є непрочитані сповіщення пов'язані з цим повідомленням
-    const relatedNotifIds = [
-        `fb_new_${id}`,
-        `fb_reply_${id}`,
-        `fb_status_${id}`,
-        `fb_comment_${id}`,
-    ];
+    if (!confirm('Видалити це повідомлення?')) return;
 
-    const currentRole  = window.state?.data?.isParent ? 'parent' : 'child';
-    const unreadNotifs = getUnreadItems(currentRole)
-        .filter(n => relatedNotifIds.includes(n.id));
-
-    let confirmMsg = 'Видалити це повідомлення?';
-    if (unreadNotifs.length > 0) {
-        const labels = {
-            feedback_reply:   'відповідь батьків',
-            feedback_status:  'зміна статусу',
-            feedback_new:     'нове повідомлення',
-            feedback_comment: 'коментар дитини',
-        };
-        const unreadTypes = [...new Set(unreadNotifs.map(n => labels[n.type] || n.type))];
-        confirmMsg = `⚠️ До цього повідомлення є непрочитані сповіщення:\n• ${unreadTypes.join('\n• ')}\n\nВсе одно видалити?`;
-    }
-
-    if (!confirm(confirmMsg)) return;
-
-    // Видаляємо всі пов'язані сповіщення
-    relatedNotifIds.forEach(nid => removeNotification(nid));
+    // Автоматично видаляємо всі пов'язані сповіщення — вони вже не актуальні
+    [`fb_new_${id}`, `fb_reply_${id}`, `fb_status_${id}`, `fb_comment_${id}`]
+        .forEach(nid => removeNotification(nid));
 
     // Видаляємо з _items (якщо це активна дитина)
     _items = _items.filter(i => i.id !== id);

@@ -2,7 +2,7 @@
 // ⚙️   settings.js — Налаштування / Експорт / Імпорт
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260612.0735';
+export const VERSION = 'v4.20260613.0738';
 
 // ════════════════════════════════════════════════════════════
 
@@ -11,7 +11,7 @@ import { recalculateAchievements, giveRewardsForNewAchievements } from './achiev
 import { db, saveAll, savePin, saveRecords, saveRates, saveBackupDate, saveAllFeedback, saveAllTasks, saveChildMeta, initNewChildData, unsubscribeAllListeners, deleteChild } from './firebase.js';
 import { getFeedbackItems } from './feedback.js';
 import { THEMES, stopAllPreviews, applyAppearance, BORDER_COLORS_FREE } from './appearance.js';
-import { dismissByAction } from './notifications.js';
+import { dismissByAction, dismissByType } from './notifications.js';
 import { get, ref, set, update } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 
 // ════════════════════════════════════════════════════════════
@@ -737,6 +737,10 @@ export function showActivityModal() {
     _renderActivityContent();
     modal.style.display = 'flex';
     document.body.style.overflow = 'hidden';
+
+    // Dismiss сповіщень про невдалий вхід при відкритті модалки
+    dismissByType('login_failed');
+    if (window.updateBadges) window.updateBadges();
 }
 
 export function closeActivityModal() {

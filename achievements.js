@@ -2,13 +2,14 @@
 // 🏆  achievements.js — Система досягнень
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260609.1540';
+export const VERSION = 'v4.20260613.0732';
 
 // ════════════════════════════════════════════════════════════
 
 import { state } from './state.js';
 import { ACHIEVEMENTS } from './config.js';
 import { g, achText, nowKyiv } from './utils.js';
+import { hasUnreadAchievementNotif, dismissAchievementNotifs } from './notifications.js';
 
 // Хелпер для level.desc — підтримує рядок і {boy,girl}
 function _levelDesc(level, childId) {
@@ -873,7 +874,10 @@ export function renderAchievements() {
         }
         
         const cardHTML = `
-            <div class="achievement-card ${currentTier}">
+            <div class="achievement-card ${currentTier}" data-ach-id="${achId}"
+                style="position:relative"
+                onclick="window.achCardClick && window.achCardClick('${achId}', event)">
+                <span class="z-badge${hasUnreadAchievementNotif(achId) ? '' : ' z-badge--hidden'}" id="achCardBadge_${achId}"></span>
                 <div class="achievement-header">
                     <div class="achievement-icon-large">${typeof ach.icon === 'object' ? g(state.activeChildId, ach.icon) : ach.icon}</div>
                     <div class="achievement-info">

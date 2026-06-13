@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⭐</text></svg>">
-    <!-- version: v4.20260612.1333 -->
+    <!-- version: v4.20260613.0749 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>⭐ Зірки Успіху</title>
     <link rel="stylesheet" href="style.css">
@@ -1214,7 +1214,7 @@
                                             🗂️ Версії
                                         </button>
                                         <button class="btn btn-primary btn-compact about-compact-btn" id="activityBtn" onclick="showActivityModal()" style="display:none;">
-                                            👁️ Активність
+                                            👁️ Активність<span class="z-badge z-badge--hidden" id="badgeActivityBtn"></span>
                                         </button>
                                     </div>
 
@@ -1330,7 +1330,8 @@
                  updateChangelogBadge, markChangelogRead, dismissNotification,
                  dismissByAction, getUnreadItems, generateNotifications,
                  hasUnreadByType, dismissByType,
-                 hasUnreadFeedbackNotif, dismissFeedbackNotifs } from './notifications.js';
+                 hasUnreadFeedbackNotif, dismissFeedbackNotifs,
+                 hasUnreadAchievementNotif, dismissAchievementNotifs } from './notifications.js';
         import { applyAppearance, renderThemeShop, buyTheme,
                  activateTheme, setComponent, startPreview, stopPreview, refundTheme,
                  toggleDevMode, isDevMode, stopAllPreviews,
@@ -1582,6 +1583,11 @@
             setBadge('badgeChangelogBtn',   hasChangelog);
             setBadge('badgeAboutAccordion', hasChangelog);
 
+            // ─── 🔐 Login failed: таб Опції + акордеон + кнопка Активність ─
+            const hasLoginFailed = badgeTargets.has('login-failed');
+            setBadge('badgeActivityBtn',    hasLoginFailed);
+            if (hasLoginFailed) setBadge('badgeAboutAccordion', true);
+
             // ─── 💾 Backup: акордеон + картка "Експорт даних" ────────────
             const hasBackup = badgeTargets.has('backup-section');
             setBadge('badgeBackupAccordion', hasBackup);
@@ -1591,6 +1597,12 @@
             document.querySelectorAll('[id^="fbCardBadge_"]').forEach(el => {
                 const feedbackId = el.id.replace('fbCardBadge_', '');
                 el.classList.toggle('z-badge--hidden', !hasUnreadFeedbackNotif(feedbackId));
+            });
+
+            // ─── 🏆 Крапки на картках досягнень ─────────────────────────
+            document.querySelectorAll('[id^="achCardBadge_"]').forEach(el => {
+                const achId = el.id.replace('achCardBadge_', '');
+                el.classList.toggle('z-badge--hidden', !hasUnreadAchievementNotif(achId));
             });
         };
         window.refundTheme    = refundTheme;
@@ -1623,6 +1635,14 @@
             dismissFeedbackNotifs(feedbackItemId);
             // Прибрати крапку з картки без повного ререндеру
             const badge = document.getElementById(`fbCardBadge_${feedbackItemId}`);
+            if (badge) badge.classList.add('z-badge--hidden');
+        };
+        // Клік на картку досягнення — dismiss бейджа, ігноруємо кліки на кнопки
+        window.achCardClick = (achId, evt) => {
+            if (evt && evt.target.closest('button, input, textarea, select, a, [role="button"]')) return;
+            if (!hasUnreadAchievementNotif(achId)) return;
+            dismissAchievementNotifs(achId);
+            const badge = document.getElementById(`achCardBadge_${achId}`);
             if (badge) badge.classList.add('z-badge--hidden');
         };
         window.renderAchievements = renderAchievements;

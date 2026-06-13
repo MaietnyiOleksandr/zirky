@@ -3,7 +3,7 @@
 //     Етап 1: Фундамент — структура + Firebase
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260612.1333';
+export const VERSION = 'v4.20260613.0748';
 
 import { state }    from './state.js';
 import { nowKyiv }  from './utils.js';
@@ -24,6 +24,12 @@ export const NOTIF_TYPES = {
     changelog: {
         role:       'both',
         badges:     ['bell', 'changelog', 'settings'],
+        dismissBy:  ['checkmark', 'modal'],
+        repeatDays: null,
+    },
+    login_failed: {
+        role:       'parent',
+        badges:     ['bell', 'settings', 'login-failed'],
         dismissBy:  ['checkmark', 'modal'],
         repeatDays: null,
     },
@@ -141,14 +147,18 @@ export const NOTIF_TYPES = {
 // ════════════════════════════════════════════════════
 
 let _db    = null;   // встановлюється з firebase.js через initNotificationsListener(childId, db)
+let _subscribedChildId = null;  // childId на який слухає listener — для _saveItem/_removeItem
 let _items = {};   // поточний стан: { id: NotifItem }
 
 // 🐛 DEBUG — доступ до _items з консолі браузера
 if (typeof window !== 'undefined') window.__notifItems = () => _items;
 
-// Шлях до гілки сповіщень активної дитини
+// Шлях до гілки сповіщень підписаної дитини.
+// Використовує _subscribedChildId (встановлюється initNotificationsListener),
+// а не state.activeChildId — бо activeChildId може бути тимчасово іншим
+// (наприклад при введенні PIN дитини 2 поки підписка на дитину 1).
 function _notifPath(childId, key) {
-    const cid = childId || state.activeChildId || 'child_1';
+    const cid = childId || _subscribedChildId || state.activeChildId || 'child_1';
     return key
         ? `zirky/children/${cid}/notifications_feed/${key}`
         : `zirky/children/${cid}/notifications_feed`;
@@ -246,9 +256,38 @@ function _compactReadItems() {
 // Ініціалізація слухача Firebase.
 // Приймає childId і db (переданий з firebase.js щоб уникнути циклічного імпорту).
 // Повертає функцію відписки — зберігається у firebase.js._unsubNotifs.
+// ════════════════════════════════════════════════════════════
+// 🔐  НЕВДАЛИЙ ВХІД
+// ════════════════════════════════════════════════════════════
+
+// Генерує сповіщення про невдалу спробу входу.
+// who: 'parent' або ім'я дитини (string).
+// at:  nowKyiv() — рядок дати/часу.
+export function generateLoginFailedNotif(who, at) {
+    // Потрібен і _db і _subscribedChildId — якщо listener ще не стартував,
+    // сповіщення нема куди зберігати (батько ще не увійшов у свій профіль)
+    if (!_db || !_subscribedChildId) return;
+
+    const id = `login_failed_${at.replace(/[:.]/g, '-')}`;
+
+    // Форматуємо дату і час для тексту сповіщення
+    const d   = new Date(at);
+    const pad = n => String(n).padStart(2, '0');
+    const dateStr = `${pad(d.getDate())}.${pad(d.getMonth() + 1)}.${d.getFullYear()}`;
+    const timeStr = `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+
+    const profile = who === 'parent' ? 'батьківського профілю' : `профілю «${who}»`;
+    _upsertItem(_makeItem(id, 'login_failed',
+        '🔐 Невдала спроба входу',
+        `${dateStr} о ${timeStr} — спроба входу до ${profile}`,
+        { createdAt: at }
+    ));
+}
+
 export function initNotificationsListener(childId, db) {
     if (db) _db = db;   // зберігаємо для _saveItem/_removeItem/_compactReadItems
     const cid  = childId || state.activeChildId || 'child_1';
+    _subscribedChildId = cid;   // фіксуємо — використовується у _notifPath/_saveItem
     const path = _notifPath(cid);
     const unsub = onValue(ref(_db, path), (snapshot) => {
         // Відновлюємо _items за item.id (не Firebase-ключем, бо в ключах крапки замінені)
@@ -560,7 +599,7 @@ export function generateNotifications() {
                 _upsertItem(_makeItem(id, 'achievement',
                     'Нове досягнення',
                     `${r.description || r.desc} +${r.stars}⭐`,
-                    { createdAt: r.date }
+                    { createdAt: r.date, achId: r.achId || null }
                 ));
             }
         });
@@ -580,7 +619,7 @@ export function generateNotifications() {
                 body:  `Сьогодні ще не додано зірок. Серія: ${streak} ${streak < 5 ? 'дні' : 'днів'}`,
               }
             : null;
-    });
+    }, 1, true);  // autoRemove: видаляти якщо зірки вже додані
 
     _generateConditional('no_stars', today, () => {
         const lastEarn = earnRecs.length
@@ -670,12 +709,24 @@ function _upsertItem(item) {
 }
 
 // Генератор циклічного умовного сповіщення
-function _generateConditional(type, today, condFn, repeatDays = 1) {
+function _generateConditional(type, today, condFn, repeatDays = 1, autoRemove = false) {
     const id       = `${type}_${today}`;
     const existing = _items[id];
 
+    // Перевіряємо умову
+    const result = condFn();
+
+    // autoRemove: якщо умова знята і сьогоднішній запис існує — видаляємо його
+    // незалежно від readBy (сповіщення вже не актуальне)
+    if (!result && autoRemove) {
+        if (existing) _removeItem(id);
+        return;
+    }
+
     // Вже є сьогоднішній запис — не чіпаємо
     if (existing) return;
+
+    if (!result) return;
 
     // Перевіряємо чи не було переглянуто нещодавно
     // (шукаємо останній запис цього типу)
@@ -694,10 +745,6 @@ function _generateConditional(type, today, condFn, repeatDays = 1) {
         const daysSince = (new Date(today) - lastDate) / 86_400_000;
         if (daysSince < repeatDays) return;
     }
-
-    // Перевіряємо умову
-    const result = condFn();
-    if (!result) return;
 
     _upsertItem(_makeItem(id, type, result.title, result.body));
     // Новий запис створено — видаляємо старі прочитані того ж типу
@@ -732,6 +779,38 @@ export function dismissNotification(id) {
     setTimeout(_compactReadItems, 500);
 
     if (window.updateBadges) window.updateBadges();
+}
+
+// ════════════════════════════════════════════════════════════
+// 🏆  ХЕЛПЕРИ ДЛЯ КАРТОК ДОСЯГНЕНЬ
+// ════════════════════════════════════════════════════════════
+//   • бейдж на конкретній картці досягнення
+//   • dismiss при кліку на картку або «Прочитано»
+// ════════════════════════════════════════════════════════════
+
+// Чи є непрочитане сповіщення про досягнення для конкретного achId.
+export function hasUnreadAchievementNotif(achId) {
+    if (!achId) return false;
+    const role = state.data.isParent ? 'parent' : 'child';
+    return Object.values(_items).some(item =>
+        item.type === 'achievement' &&
+        item.achId === achId &&
+        _isUnread(item, role)
+    );
+}
+
+// Dismiss усіх непрочитаних сповіщень про досягнення для конкретного achId.
+// Викликається при кліку на картку досягнення.
+export function dismissAchievementNotifs(achId) {
+    if (!achId) return;
+    const role = state.data.isParent ? 'parent' : 'child';
+    Object.values(_items)
+        .filter(item =>
+            item.type === 'achievement' &&
+            item.achId === achId &&
+            _isUnread(item, role)
+        )
+        .forEach(item => dismissNotification(item.id));
 }
 
 // ════════════════════════════════════════════════════════════
@@ -847,6 +926,7 @@ export function dismissByAction(type, action) {
 
 const TYPE_COLORS = {
     changelog:        { bg: 'var(--c-info-bg)',    border: 'var(--c-info-border)',    text: 'var(--c-info-text)'    },
+    login_failed:     { bg: 'var(--c-warn-bg)',    border: 'var(--c-warn-border)',    text: 'var(--c-warn-text)'    },
     achievement:      { bg: 'var(--c-balance-bg)', border: 'var(--c-balance-border)', text: 'var(--c-balance-text)' },
     feedback_reply:   { bg: 'var(--c-purple-bg)',  border: 'var(--c-purple-border)',  text: 'var(--c-purple-text)'  },
     feedback_status:  { bg: 'var(--c-purple-bg)',  border: 'var(--c-purple-border)',  text: 'var(--c-purple-text)'  },
@@ -869,6 +949,7 @@ const TYPE_COLORS = {
 
 const TYPE_ICONS = {
     changelog:        '📝',
+    login_failed:     '🔐',
     achievement:      '🏆',
     feedback_reply:   '💬',
     feedback_status:  '✅',
@@ -914,6 +995,10 @@ export function openNotifications() {
             let bodyClickAttr = '';
             if (item.type === 'changelog') {
                 bodyClickAttr = ` onclick="window.__zOpenChangelog()" style="cursor:pointer;"`;
+            } else if (item.type === 'achievement') {
+                bodyClickAttr = ` onclick="window.__zSwitchTab('achievements')" style="cursor:pointer;"`;
+            } else if (item.type === 'login_failed') {
+                bodyClickAttr = ` onclick="window.__zOpenActivity()" style="cursor:pointer;"`;
             } else if (item.type.startsWith('feedback_')) {
                 bodyClickAttr = ` onclick="window.__zSwitchTab('feedback')" style="cursor:pointer;"`;
             } else if (item.type.startsWith('task_')) {
@@ -968,6 +1053,12 @@ export function openNotifications() {
         if (window.showHelp) window.showHelp('changelog');
         // showHelp('changelog') автоматично викликає markChangelogRead()
         // → бейдж сам зникне
+    };
+
+    // Клік на тілі сповіщення login_failed — відкриває модалку Активність
+    window.__zOpenActivity = () => {
+        closeNotifications();
+        if (window.showActivityModal) window.showActivityModal();
     };
 
     // Клік на тілі сповіщення feedback/task — закриває панель і переходить на таб
