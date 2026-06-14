@@ -3,7 +3,7 @@
 //     Етап 1: Фундамент — структура + Firebase
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260613.0748';
+export const VERSION = 'v4.20260614.0636';
 
 import { state }    from './state.js';
 import { nowKyiv }  from './utils.js';
@@ -1050,6 +1050,7 @@ export function openNotifications() {
 
     // Клік на тілі сповіщення про changelog — відкриває модалку історії змін поверх
     window.__zOpenChangelog = () => {
+        closeNotifications();
         if (window.showHelp) window.showHelp('changelog');
         // showHelp('changelog') автоматично викликає markChangelogRead()
         // → бейдж сам зникне
