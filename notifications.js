@@ -3,7 +3,7 @@
 //     Етап 1: Фундамент — структура + Firebase
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260614.0636';
+export const VERSION = 'v4.20260614.0640';
 
 import { state }    from './state.js';
 import { nowKyiv }  from './utils.js';
@@ -1026,26 +1026,17 @@ export function openNotifications() {
     window.__zDismiss = (id) => {
         dismissNotification(id);
         const el = document.getElementById(`notifItem_${id}`);
-        if (el) {
-            el.style.transition = 'opacity 0.2s, max-height 0.25s';
-            el.style.opacity    = '0';
-            el.style.overflow   = 'hidden';
-            el.style.maxHeight  = el.offsetHeight + 'px';
-            setTimeout(() => {
-                el.style.maxHeight = '0';
-                el.style.margin    = '0';
-                el.style.padding   = '0';
-            }, 50);
-            setTimeout(() => {
-                el.remove();
-                if (!content.querySelector('.notif-item')) {
-                    content.innerHTML = `<div class="notif-empty">
-                        <div class="notif-empty-icon">🔔</div>
-                        <div>Нових сповіщень немає</div>
-                    </div>`;
-                }
-            }, 300);
-        }
+        if (!el) return;
+        el.classList.add('notif-item--dismiss');
+        setTimeout(() => {
+            el.remove();
+            if (!content.querySelector('.notif-item')) {
+                content.innerHTML = `<div class="notif-empty">
+                    <div class="notif-empty-icon">🔔</div>
+                    <div>Нових сповіщень немає</div>
+                </div>`;
+            }
+        }, 320);
     };
 
     // Клік на тілі сповіщення про changelog — відкриває модалку історії змін поверх
