@@ -6,7 +6,7 @@
 //     showForm/switchTab, а ui.js потребував їх модулів
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260614.0732';
+export const VERSION = 'v4.20260614.2344';
 
 import { state } from './state.js';
 import { getTodayDate } from './utils.js';
@@ -153,6 +153,10 @@ export function switchTab(tab, fromClick = false) {
     if (tab === 'add') {
         // При відкритті блоку Додати — застосовуємо видимість форм за роллю
         applyAddSectionVisibility();
+    }
+    else if (tab === 'instructions') {
+        // Застосовуємо гендерні мітки і opt-girl/opt-boy у статичному HTML довідника
+        if (window.updateUI) window.updateUI();
     }
     else if (tab === 'history') renderHistory();
     else if (tab === 'rewards') {

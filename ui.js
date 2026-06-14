@@ -11,7 +11,7 @@
 //   Жодних розкиданих .style.display = ... по інших модулях.
 // ════════════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260609.0424';
+export const VERSION = 'v4.20260614.2344';
 
 import { state } from './state.js';
 import { buildSubjectSelects } from './subjects.js';
@@ -29,7 +29,6 @@ import { renderGoal } from './goals.js';
 const PROFILE_VISIBILITY = [
     // Таби та інструкції
     { id: 'tabBtnGuide',                      show: 'child'                   },
-    { id: 'parentInstructions',               show: 'parent'                  },
     { id: 'childInstructions',                show: 'child'                   },
 
     // Налаштування — блок "Корекція даних"

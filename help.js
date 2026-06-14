@@ -2,7 +2,7 @@
 // ❓  help.js — Інструкції по розділах
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260614.0737';
+export const VERSION = 'v4.20260614.2344';
 
 import { state } from './state.js';
 import { CHANGELOG } from './changelog.js';
@@ -553,6 +553,8 @@ export function showHelp(sectionId) {
         const childId = state.activeChildId;
         const texts   = state.data.isParent ? helpParent(childId) : helpChild(childId);
         content.innerHTML = texts[sectionId] || '<p>Інформація відсутня</p>';
+        // Застосовуємо гендерні мітки і opt-girl/opt-boy після рендеру
+        if (window.updateUI) window.updateUI();
     }
 
     modal.style.display = 'flex';
