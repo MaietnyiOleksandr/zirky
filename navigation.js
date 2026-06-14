@@ -6,7 +6,7 @@
 //     showForm/switchTab, а ui.js потребував їх модулів
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260609.1100';
+export const VERSION = 'v4.20260614.0732';
 
 import { state } from './state.js';
 import { getTodayDate } from './utils.js';
@@ -113,6 +113,10 @@ export function showForm(type) {
 
 // Додавання записів
 
+// Порядок табів для анімації напрямку зсуву
+const TAB_ORDER = ['add','schedule','tasks','rewards','achievements','history','stats','feedback','guide','instructions','settings'];
+let _lastTab = null;   // запам'ятовуємо попередній таб для визначення напрямку
+
 export function switchTab(tab, fromClick = false) {
     // Зупиняємо preview теми якщо активний
     stopPreview(false);
@@ -128,7 +132,23 @@ export function switchTab(tab, fromClick = false) {
     const activeBtn = document.querySelector(`.tab[data-tab="${tab}"]`);
     if (activeBtn) activeBtn.classList.add('active');
     document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-    document.getElementById(tab + 'Section').classList.add('active');
+    const newSection = document.getElementById(tab + 'Section');
+    newSection.classList.add('active');
+
+    // Анімація: визначаємо напрямок за позицією табів
+    const prevIdx = _lastTab ? (TAB_ORDER.indexOf(_lastTab)) : -1;
+    const nextIdx = TAB_ORDER.indexOf(tab);
+    if (_lastTab && prevIdx !== -1 && nextIdx !== -1 && prevIdx !== nextIdx) {
+        const enterClass = nextIdx > prevIdx ? 'section--enter-right' : 'section--enter-left';
+        newSection.classList.remove('section--enter-right', 'section--enter-left');
+        // Форсуємо reflow щоб анімація рестартувала якщо той самий клас
+        void newSection.offsetWidth;
+        newSection.classList.add(enterClass);
+        newSection.addEventListener('animationend', () => {
+            newSection.classList.remove('section--enter-right', 'section--enter-left');
+        }, { once: true });
+    }
+    _lastTab = tab;
 
     if (tab === 'add') {
         // При відкритті блоку Додати — застосовуємо видимість форм за роллю
