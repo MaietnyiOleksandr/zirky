@@ -2,7 +2,7 @@
 // ❓  help.js — Інструкції по розділах
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260611.2050';
+export const VERSION = 'v4.20260614.0737';
 
 import { state } from './state.js';
 import { CHANGELOG } from './changelog.js';
@@ -327,6 +327,7 @@ function helpChild(childId) {
 // 👨‍👩‍👧 БАТЬКИ
 // ════════════════════════════════════════════════════
 function helpParent(childId) {
+    const G = (boy, girl) => g(childId, boy, girl);
     return {
 
     addSection: `
