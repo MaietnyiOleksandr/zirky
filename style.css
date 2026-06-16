@@ -1,6 +1,6 @@
-/* version: v4.20260615.1933 */
+/* version: v4.20260616.0824 */
 
-@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;900&family=Comfortaa:wght@400;700&family=M+PLUS+Rounded+1c:wght@700;900&family=Ubuntu:wght@400;700&family=Playfair+Display:wght@400;700&family=Rubik:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;900&family=Comfortaa:wght@400;700&family=Marmelad&family=Ubuntu:wght@400;700&family=Playfair+Display:wght@400;700&family=Rubik:wght@400;500;700&display=swap');
 
 * {
     margin: 0;
@@ -105,7 +105,7 @@
    Застосовуються класом на <html> або через themes.js
    ════════════════════════════════════════════════════ */
 .font-comfortaa { --font-main: 'Comfortaa', cursive; }
-.font-fredoka   { --font-main: 'M PLUS Rounded 1c', sans-serif; }
+.font-fredoka   { --font-main: 'Marmelad', cursive; }
 
 /* ════════════════════════════════════════════════════
    БАЗОВІ СТИЛІ
@@ -4491,7 +4491,7 @@ html[data-badge="flag"] .z-badge::before {
 
 /* ── Шрифти профілю ── */
 .login-child-card[data-font="comfortaa"] { --font-main: 'Comfortaa', cursive; }
-.login-child-card[data-font="fredoka"]   { --font-main: 'M PLUS Rounded 1c', sans-serif; }
+.login-child-card[data-font="fredoka"]   { --font-main: 'Marmelad', cursive; }
 .login-child-card[data-font="ubuntu"]    { --font-main: 'Ubuntu', sans-serif; }
 .login-child-card[data-font="playfair"]  { --font-main: 'Playfair Display', serif; }
 .login-child-card[data-font="rubik"]     { --font-main: 'Rubik', sans-serif; }
