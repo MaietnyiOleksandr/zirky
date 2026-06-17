@@ -12,7 +12,7 @@
 //       3. Додай CSS vars у style.css (опційно)
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260611.1436';
+export const VERSION = 'v4.20260617.0900';
 
 import { state } from './state.js';
 import { saveAppearance, saveParentAppearance, saveRecords, saveBorder, saveChildMeta } from './firebase.js';
@@ -239,7 +239,7 @@ export const COMPONENTS = {
     fonts: {
         default:   { name: '✏️ Nunito',    value: "'Nunito', sans-serif"       },
         comfortaa: { name: '✏️ Comfortaa', value: "'Comfortaa', cursive"       },
-        fredoka:   { name: '✏️ Fredoka',   value: "'Fredoka One', cursive"     },
+        fredoka:   { name: '✏️ Balsamiq',  value: "'Balsamiq Sans', cursive"   },
         ubuntu:    { name: '✏️ Ubuntu',    value: "'Ubuntu', sans-serif"       },
         playfair:  { name: '✏️ Playfair',  value: "'Playfair Display', serif"  },
         rubik:     { name: '✏️ Rubik',     value: "'Rubik', sans-serif"        },
