@@ -3,7 +3,7 @@
 //     Етап 1: Фундамент — структура + Firebase
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260618.2225';
+export const VERSION = 'v4.20260618.2242';
 
 import { state }    from './state.js';
 import { nowKyiv }  from './utils.js';
@@ -673,10 +673,17 @@ export function generateNotifications() {
             const existing  = _items[NO_STARS_ID];
             const item      = _makeItem(NO_STARS_ID, 'no_stars', 'Зірки не додавались', body,
                                         { daysDiff });
-            // Скидаємо readBy лише якщо кількість діб не змінилась —
-            // нова цифра означає нову інформацію, батько/дитина мають побачити її знову
-            if (existing?.readBy && existing?.daysDiff === daysDiff) {
-                item.readBy = existing.readBy;
+            // Логіка readBy:
+            //   - daysDiff не змінився → зберігаємо readBy (той самий стан, нічого нового)
+            //   - daysDiff збільшився  → скидаємо readBy (нова інформація — +1 день)
+            // Slim-записи не мають поля daysDiff, але мають readBy — тому перевіряємо
+            // окремо: якщо existing прочитаний і daysDiff не змінився → зберігаємо.
+            if (existing?.readBy) {
+                const prevDiff = existing.daysDiff ?? existing.days ?? null;
+                if (prevDiff === null || prevDiff === daysDiff) {
+                    item.readBy = existing.readBy;
+                }
+                // якщо prevDiff !== daysDiff — readBy скидається (нова кількість діб)
             }
             _upsertItem(item);
         } else {
@@ -728,10 +735,16 @@ export function generateNotifications() {
                 'Час зробити резервну копію',
                 `Минуло ${daysStr} з останнього бекапу`,
                 { days });
-            // Скидаємо readBy лише якщо кількість днів не змінилась —
-            // нова цифра означає нову інформацію, батько має побачити її знову
-            if (existing?.readBy && existing?.days === days) {
-                item.readBy = existing.readBy;
+            // Логіка readBy:
+            //   - days не змінився → зберігаємо readBy (той самий стан, нічого нового)
+            //   - days збільшився  → скидаємо readBy (нова інформація — +1 день)
+            // Slim-записи не мають поля days — тому перевіряємо через null-fallback.
+            if (existing?.readBy) {
+                const prevDays = existing.days ?? existing.daysDiff ?? null;
+                if (prevDays === null || prevDays === days) {
+                    item.readBy = existing.readBy;
+                }
+                // якщо prevDays !== days — readBy скидається (нова кількість днів)
             }
             _upsertItem(item);
         } else {
