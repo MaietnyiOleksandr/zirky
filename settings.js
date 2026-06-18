@@ -2,7 +2,7 @@
 // ⚙️   settings.js — Налаштування / Експорт / Імпорт
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260613.0738';
+export const VERSION = 'v4.20260618.1703';
 
 // ════════════════════════════════════════════════════════════
 
@@ -730,9 +730,19 @@ export function switchProfile() {
 // 👁️  МОДАЛКА АКТИВНОСТІ (7а)
 // ════════════════════════════════════════════════════════════
 
+// Поточна активна вкладка: 'parent' або childId ('child_1' тощо).
+// Зберігається в пам'яті під час сесії.
+let _activeActivityTab = 'parent';
+
 export function showActivityModal() {
     const modal = document.getElementById('activityModal');
     if (!modal) return;
+
+    // Якщо збережена вкладка більше не існує — повертаємось на parent
+    const children = state.parent.children || {};
+    if (_activeActivityTab !== 'parent' && !children[_activeActivityTab]) {
+        _activeActivityTab = 'parent';
+    }
 
     _renderActivityContent();
     modal.style.display = 'flex';
@@ -749,6 +759,22 @@ export function closeActivityModal() {
     document.body.style.overflow = '';
 }
 
+// Безпечний перерендер відкритої модалки.
+// Викликається з firebase.js через window.refreshActivityModal
+// після оновлення loginHistory у state — без прямого імпорту.
+export function refreshActivityModal() {
+    const modal = document.getElementById('activityModal');
+    if (!modal || modal.style.display === 'none') return;
+    _renderActivityContent();
+}
+
+// Перемикає активну вкладку і перерендерить контент.
+// Реєструється як window.switchActivityTab з index.html.
+export function switchActivityTab(tabId) {
+    _activeActivityTab = tabId;
+    _renderActivityContent();
+}
+
 function _renderActivityContent() {
     const body = document.getElementById('activityModalBody');
     if (!body) return;
@@ -761,21 +787,20 @@ function _renderActivityContent() {
           })
         : '—';
 
-    // Скорочений userAgent → читабельний рядок браузер + ОС
     const fmtAgent = agent => {
         if (!agent) return '—';
         let browser = 'Браузер';
         let os      = '';
-        if (/Edg\//.test(agent))          browser = 'Edge';
-        else if (/OPR\/|Opera/.test(agent)) browser = 'Opera';
-        else if (/Chrome\//.test(agent))   browser = 'Chrome';
-        else if (/Firefox\//.test(agent))  browser = 'Firefox';
-        else if (/Safari\//.test(agent))   browser = 'Safari';
-        if (/iPhone|iPad/.test(agent))      os = ' · iOS';
-        else if (/Android/.test(agent))     os = ' · Android';
-        else if (/Windows/.test(agent))     os = ' · Windows';
-        else if (/Mac OS/.test(agent))      os = ' · Mac';
-        else if (/Linux/.test(agent))       os = ' · Linux';
+        if (/Edg\//.test(agent))             browser = 'Edge';
+        else if (/OPR\/|Opera/.test(agent))  browser = 'Opera';
+        else if (/Chrome\//.test(agent))     browser = 'Chrome';
+        else if (/Firefox\//.test(agent))    browser = 'Firefox';
+        else if (/Safari\//.test(agent))     browser = 'Safari';
+        if (/iPhone|iPad/.test(agent))        os = ' · iOS';
+        else if (/Android/.test(agent))       os = ' · Android';
+        else if (/Windows/.test(agent))       os = ' · Windows';
+        else if (/Mac OS/.test(agent))        os = ' · Mac';
+        else if (/Linux/.test(agent))         os = ' · Linux';
         return browser + os;
     };
 
@@ -787,51 +812,53 @@ function _renderActivityContent() {
 
     const tableHeader = `<tr><th>Дата і час</th><th>Пристрій</th><th>Статус</th></tr>`;
 
-    // Батьківська активність
-    const parentHistory = (state.parent.loginHistory || []).slice(0, 20);
-    const parentRows = parentHistory.length
-        ? parentHistory.map(e => `
-            <tr>
-                <td>${fmt(e.at)}</td>
-                <td>${fmtAgent(e.agent)}</td>
-                <td style="color:${e.type === 'failed' ? 'var(--c-warning-text)' : 'var(--success)'}">${fmtStatus(e.type)}</td>
-            </tr>`).join('')
-        : '<tr><td colspan="3" class="text-hint text-center">Немає записів</td></tr>';
-
-    // Активність дітей
-    const children = state.parent.children || {};
-    const childSections = Object.entries(children).map(([id, meta]) => {
-        const history = (meta.loginHistory || []).slice(0, 20);
-        const rows = history.length
-            ? history.map(e => `
+    const buildTable = history => {
+        const rows = (history || []).length
+            ? (history || []).slice(0, 20).map(e => `
                 <tr>
                     <td>${fmt(e.at)}</td>
                     <td>${fmtAgent(e.agent)}</td>
                     <td style="color:${e.type === 'failed' ? 'var(--c-warning-text)' : 'var(--success)'}">${fmtStatus(e.type)}</td>
                 </tr>`).join('')
             : '<tr><td colspan="3" class="text-hint text-center">Немає записів</td></tr>';
+        return `<table class="activity-table">${tableHeader}${rows}</table>`;
+    };
 
-        const isBlocked = meta.blockedUntil && new Date(meta.blockedUntil) > new Date();
-        const blockedBadge = isBlocked
-            ? `<span style="color:var(--c-warning-text);font-size:12px;margin-left:8px;">🔒 Заблоковано</span>`
-            : '';
+    // ── Вкладки профілів ──────────────────────────────────────
+    const children  = state.parent.children || {};
+    const childList = Object.entries(children);
 
-        return `
-            <h4 style="margin:16px 0 8px;font-size:14px;">
-                ${meta.avatar?.value || '👤'} ${meta.name || id}${blockedBadge}
-            </h4>
-            <table class="activity-table">${tableHeader}${rows}</table>
-        `;
+    // Захист: якщо збережена вкладка зникла — скидаємо
+    if (_activeActivityTab !== 'parent' && !children[_activeActivityTab]) {
+        _activeActivityTab = 'parent';
+    }
+
+    const tabs = [
+        { id: 'parent', label: '👨\u200d👩\u200d👧 Батьки', blocked: false },
+        ...childList.map(([id, meta]) => ({
+            id,
+            label:   `${meta.avatar?.value || '👤'} ${meta.name || id}`,
+            blocked: !!(meta.blockedUntil && new Date(meta.blockedUntil) > new Date()),
+        })),
+    ];
+
+    const tabsHtml = tabs.map(t => {
+        const active      = t.id === _activeActivityTab ? ' activity-tab--active' : '';
+        const lockedBadge = t.blocked ? ' <span style="color:var(--c-warning-text);font-size:11px;">🔒</span>' : '';
+        return `<button class="activity-tab${active}" onclick="window.switchActivityTab('${t.id}')">${t.label}${lockedBadge}</button>`;
     }).join('');
 
+    // ── Таблиця активної вкладки ──────────────────────────────
+    const tableHtml = _activeActivityTab === 'parent'
+        ? buildTable(state.parent.loginHistory)
+        : buildTable(children[_activeActivityTab]?.loginHistory);
+
     body.innerHTML = `
-        <h4 style="margin:0 0 8px;font-size:14px;">👨‍👩‍👧 Батьки</h4>
-        <table class="activity-table">${tableHeader}${parentRows}</table>
-        ${childSections}
+        <div class="activity-tabs">${tabsHtml}</div>
+        ${tableHtml}
     `;
 }
 
-// ════════════════════════════════════════════════════════════
 // 👤  АКОРДІОН ПРОФІЛІВ (7б)
 // ════════════════════════════════════════════════════════════
 

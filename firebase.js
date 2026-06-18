@@ -2,7 +2,7 @@
 // 🔥  firebase.js — Firebase
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260610.0745';
+export const VERSION = 'v4.20260618.1703';
 
 import { state, defaultChildData } from './state.js';
 import { firebaseConfig } from './config.js';
@@ -299,6 +299,9 @@ export function saveParentLoginData() {
         failedAttempts:     state.parent.failedAttempts     || 0,
         blockingNotifiedAt: state.parent.blockingNotifiedAt || null,
     });
+    // state.parent.loginHistory вже оновлений до виклику цієї функції (auth.js),
+    // тому достатньо сигналізувати модалці перерендеритись
+    if (window.refreshActivityModal) window.refreshActivityModal();
 }
 
 // Мета-дані дитини (name, avatar, color, pin дитини тощо) — settings.js / auth.js
@@ -354,12 +357,23 @@ export function deleteChild(childId) {
 // 5г + 3б — loginHistory дитини при вході
 // Записує { at, type:'child' } на початок масиву, зберігає останні 20 записів.
 export function saveChildLoginHistory(childId, type = 'child', agent = '') {
+    const entry   = { at: new Date().toISOString(), type, agent };
     const histRef = ref(db, `zirky/parent/children/${childId}/loginHistory`);
     runTransaction(histRef, (current) => {
         const history = Array.isArray(current) ? current : [];
-        history.unshift({ at: new Date().toISOString(), type, agent });
+        history.unshift(entry);
         if (history.length > 20) history.length = 20;
         return history;
+    }).then(() => {
+        // Оновлюємо state локально — щоб refreshActivityModal мала актуальні дані
+        if (!state.parent.children)            state.parent.children            = {};
+        if (!state.parent.children[childId])   state.parent.children[childId]   = {};
+        const meta    = state.parent.children[childId];
+        const history = Array.isArray(meta.loginHistory) ? meta.loginHistory : [];
+        history.unshift(entry);
+        if (history.length > 20) history.length = 20;
+        meta.loginHistory = history;
+        if (window.refreshActivityModal) window.refreshActivityModal();
     }).catch(err => console.warn('saveChildLoginHistory error:', err));
 }
 

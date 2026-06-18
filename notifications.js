@@ -3,12 +3,13 @@
 //     Етап 1: Фундамент — структура + Firebase
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260614.0640';
+export const VERSION = 'v4.20260618.1703';
 
 import { state }    from './state.js';
 import { nowKyiv }  from './utils.js';
 import { CHANGELOG } from './changelog.js';
 import { getFeedbackItems } from './feedback.js';
+import { db as _fbDb } from './firebase.js';
 import { ref, set, update, remove, onValue }
     from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 
@@ -264,9 +265,21 @@ function _compactReadItems() {
 // who: 'parent' або ім'я дитини (string).
 // at:  nowKyiv() — рядок дати/часу.
 export function generateLoginFailedNotif(who, at) {
-    // Потрібен і _db і _subscribedChildId — якщо listener ще не стартував,
-    // сповіщення нема куди зберігати (батько ще не увійшов у свій профіль)
-    if (!_db || !_subscribedChildId) return;
+    // _db і _subscribedChildId встановлюються через initNotificationsListener,
+    // але login_failed може виникнути до підписки на профіль дитини.
+    // Тимчасово підставляємо значення якщо вони ще не встановлені,
+    // та відновлюємо після запису, щоб не порушити стан listener-а.
+    const activeDb  = _db  || _fbDb;
+    const targetCid = _subscribedChildId
+        || state.activeChildId
+        || state._pendingChildId
+        || 'child_1';
+    if (!activeDb || !targetCid) return;
+
+    const prevDb  = _db;
+    const prevCid = _subscribedChildId;
+    if (!_db)               _db               = activeDb;
+    if (!_subscribedChildId) _subscribedChildId = targetCid;
 
     const id = `login_failed_${at.replace(/[:.]/g, '-')}`;
 
@@ -282,6 +295,10 @@ export function generateLoginFailedNotif(who, at) {
         `${dateStr} о ${timeStr} — спроба входу до ${profile}`,
         { createdAt: at }
     ));
+
+    // Відновлюємо попередній стан (не перезаписуємо якщо вже були встановлені)
+    if (!prevDb)  _db               = prevDb;
+    if (!prevCid) _subscribedChildId = prevCid;
 }
 
 export function initNotificationsListener(childId, db) {
