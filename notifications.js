@@ -3,7 +3,7 @@
 //     Етап 1: Фундамент — структура + Firebase
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260618.1703';
+export const VERSION = 'v4.20260618.2225';
 
 import { state }    from './state.js';
 import { nowKyiv }  from './utils.js';
@@ -209,7 +209,7 @@ function _isFullyRead(item) {
 // Один батчевий update() замість N окремих set() — щоб onValue не тригерився N разів.
 // Для циклічних типів (no_stars, streak_risk тощо): якщо є новіший anchor того ж типу
 // і цей запис вже прочитаний → видаляємо (а не слімуємо), бо anchor вже не потрібен.
-const CYCLIC_TYPES = new Set(['no_stars','streak_risk','backup','good_dynamics','changelog']);
+const CYCLIC_TYPES = new Set(['streak_risk','good_dynamics','changelog']);
 
 function _compactReadItems() {
     const SLIM_FIELDS = new Set(['id','type','role','createdAt','readBy']);
@@ -311,6 +311,17 @@ export function initNotificationsListener(childId, db) {
         const raw = snapshot.val() || {};
         _items = {};
         Object.values(raw).forEach(item => { _items[item.id] = item; });
+
+        // Міграція: видаляємо старі записи з датою в ключі (backup_YYYY-MM-DD,
+        // no_stars_YYYY-MM-DD) — вони замінені стабільними _recurring ключами.
+        const legacyPattern = /^(backup|no_stars)_\d{4}-\d{2}-\d{2}$/;
+        Object.keys(_items).forEach(id => {
+            if (legacyPattern.test(id)) {
+                remove(ref(_db, _notifPath(null, _fbKey(id))));
+                delete _items[id];
+            }
+        });
+
         _compactReadItems();
         if (window.updateBadges) window.updateBadges();
     });
@@ -638,19 +649,41 @@ export function generateNotifications() {
             : null;
     }, 1, true);  // autoRemove: видаляти якщо зірки вже додані
 
-    _generateConditional('no_stars', today, () => {
-        const lastEarn = earnRecs.length
+    // ── no_stars: стабільний ключ, перезаписується при кожному запуску ──
+    // Один запис у Firebase без накопичень.
+    // Текст оновлюється залежно від кількості діб.
+    // При знятій умові (зірки додали) — видаляємо.
+    {
+        const NO_STARS_ID = 'no_stars_recurring';
+        const lastEarn    = earnRecs.length
             ? earnRecs.reduce((a, b) => a.date > b.date ? a : b) : null;
-        // Порівнюємо за днями (не годинами), бо дата запису завжди T12:00:00
-        // daysDiff=0 → сьогодні, daysDiff=1 → вчора, daysDiff>=2 → позавчора і давніше
         const lastEarnDay = lastEarn?.date?.split('T')[0] || null;
+        // daysDiff=0 → сьогодні, 1 → вчора, >=2 → позавчора і давніше
         const daysDiff = lastEarnDay
             ? Math.round((new Date(today) - new Date(lastEarnDay)) / 86_400_000)
             : 9999;
-        return daysDiff >= 2
-            ? { title: 'Зірки не додавались', body: 'Більше доби без нових зірок!' }
-            : null;
-    });
+        if (daysDiff >= 2) {
+            const days    = Math.min(daysDiff, 99);
+            const daysStr = days >= 9999 ? 'багато' : String(days);
+            // Відмінювання: 2,3,4 → "доби", решта → "діб"
+            const form    = (days % 10 >= 2 && days % 10 <= 4 && (days % 100 < 10 || days % 100 >= 20))
+                ? 'доби' : 'діб';
+            const body = `${daysStr} ${form} без нових зірок!`;
+            // _upsertItem перезаписує — Firebase завжди матиме лише 1 запис
+            const existing  = _items[NO_STARS_ID];
+            const item      = _makeItem(NO_STARS_ID, 'no_stars', 'Зірки не додавались', body,
+                                        { daysDiff });
+            // Скидаємо readBy лише якщо кількість діб не змінилась —
+            // нова цифра означає нову інформацію, батько/дитина мають побачити її знову
+            if (existing?.readBy && existing?.daysDiff === daysDiff) {
+                item.readBy = existing.readBy;
+            }
+            _upsertItem(item);
+        } else {
+            // Умова знята — видаляємо якщо є
+            if (_items['no_stars_recurring']) _removeItem('no_stars_recurring');
+        }
+    }
 
     _generateConditional('goal_close', today, () => {
         const goal = state.data.goal;
@@ -678,26 +711,34 @@ export function generateNotifications() {
             : null;
     }, 7);  // повторювати щотижня
 
-    _generateConditional('backup', today, () => {
-        // Беремо дату з state, або як fallback — з останнього backup_* запису в _items
-        let last = state.parent.backupLastDate || '';
-        if (!last) {
-            const lastBackupItem = Object.values(_items)
-                .filter(i => i.type === 'backup')
-                .sort((a, b) => b.id.localeCompare(a.id))[0];
-            if (lastBackupItem) {
-                // ID має вигляд backup_2026-05-06 — беремо дату після _
-                last = lastBackupItem.id.replace('backup_', '');
-            }
-        }
+    // ── backup: стабільний ключ, перезаписується при кожному запуску ──
+    // Один запис у Firebase без накопичень.
+    // При знятій умові (бекап зроблено) — видаляємо.
+    {
+        const BACKUP_ID = 'backup_recurring';
+        // Беремо дату з state
+        const last = state.parent.backupLastDate || '';
         const days = last
             ? Math.floor((new Date(today) - new Date(last)) / 86_400_000)
             : 999;
-        return days >= 7
-            ? { title: 'Час зробити резервну копію', body: `Минуло ${days < 999 ? days + ' дн.' : 'більше тижня'} з останнього бекапу` }
-            : null;
-    }, 1);  // 🔄 щоденна перевірка: умова `days >= 7` всередині condFn гарантує
-            //    показ тільки якщо реальний бекап >= 7 днів тому (state.data.backupLastDate)
+        if (days >= 7) {
+            const daysStr = days < 999 ? days + ' дн.' : 'більше тижня';
+            const existing = _items[BACKUP_ID];
+            const item = _makeItem(BACKUP_ID, 'backup',
+                'Час зробити резервну копію',
+                `Минуло ${daysStr} з останнього бекапу`,
+                { days });
+            // Скидаємо readBy лише якщо кількість днів не змінилась —
+            // нова цифра означає нову інформацію, батько має побачити її знову
+            if (existing?.readBy && existing?.days === days) {
+                item.readBy = existing.readBy;
+            }
+            _upsertItem(item);
+        } else {
+            // Бекап щойно зроблено — видаляємо нагадування
+            if (_items['backup_recurring']) _removeItem('backup_recurring');
+        }
+    }
 
     // Оновлюємо бейджі
     if (window.updateBadges) window.updateBadges();
