@@ -3,7 +3,7 @@
 //     Етап 1: Фундамент — структура + Firebase
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260618.2242';
+export const VERSION = 'v4.20260619.0644';
 
 import { state }    from './state.js';
 import { nowKyiv }  from './utils.js';
@@ -1074,6 +1074,10 @@ export function openNotifications() {
                 bodyClickAttr = ` onclick="window.__zSwitchTab('feedback')" style="cursor:pointer;"`;
             } else if (item.type.startsWith('task_')) {
                 bodyClickAttr = ` onclick="window.__zSwitchTab('tasks')" style="cursor:pointer;"`;
+            } else if (item.type === 'good_dynamics') {
+                bodyClickAttr = ` onclick="window.__zSwitchTab('stats')" style="cursor:pointer;"`;
+            } else if (item.type === 'backup') {
+                bodyClickAttr = ` onclick="window.__zSwitchTab('settings')" style="cursor:pointer;"`;
             }
             return `
             <div class="notif-item" id="notifItem_${item.id}"
