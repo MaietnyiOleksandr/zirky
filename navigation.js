@@ -6,7 +6,7 @@
 //     showForm/switchTab, а ui.js потребував їх модулів
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260614.2344';
+export const VERSION = 'v4.20260621.2237';
 
 import { state } from './state.js';
 import { getTodayDate } from './utils.js';
@@ -122,9 +122,15 @@ export function switchTab(tab, fromClick = false) {
     stopPreview(false);
     resetPendingBorder();   // скидаємо pending рамку при зміні табу
 
-    // Довідник → одразу на instructions
+    // Довідник → перемикаємо на instructionsSection, але підсвічуємо кнопку guide.
+    // instructions не має окремої кнопки в навбарі, тому підсвітку ставимо вручну
+    // після рекурсивного виклику (який скидає всі active).
     if (tab === 'guide') {
-        return switchTab('instructions');
+        switchTab('instructions');
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        const guideBtn = document.querySelector('.tab[data-tab="guide"]');
+        if (guideBtn) guideBtn.classList.add('active');
+        return;
     }
 
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
