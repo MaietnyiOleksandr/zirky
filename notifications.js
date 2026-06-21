@@ -3,7 +3,7 @@
 //     Етап 1: Фундамент — структура + Firebase
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260619.0644';
+export const VERSION = 'v4.20260621.2222';
 
 import { state }    from './state.js';
 import { nowKyiv }  from './utils.js';
@@ -712,9 +712,11 @@ export function generateNotifications() {
             return earnRecs.filter(r => { const d = new Date(r.date); return d >= mon && d <= sun; })
                            .reduce((s, r) => s + r.stars, 0);
         };
-        const tw = getWeek(0), lw = getWeek(1);
+        const tw   = getWeek(0), lw = getWeek(1);
+        const name = state.parent?.children?.[_subscribedChildId]?.name || '';
+        const who  = name ? `${name}: ` : '';
         return lw > 0 && tw >= lw * 1.2 && tw >= 5
-            ? { title: 'Чудова динаміка!', body: `Цього тижня ${tw}⭐ — на ${Math.round((tw / lw - 1) * 100)}% більше ніж минулого` }
+            ? { title: 'Чудова динаміка!', body: `${who}цього тижня ${tw}⭐ — на ${Math.round((tw / lw - 1) * 100)}% більше ніж минулого` }
             : null;
     }, 7);  // повторювати щотижня
 
@@ -1128,10 +1130,16 @@ export function openNotifications() {
         if (window.showActivityModal) window.showActivityModal();
     };
 
-    // Клік на тілі сповіщення feedback/task — закриває панель і переходить на таб
+    // Клік на тілі сповіщення feedback/task — закриває панель, переходить на таб
+    // і прокручує сторінку вниз на висоту хедера (щоб хедер зник з поля зору)
     window.__zSwitchTab = (tab) => {
         closeNotifications();
         if (window.switchTab) window.switchTab(tab, true);
+        requestAnimationFrame(() => {
+            const header = document.querySelector('.header');
+            const offset = header ? header.offsetHeight + 10 : 0;
+            if (offset > 0) window.scrollTo({ top: offset, behavior: 'smooth' });
+        });
     };
 }
 
