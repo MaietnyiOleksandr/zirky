@@ -11,12 +11,13 @@
 //   Жодних розкиданих .style.display = ... по інших модулях.
 // ════════════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260614.2344';
+export const VERSION = 'v4.20260623.1835';
 
 import { state } from './state.js';
 import { buildSubjectSelects } from './subjects.js';
 import { renderAchievementsHome } from './achievements.js';
 import { renderGoal } from './goals.js';
+import { renderFreezePeriods } from './freeze.js';
 
 // ════════════════════════════════════════════════════════════
 // 👤   Декларативний список: видимість за профілем
@@ -92,6 +93,9 @@ export function updateUI() {
 
     // 4б — оновлюємо батьківський child-bar
     if (window.updateParentChildBar) window.updateParentChildBar();
+
+    // Оновлюємо список канікул при перемиканні профілю
+    renderFreezePeriods();
 
     // Гендерні елементи guide та форм (opt-boy / opt-girl)
     const gender = state.parent.children?.[state.activeChildId]?.gender || 'girl';
