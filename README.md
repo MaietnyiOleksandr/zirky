@@ -17,11 +17,11 @@
 
    **MAJOR** = `4`. **HHMM** — з повідомлення підтвердження, інакше `0000`.
 
-2. **Видавати** тільки змінені файли
+2. **Видавати** тільки змінені файли — **без архіву**, напряму
 3. **Перед кодуванням** — запитати підтвердження (крім прямих завдань)
 4. **Думати** українською
 5. **На початку чату** — завантажити архів з актуальною версією
-6. **Мінімум інлайн стилів** — вигляд керується CSS-змінними і `data-*` атрибутами; інлайн style лише для динамічних значень що не можна передати інакше (наприклад `--profile-color`)
+6. **Мінімум інлайн стилів** — вигляд керується CSS-змінними і `data-*` атрибутами; інлайн `style` лише для динамічних значень що не можна передати інакше (наприклад `--profile-color`)
 7. **Не пакувати файли у ZIP** — видавати відредаговані файли напряму, без архіву
 
 ---
@@ -42,28 +42,28 @@
 | `index.html` | Весь HTML + `<script type="module">` що імпортує все і виставляє `window.*` |
 | `style.css` | Всі стилі, CSS-змінні, теми, декор-селектори |
 | `state.js` | Спільний об'єкт `state`, `defaultChildData()`, `resetUIState()`, геттери сумісності |
-| `config.js` | Firebase конфіг, `ACHIEVEMENTS` (з `gender`, `id`), `gradeToStars`, `conversionRates` |
-| `firebase.js` | Ініціалізація DB, `initParentData()`, `initChildListener()`, `saveAll()`, `saveRecords()` та ін. |
+| `config.js` | Firebase конфіг, `ACHIEVEMENTS` (з `gender`, `id`), `gradeToStars`, `conversionRates`, **`BONUS_OPTIONS`** |
+| `firebase.js` | Ініціалізація DB, `initParentData()`, `initChildListener()`, `saveAll()`, `saveTask()`, `saveChildLoginHistory()` та ін. |
 | `auth.js` | Вхід батьків (PIN) / дитини, мульти-профільна логіка, блокування PIN |
 | `navigation.js` | `switchTab()`, `showForm()`, обробка подій `zirky:*` |
-| `ui.js` | `updateUI()`, `applyProfileVisibility()` — загальне оновлення інтерфейсу |
+| `ui.js` | `updateUI()`, `applyProfileVisibility()`, `renderFreezePeriods()` при перемиканні профілю |
 | `records.js` | `commitRecord()` — єдина точка входу для додавання запису |
-| `tasks.js` | Два потоки: `parent_task` і `child_request`. Мульти-профільний кеш `_allTasksCache`. `_getTaskById()` для батьківських дій. `_commitRecordForChild()` для підтвердження завдань «чужої» дитини. |
+| `tasks.js` | Два потоки: `parent_task` і `child_request`. `renderBonusSelect()`. Мульти-профільний кеш `_allTasksCache`. |
 | `rewards.js` | Магазин винагород, витрати зірок |
-| `achievements.js` | `recalculateAchievements()`, `migrateAchievementIds()`, стріки, gender-фільтрація |
+| `achievements.js` | `recalculateAchievements()`, `migrateAchievementIds()`, стріки, `shouldSkipDayForStreak()`, `_isDateInFreeze()` |
 | `stats.js` | Графіки, теплова карта, донат, баланс-динаміка |
 | `compare.js` | Порівняльна статистика всіх профілів (тільки для батька) |
 | `schedule.js` | Розклад занять |
 | `history.js` | Історія записів, фільтри, навігація по місяцях |
-| `notifications.js` | Генерація сповіщень на профіль, `initNotificationsListener()` |
+| `notifications.js` | Генерація сповіщень, `initNotificationsListener()`, стабільні ключі `backup_recurring` / `no_stars_recurring` |
 | `appearance.js` | Теми, компоненти, рамка профілю, `applyAppearance()`, `applyActiveBorder()` |
-| `settings.js` | Налаштування, профілі дітей, резервне копіювання, конвертація |
+| `settings.js` | Налаштування, профілі дітей, резервне копіювання, модалка активності з табами профілів |
 | `help.js` | Довідка, гендерні підписи через `G()` |
 | `changelog.js` | Журнал змін |
 | `subjects.js` | Предмети та гуртки, `buildSubjectSelects()` |
 | `goals.js` | Мета накопичення, `saveGoal()`, `renderGoal()` |
-| `freeze.js` | Канікули/заморозка стріку, `addFreezePeriod()` |
-| `feedback.js` | Фідбек дитини → батько, фільтри (+ фільтр по childId), кеш по всіх профілях (`_allFeedbackCache`), `_findItem(id)` для пошуку по всіх дітях |
+| `freeze.js` | Канікули/заморозка стріку, `addFreezePeriod()`, `renderFreezePeriods()` |
+| `feedback.js` | Фідбек дитини → батько, кеш по всіх профілях (`_allFeedbackCache`) |
 | `utils.js` | `nowKyiv()`, `g()`, `achText()`, `migrateAppearance()`, `pulseElement()` |
 | `geese/*.webp` | Зображення для декоративної теми «Гуси» |
 
@@ -152,7 +152,7 @@ switchChildFromBar(childId)
 
 ---
 
-## ⚧ Гендерна система
+## ⧊ Гендерна система
 
 `gender: 'boy' | 'girl'` зберігається в `state.parent.children[childId].gender`.
 
@@ -170,16 +170,14 @@ achText(ach, childId, field)    // правильна назва/desc досяг
 **В `help.js`:**
 ```js
 const G = (boy, girl) => g(childId, boy, girl);
-// Використовується для гендерних підписів у довіднику
 ```
 
 **Правило застосування:**
-Будь-який модуль що рендерить текст для дитини — `tasks.js`, `help.js`, `ui.js`, `rewards.js` тощо — **зобов'язаний** використовувати `g(state.activeChildId, ...)` замість хардкодженого жіночого або чоловічого роду.
 - ✅ `g(state.activeChildId, 'Виконав', 'Виконала')`
 - ✅ `G('зробив', 'зробила')` — у `help.js` де `G` вже визначено
 - ❌ Хардкодити `'Виконала'`, `'впевнена'`, `'передумала'` тощо
 
-Для батьківського тексту де дитина — третя особа, використовувати нейтральну форму (`виконано`, `відмовилась від завдання`) без `g()`.
+Для батьківського тексту де дитина — третя особа використовувати нейтральну форму без `g()`.
 
 ---
 
@@ -217,7 +215,7 @@ const G = (boy, girl) => g(childId, boy, girl);
 
 ## ⚡ Пайплайн додавання запису — `commitRecord()`
 
-`commitRecord()` — єдина точка входу для будь-якого нарахування або витрати зірок. Викликається з `records.js`, `tasks.js`, `rewards.js`, `freeze.js`, `achievements.js`.
+`commitRecord()` — єдина точка входу для будь-якого нарахування або витрати зірок.
 
 ```
 commitRecord(recordData)
@@ -233,7 +231,7 @@ commitRecord(recordData)
   10. updateUI()                     ← перерендер всього інтерфейсу
 ```
 
-> ⚠️ `commitRecord()` працює лише з активною дитиною (`state.data`). Для підтвердження завдань «чужої» дитини використовується `_commitRecordForChild()` у `tasks.js` — прямий Firebase write без торкання `state.data`.
+> ⚠️ `commitRecord()` працює лише з активною дитиною (`state.data`). Для підтвердження завдань «чужої» дитини використовується `_commitRecordForChild()` у `tasks.js`.
 
 ---
 
@@ -252,50 +250,193 @@ commitRecord(recordData)
 | `achievements` | Досягнення |
 | `feedback` | Зворотній зв'язок |
 | `settings` | Налаштування |
-| `instructions` | Довідка (`guide` → alias) |
+| `guide` | Псевдонім → відкриває `instructionsSection`, підсвічує кнопку `guide` в навбарі |
+| `instructions` | Довідник (без кнопки в навбарі, лише через `guide`) |
 
 **Програмне перемикання:**
 ```js
 document.dispatchEvent(new CustomEvent('zirky:switchTab', { detail: 'history' }));
 document.dispatchEvent(new CustomEvent('zirky:showForm',  { detail: 'freeze' }));
-document.dispatchEvent(new CustomEvent('zirky:dataLoaded'));  // після приходу даних Firebase
+window.__zSwitchTab('stats');   // з сповіщень — закриває панель + switchTab + scroll
 ```
 
 ---
 
-## 🎨 Система тем (appearance.js)
+## 🔔 Система сповіщень (notifications.js)
 
-Дитина купує тему цілком, потім може міксувати компоненти куплених тем.
+`generateNotifications()` — головна функція, викликається після кожної мутації даних. Повністю перегенеровує список з нуля.
 
-**Активна тема:**
+**Стабільні ключі (без дати):**
+
+| id | Тип | Тригер |
+|---|---|---|
+| `backup_recurring` | `backup` | `days >= 7` від останнього бекапу |
+| `no_stars_recurring` | `no_stars` | `daysDiff >= 2` без нових зірок |
+
+Ці два сповіщення перезаписують себе при кожному запуску — в Firebase завжди лише один запис кожного типу. `readBy` скидається лише якщо числовий лічильник (`days` / `daysDiff`) збільшився.
+
+**Щоденні/циклічні (з датою в ключі):**
+
+| id-шаблон | Тип | Тригер |
+|---|---|---|
+| `streak_risk_YYYY-MM-DD` | `streak_risk` | серія під загрозою |
+| `good_dynamics_YYYY-MM-DD` | `good_dynamics` | +20% зірок відносно минулого тижня |
+| `task_*_${taskId}` | різні | дії з завданнями |
+| `login_failed_*` | `login_failed` | невірний PIN |
+
+**Навігація по кліку:**
+- `good_dynamics` → `__zSwitchTab('stats')`
+- `backup` → `__zSwitchTab('settings')`
+- `task_*` → `__zSwitchTab('tasks'/'feedback')`
+
+**Міграція старих ключів:**
+При завантаженні `initNotificationsListener` автоматично видаляє з Firebase старі `backup_YYYY-MM-DD` і `no_stars_YYYY-MM-DD` записи.
+
+---
+
+## 📋 Система завдань (tasks.js)
+
+### Два потоки
+
+| `origin` | Хто створює | Статуси |
+|---|---|---|
+| `child_request` | Дитина через форми «Додати» | `pending` → `confirmed` / `rejected` |
+| `parent_task` | Батько у вкладці «Завдання» | `active` → `done` → `confirmed` / `rejected` |
+
+### Структура об'єкта task
+
 ```js
-state.data.appearance.child.active  = { theme, palette, font, buttons, background, badge }
-state.data.appearance.parent.active = { theme, palette, font, buttons, background, badge }
-```
-
-**Рамка профілю** — зберігається у `state.parent.children[childId].border`:
-```js
-border: {
-  line:            'solid' | 'dashed' | 'dotted' | ...   // стиль лінії
-  animation:       'none'  | 'pulse'  | 'rainbow' | ...  // анімація
-  ownedAnimations: []                                     // куплені анімації
+{
+  id:            'task_<timestamp>_<random>',
+  origin:        'child_request' | 'parent_task',
+  status:        'pending' | 'active' | 'done' | 'confirmed' | 'rejected',
+  category:      String,
+  subcategory:   String?,
+  title:         String,
+  stars:         Number,
+  rewardStars:   Number,          // додаткова винагорода за виконання (parent_task)
+  createdAt:     nowKyiv(),
+  doneAt:        nowKyiv()?,      // коли дитина натиснула «Виконав/ла»
+  confirmedAt:   nowKyiv()?,
+  rejectedAt:    nowKyiv()?,
+  overdueAt:     nowKyiv()?,      // якщо батько натиснув «Прострочено» — для майбутніх досягнень
+  hasDeadline:   Boolean,
+  deadline:      'YYYY-MM-DDTHH:MM'?,
+  childId:       'child_1',
+  childComment:  String?,         // коментар дитини при відмові
+  rejectComment: String?,         // коментар батька при відхиленні або 'Прострочено'
+  counterKey:    String?,
+  pages:         Number?,
+  lastEditNote:  String?,
 }
 ```
-Застосовується через `applyActiveBorder(childId)` → CSS-атрибути `data-border-line`, `data-border-animation`, `--profile-color`.
 
-**Декоративні теми** (`decorated: true` у палітрі):
-- Виставляють `html[data-decorated="true"]`
-- CSS-змінні `--decor-*` задають зображення для слотів: `tasks`, `rewards`, `schedule`, `stats`, `settings`, `themes`, `guide`, `add`, `empty-tasks`, `empty-history`, `empty-feedback`, `help-achievements`, `notif-top`, `notif-bottom`
-- У `style.css` вже є всі селектори — нічого там не змінювати
+> ⚠️ `overdueAt` + `rejectComment: 'Прострочено'` — мітка для майбутніх досягнень що рахують прострочені завдання. Фільтр: `Object.values(tasks).filter(t => t.overdueAt)`.
 
-**Щоб додати нову тему:** запис у `THEMES` + запис у `COMPONENTS` в `appearance.js`.
+### Статуси та переходи
+
+```
+child_request:  pending → confirmed
+                        → rejected
+                        (дитина може видалити pending до підтвердження)
+
+parent_task:    active  → done         (дитина: «Виконав/ла»)
+                done    → active       (дитина: «Помилився/лась» — скасування запиту)
+                active  → rejected     (батько: «Прострочено» — лише якщо deadline минув)
+                done    → confirmed    (батько підтвердив)
+                done    → rejected     (батько відхилив)
+```
+
+### Список бонусів — BONUS_OPTIONS (config.js)
+
+**Єдине джерело** для обох `<select>`:
+- `#bonusType` — форма дитини «Додати бонус» (рендериться через `renderBonusSelect` при `updateUI`)
+- `#ptaskBonusType` — форма батьків «Створити завдання» (рендериться при `openParentTaskForm`)
+
+```js
+// Щоб додати новий бонус — тільки config.js, більше нічого не чіпати:
+BONUS_OPTIONS = [
+  { group: '📚 Навчання', options: [
+    { value: 'назва|зірки|підкат|counterKey', label: 'Відображення (+N⭐)' },
+    { boy: '...', girl: '...', boyLabel: '...', label: '...' },  // гендерні
+    { ..., gender: 'girl' },     // лише для дівчат
+    { ..., hasPages: true },     // показує поле «кількість сторінок»
+  ]},
+  ...
+]
+```
+
+`renderBonusSelect(selectId)` визначає гендер через:
+```js
+state.data?.gender
+  || state.parent?.children?.[state.activeChildId]?.gender
+  || 'girl'
+```
+(перший — для дитячого профілю, другий — для батьківського де `state.data.gender` відсутній)
+
+### Мульти-профільний кеш (_allTasksCache)
+
+Батько бачить завдання **всіх** дітей одночасно:
+```js
+_allTasksCache = {
+  child_1: { [task.id]: taskObj },
+  child_2: { [task.id]: taskObj },
+}
+```
+
+- `_getTaskById(id)` — шукає по всьому кешу, повертає `{ ...task, childId }`  (копію!)
+- Після будь-якої мутації — обов'язково `_updateTaskInCache(task)`, інакше UI показує застарілі дані
+- `_deleteTaskFromCache(id, childId)` — після видалення
+
+> ⚠️ `_getTaskById` повертає **spread-копію**, не посилання. Тому `task.status = 'x'` не потрапляє в кеш автоматично — `_updateTaskInCache(task)` обов'язковий після кожної мутації.
+
+---
+
+## 🏆 Досягнення — типи
+
+| type | Логіка |
+|---|---|
+| `cumulative` | Лічильник по `counterKey` в записах |
+| `streak` | Дні підряд (з урахуванням `freezePeriods` і вихідних) |
+| `repeatable_streak` | Стрік що скидається і перезапускається (зуби, волосся, зарядка) |
+| `weekly` | Зірки за поточний тиждень |
+| `balance` | Поточний баланс |
+| `goal_counter` | Лічильник досягнутих цілей |
+
+### Логіка earning streak з урахуванням канікул
+
+```
+Поза freeze-періодом:
+  - вихідні (сб/нд) — пропускаються, не рахуються як пропуск
+  - будній без запису — streak скидається
+
+Під час freeze-періоду (_isDateInFreeze = true):
+  - вихідні НЕ є винятком (рахуються як звичайні дні)
+  - gap = 1 день (daysDiff === 2) — дозволено, streak продовжується
+  - gap >= 2 дні — streak скидається
+```
+
+`_isDateInFreeze(fromDate, toDate)` — перевіряє чи хоч один день між двома записами потрапляє в будь-який `freezePeriods` запис.
+
+---
+
+## 📊 Модалка «Активність» (settings.js)
+
+Показує loginHistory батьків і кожної дитини з табами профілів.
+
+- `_activeActivityTab` — поточна вкладка (`'parent'` або childId), зберігається в пам'яті сесії
+- `showActivityModal()` — відкриває модалку, перевіряє чи збережена вкладка ще існує
+- `refreshActivityModal()` — безпечний перерендер відкритої модалки; реєструється як `window.refreshActivityModal`
+- `switchActivityTab(tabId)` — перемикає вкладку, реєструється як `window.switchActivityTab`
+
+`firebase.js` викликає `window.refreshActivityModal` після `saveChildLoginHistory().then()` і `saveParentLoginData()` — без прямого імпорту `settings.js`.
 
 ---
 
 ## 💰 Баланс — неочевидно!
 
 `state.data.balance` **не є** джерелом правди.  
-Реальний баланс живе в `state.data.achievements.counters._runningBalance` — перераховується щоразу в `recalculateAchievements()`. `state.data.balance` оновлюється з нього після кожного перерахунку.
+Реальний баланс: `state.data.achievements.counters._runningBalance` — перераховується в `recalculateAchievements()`.
 
 ---
 
@@ -307,42 +448,18 @@ border: {
 | Витрати (`spend`) | `nowKyiv()` | Реальний момент покупки |
 | Досягнення | `nowKyiv()` | Автоматичні |
 
-`id: Date.now()` — завжди реальний Unix-timestamp. Сортування в `history.js` порівнює лише `date.slice(0,10)`, а для записів одного дня сортує за `id`.
+`id: Date.now()` — завжди реальний Unix-timestamp.
 
 ---
 
-## 🏆 Досягнення — типи
+## 🎨 Система тем (appearance.js)
 
-| type | Логіка |
-|---|---|
-| `cumulative` | Лічильник по `counterKey` в записах |
-| `streak` | Дні підряд (з урахуванням `freezePeriods`) |
-| `repeatable_streak` | Стрік що скидається і перезапускається (зуби, волосся, зарядка) |
-| `weekly` | Зірки за поточний тиждень |
-| `balance` | Поточний баланс |
-| `goal_counter` | Лічильник досягнутих цілей |
+**Щоб додати нову тему:** запис у `THEMES` + запис у `COMPONENTS` в `appearance.js`.
 
----
-
-## 🔔 Система сповіщень (notifications.js)
-
-`generateNotifications()` — головна функція, викликається після кожної мутації даних. Повністю перегенеровує список сповіщень з нуля на основі поточного стану.
-
-**Типи сповіщень:**
-
-| type | Тригер |
-|---|---|
-| `task_pending` | Новий `child_request` чекає батьківського підтвердження |
-| `task_done` | `parent_task` виконано дитиною, чекає підтвердження |
-| `task_rejected` | Батько відхилив завдання дитини |
-| `task_confirmed` | Батько підтвердив завдання дитини |
-| `feedback_new` | Новий фідбек від дитини |
-| `achievement` | Дитина отримала нове досягнення |
-| `goal_reached` | Дитина досягла мети накопичення |
-
-`initNotificationsListener(childId, db)` — підписка на `zirky/children/${childId}/notifications_feed/`. Повертає `unsub`-функцію.
-
-`dismissNotification(id)` / `dismissByType(type)` / `dismissByAction(type, action)` — точкове або групове відхилення.
+**Декоративні теми** (`decorated: true`):
+- Виставляють `html[data-decorated="true"]`
+- CSS-змінні `--decor-*` задають зображення для слотів: `tasks`, `rewards`, `schedule`, `stats`, `settings`, `themes`, `guide`, `add`, `empty-tasks`, `empty-history`, `empty-feedback`, `help-achievements`, `notif-top`, `notif-bottom`
+- У `style.css` вже є всі селектори — нічого там не змінювати для нових тем
 
 ---
 
@@ -352,85 +469,13 @@ border: {
 
 ---
 
-## 📋 Система завдань (tasks.js)
+## ⚠️ Відомі архітектурні нюанси
 
-### Два потоки
-
-| Поле `origin` | Хто створює | Статуси |
-|---|---|---|
-| `child_request` | Дитина через форми блоку «Додати» | `pending` → `confirmed` / `rejected` |
-| `parent_task` | Батько у вкладці «Завдання» | `active` → `done` → `confirmed` / `rejected` |
-
-**`child_request`:** дитина заповнює форму (оцінка, бонус тощо) → запит іде батькам → батько підтверджує → `commitRecord()` → запис в Історії.
-
-**`parent_task`:** батько створює завдання з кількістю зірок, опційним дедлайном і винагородою → дитина бачить у своєму таблет → натискає «Виконав/Виконала» → статус `done` → батько підтверджує → `commitRecord()` + окремий запис `task_reward` якщо є винагорода.
-
-### Структура об'єкта task
-
-```js
-{
-  id:           'task_<timestamp>_<random>',
-  origin:       'child_request' | 'parent_task',
-  status:       'pending' | 'active' | 'done' | 'confirmed' | 'rejected',
-  category:     String,
-  subcategory:  String?,
-  title:        String,
-  stars:        Number,
-  rewardStars:  Number,          // додаткова винагорода за виконання (parent_task)
-  createdAt:    nowKyiv(),
-  doneAt:       nowKyiv()?,      // коли дитина натиснула «Виконав/ла»
-  confirmedAt:  nowKyiv()?,
-  hasDeadline:  Boolean,
-  deadline:     'YYYY-MM-DDTHH:MM'?,
-  childId:      'child_1',       // до якого профілю належить — обов'язково!
-  childComment: String?,         // коментар дитини при відмові
-  parentComment: String?,        // коментар батька при відхиленні
-  counterKey:   String?,
-  pages:        Number?,
-  lastEditNote: String?,         // лог змін при редагуванні батьком
-}
-```
-
-### Статуси та переходи
-
-```
-child_request:  pending → confirmed
-                        → rejected
-                        (дитина може видалити pending до підтвердження)
-
-parent_task:    active  → done (дитина натиснула «Виконав/ла»)
-                       ↘ (дитина відмовилась — залишається active з childComment)
-                done    → confirmed (батько підтвердив)
-                        → rejected  (батько відхилив)
-                confirmed / rejected → видалення лише батьком
-```
-
-### Мульти-профільний кеш (_allTasksCache)
-
-Батько бачить завдання **всіх** дітей одночасно. Для цього є `_allTasksCache`:
-
-```js
-_allTasksCache = {
-  child_1: { [task.id]: taskObj, ... },
-  child_2: { [task.id]: taskObj, ... },
-}
-```
-
-- **Заповнення:** `_loadAllChildrenTasks()` — `get()` з Firebase для кожної дитини окрім активної (активна береться з `state.data.tasks`). Викликається один раз при першому `renderTasks()` в батьківському режимі.
-- **Оновлення після мутацій:** `_updateTaskInCache(task)` — після create/edit/confirm. `_deleteTaskFromCache(id, childId)` — після delete. Без цього UI показував би застарілі дані до наступного перезавантаження.
-- **Пошук по всіх дітях:** `_getTaskById(id)` — шукає в `_allTasksCache` для батьківських дій (confirm, reject, edit, delete). Дитячі дії (`markTaskDone` тощо) читають напряму з `state.data.tasks`.
-
-### Підтвердження для «чужої» дитини (confirmTask)
-
-Якщо батько підписаний на дитину 1 але підтверджує завдання дитини 2:
-- `state.data` містить дані дитини 1 — не чіпаємо
-- `commitRecord()` не викликається (він пише в `state.data`)
-- Замість цього `_commitRecordForChild(task)`: `get()` з Firebase → додає записи → `update()` напряму у `zirky/children/child_2/`
-- Баланс і досягнення дитини 2 перерахуються при її наступному вході (`recalculateAchievements()`)
-
-### Firebase — збереження завдань
-
-`saveTask(task, childId?)` → `update(ref(db, zirky/children/${childId}/tasks/${task.id}), task)`  
-`deleteTask(id, childId?)` → `remove(ref(db, zirky/children/${childId}/tasks/${id}))`  
-Якщо `childId` не передано — fallback на `state.activeChildId`.
-
+| Проблема | Рішення |
+|---|---|
+| `Firebase exceptionGuard` мовчки ковтає помилки всередині `onValue`-колбеків | Завжди додавати `console.log` на початку колбеку при діагностиці |
+| `_getTaskById` повертає spread-копію | Після мутації обов'язково `_updateTaskInCache(task)` |
+| `saveAll()` мав використовувати `update()`, а не `set()` | Виправлено: `set()` мовчки видаляв tasks/feedback/notifications при першому запуску |
+| Циклічні залежності `firebase.js ↔ notifications.js` | Трекінг listener-а перенесено до `auth.js`; крос-модульні виклики тільки всередині функцій |
+| `generateLoginFailedNotif` потребує `_db` і `_subscribedChildId` | Виправлено: fallback на `_fbDb` з firebase.js і `state.activeChildId` при виклику до ініціалізації listener-а |
+| `window.refreshActivityModal` реєструється після старту модулів | Виклик через `if (window.refreshActivityModal)` — безпечно, спрацює при наступному `updateUI` |
