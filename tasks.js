@@ -17,7 +17,7 @@
 //     Live-таймер дедлайну з паузою при прихованій вкладці.
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260612.1301';
+export const VERSION = 'v4.20260624.0649';
 
 import { state, tasksFilter } from './state.js';
 import { isDoubleSubject } from './subjects.js';
@@ -25,7 +25,7 @@ import { gradeToStars } from './config.js';
 import { commitRecord } from './records.js';
 import { saveTask, deleteTask as fbDeleteTask, deleteTasks as fbDeleteTasks, initTasksListener, db } from './firebase.js';
 import { nowKyiv, pulseElement, g } from './utils.js';
-import { hasUnreadTaskNotification, dismissTaskNotifications } from './notifications.js';
+import { hasUnreadTaskNotification, dismissTaskNotifications, removeNotification } from './notifications.js';
 import { get, ref, update } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 
 // ════════════════════════════════════════════════════════════
@@ -752,6 +752,24 @@ export function markTaskDone(id) {
     task.doneAt = nowKyiv();
     saveTask(task);
 
+    if (window.generateNotifications) window.generateNotifications();
+    renderTasks();
+}
+
+// Дитина помилилась — скасовує запит підтвердження і повертає завдання до активного
+export function undoTaskDone(id) {
+    const task = state.data.tasks?.[id];
+    if (!task) return;
+    if (task.origin !== 'parent_task') return;
+    // Захист від race condition: батько вже міг підтвердити
+    if (task.status !== 'done') return;
+
+    task.status = 'active';
+    delete task.doneAt;
+    saveTask(task);
+
+    // Видаляємо сповіщення батькам "Дитина виконала завдання" — воно вже неактуальне
+    removeNotification(`task_done_${id}`);
     if (window.generateNotifications) window.generateNotifications();
     renderTasks();
 }
@@ -1587,6 +1605,10 @@ function _renderChildTaskCard(task) {
 
             ${isDone ? `
                 <div class="tk-info-hint">⏳ Очікую підтвердження від батьків</div>
+                <div class="tk-actions">
+                    <button class="tk-action-btn tk-action-btn--cancel"
+                        onclick="undoTaskDone('${task.id}')">↩️ ${g(state.activeChildId, 'Помилився', 'Помилилась')}</button>
+                </div>
             ` : ''}
         </div>
     `;
