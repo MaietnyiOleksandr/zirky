@@ -17,7 +17,7 @@
 //     Live-таймер дедлайну з паузою при прихованій вкладці.
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260624.0805';
+export const VERSION = 'v4.20260624.0818';
 
 import { state, tasksFilter } from './state.js';
 import { isDoubleSubject } from './subjects.js';
@@ -789,6 +789,7 @@ export function markTaskOverdue(id) {
     task.overdueAt    = nowKyiv();
     task.rejectReason = 'Прострочено';
     saveTask(task);
+    _updateTaskInCache(task);
 
     dismissTaskNotifications(id);
     if (window.generateNotifications) window.generateNotifications();
