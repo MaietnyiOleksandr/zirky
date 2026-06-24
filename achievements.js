@@ -2,7 +2,7 @@
 // 🏆  achievements.js — Система досягнень
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260613.0732';
+export const VERSION = 'v4.20260624.1123';
 
 // ════════════════════════════════════════════════════════════
 
@@ -205,24 +205,37 @@ export function recalculateAchievements() {
                     streak.best = Math.max(streak.best, streak.current);
                     streak.lastDate = recordDay;
                 } else if (daysDiff > 1) {
-                    // Пропуск - перевіряємо чи це вихідні/канікули
-                    let allSkippable = true;
-                    for (let i = 1; i < daysDiff; i++) {
-                        const checkDate = new Date(lastDate);
-                        checkDate.setDate(lastDate.getDate() + i);
-                        if (!shouldSkipDayForStreak(checkDate, 'grade')) {
-                            allSkippable = false;
-                            break;
+                    // Пропуск більше одного дня — перевіряємо режим
+                    const inFreeze = _isDateInFreeze(lastDate, recordDate);
+
+                    if (inFreeze) {
+                        // Під час канікул: вихідні не є винятком,
+                        // дозволений gap = 1 день (daysDiff === 2 → 1 пропущений день → ОК)
+                        if (daysDiff === 2) {
+                            // Рівно 1 пропущений день — дозволено
+                            streak.current += 1;
+                            streak.best = Math.max(streak.best, streak.current);
+                        } else {
+                            // 2+ пропущених дні під час канікул — скидаємо
+                            streak.current = 1;
                         }
-                    }
-                    
-                    if (allSkippable) {
-                        // Всі пропущені дні - вихідні/канікули - продовжуємо
-                        streak.current += 1;
-                        streak.best = Math.max(streak.best, streak.current);
                     } else {
-                        // Був будній день без запису - скидаємо
-                        streak.current = 1;
+                        // Поза канікулами: перевіряємо вихідні/freeze по-старому
+                        let allSkippable = true;
+                        for (let i = 1; i < daysDiff; i++) {
+                            const checkDate = new Date(lastDate);
+                            checkDate.setDate(lastDate.getDate() + i);
+                            if (!shouldSkipDayForStreak(checkDate, 'grade')) {
+                                allSkippable = false;
+                                break;
+                            }
+                        }
+                        if (allSkippable) {
+                            streak.current += 1;
+                            streak.best = Math.max(streak.best, streak.current);
+                        } else {
+                            streak.current = 1;
+                        }
                     }
                     streak.lastDate = recordDay;
                 } else {
@@ -1025,6 +1038,27 @@ export function renderAchievementsHome() {
             });
         });
     }, 100);
+}
+
+// Перевіряє чи будь-який день між двома датами (не включно) потрапляє в freeze-період.
+// Використовується для визначення режиму канікул при розриві в streak.
+function _isDateInFreeze(fromDate, toDate) {
+    const freezePeriods = state.data.achievements.freezePeriods || [];
+    if (!freezePeriods.length) return false;
+    // Перевіряємо чи хоча б один день між записами (не включно з крайніми) в freeze
+    const from = new Date(fromDate);
+    from.setHours(0, 0, 0, 0);
+    const to = new Date(toDate);
+    to.setHours(0, 0, 0, 0);
+    for (let d = new Date(from); d < to; d.setDate(d.getDate() + 1)) {
+        const check = new Date(d);
+        for (const period of freezePeriods) {
+            const freezeFrom  = new Date(period.from);  freezeFrom.setHours(0, 0, 0, 0);
+            const freezeUntil = new Date(period.until); freezeUntil.setHours(23, 59, 59, 999);
+            if (check >= freezeFrom && check <= freezeUntil) return true;
+        }
+    }
+    return false;
 }
 
 export function shouldSkipDayForStreak(date, streakType) {
