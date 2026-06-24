@@ -11,7 +11,7 @@
 //   Жодних розкиданих .style.display = ... по інших модулях.
 // ════════════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260624.1144';
+export const VERSION = 'v4.20260624.1200';
 
 import { state } from './state.js';
 import { buildSubjectSelects } from './subjects.js';
@@ -103,8 +103,8 @@ export function updateUI() {
     document.querySelectorAll('.opt-boy').forEach(el => el.hidden  = gender !== 'boy');
     _updateGenderLabels(gender);
 
-    // Гендерні назви і value опцій у bonusForm
-    _updateBonusGender(gender);
+    // Гендерні назви і value опцій у bonusForm — через renderBonusSelect (tasks.js)
+    if (window.renderBonusSelect) window.renderBonusSelect('bonusType');
 
     // 📝 Оновлення значень у видимих батьківських полях
     //    (видимість встановлюється вище, тут — лише значення)

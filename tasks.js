@@ -17,7 +17,7 @@
 //     Live-таймер дедлайну з паузою при прихованій вкладці.
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260624.1144';
+export const VERSION = 'v4.20260624.1200';
 
 import { state, tasksFilter } from './state.js';
 import { isDoubleSubject } from './subjects.js';
@@ -38,17 +38,22 @@ export function renderBonusSelect(selectId) {
     const sel = document.getElementById(selectId);
     if (!sel) return;
 
-    const isBoy = state.data?.gender === 'boy';
+    // Гендер: у дитячому профілі — state.data.gender,
+    // у батьківському — з мета-даних активного профілю дитини
+    const gender = state.data?.gender
+        || state.parent?.children?.[state.activeChildId]?.gender
+        || 'girl';
+    const isBoy = gender === 'boy';
 
     let html = '<option value="">Оберіть бонус</option>';
     for (const group of BONUS_OPTIONS) {
         html += `<optgroup label="${group.group}">`;
         for (const opt of group.options) {
             // Пропускаємо якщо опція тільки для певної статі
-            if (opt.gender && opt.gender !== state.data?.gender) continue;
+            if (opt.gender && opt.gender !== gender) continue;
 
             const hasGender = opt.boy && opt.girl;
-            const val   = hasGender ? (isBoy ? opt.boy   : opt.girl)     : opt.value;
+            const val   = hasGender ? (isBoy ? opt.boy      : opt.girl)  : opt.value;
             const label = hasGender ? (isBoy ? opt.boyLabel : opt.label) : opt.label;
             const pages = opt.hasPages ? ' data-has-pages="1"' : '';
 
