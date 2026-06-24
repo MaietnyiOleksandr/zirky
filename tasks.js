@@ -17,11 +17,11 @@
 //     Live-таймер дедлайну з паузою при прихованій вкладці.
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260624.1022';
+export const VERSION = 'v4.20260624.1144';
 
 import { state, tasksFilter } from './state.js';
 import { isDoubleSubject } from './subjects.js';
-import { gradeToStars } from './config.js';
+import { gradeToStars, BONUS_OPTIONS } from './config.js';
 import { commitRecord } from './records.js';
 import { saveTask, deleteTask as fbDeleteTask, deleteTasks as fbDeleteTasks, initTasksListener, db } from './firebase.js';
 import { nowKyiv, pulseElement, g } from './utils.js';
@@ -31,6 +31,34 @@ import { get, ref, update } from 'https://www.gstatic.com/firebasejs/10.7.1/fire
 // ════════════════════════════════════════════════════════════
 // 🎛️  Константи
 // ════════════════════════════════════════════════════════════
+
+// Рендерить <select> з бонусами з BONUS_OPTIONS (config.js) з урахуванням гендеру.
+// Виклик: renderBonusSelect('bonusType') або renderBonusSelect('ptaskBonusType')
+export function renderBonusSelect(selectId) {
+    const sel = document.getElementById(selectId);
+    if (!sel) return;
+
+    const isBoy = state.data?.gender === 'boy';
+
+    let html = '<option value="">Оберіть бонус</option>';
+    for (const group of BONUS_OPTIONS) {
+        html += `<optgroup label="${group.group}">`;
+        for (const opt of group.options) {
+            // Пропускаємо якщо опція тільки для певної статі
+            if (opt.gender && opt.gender !== state.data?.gender) continue;
+
+            const hasGender = opt.boy && opt.girl;
+            const val   = hasGender ? (isBoy ? opt.boy   : opt.girl)     : opt.value;
+            const label = hasGender ? (isBoy ? opt.boyLabel : opt.label) : opt.label;
+            const pages = opt.hasPages ? ' data-has-pages="1"' : '';
+
+            html += `<option value="${val}"${pages}>${label}</option>`;
+        }
+        html += '</optgroup>';
+    }
+
+    sel.innerHTML = html;
+}
 
 const STATUS_CONFIG = {
     pending:   { label: '⏳ Чекає підтвердження', cls: 'tk-st-pending'   },
@@ -433,6 +461,9 @@ export function openParentTaskForm() {
     if (form) form.style.display = 'block';
     const btn = document.getElementById('openParentTaskFormBtn');
     if (btn) btn.style.display = 'none';
+    // Рендеримо select з єдиного джерела BONUS_OPTIONS при кожному відкритті
+    // (щоб гендер дитини вже був відомий зі state)
+    renderBonusSelect('ptaskBonusType');
 }
 
 export function closeParentTaskForm() {
@@ -1292,30 +1323,6 @@ function _renderParentTaskFormBlock() {
                         <label class="tk-label">🌟 Бонус</label>
                         <select id="ptaskBonusType" class="tk-select" onchange="onParentTaskBonusChange()">
                             <option value="">Оберіть бонус</option>
-                            <optgroup label="📚 Навчання">
-                                <option value="📝 Виконано Д/З|2|study|homework">📝 Виконано Д/З (+2⭐)</option>
-                                <option value="🎯 Важке завдання|5|study|hard_tasks">🎯 Важке завдання (+5⭐)</option>
-                                <option value="📖 Прочитав книгу|10|study|books">📖 Прочитав книгу (+10⭐)</option>
-                            </optgroup>
-                            <optgroup label="🤝 Допомога батькам">
-                                <option value="🤝 Допомога батькам: проста|3|help|help">🤝 Допомога: проста (+3⭐)</option>
-                                <option value="💪 Допомога батькам: важка|5|help|help">💪 Допомога: важка (+5⭐)</option>
-                            </optgroup>
-                            <optgroup label="🏠 По дому">
-                                <option value="🧹 Прибрала кімнату|3|home_chore|home_chores">🧹 Прибрала кімнату (+3⭐)</option>
-                                <option value="👕 Поскладала одяг|3|home_chore|home_chores">👕 Поскладала одяг (+3⭐)</option>
-                                <option value="🛏️ Застелила ліжко|2|home_chore|home_chores">🛏️ Застелила ліжко (+2⭐)</option>
-                                <option value="🫧 Помила посуд|3|home_chore|home_chores">🫧 Помила посуд (+3⭐)</option>
-                                <option value="🍳 Допомогла готувати|5|home_chore|home_chores">🍳 Допомогла готувати (+5⭐)</option>
-                            </optgroup>
-                            <optgroup label="🏸 Активність">
-                                <option value="🚶 Прогулянка 30+ хв|3|activity|activity">🚶 Прогулянка 30+ хв (+3⭐)</option>
-                                <option value="🏃 Тренування 60+ хв|5|activity|activity">🏃 Тренування 60+ хв (+5⭐)</option>
-                            </optgroup>
-                            <optgroup label="🧼 Гігієна">
-                                <option value="💇 Причесати волосся|5|hygiene|">💇 Причесатись (+5⭐)</option>
-                                <option value="🪥 Почистити зуби|2|hygiene|">🪥 Почистити зуби (+2⭐)</option>
-                            </optgroup>
                         </select>
                     </div>
                     <div class="tk-form-group" id="ptaskBookPagesGroup" style="display:none">

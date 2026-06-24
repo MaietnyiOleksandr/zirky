@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⭐</text></svg>">
-    <!-- version: v4.20260624.1123 -->
+    <!-- version: v4.20260624.1144 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>⭐ Зірки Успіху</title>
     <link rel="stylesheet" href="style.css">
@@ -262,49 +262,6 @@
                         <label>🌟 Бонус</label>
                         <select id="bonusType">
                             <option value="">Оберіть бонус</option>
-                            <optgroup label="📚 Навчання">
-                                <option value="📝 Виконано Д/З|2|study|homework">📝 Виконано Д/З (+2⭐)</option>
-                                <option value="🎯 Важке завдання|5|study|hard_tasks">🎯 Важке завдання (+5⭐)</option>
-                                <option
-                                    data-boy="📖 Прочитав книгу|10|study|books"
-                                    data-girl="📖 Прочитала книгу|10|study|books"
-                                    value="📖 Прочитала книгу|10|study|books">📖 Прочитала книгу (+10⭐)</option>
-                            </optgroup>
-                            <optgroup label="🤝 Допомога батькам">
-                                <option value="🤝 Допомога батькам: проста|3|help|help">🤝 Допомога: проста (+3⭐)</option>
-                                <option value="💪 Допомога батькам: важка|5|help|help">💪 Допомога: важка (+5⭐)</option>
-                            </optgroup>
-                            <optgroup label="🏠 По дому">
-                                <option
-                                    data-boy="🧹 Прибрав кімнату|3|home_chore|home_chores"
-                                    data-girl="🧹 Прибрала кімнату|3|home_chore|home_chores"
-                                    value="🧹 Прибрала кімнату|3|home_chore|home_chores">🧹 Прибрала кімнату (+3⭐)</option>
-                                <option
-                                    data-boy="👕 Поскладав одяг|3|home_chore|home_chores"
-                                    data-girl="👕 Поскладала одяг|3|home_chore|home_chores"
-                                    value="👕 Поскладала одяг|3|home_chore|home_chores">👕 Поскладала одяг (+3⭐)</option>
-                                <option
-                                    data-boy="🛏️ Застелив ліжко|2|home_chore|home_chores"
-                                    data-girl="🛏️ Застелила ліжко|2|home_chore|home_chores"
-                                    value="🛏️ Застелила ліжко|2|home_chore|home_chores">🛏️ Застелила ліжко (+2⭐)</option>
-                                <option
-                                    data-boy="🫧 Помив посуд|3|home_chore|home_chores"
-                                    data-girl="🫧 Помила посуд|3|home_chore|home_chores"
-                                    value="🫧 Помила посуд|3|home_chore|home_chores">🫧 Помила посуд (+3⭐)</option>
-                                <option
-                                    data-boy="🔧 Допоміг ремонтувати|5|home_chore|home_chores"
-                                    data-girl="🍳 Допомогла готувати|5|home_chore|home_chores"
-                                    value="🍳 Допомогла готувати|5|home_chore|home_chores">🍳 Допомогла готувати (+5⭐)</option>
-                            </optgroup>
-                            <optgroup label="🏸 Активність">
-                                <option value="🚶 Прогулянка 30+ хв|3|activity|activity">🚶 Прогулянка 30+ хв (+3⭐)</option>
-                                <option value="🏃 Тренування 60+ хв|5|activity|activity">🏃 Тренування 60+ хв (+5⭐)</option>
-                                <option value="🏋️ Зробити зарядку|5|hygiene|">🏋️ Зробити зарядку (+5⭐)</option>
-                            </optgroup>
-                            <optgroup label="🧼 Гігієна">
-                                <option value="💇 Причесати волосся|5|hygiene|" class="opt-girl">💇 Причесатись (+5⭐)</option>
-                                <option value="🪥 Почистити зуби|2|hygiene|">🪥 Почистити зуби (+2⭐)</option>
-                            </optgroup>
                         </select>
                     </div>
                     <div class="form-group" id="bookPagesGroup" style="display:none">
@@ -1267,7 +1224,8 @@
                  openParentTaskForm, closeParentTaskForm, submitParentTask,
                  onParentTaskCategoryChange, onParentTaskBonusChange, onParentTaskDeadlineToggle, onParentTaskNoRewardToggle,
                  confirmTask, startRejectTask, cancelRejectTask, selectRejectReason, submitRejectTask,
-                 markTaskDone, undoTaskDone, markTaskOverdue, startDeclineTask, cancelDeclineTask, selectDeclineReason, submitDeclineTask,
+                 markTaskDone, undoTaskDone, markTaskOverdue, startDeclineTask,
+                 renderBonusSelect, cancelDeclineTask, selectDeclineReason, submitDeclineTask,
                  clearChildDecline, deleteTaskByParent, deleteOwnRequest,
                  startEditTask, cancelEditTask, onEditDeadlineToggle, onEditNoRewardToggle, saveEditTask,
                  changeTasksMonth, toggleShowAllTasks, getTasksUnreadCount, resetAllTasksCache } from './tasks.js';
@@ -1662,6 +1620,7 @@
         window.selectRejectReason         = selectRejectReason;
         window.submitRejectTask           = submitRejectTask;
         window.markTaskDone               = markTaskDone;
+        window.renderBonusSelect           = renderBonusSelect;
         window.undoTaskDone               = undoTaskDone;
         window.markTaskOverdue            = markTaskOverdue;
         window.startDeclineTask           = startDeclineTask;

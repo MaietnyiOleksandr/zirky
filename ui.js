@@ -11,7 +11,7 @@
 //   Жодних розкиданих .style.display = ... по інших модулях.
 // ════════════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260623.1835';
+export const VERSION = 'v4.20260624.1144';
 
 import { state } from './state.js';
 import { buildSubjectSelects } from './subjects.js';
@@ -101,6 +101,7 @@ export function updateUI() {
     const gender = state.parent.children?.[state.activeChildId]?.gender || 'girl';
     document.querySelectorAll('.opt-girl').forEach(el => el.hidden = gender !== 'girl');
     document.querySelectorAll('.opt-boy').forEach(el => el.hidden  = gender !== 'boy');
+    _updateGenderLabels(gender);
 
     // Гендерні назви і value опцій у bonusForm
     _updateBonusGender(gender);
@@ -151,28 +152,8 @@ export function showLoading(show) {
 }
 
 // ════════════════════════════════════════════════════════════
-// 🚻  _updateBonusGender — оновлення гендерних назв у bonusForm
-// ════════════════════════════════════════════════════════════
-// Для кожної option що має data-boy і data-girl:
-//   оновлює .value і .textContent відповідно до гендеру дитини.
-// Так record.description правильно записується у Firebase.
-function _updateBonusGender(gender) {
-    const select = document.getElementById('bonusType');
-    if (select) {
-        const currentVal = select.value;
-        select.querySelectorAll('option[data-boy][data-girl]').forEach(opt => {
-            const val   = opt.getAttribute(gender === 'girl' ? 'data-girl' : 'data-boy');
-            const parts = val.split('|');
-            opt.value       = val;
-            opt.textContent = `${parts[0]} (+${parts[1]}⭐)`;
-        });
-        if (currentVal) {
-            const stillExists = [...select.options].some(o => o.value === currentVal);
-            if (stillExists) select.value = currentVal;
-        }
-    }
-
-    // Гендерні мітки у guide
+// 🚻  Гендерні мітки у guide (bonusType тепер рендерить renderBonusSelect з tasks.js)
+function _updateGenderLabels(gender) {
     document.querySelectorAll('.gender-label[data-boy][data-girl]').forEach(el => {
         el.textContent = el.getAttribute(gender === 'girl' ? 'data-girl' : 'data-boy');
     });

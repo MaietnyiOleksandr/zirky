@@ -2,7 +2,7 @@
 // ⚙️  config.js — Конфігурація та константи
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260610.0707';
+export const VERSION = 'v4.20260624.1144';
 
 // ════════════════════════════════════════════════════════════
 
@@ -16,6 +16,89 @@ export const firebaseConfig = {
     messagingSenderId: "1034534533154",
     appId: "1:1034534533154:web:7bfefc2f6fbd1e782f727b"
 };
+
+
+// ── Список бонусів ────────────────────────────────
+// Єдине джерело для форми дитини (#bonusType) і форми батьків (#ptaskBonusType).
+// Формат опції:
+//   value     — рядок для парсингу: "назва|зірки|підкатегорія|counterKey"
+//   label     — текст для відображення (нейтральний)
+//   boy/girl  — якщо різні для хлопця/дівчини (замінює value і label)
+//   gender    — 'boy'|'girl' — показувати лише для певної статі (null — для всіх)
+//   hasPages  — true якщо потрібне поле "кількість сторінок" (книга)
+export const BONUS_OPTIONS = [
+    {
+        group: '📚 Навчання',
+        options: [
+            { value: '📝 Виконано Д/З|2|study|homework',    label: '📝 Виконано Д/З (+2⭐)' },
+            { value: '🎯 Важке завдання|5|study|hard_tasks', label: '🎯 Важке завдання (+5⭐)' },
+            {
+                boy:      '📖 Прочитав книгу|10|study|books',
+                girl:     '📖 Прочитала книгу|10|study|books',
+                boyLabel: '📖 Прочитав книгу (+10⭐)',
+                label:    '📖 Прочитала книгу (+10⭐)',
+                hasPages: true,
+            },
+        ],
+    },
+    {
+        group: '🤝 Допомога батькам',
+        options: [
+            { value: '🤝 Допомога батькам: проста|3|help|help', label: '🤝 Допомога: проста (+3⭐)' },
+            { value: '💪 Допомога батькам: важка|5|help|help',  label: '💪 Допомога: важка (+5⭐)' },
+        ],
+    },
+    {
+        group: '🏠 По дому',
+        options: [
+            {
+                boy: '🧹 Прибрав кімнату|3|home_chore|home_chores',
+                girl: '🧹 Прибрала кімнату|3|home_chore|home_chores',
+                boyLabel: '🧹 Прибрав кімнату (+3⭐)',
+                label: '🧹 Прибрала кімнату (+3⭐)',
+            },
+            {
+                boy: '👕 Поскладав одяг|3|home_chore|home_chores',
+                girl: '👕 Поскладала одяг|3|home_chore|home_chores',
+                boyLabel: '👕 Поскладав одяг (+3⭐)',
+                label: '👕 Поскладала одяг (+3⭐)',
+            },
+            {
+                boy: '🛏️ Застелив ліжко|2|home_chore|home_chores',
+                girl: '🛏️ Застелила ліжко|2|home_chore|home_chores',
+                boyLabel: '🛏️ Застелив ліжко (+2⭐)',
+                label: '🛏️ Застелила ліжко (+2⭐)',
+            },
+            {
+                boy: '🫧 Помив посуд|3|home_chore|home_chores',
+                girl: '🫧 Помила посуд|3|home_chore|home_chores',
+                boyLabel: '🫧 Помив посуд (+3⭐)',
+                label: '🫧 Помила посуд (+3⭐)',
+            },
+            {
+                boy: '🔧 Допоміг ремонтувати|5|home_chore|home_chores',
+                girl: '🍳 Допомогла готувати|5|home_chore|home_chores',
+                boyLabel: '🔧 Допоміг ремонтувати (+5⭐)',
+                label: '🍳 Допомогла готувати (+5⭐)',
+            },
+        ],
+    },
+    {
+        group: '🏸 Активність',
+        options: [
+            { value: '🚶 Прогулянка 30+ хв|3|activity|activity',  label: '🚶 Прогулянка 30+ хв (+3⭐)' },
+            { value: '🏃 Тренування 60+ хв|5|activity|activity',   label: '🏃 Тренування 60+ хв (+5⭐)' },
+            { value: '🏋️ Зробити зарядку|5|activity|workout',      label: '🏋️ Зробити зарядку (+5⭐)' },
+        ],
+    },
+    {
+        group: '🧼 Гігієна',
+        options: [
+            { value: '💇 Причесати волосся|5|hygiene|hair', label: '💇 Причесатись (+5⭐)', gender: 'girl' },
+            { value: '🪥 Почистити зуби|2|hygiene|teeth',   label: '🪥 Почистити зуби (+2⭐)' },
+        ],
+    },
+];
 
 // ── Курси конвертації ─────────────────────────────
 export const conversionRates = {
