@@ -2,7 +2,7 @@
 // REWARDS  rewards.js — Витрати / Конвертація
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260605.0700';
+export const VERSION = 'v4.20260624.2010';
 
 // ════════════════════════════════════════════════════════════
 
@@ -183,6 +183,12 @@ export function buyCustomReward() {
     if (state.data.isParent) {
         doCustomReward(date, desc, stars);
     } else {
+        const balance = Number(state.data.achievements?.counters?._runningBalance ?? state.data.balance);
+        if (balance < stars) {
+            const missing = stars - balance;
+            alert(`⭐ Недостатньо зірок для «${desc}»\nНазбирай ще ${missing} ${missing === 1 ? 'зірку' : missing < 5 ? 'зірки' : 'зірок'}!`);
+            return;
+        }
         state.pendingCustomReward = { date, desc, stars };
         document.dispatchEvent(new CustomEvent('zirky:showRewardPin'));
     }
