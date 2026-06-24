@@ -3,7 +3,7 @@
 //     Етап 1: Фундамент — структура + Firebase
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260621.2222';
+export const VERSION = 'v4.20260618.2335';
 
 import { state }    from './state.js';
 import { nowKyiv }  from './utils.js';
@@ -536,6 +536,18 @@ export function generateNotifications() {
                         'Дитина виконала завдання',
                         _tkLabel(t),
                         { createdAt: t.doneAt }
+                    ));
+                }
+            }
+            // Прострочено батьками → дитині (task_rejected)
+            // overdueAt — мітка що завдання закрите через прострочення, а не відмову батьків
+            if (t.status === 'rejected' && t.overdueAt) {
+                const id = `task_rejected_${t.id}`;
+                if (!_items[id]) {
+                    _upsertItem(_makeItem(id, 'task_rejected',
+                        'Завдання не виконано вчасно',
+                        `${_tkLabel(t)} — ${t.rejectComment || 'Прострочено'}`,
+                        { createdAt: t.overdueAt }
                     ));
                 }
             }
