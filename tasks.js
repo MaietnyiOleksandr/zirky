@@ -17,7 +17,7 @@
 //     Live-таймер дедлайну з паузою при прихованій вкладці.
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260624.0939';
+export const VERSION = 'v4.20260624.1007';
 
 import { state, tasksFilter } from './state.js';
 import { isDoubleSubject } from './subjects.js';
@@ -1695,6 +1695,9 @@ function _renderChildCompletedCard(task) {
             </div>
             <div class="tk-card-title">${_esc(task.title)}</div>
             <div class="tk-card-stars">${starsLine}</div>
+            ${task.hasDeadline && task.deadline ? `
+                <div class="tk-info-hint">⏰ Треба було виконати до ${_fmtDateTime(task.deadline)}</div>
+            ` : ''}
             ${!isConfirmed && task.rejectComment ? `
                 <div class="tk-reject-comment">
                     <strong>💬 Коментар батьків:</strong>
