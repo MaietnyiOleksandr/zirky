@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⭐</text></svg>">
-    <!-- version: v4.20260624.0649 -->
+    <!-- version: v4.20260624.0805 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>⭐ Зірки Успіху</title>
     <link rel="stylesheet" href="style.css">
@@ -1238,7 +1238,7 @@
                  openParentTaskForm, closeParentTaskForm, submitParentTask,
                  onParentTaskCategoryChange, onParentTaskBonusChange, onParentTaskDeadlineToggle, onParentTaskNoRewardToggle,
                  confirmTask, startRejectTask, cancelRejectTask, selectRejectReason, submitRejectTask,
-                 markTaskDone, undoTaskDone, startDeclineTask, cancelDeclineTask, selectDeclineReason, submitDeclineTask,
+                 markTaskDone, undoTaskDone, markTaskOverdue, startDeclineTask, cancelDeclineTask, selectDeclineReason, submitDeclineTask,
                  clearChildDecline, deleteTaskByParent, deleteOwnRequest,
                  startEditTask, cancelEditTask, onEditDeadlineToggle, onEditNoRewardToggle, saveEditTask,
                  changeTasksMonth, toggleShowAllTasks, getTasksUnreadCount, resetAllTasksCache } from './tasks.js';
@@ -1634,6 +1634,7 @@
         window.submitRejectTask           = submitRejectTask;
         window.markTaskDone               = markTaskDone;
         window.undoTaskDone               = undoTaskDone;
+        window.markTaskOverdue            = markTaskOverdue;
         window.startDeclineTask           = startDeclineTask;
         window.cancelDeclineTask          = cancelDeclineTask;
         window.selectDeclineReason        = selectDeclineReason;

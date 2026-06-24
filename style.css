@@ -1,4 +1,4 @@
-/* version: v4.20260618.1703 */
+/* version: v4.20260624.0805 */
 
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;900&family=Comfortaa:wght@400;700&family=Balsamiq+Sans:wght@400;700&family=Ubuntu:wght@400;700&family=Playfair+Display:wght@400;700&family=Rubik:wght@400;500;700&display=swap');
 
@@ -3345,6 +3345,17 @@ html[data-badge="flag"] .z-badge::before {
 .tk-deadline--overdue {
     background: var(--c-danger-bg, #f8d7da);
     color: var(--c-danger-text, #721c24);
+}
+
+/* Кнопка-мітка прострочення — виглядає як badge, клікабельна */
+button.tk-deadline--overdue {
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    transition: opacity 0.15s;
+}
+button.tk-deadline--overdue:hover {
+    opacity: 0.8;
 }
 
 /* ── Бейдж винагороди за виконання завдання ── */

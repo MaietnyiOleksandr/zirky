@@ -17,7 +17,7 @@
 //     Live-таймер дедлайну з паузою при прихованій вкладці.
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260624.0649';
+export const VERSION = 'v4.20260624.0805';
 
 import { state, tasksFilter } from './state.js';
 import { isDoubleSubject } from './subjects.js';
@@ -774,6 +774,27 @@ export function undoTaskDone(id) {
     renderTasks();
 }
 
+// Батько фіксує прострочене завдання — статус rejected + поле overdueAt.
+// overdueAt використовується для майбутніх досягнень (підрахунок прострочених).
+export function markTaskOverdue(id) {
+    const task = _getTaskById(id);
+    if (!task) return;
+    if (task.origin !== 'parent_task') return;
+    // Тільки активні з простроченим дедлайном
+    if (task.status !== 'active') return;
+    if (!task.hasDeadline || !task.deadline) return;
+    if (new Date(task.deadline) > new Date()) return;
+
+    task.status       = 'rejected';
+    task.overdueAt    = nowKyiv();
+    task.rejectReason = 'Прострочено';
+    saveTask(task);
+
+    dismissTaskNotifications(id);
+    if (window.generateNotifications) window.generateNotifications();
+    renderTasks();
+}
+
 export function startDeclineTask(id) {
     const card = document.getElementById(`tkCard_${id}`);
     if (!card) return;
@@ -1440,6 +1461,10 @@ function _renderParentTaskCard(task) {
                         onclick="confirmTask('${task.id}')">✅ Підтвердити</button>
                     <button class="tk-action-btn tk-action-btn--danger"
                         onclick="startRejectTask('${task.id}')">❌ Відхилити</button>
+                ` : ''}
+                ${task.status === 'active' && task.hasDeadline && task.deadline && new Date(task.deadline) <= new Date() ? `
+                    <button class="tk-deadline tk-deadline--overdue"
+                        onclick="markTaskOverdue('${task.id}')">⏰ Прострочено</button>
                 ` : ''}
                 <button class="tk-action-btn"
                     onclick="startEditTask('${task.id}')">✏️ Редагувати</button>
