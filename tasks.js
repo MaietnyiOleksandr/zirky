@@ -17,7 +17,7 @@
 //     Live-таймер дедлайну з паузою при прихованій вкладці.
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260624.0838';
+export const VERSION = 'v4.20260624.0939';
 
 import { state, tasksFilter } from './state.js';
 import { isDoubleSubject } from './subjects.js';
@@ -787,7 +787,7 @@ export function markTaskOverdue(id) {
 
     task.status       = 'rejected';
     task.overdueAt    = nowKyiv();
-    task.rejectReason = 'Прострочено';
+    task.rejectComment = 'Прострочено';
     saveTask(task);
     _updateTaskInCache(task);
 
@@ -1450,11 +1450,6 @@ function _renderParentTaskCard(task) {
             <div class="tk-card-title">${_esc(task.title)}</div>
             <div class="tk-card-stars">⭐ ${task.stars} зірок ${deadlineHtml} ${rewardHtml}</div>
 
-            ${task.rejectReason ? `
-                <div class="tk-reject-comment">
-                    <strong>${task.overdueAt ? '⏰' : '💬'} ${task.rejectReason}</strong>
-                </div>` : ''}
-
             ${childDeclined ? `
                 <div class="tk-child-comment">
                     <strong>💬 Дитина відмовилась:</strong>
@@ -1754,7 +1749,7 @@ function _renderCompletedCard(task) {
             <div class="tk-card-stars">${starsLine}</div>
             ${!isConfirmed && task.rejectComment ? `
                 <div class="tk-reject-comment">
-                    <strong>💬 Причина відхилення:</strong>
+                    <strong>${task.overdueAt ? '⏰' : '💬'} Причина відхилення:</strong>
                     <div class="tk-comment-body">${_esc(task.rejectComment)}</div>
                 </div>` : ''}
             <div class="tk-actions">
