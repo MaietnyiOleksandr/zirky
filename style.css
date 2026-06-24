@@ -1,4 +1,4 @@
-/* version: v4.20260624.0805 */
+/* version: v4.20260624.0829 */
 
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;900&family=Comfortaa:wght@400;700&family=Balsamiq+Sans:wght@400;700&family=Ubuntu:wght@400;700&family=Playfair+Display:wght@400;700&family=Rubik:wght@400;500;700&display=swap');
 
@@ -3273,6 +3273,13 @@ html[data-badge="flag"] .z-badge::before {
 .tk-card-date {
     font-size: 11px;
     color: var(--text-hint);
+}
+
+.tk-status-col {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
 }
 
 .tk-card-title {
