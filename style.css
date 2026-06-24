@@ -1,4 +1,4 @@
-/* version: v4.20260624.0829 */
+/* version: v4.20260624.2200 */
 
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;900&family=Comfortaa:wght@400;700&family=Balsamiq+Sans:wght@400;700&family=Ubuntu:wght@400;700&family=Playfair+Display:wght@400;700&family=Rubik:wght@400;500;700&display=swap');
 
@@ -4071,12 +4071,14 @@ button.tk-deadline--overdue:hover {
 .activity-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 13px;
+    font-size: 11px;
 }
-.activity-table td {
-    padding: 6px 8px;
+.activity-table td,
+.activity-table th {
+    padding: 5px 5px;
     border-bottom: 1px solid var(--border);
     vertical-align: middle;
+    white-space: nowrap;
 }
 .activity-table tr:last-child td { border-bottom: none; }
 
