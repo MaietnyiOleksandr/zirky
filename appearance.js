@@ -12,7 +12,7 @@
 //       3. Додай CSS vars у style.css (опційно)
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260617.0900';
+export const VERSION = 'v4.20260625.0806';
 
 import { state } from './state.js';
 import { saveAppearance, saveParentAppearance, saveRecords, saveBorder, saveChildMeta } from './firebase.js';
@@ -1129,10 +1129,13 @@ export function refundTheme(themeId) {
 function _renderBorderBlock(childId) {
     const meta        = state.parent.children?.[childId] || {};
     const border      = meta.border || {};
-    const activeColor = meta.color             || '#4dabf7';
-    const activeLine  = border.line            || 'solid';
-    const activeAnim  = border.animation       || 'none';
     const ownedAnims  = border.ownedAnimations || [];
+
+    // Використовуємо pending-стан якщо є (для коректного active-маркування)
+    const pending     = (_pendingBorderChildId === childId && _pendingBorder) ? _pendingBorder : null;
+    const activeColor = pending?.color     ?? meta.color          ?? '#4dabf7';
+    const activeLine  = pending?.line      ?? border.line         ?? 'solid';
+    const activeAnim  = pending?.animation ?? border.animation    ?? 'none';
 
     const colorOpts = BORDER_COLORS_FREE.map(({ hex }) => `
         <button class="profile-color-btn${activeColor === hex ? ' active' : ''}"
@@ -1162,7 +1165,7 @@ function _renderBorderBlock(childId) {
     }).join('');
 
     return `
-        <div class="form-group border-block" id="borderBlock_${childId}">
+        <div class="form-group border-block" id="borderBlock_${childId}" style="--profile-color:${activeColor}">
             <label class="card-label">🎨 Колір профілю</label>
             <div class="profile-color-grid">${colorOpts}</div>
 
