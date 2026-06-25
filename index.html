@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⭐</text></svg>">
-    <!-- version: v4.20260625.0827 -->
+    <!-- version: v4.20260625.0849 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>⭐ Зірки Успіху</title>
     <link rel="stylesheet" href="style.css">
@@ -1240,7 +1240,7 @@
                  changeTasksMonth, toggleShowAllTasks, getTasksUnreadCount, resetAllTasksCache } from './tasks.js';
         import { getTodayDate, setTodayDates, pulseElement } from './utils.js';
         import { showLoading, updateUI } from './ui.js';
-        import { showHelp, closeHelp } from './help.js';
+        import { showHelp, closeHelp, getStreakModalContent } from './help.js';
         import { switchTab, showForm } from './navigation.js';
         import { addGradeRecord, addDiagnosticWork, addBonusRecord,
                  addSpecialRecord, deleteRecord } from './records.js';
@@ -1312,6 +1312,7 @@
         window.togglePeriod = togglePeriod;
         window.showHelp = showHelp;
         window.closeHelp             = closeHelp;
+        window.getStreakModalContent  = getStreakModalContent;
         window.updateChangelogBadge  = updateChangelogBadge;
         window.markChangelogRead     = markChangelogRead;
         window.showGoalModal = showGoalModal;

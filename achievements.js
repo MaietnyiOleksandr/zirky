@@ -2,7 +2,7 @@
 // 🏆  achievements.js — Система досягнень
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260625.0825';
+export const VERSION = 'v4.20260625.0849';
 
 // ════════════════════════════════════════════════════════════
 
@@ -1098,7 +1098,7 @@ export function showStreakModal() {
     const modal = document.getElementById('streakModal');
     if (!modal) return;
     const body = document.getElementById('streakModalBody');
-    if (body) body.innerHTML = getStreakModalContent(state.activeChildId);
+    if (body) body.innerHTML = window.getStreakModalContent ? window.getStreakModalContent(state.activeChildId) : '';
     if (window.updateUI) window.updateUI();
     modal.style.display = 'flex';
     document.body.style.overflow = 'hidden';
