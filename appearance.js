@@ -12,7 +12,7 @@
 //       3. Додай CSS vars у style.css (опційно)
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260625.1211';
+export const VERSION = 'v4.20260625.1252';
 
 import { state } from './state.js';
 import { saveAppearance, saveParentAppearance, saveRecords, saveBorder, saveChildMeta } from './firebase.js';
@@ -762,7 +762,6 @@ export function previewBorderLine(line, childId) {
     if (!_pendingBorder) return;
     _pendingBorder.line = line;
     document.documentElement.setAttribute('data-border-line', line);
-    document.documentElement.style.setProperty('--profile-color', _pendingBorder.color);
 }
 
 // Встановлює pending animation — тільки DOM
@@ -772,7 +771,6 @@ export function previewBorder(animation, childId) {
     if (!_pendingBorder) return;
     _pendingBorder.animation = animation;
     document.documentElement.setAttribute('data-border-animation', animation);
-    document.documentElement.style.setProperty('--profile-color', _pendingBorder.color);
 }
 
 // Скидає pending до оригіналу і повертає DOM

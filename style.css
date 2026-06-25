@@ -1,4 +1,4 @@
-/* version: v4.20260625.0825 */
+/* version: v4.20260625.1252 */
 
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;900&family=Comfortaa:wght@400;700&family=Balsamiq+Sans:wght@400;700&family=Ubuntu:wght@400;700&family=Playfair+Display:wght@400;700&family=Rubik:wght@400;500;700&display=swap');
 
@@ -4804,6 +4804,38 @@ button.tk-deadline--overdue:hover {
     border-color: var(--profile-color, var(--accent));
     background: color-mix(in srgb, var(--profile-color, var(--accent)) 10%, var(--card));
     font-weight: 700;
+}
+
+/* ── Стиль лінії на active кнопках ──────────────────────────── */
+[data-border-line="solid"]  .border-style-btn.active,
+[data-border-line="solid"]  .profile-color-btn.active { border-style: solid; }
+[data-border-line="dashed"] .border-style-btn.active,
+[data-border-line="dashed"] .profile-color-btn.active { border-style: dashed; }
+[data-border-line="dotted"] .border-style-btn.active,
+[data-border-line="dotted"] .profile-color-btn.active { border-style: dotted; }
+[data-border-line="double"] .border-style-btn.active,
+[data-border-line="double"] .profile-color-btn.active { border-style: double; border-width: 4px; }
+
+/* ── Анімація на active кнопках ──────────────────────────────── */
+[data-border-animation="pulse"] .border-style-btn.active,
+[data-border-animation="pulse"] .profile-color-btn.active {
+    animation: bPulse 2s ease-in-out infinite;
+}
+[data-border-animation="glow"] .border-style-btn.active,
+[data-border-animation="glow"] .profile-color-btn.active {
+    animation: bGlow 2s ease-in-out infinite;
+}
+[data-border-animation="bounce"] .border-style-btn.active,
+[data-border-animation="bounce"] .profile-color-btn.active {
+    animation: bBounce 1s ease-in-out infinite;
+}
+[data-border-animation="shimmer"] .border-style-btn.active,
+[data-border-animation="shimmer"] .profile-color-btn.active {
+    animation: bShimmer 1.8s ease-in-out infinite;
+}
+[data-border-animation="rainbow"] .border-style-btn.active,
+[data-border-animation="rainbow"] .profile-color-btn.active {
+    animation: bRainbow 4s linear infinite;
 }
 .border-style-btn.locked {
     opacity: 0.7;
