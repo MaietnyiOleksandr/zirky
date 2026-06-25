@@ -2,7 +2,7 @@
 // 🏆  achievements.js — Система досягнень
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260624.1123';
+export const VERSION = 'v4.20260625.0825';
 
 // ════════════════════════════════════════════════════════════
 
@@ -971,10 +971,9 @@ export function renderAchievementsHome() {
         }
         
         html += `
-            <div class="streak-display">
+            <div class="streak-display streak-display--clickable" onclick="showStreakModal()">
                 <span class="streak-fire">🔥</span>
                 <span>Серія: ${streak.current} ${daysWord}${freezeText}</span>
-
             </div>
         `;
     }
@@ -1090,4 +1089,23 @@ export function shouldSkipDayForStreak(date, streakType) {
     
     // Для інших серій (teeth, hair) - канікули не діють
     return false;
+}
+
+// ════════════════════════════════════════════════════
+// 🔥  Модалка серії
+// ════════════════════════════════════════════════════
+export function showStreakModal() {
+    const modal = document.getElementById('streakModal');
+    if (!modal) return;
+    const body = document.getElementById('streakModalBody');
+    if (body) body.innerHTML = getStreakModalContent(state.activeChildId);
+    if (window.updateUI) window.updateUI();
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+
+export function closeStreakModal() {
+    const modal = document.getElementById('streakModal');
+    if (modal) modal.style.display = 'none';
+    document.body.style.overflow = '';
 }

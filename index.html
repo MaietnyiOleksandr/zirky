@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⭐</text></svg>">
-    <!-- version: v4.20260624.1459 -->
+    <!-- version: v4.20260625.0827 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>⭐ Зірки Успіху</title>
     <link rel="stylesheet" href="style.css">
@@ -1216,7 +1216,7 @@
         import { state } from './state.js';
         import { firebaseConfig, ACHIEVEMENTS, gradeToStars } from './config.js';
         import { showProfileSelect, showPinInput, enterAsChild, addPin, clearPin, cancelPin, checkPin, changePin, showRewardPin, addRewardPin, clearRewardPin, cancelRewardPin, togglePeriod, updateParentChildBar, toggleChildDropdown, switchChildFromBar, renderLoginChildren, closeAllAccordions } from './auth.js';
-        import { renderAchievements, renderAchievementsHome } from './achievements.js';
+        import { renderAchievements, renderAchievementsHome, showStreakModal, closeStreakModal } from './achievements.js';
         import { renderGoal, showGoalModal, cancelGoal, saveGoal, deleteGoal } from './goals.js';
         import { addFreezePeriod, deleteFreezePeriod, editFreezePeriod, renderFreezePeriods } from './freeze.js';
         import { initFirebase, initParentData } from './firebase.js';
@@ -1591,6 +1591,8 @@
         };
         window.renderAchievements = renderAchievements;
         window.renderAchievementsHome = renderAchievementsHome;
+        window.showStreakModal  = showStreakModal;
+        window.closeStreakModal = closeStreakModal;
 
         // ── Router-функції для блоку "Додати" (вибір батьки/дитина) ──
         // У дитячому режимі → надсилається запит на перевірку (child_request)
@@ -1669,6 +1671,8 @@
             if (vdim && e.target === vdim) closeVersionsModal();
             const nim = document.getElementById('notifModal');
             if (nim && e.target === nim) closeNotifications();
+            const stm = document.getElementById('streakModal');
+            if (stm && e.target === stm) closeStreakModal();
         });
 
         // ── Ініціалізація ─────────────────────────────────────
@@ -1723,6 +1727,17 @@
                 <button onclick="closeActivityModal()" class="help-close-btn">✕</button>
             </div>
             <div id="activityModalBody" class="help-modal-content"></div>
+        </div>
+    </div>
+
+    <!-- Streak Modal -->
+    <div id="streakModal" class="help-modal" style="display:none;">
+        <div class="help-modal-inner">
+            <div class="help-modal-header">
+                <h3 class="help-modal-title">🔥 Серія активності</h3>
+                <button onclick="closeStreakModal()" class="help-close-btn">✕</button>
+            </div>
+            <div id="streakModalBody" class="help-modal-content"></div>
         </div>
     </div>
 
