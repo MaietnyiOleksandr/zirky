@@ -1,4 +1,4 @@
-/* version: v4.20260625.1252 */
+/* version: v4.20260625.1258 */
 
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;900&family=Comfortaa:wght@400;700&family=Balsamiq+Sans:wght@400;700&family=Ubuntu:wght@400;700&family=Playfair+Display:wght@400;700&family=Rubik:wght@400;500;700&display=swap');
 
@@ -4593,7 +4593,9 @@ button.tk-deadline--overdue:hover {
 
 /* ── Базова рамка ────────────────────────────────────────── */
 [data-border-line] .header,
-[data-border-line] #parentChildBar {
+[data-border-line] #parentChildBar,
+[data-border-line] .border-style-btn.active,
+[data-border-line] .profile-color-btn.active {
     border: 3px solid var(--profile-color, transparent);
     border-radius: var(--radius, 14px);
     transition: border-color 0.3s, box-shadow 0.3s;
@@ -4601,13 +4603,21 @@ button.tk-deadline--overdue:hover {
 
 /* ── Стилі лінії ─────────────────────────────────────────── */
 [data-border-line="solid"] .header,
-[data-border-line="solid"] #parentChildBar  { border-style: solid;  }
+[data-border-line="solid"] #parentChildBar,
+[data-border-line="solid"] .border-style-btn.active,
+[data-border-line="solid"] .profile-color-btn.active  { border-style: solid;  }
 [data-border-line="dashed"] .header,
-[data-border-line="dashed"] #parentChildBar { border-style: dashed; }
+[data-border-line="dashed"] #parentChildBar,
+[data-border-line="dashed"] .border-style-btn.active,
+[data-border-line="dashed"] .profile-color-btn.active { border-style: dashed; }
 [data-border-line="dotted"] .header,
-[data-border-line="dotted"] #parentChildBar { border-style: dotted; }
+[data-border-line="dotted"] #parentChildBar,
+[data-border-line="dotted"] .border-style-btn.active,
+[data-border-line="dotted"] .profile-color-btn.active { border-style: dotted; }
 [data-border-line="double"] .header,
-[data-border-line="double"] #parentChildBar { border-style: double; border-width: 4px; }
+[data-border-line="double"] #parentChildBar,
+[data-border-line="double"] .border-style-btn.active,
+[data-border-line="double"] .profile-color-btn.active { border-style: double; border-width: 4px; }
 
 /* ── Анімації ────────────────────────────────────────────── */
 
@@ -4617,7 +4627,9 @@ button.tk-deadline--overdue:hover {
     50%       { border-color: color-mix(in srgb, var(--profile-color) 20%, transparent); }
 }
 [data-border-animation="pulse"] .header,
-[data-border-animation="pulse"] #parentChildBar {
+[data-border-animation="pulse"] #parentChildBar,
+[data-border-animation="pulse"] .border-style-btn.active,
+[data-border-animation="pulse"] .profile-color-btn.active {
     animation: bPulse 2s ease-in-out infinite;
 }
 
@@ -4628,7 +4640,9 @@ button.tk-deadline--overdue:hover {
                             0 0 44px 10px color-mix(in srgb, var(--profile-color) 30%, transparent); }
 }
 [data-border-animation="glow"] .header,
-[data-border-animation="glow"] #parentChildBar {
+[data-border-animation="glow"] #parentChildBar,
+[data-border-animation="glow"] .border-style-btn.active,
+[data-border-animation="glow"] .profile-color-btn.active {
     animation: bGlow 2s ease-in-out infinite;
 }
 
@@ -4639,7 +4653,9 @@ button.tk-deadline--overdue:hover {
     70%       { border-width: 2px; }
 }
 [data-border-animation="bounce"] .header,
-[data-border-animation="bounce"] #parentChildBar {
+[data-border-animation="bounce"] #parentChildBar,
+[data-border-animation="bounce"] .border-style-btn.active,
+[data-border-animation="bounce"] .profile-color-btn.active {
     animation: bBounce 1s ease-in-out infinite;
 }
 
@@ -4649,7 +4665,9 @@ button.tk-deadline--overdue:hover {
     35%            { border-color: color-mix(in srgb, var(--profile-color) 30%, white); }
 }
 [data-border-animation="shimmer"] .header,
-[data-border-animation="shimmer"] #parentChildBar {
+[data-border-animation="shimmer"] #parentChildBar,
+[data-border-animation="shimmer"] .border-style-btn.active,
+[data-border-animation="shimmer"] .profile-color-btn.active {
     animation: bShimmer 1.8s ease-in-out infinite;
 }
 
@@ -4659,7 +4677,9 @@ button.tk-deadline--overdue:hover {
     100% { filter: hue-rotate(360deg); }
 }
 [data-border-animation="rainbow"] .header,
-[data-border-animation="rainbow"] #parentChildBar {
+[data-border-animation="rainbow"] #parentChildBar,
+[data-border-animation="rainbow"] .border-style-btn.active,
+[data-border-animation="rainbow"] .profile-color-btn.active {
     animation: bRainbow 4s linear infinite;
 }
 
@@ -4806,37 +4826,6 @@ button.tk-deadline--overdue:hover {
     font-weight: 700;
 }
 
-/* ── Стиль лінії на active кнопках ──────────────────────────── */
-[data-border-line="solid"]  .border-style-btn.active,
-[data-border-line="solid"]  .profile-color-btn.active { border-style: solid; }
-[data-border-line="dashed"] .border-style-btn.active,
-[data-border-line="dashed"] .profile-color-btn.active { border-style: dashed; }
-[data-border-line="dotted"] .border-style-btn.active,
-[data-border-line="dotted"] .profile-color-btn.active { border-style: dotted; }
-[data-border-line="double"] .border-style-btn.active,
-[data-border-line="double"] .profile-color-btn.active { border-style: double; border-width: 4px; }
-
-/* ── Анімація на active кнопках ──────────────────────────────── */
-[data-border-animation="pulse"] .border-style-btn.active,
-[data-border-animation="pulse"] .profile-color-btn.active {
-    animation: bPulse 2s ease-in-out infinite;
-}
-[data-border-animation="glow"] .border-style-btn.active,
-[data-border-animation="glow"] .profile-color-btn.active {
-    animation: bGlow 2s ease-in-out infinite;
-}
-[data-border-animation="bounce"] .border-style-btn.active,
-[data-border-animation="bounce"] .profile-color-btn.active {
-    animation: bBounce 1s ease-in-out infinite;
-}
-[data-border-animation="shimmer"] .border-style-btn.active,
-[data-border-animation="shimmer"] .profile-color-btn.active {
-    animation: bShimmer 1.8s ease-in-out infinite;
-}
-[data-border-animation="rainbow"] .border-style-btn.active,
-[data-border-animation="rainbow"] .profile-color-btn.active {
-    animation: bRainbow 4s linear infinite;
-}
 .border-style-btn.locked {
     opacity: 0.7;
 }
