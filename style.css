@@ -1,4 +1,4 @@
-/* version: v4.20260626.0628 */
+/* version: v4.20260626.0634 */
 
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;900&family=Comfortaa:wght@400;700&family=Balsamiq+Sans:wght@400;700&family=Ubuntu:wght@400;700&family=Playfair+Display:wght@400;700&family=Rubik:wght@400;500;700&display=swap');
 
@@ -4701,26 +4701,43 @@ button.tk-deadline--overdue:hover {
     background: var(--profile-color, var(--accent));
     transform: scaleY(0);
 }
-.snake-border:nth-child(2)::before,
-.snake-border:nth-child(4)::before { animation-delay: -2s; }
 
-/* вертикальна версія анімації */
+
+/* вертикальна анімація — зверху вниз */
 @keyframes bShimmerY {
     0%   { transform: scaleY(0); transform-origin: top;    }
     50%  { transform: scaleY(1); transform-origin: top;    }
     50.1%{ transform: scaleY(1); transform-origin: bottom; }
     100% { transform: scaleY(0); transform-origin: bottom; }
 }
+/* горизонтальна — справа ліво */
+@keyframes bShimmerRev {
+    0%   { transform: scaleX(0); transform-origin: right; }
+    50%  { transform: scaleX(1); transform-origin: right; }
+    50.1%{ transform: scaleX(1); transform-origin: left;  }
+    100% { transform: scaleX(0); transform-origin: left;  }
+}
+/* вертикальна — знизу вгору */
+@keyframes bShimmerYRev {
+    0%   { transform: scaleY(0); transform-origin: bottom; }
+    50%  { transform: scaleY(1); transform-origin: bottom; }
+    50.1%{ transform: scaleY(1); transform-origin: top;    }
+    100% { transform: scaleY(0); transform-origin: top;    }
+}
 
 /* вмикаємо анімацію тільки при shimmer */
 [data-border-animation="shimmer"] .header::before { display: none; }
-[data-border-animation="shimmer"] .snake-border:nth-child(1)::before,
-[data-border-animation="shimmer"] .snake-border:nth-child(3)::before {
-    animation: bShimmer 4s linear infinite;
+[data-border-animation="shimmer"] .snake-border:nth-child(1)::before {
+    animation: bShimmer     4s linear infinite 0s;   /* верх: ліво→право  */
 }
-[data-border-animation="shimmer"] .snake-border:nth-child(2)::before,
+[data-border-animation="shimmer"] .snake-border:nth-child(2)::before {
+    animation: bShimmerY    4s linear infinite -3s;  /* право: верх→низ   */
+}
+[data-border-animation="shimmer"] .snake-border:nth-child(3)::before {
+    animation: bShimmerRev  4s linear infinite -2s;  /* низ: право→ліво  */
+}
 [data-border-animation="shimmer"] .snake-border:nth-child(4)::before {
-    animation: bShimmerY 4s linear infinite;
+    animation: bShimmerYRev 4s linear infinite -1s;  /* ліво: низ→верх   */
 }
 
 [data-border-animation="shimmer"] .border-style-btn.active,
