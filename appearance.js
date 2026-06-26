@@ -12,7 +12,7 @@
 //       3. Додай CSS vars у style.css (опційно)
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260626.0730';
+export const VERSION = 'v4.20260626.1140';
 
 import { state } from './state.js';
 import { saveAppearance, saveParentAppearance, saveRecords, saveBorder, saveChildMeta } from './firebase.js';
@@ -814,7 +814,7 @@ export function commitPendingBorder(childId) {
             alert('Платні анімації може придбати лише сама дитина у своєму профілі.');
             return false;
         }
-        const balance = Number(state.data.balance);
+        const balance = Number(state.data.achievements?.counters?._runningBalance ?? state.data.balance);
         if (balance < animDef.stars) {
             const missing = animDef.stars - balance;
             alert(`⭐ Ще ${missing} зірок — і мрія твоя!`);
