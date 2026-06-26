@@ -12,7 +12,7 @@
 //       3. Додай CSS vars у style.css (опційно)
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260626.1345';
+export const VERSION = 'v4.20260626.2335';
 
 import { state } from './state.js';
 import { saveAppearance, saveParentAppearance, saveRecords, saveBorder, saveChildMeta } from './firebase.js';
@@ -712,8 +712,9 @@ export function applyActiveBorder(childId) {
     document.documentElement.style.setProperty('--profile-color', color);
     document.documentElement.setAttribute('data-border-line', line);
     document.documentElement.setAttribute('data-border-animation', animation);
-    if (animation === 'rainbow') _wrapHeaderForRainbow();
-    else _unwrapHeader();
+    if (animation === 'rainbow') { _wrapHeaderForRainbow(); _removeSnakeBorders(); }
+    else if (animation === 'shimmer') { _unwrapHeader(); _addSnakeBorders(); }
+    else { _unwrapHeader(); _removeSnakeBorders(); }
 }
 
 // Скидає рамку до нейтрального стану (logout / дитина входить)
@@ -722,6 +723,7 @@ export function resetBorderToNone() {
     document.documentElement.removeAttribute('data-border-line');
     document.documentElement.removeAttribute('data-border-animation');
     _unwrapHeader();
+    _removeSnakeBorders();
 }
 
 // ─── Rainbow обгортка ────────────────────────────────
@@ -739,6 +741,20 @@ function _unwrapHeader() {
     if (!wrap) return;
     wrap.parentNode.insertBefore(wrap.firstElementChild, wrap);
     wrap.remove();
+}
+
+function _addSnakeBorders() {
+    const header = document.querySelector('.header');
+    if (!header || header.querySelector('.snake-border')) return;
+    for (let i = 0; i < 4; i++) {
+        const span = document.createElement('span');
+        span.className = 'snake-border';
+        header.prepend(span);
+    }
+}
+
+function _removeSnakeBorders() {
+    document.querySelectorAll('.snake-border').forEach(el => el.remove());
 }
 
 // ─── Preview рамки ────────────────────────────────────
@@ -791,8 +807,9 @@ export function previewBorder(animation, childId) {
     if (!_pendingBorder) return;
     _pendingBorder.animation = animation;
     document.documentElement.setAttribute('data-border-animation', animation);
-    if (animation === 'rainbow') _wrapHeaderForRainbow();
-    else _unwrapHeader();
+    if (animation === 'rainbow') { _wrapHeaderForRainbow(); _removeSnakeBorders(); }
+    else if (animation === 'shimmer') { _unwrapHeader(); _addSnakeBorders(); }
+    else { _unwrapHeader(); _removeSnakeBorders(); }
 }
 
 // Скидає pending до оригіналу і повертає DOM
@@ -801,10 +818,12 @@ export function resetPendingBorder() {
         document.documentElement.style.setProperty('--profile-color', _originalBorder.color);
         document.documentElement.setAttribute('data-border-line', _originalBorder.line || 'solid');
         document.documentElement.setAttribute('data-border-animation', _originalBorder.animation || 'none');
-        if (_originalBorder.animation === 'rainbow') _wrapHeaderForRainbow();
-        else _unwrapHeader();
+        if (_originalBorder.animation === 'rainbow') { _wrapHeaderForRainbow(); _removeSnakeBorders(); }
+        else if (_originalBorder.animation === 'shimmer') { _unwrapHeader(); _addSnakeBorders(); }
+        else { _unwrapHeader(); _removeSnakeBorders(); }
     } else {
         _unwrapHeader();
+        _removeSnakeBorders();
     }
     _pendingBorder        = null;
     _pendingBorderChildId = null;

@@ -1,4 +1,4 @@
-/* version: v4.20260626.2231 */
+/* version: v4.20260626.2335 */
 
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;900&family=Comfortaa:wght@400;700&family=Balsamiq+Sans:wght@400;700&family=Ubuntu:wght@400;700&family=Playfair+Display:wght@400;700&family=Rubik:wght@400;500;700&display=swap');
 
@@ -4746,10 +4746,7 @@ button.tk-deadline--overdue:hover {
     animation: bShimmerYRev 8s linear infinite -2s;  /* ліво: низ→верх   */
 }
 
-[data-border-animation="shimmer"] .border-style-btn.active,
-[data-border-animation="shimmer"] .profile-color-btn.active {
-    animation: bPulse 2s ease-in-out infinite;
-}
+/* shimmer — кнопки просто active без анімації */
 
 /* rainbow — веселка (техніка CodePen alphardex) */
 @keyframes bRainbow {
