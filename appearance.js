@@ -12,7 +12,7 @@
 //       3. Додай CSS vars у style.css (опційно)
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260626.1140';
+export const VERSION = 'v4.20260626.1345';
 
 import { state } from './state.js';
 import { saveAppearance, saveParentAppearance, saveRecords, saveBorder, saveChildMeta } from './firebase.js';
@@ -712,6 +712,8 @@ export function applyActiveBorder(childId) {
     document.documentElement.style.setProperty('--profile-color', color);
     document.documentElement.setAttribute('data-border-line', line);
     document.documentElement.setAttribute('data-border-animation', animation);
+    if (animation === 'rainbow') _wrapHeaderForRainbow();
+    else _unwrapHeader();
 }
 
 // Скидає рамку до нейтрального стану (logout / дитина входить)
@@ -719,6 +721,24 @@ export function resetBorderToNone() {
     document.documentElement.style.removeProperty('--profile-color');
     document.documentElement.removeAttribute('data-border-line');
     document.documentElement.removeAttribute('data-border-animation');
+    _unwrapHeader();
+}
+
+// ─── Rainbow обгортка ────────────────────────────────
+function _wrapHeaderForRainbow() {
+    const header = document.querySelector('.header');
+    if (!header || header.parentElement?.classList.contains('rainbow-wrap')) return;
+    const wrap = document.createElement('div');
+    wrap.className = 'rainbow-wrap';
+    header.parentNode.insertBefore(wrap, header);
+    wrap.appendChild(header);
+}
+
+function _unwrapHeader() {
+    const wrap = document.querySelector('.rainbow-wrap');
+    if (!wrap) return;
+    wrap.parentNode.insertBefore(wrap.firstElementChild, wrap);
+    wrap.remove();
 }
 
 // ─── Preview рамки ────────────────────────────────────
@@ -771,6 +791,8 @@ export function previewBorder(animation, childId) {
     if (!_pendingBorder) return;
     _pendingBorder.animation = animation;
     document.documentElement.setAttribute('data-border-animation', animation);
+    if (animation === 'rainbow') _wrapHeaderForRainbow();
+    else _unwrapHeader();
 }
 
 // Скидає pending до оригіналу і повертає DOM
@@ -779,6 +801,10 @@ export function resetPendingBorder() {
         document.documentElement.style.setProperty('--profile-color', _originalBorder.color);
         document.documentElement.setAttribute('data-border-line', _originalBorder.line || 'solid');
         document.documentElement.setAttribute('data-border-animation', _originalBorder.animation || 'none');
+        if (_originalBorder.animation === 'rainbow') _wrapHeaderForRainbow();
+        else _unwrapHeader();
+    } else {
+        _unwrapHeader();
     }
     _pendingBorder        = null;
     _pendingBorderChildId = null;
