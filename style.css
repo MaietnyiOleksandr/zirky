@@ -1,4 +1,4 @@
-/* version: v4.20260626.0640 */
+/* version: v4.20260626.0649 */
 
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;900&family=Comfortaa:wght@400;700&family=Balsamiq+Sans:wght@400;700&family=Ubuntu:wght@400;700&family=Playfair+Display:wght@400;700&family=Rubik:wght@400;500;700&display=swap');
 
@@ -4661,10 +4661,12 @@ button.tk-deadline--overdue:hover {
 
 /* shimmer — змійки (за прикладом CodePen) */
 @keyframes bShimmer {
-    0%   { transform: scaleX(0); transform-origin: left;  }
-    50%  { transform: scaleX(1); transform-origin: left;  }
-    50.1%{ transform: scaleX(1); transform-origin: right; }
-    100% { transform: scaleX(0); transform-origin: right; }
+    0%    { transform: scaleX(0); transform-origin: left;  }
+    25%   { transform: scaleX(1); transform-origin: left;  }
+    25.1% { transform: scaleX(1); transform-origin: right; }
+    50%   { transform: scaleX(0); transform-origin: right; }
+    50.1% { transform: scaleX(0); transform-origin: right; }
+    100%  { transform: scaleX(0); transform-origin: right; }
 }
 
 /* span-змійки в хедері */
@@ -4703,24 +4705,30 @@ button.tk-deadline--overdue:hover {
 
 /* вертикальна анімація — зверху вниз */
 @keyframes bShimmerY {
-    0%   { transform: scaleY(0); transform-origin: top;    }
-    50%  { transform: scaleY(1); transform-origin: top;    }
-    50.1%{ transform: scaleY(1); transform-origin: bottom; }
-    100% { transform: scaleY(0); transform-origin: bottom; }
+    0%    { transform: scaleY(0); transform-origin: top;    }
+    25%   { transform: scaleY(1); transform-origin: top;    }
+    25.1% { transform: scaleY(1); transform-origin: bottom; }
+    50%   { transform: scaleY(0); transform-origin: bottom; }
+    50.1% { transform: scaleY(0); transform-origin: bottom; }
+    100%  { transform: scaleY(0); transform-origin: bottom; }
 }
 /* горизонтальна — справа ліво */
 @keyframes bShimmerRev {
-    0%   { transform: scaleX(0); transform-origin: right; }
-    50%  { transform: scaleX(1); transform-origin: right; }
-    50.1%{ transform: scaleX(1); transform-origin: left;  }
-    100% { transform: scaleX(0); transform-origin: left;  }
+    0%    { transform: scaleX(0); transform-origin: right; }
+    25%   { transform: scaleX(1); transform-origin: right; }
+    25.1% { transform: scaleX(1); transform-origin: left;  }
+    50%   { transform: scaleX(0); transform-origin: left;  }
+    50.1% { transform: scaleX(0); transform-origin: left;  }
+    100%  { transform: scaleX(0); transform-origin: left;  }
 }
 /* вертикальна — знизу вгору */
 @keyframes bShimmerYRev {
-    0%   { transform: scaleY(0); transform-origin: bottom; }
-    50%  { transform: scaleY(1); transform-origin: bottom; }
-    50.1%{ transform: scaleY(1); transform-origin: top;    }
-    100% { transform: scaleY(0); transform-origin: top;    }
+    0%    { transform: scaleY(0); transform-origin: bottom; }
+    25%   { transform: scaleY(1); transform-origin: bottom; }
+    25.1% { transform: scaleY(1); transform-origin: top;    }
+    50%   { transform: scaleY(0); transform-origin: top;    }
+    50.1% { transform: scaleY(0); transform-origin: top;    }
+    100%  { transform: scaleY(0); transform-origin: top;    }
 }
 
 /* вмикаємо анімацію тільки при shimmer */
