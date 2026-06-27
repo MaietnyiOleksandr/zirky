@@ -1,4 +1,4 @@
-/* version: v4.20260627.0734 */
+/* version: v4.20260627.0841 */
 
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;900&family=Comfortaa:wght@400;700&family=Balsamiq+Sans:wght@400;700&family=Ubuntu:wght@400;700&family=Playfair+Display:wght@400;700&family=Rubik:wght@400;500;700&display=swap');
 
@@ -4540,11 +4540,28 @@ button.tk-deadline--overdue:hover {
 .login-child-card[data-border-animation="bounce"] {
     animation: bBounce 1.4s ease-in-out infinite;
 }
+/* shimmer — змійки через span (додаються в JS) */
 .login-child-card[data-border-animation="shimmer"] {
-    animation: bShimmer 1.8s ease-in-out infinite;
+    overflow: hidden;
+    isolation: isolate;
+    border: 0;
+}
+.login-child-card[data-border-animation="shimmer"]::before {
+    content: '';
+    position: absolute;
+    inset: 6px;
+    z-index: 1;
+    border-radius: calc(var(--radius) - 5px);
+    background: var(--card);
+    pointer-events: none;
+}
+
+/* rainbow — через .rainbow-wrap обгортку */
+.login-child-card-wrap.rainbow-wrap {
+    margin: 0;
 }
 .login-child-card[data-border-animation="rainbow"] {
-    animation: bRainbow 3s linear infinite;
+    border: 0;
 }
 
 /* ── Шрифти профілю ── */

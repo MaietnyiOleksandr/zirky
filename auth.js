@@ -7,7 +7,7 @@ function _shortAgent() {
     return navigator?.userAgent?.slice(0, 200) || '';
 }
 
-export const VERSION = 'v4.20260613.0738';
+export const VERSION = 'v4.20260627.0841';
 
 import { state, resetUIState, defaultChildData } from './state.js';
 import { savePin, saveParentLoginData, saveChildLoginHistory, saveChildBlockData, initChildListener,
@@ -561,17 +561,24 @@ export function renderLoginChildren() {
                 const line      = border.line        || 'solid';
                 const animation = border.animation   || 'none';
                 const fontKey   = meta.fontKey       || 'default';
-                return `
+                const snakeSpans = animation === 'shimmer'
+                    ? '<span class="snake-border"></span>'.repeat(4)
+                    : '';
+                const card = `
                     <button class="login-child-card" onclick="enterAsChild('${id}')"
                             style="--profile-color:${color}"
                             data-border-line="${line}"
                             data-border-animation="${animation}"
                             data-font="${fontKey}">
+                        ${snakeSpans}
                         <span class="login-child-card-inner">
                             <span class="login-child-avatar">${avatar}</span>
                             <span class="login-child-name">${name}</span>
                         </span>
                     </button>`;
+                return animation === 'rainbow'
+                    ? `<div class="rainbow-wrap login-child-card-wrap">${card}</div>`
+                    : card;
             }).join('')}
         </div>`;
 }
