@@ -12,7 +12,7 @@
 //       3. Додай CSS vars у style.css (опційно)
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260627.0907';
+export const VERSION = 'v4.20260627.0918';
 
 import { state } from './state.js';
 import { saveAppearance, saveParentAppearance, saveRecords, saveBorder, saveChildMeta } from './firebase.js';
@@ -1233,6 +1233,23 @@ function _renderBorderBlock(childId) {
         </div>`;
 }
 
+// Додає snake-border spans на active кнопки в блоці якщо shimmer
+function _addSnakesToActiveBtns(childId) {
+    const block = document.getElementById(`borderBlock_${childId}`);
+    if (!block) return;
+    const anim = document.documentElement.getAttribute('data-border-animation');
+    if (anim !== 'shimmer') return;
+    block.querySelectorAll('.border-style-btn.active, .profile-color-btn.active').forEach(btn => {
+        if (!btn.querySelector('.snake-border')) {
+            for (let i = 0; i < 4; i++) {
+                const span = document.createElement('span');
+                span.className = 'snake-border';
+                btn.prepend(span);
+            }
+        }
+    });
+}
+
 // Перемальовує тільки borderBlock у DOM (без повного ре-рендеру)
 export function renderBorderBlock(childId) {
     const el = document.getElementById(`borderBlock_${childId}`);
@@ -1240,21 +1257,7 @@ export function renderBorderBlock(childId) {
     const tmp = document.createElement('div');
     tmp.innerHTML = _renderBorderBlock(childId);
     el.replaceWith(tmp.firstElementChild);
-    // Додати snake-border spans на active кнопки якщо shimmer
-    const block = document.getElementById(`borderBlock_${childId}`);
-    if (!block) return;
-    const anim = document.documentElement.getAttribute('data-border-animation');
-    if (anim === 'shimmer') {
-        block.querySelectorAll('.border-style-btn.active, .profile-color-btn.active').forEach(btn => {
-            if (!btn.querySelector('.snake-border')) {
-                for (let i = 0; i < 4; i++) {
-                    const span = document.createElement('span');
-                    span.className = 'snake-border';
-                    btn.prepend(span);
-                }
-            }
-        });
-    }
+    _addSnakesToActiveBtns(childId);
 }
 
 // Зберігає pending border
@@ -1318,4 +1321,5 @@ export function renderBorderSection() {
             <p class="text-muted font-sm mb-md">Налаштуй рамку свого профілю — колір, стиль лінії та анімацію.</p>
             ${_renderBorderBlock(childId)}
         </div>`;
+    _addSnakesToActiveBtns(childId);
 }
