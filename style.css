@@ -1,4 +1,4 @@
-/* version: v4.20260627.2308ц */
+/* version: v4.20260627.2312 */
 
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;900&family=Comfortaa:wght@400;700&family=Balsamiq+Sans:wght@400;700&family=Ubuntu:wght@400;700&family=Playfair+Display:wght@400;700&family=Rubik:wght@400;500;700&display=swap');
 
@@ -4617,7 +4617,8 @@ button.tk-deadline--overdue:hover {
 /* ── Базова рамка ────────────────────────────────────────── */
 [data-border-line] .header,
 [data-border-line] #parentChildBar,
-[data-border-line] .border-style-btn.active {
+[data-border-line] .border-style-btn.active,
+[data-border-line] .profile-color-btn.active {
     border: 3px solid var(--profile-color, transparent);
     border-radius: var(--radius, 14px);
     transition: border-color 0.3s, box-shadow 0.3s;
@@ -4626,16 +4627,20 @@ button.tk-deadline--overdue:hover {
 /* ── Стилі лінії ─────────────────────────────────────────── */
 [data-border-line="solid"] .header,
 [data-border-line="solid"] #parentChildBar,
-[data-border-line="solid"] .border-style-btn.active  { border-style: solid;  }
+[data-border-line="solid"] .border-style-btn.active,
+[data-border-line="solid"] .profile-color-btn.active  { border-style: solid;  }
 [data-border-line="dashed"] .header,
 [data-border-line="dashed"] #parentChildBar,
-[data-border-line="dashed"] .border-style-btn.active { border-style: dashed; }
+[data-border-line="dashed"] .border-style-btn.active,
+[data-border-line="dashed"] .profile-color-btn.active { border-style: dashed; }
 [data-border-line="dotted"] .header,
 [data-border-line="dotted"] #parentChildBar,
-[data-border-line="dotted"] .border-style-btn.active { border-style: dotted; }
+[data-border-line="dotted"] .border-style-btn.active,
+[data-border-line="dotted"] .profile-color-btn.active { border-style: dotted; }
 [data-border-line="double"] .header,
 [data-border-line="double"] #parentChildBar,
-[data-border-line="double"] .border-style-btn.active { border-style: double; border-width: 4px; }
+[data-border-line="double"] .border-style-btn.active,
+[data-border-line="double"] .profile-color-btn.active { border-style: double; border-width: 4px; }
 
 /* ── Анімації ────────────────────────────────────────────── */
 
@@ -4646,7 +4651,8 @@ button.tk-deadline--overdue:hover {
 }
 [data-border-animation="pulse"] .header,
 [data-border-animation="pulse"] #parentChildBar,
-[data-border-animation="pulse"] .border-style-btn.active {
+[data-border-animation="pulse"] .border-style-btn.active,
+[data-border-animation="pulse"] .profile-color-btn.active {
     animation: bPulse 2s ease-in-out infinite;
 }
 
@@ -4658,7 +4664,8 @@ button.tk-deadline--overdue:hover {
 }
 [data-border-animation="glow"] .header,
 [data-border-animation="glow"] #parentChildBar,
-[data-border-animation="glow"] .border-style-btn.active {
+[data-border-animation="glow"] .border-style-btn.active,
+[data-border-animation="glow"] .profile-color-btn.active {
     animation: bGlow 2s ease-in-out infinite;
 }
 
@@ -4670,7 +4677,8 @@ button.tk-deadline--overdue:hover {
 }
 [data-border-animation="bounce"] .header,
 [data-border-animation="bounce"] #parentChildBar,
-[data-border-animation="bounce"] .border-style-btn.active {
+[data-border-animation="bounce"] .border-style-btn.active,
+[data-border-animation="bounce"] .profile-color-btn.active {
     animation: bBounce 1s ease-in-out infinite;
 }
 
@@ -4796,13 +4804,15 @@ button.tk-deadline--overdue:hover {
 }
 
 /* shimmer — змійки на active кнопках */
-[data-border-animation="shimmer"] .border-style-btn.active {
+[data-border-animation="shimmer"] .border-style-btn.active,
+[data-border-animation="shimmer"] .profile-color-btn.active {
     position: relative;
     overflow: hidden;
     border: 0;
     isolation: isolate;
 }
-[data-border-animation="shimmer"] .border-style-btn.active::before {
+[data-border-animation="shimmer"] .border-style-btn.active::before,
+[data-border-animation="shimmer"] .profile-color-btn.active::before {
     content: '';
     position: absolute;
     inset: 3px;
@@ -4816,7 +4826,8 @@ button.tk-deadline--overdue:hover {
 }
 /* текст і вміст кнопки поверх ::before */
 [data-border-animation="shimmer"] .border-style-btn.active .border-style-badge,
-[data-border-animation="shimmer"] .border-style-btn.active > *:not(.snake-border) {
+[data-border-animation="shimmer"] .border-style-btn.active > *:not(.snake-border),
+[data-border-animation="shimmer"] .profile-color-btn.active > *:not(.snake-border) {
     position: relative;
     z-index: 2;
 }
@@ -4865,14 +4876,16 @@ button.tk-deadline--overdue:hover {
     animation: bRainbow 4s alternate infinite;
 }
 
-[data-border-animation="rainbow"] .border-style-btn.active {
+[data-border-animation="rainbow"] .border-style-btn.active,
+[data-border-animation="rainbow"] .profile-color-btn.active {
     position: relative;
     background: transparent;
     border-color: transparent;
     color: var(--text);
     isolation: isolate;
 }
-[data-border-animation="rainbow"] .border-style-btn.active::before {
+[data-border-animation="rainbow"] .border-style-btn.active::before,
+[data-border-animation="rainbow"] .profile-color-btn.active::before {
     content: '';
     position: absolute;
     inset: 1px;
@@ -4880,7 +4893,8 @@ button.tk-deadline--overdue:hover {
     border-radius: calc(20px - 1px);
     background: var(--card);
 }
-[data-border-animation="rainbow"] .border-style-btn.active::after {
+[data-border-animation="rainbow"] .border-style-btn.active::after,
+[data-border-animation="rainbow"] .profile-color-btn.active::after {
     content: '';
     position: absolute;
     top: -1px; left: -1px;
