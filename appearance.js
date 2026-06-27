@@ -12,7 +12,7 @@
 //       3. Додай CSS vars у style.css (опційно)
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260627.2302';
+export const VERSION = 'v4.20260627.2308';
 
 import { state } from './state.js';
 import { saveAppearance, saveParentAppearance, saveRecords, saveBorder, saveChildMeta } from './firebase.js';
@@ -729,15 +729,15 @@ export function resetBorderToNone() {
 // ─── Rainbow обгортка ────────────────────────────────
 function _wrapHeaderForRainbow() {
     const header = document.querySelector('.header');
-    if (!header || header.parentElement?.classList.contains('header-rainbow-wrap')) return;
+    if (!header || header.parentElement?.classList.contains('rainbow-wrap')) return;
     const wrap = document.createElement('div');
-    wrap.className = 'rainbow-wrap header-rainbow-wrap';
+    wrap.className = 'rainbow-wrap';
     header.parentNode.insertBefore(wrap, header);
     wrap.appendChild(header);
 }
 
 function _unwrapHeader() {
-    const wrap = document.querySelector('.header-rainbow-wrap');
+    const wrap = document.querySelector('.rainbow-wrap');
     if (!wrap) return;
     wrap.parentNode.insertBefore(wrap.firstElementChild, wrap);
     wrap.remove();
