@@ -12,7 +12,7 @@
 //       3. Додай CSS vars у style.css (опційно)
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260627.0918';
+export const VERSION = 'v4.20260627.0936';
 
 import { state } from './state.js';
 import { saveAppearance, saveParentAppearance, saveRecords, saveBorder, saveChildMeta } from './firebase.js';
@@ -1239,7 +1239,7 @@ function _addSnakesToActiveBtns(childId) {
     if (!block) return;
     const anim = document.documentElement.getAttribute('data-border-animation');
     if (anim !== 'shimmer') return;
-    block.querySelectorAll('.border-style-btn.active, .profile-color-btn.active').forEach(btn => {
+    block.querySelectorAll('.border-style-btn.active').forEach(btn => {
         if (!btn.querySelector('.snake-border')) {
             for (let i = 0; i < 4; i++) {
                 const span = document.createElement('span');
