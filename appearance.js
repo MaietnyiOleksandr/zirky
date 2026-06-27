@@ -12,7 +12,7 @@
 //       3. Додай CSS vars у style.css (опційно)
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260627.0936';
+export const VERSION = 'v4.20260627.2227';
 
 import { state } from './state.js';
 import { saveAppearance, saveParentAppearance, saveRecords, saveBorder, saveChildMeta } from './firebase.js';
@@ -822,8 +822,10 @@ export function resetPendingBorder() {
         else if (_originalBorder.animation === 'shimmer') { _unwrapHeader(); _addSnakeBorders(); }
         else { _unwrapHeader(); _removeSnakeBorders(); }
     } else {
-        _unwrapHeader();
-        _removeSnakeBorders();
+        // Немає pending — не чіпаємо активну анімацію
+        const curAnim = document.documentElement.getAttribute('data-border-animation');
+        if (curAnim !== 'rainbow') _unwrapHeader();
+        if (curAnim !== 'shimmer') _removeSnakeBorders();
     }
     _pendingBorder        = null;
     _pendingBorderChildId = null;

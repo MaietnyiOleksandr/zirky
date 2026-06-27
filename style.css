@@ -1,4 +1,4 @@
-/* version: v4.20260627.0943 */
+/* version: v4.20260627.2227 */
 
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;900&family=Comfortaa:wght@400;700&family=Balsamiq+Sans:wght@400;700&family=Ubuntu:wght@400;700&family=Playfair+Display:wght@400;700&family=Rubik:wght@400;500;700&display=swap');
 
@@ -4571,22 +4571,30 @@ button.tk-deadline--overdue:hover {
     display: none;
 }
 .login-child-card[data-border-animation="rainbow"] {
-    border: 3px solid transparent;
-    background:
-        transparent padding-box,
-        linear-gradient(
-            60deg,
-            hsl(224, 85%, 66%),
-            hsl(269, 85%, 66%),
-            hsl(314, 85%, 66%),
-            hsl(359, 85%, 66%),
-            hsl(44,  85%, 66%),
-            hsl(89,  85%, 66%),
-            hsl(134, 85%, 66%),
-            hsl(179, 85%, 66%)
-        ) border-box;
-    background-size: auto, 300% 300%;
-    background-position: 0 0, 0% 50%;
+    border: 0;
+    position: relative;
+}
+.login-child-card[data-border-animation="rainbow"]::after {
+    content: '';
+    position: absolute;
+    top: -3px; left: -3px;
+    z-index: -1;
+    width: calc(100% + 6px);
+    height: calc(100% + 6px);
+    border-radius: 20px;
+    background: linear-gradient(
+        60deg,
+        hsl(224, 85%, 66%),
+        hsl(269, 85%, 66%),
+        hsl(314, 85%, 66%),
+        hsl(359, 85%, 66%),
+        hsl(44,  85%, 66%),
+        hsl(89,  85%, 66%),
+        hsl(134, 85%, 66%),
+        hsl(179, 85%, 66%)
+    );
+    background-size: 300% 300%;
+    background-position: 0 50%;
     animation: bRainbow 4s alternate infinite;
 }
 
