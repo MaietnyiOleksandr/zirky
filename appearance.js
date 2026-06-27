@@ -12,7 +12,7 @@
 //       3. Додай CSS vars у style.css (опційно)
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260626.1345';
+export const VERSION = 'v4.20260627.0907';
 
 import { state } from './state.js';
 import { saveAppearance, saveParentAppearance, saveRecords, saveBorder, saveChildMeta } from './firebase.js';
@@ -1240,6 +1240,21 @@ export function renderBorderBlock(childId) {
     const tmp = document.createElement('div');
     tmp.innerHTML = _renderBorderBlock(childId);
     el.replaceWith(tmp.firstElementChild);
+    // Додати snake-border spans на active кнопки якщо shimmer
+    const block = document.getElementById(`borderBlock_${childId}`);
+    if (!block) return;
+    const anim = document.documentElement.getAttribute('data-border-animation');
+    if (anim === 'shimmer') {
+        block.querySelectorAll('.border-style-btn.active, .profile-color-btn.active').forEach(btn => {
+            if (!btn.querySelector('.snake-border')) {
+                for (let i = 0; i < 4; i++) {
+                    const span = document.createElement('span');
+                    span.className = 'snake-border';
+                    btn.prepend(span);
+                }
+            }
+        });
+    }
 }
 
 // Зберігає pending border
