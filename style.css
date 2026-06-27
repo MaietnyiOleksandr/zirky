@@ -1,4 +1,4 @@
-/* version: v4.20260627.0858 */
+/* version: v4.20260627.0901 */
 
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;900&family=Comfortaa:wght@400;700&family=Balsamiq+Sans:wght@400;700&family=Ubuntu:wght@400;700&family=Playfair+Display:wght@400;700&family=Rubik:wght@400;500;700&display=swap');
 
@@ -4546,6 +4546,20 @@ button.tk-deadline--overdue:hover {
     position: relative;
     overflow: hidden;
     border: 0;
+    isolation: isolate;
+}
+.login-child-card[data-border-animation="shimmer"]::before {
+    content: '';
+    position: absolute;
+    inset: 6px;
+    z-index: 1;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--secondary), #4A90E2);
+    pointer-events: none;
+}
+.login-child-card[data-border-animation="shimmer"] .login-child-card-inner {
+    position: relative;
+    z-index: 2;
 }
 
 /* rainbow — через .rainbow-wrap обгортку */
