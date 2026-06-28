@@ -1,6 +1,6 @@
 /* ════════════════════════════════════════════════════════════
    borders.css — Рамки та анімації профілів дітей
-   version: v4.20260628.1712
+   version: v4.20260628.2134
 
    ЗМІСТ
    ─────────────────────────────────────────────────────────
@@ -119,6 +119,7 @@
     animation: bGlow 2s ease-in-out infinite;
 }
 .login-child-card[data-border-animation="bounce"] {
+    border-color: transparent;
     outline: 0px solid transparent;
     outline-offset: 0px;
     animation: bBounce 1.2s ease-in-out infinite;
@@ -287,6 +288,7 @@
 [data-border-animation="bounce"] #parentChildBar,
 [data-border-animation="bounce"] .border-style-btn.active,
 [data-border-animation="bounce"] .profile-color-btn.active {
+    border-color: transparent;
     outline: 0px solid transparent;
     outline-offset: 0px;
     animation: bBounce 1.2s ease-in-out infinite;
