@@ -12,7 +12,7 @@
 //       3. Додай CSS vars у style.css (опційно)
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260628.1650';
+export const VERSION = 'v4.20260628.2201';
 
 import { state } from './state.js';
 import { saveAppearance, saveParentAppearance, saveRecords, saveBorder, saveChildMeta } from './firebase.js';
@@ -392,9 +392,9 @@ export const BORDER_LINES = [
 // Анімація рамки (через ::before псевдоелемент)
 export const BORDER_ANIMATIONS = [
     { id: 'none',    name: '— Без анімації', free: true },
-    { id: 'pulse',   name: '💫 Пульсація',   stars: 80  },
+    { id: 'breath',  name: '💨 Дихання',     stars: 80  },
     { id: 'glow',    name: '✨ Сяйво',       stars: 80  },
-    { id: 'bounce',  name: '💓 Пульс',       stars: 80  },
+    { id: 'pulse',   name: '💓 Пульс',       stars: 80  },
     { id: 'shimmer', name: '🐍 Змійка',      stars: 80  },
     { id: 'rainbow', name: '🌈 Веселка',     stars: 80  },
 ];
