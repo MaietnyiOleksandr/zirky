@@ -1,4 +1,4 @@
-/* version: v4.20260627.2336 */
+/* version: v4.20260628.0815 */
 
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;900&family=Comfortaa:wght@400;700&family=Balsamiq+Sans:wght@400;700&family=Ubuntu:wght@400;700&family=Playfair+Display:wght@400;700&family=Rubik:wght@400;500;700&display=swap');
 
@@ -4626,7 +4626,7 @@ button.tk-deadline--overdue:hover {
 /* ── Стилі лінії ─────────────────────────────────────────── */
 [data-border-line="solid"] .header,
 [data-border-line="solid"] #parentChildBar,
-[data-border-line="solid"] .border-style-btn.active  { border-style: solid;  }
+[data-border-line="solid"] .border-style-btn.active { border-style: solid;  }
 [data-border-line="dashed"] .header,
 [data-border-line="dashed"] #parentChildBar,
 [data-border-line="dashed"] .border-style-btn.active { border-style: dashed; }
