@@ -1,6 +1,6 @@
 /* ════════════════════════════════════════════════════════════
    borders.css — Рамки та анімації профілів дітей
-   version: v4.20260628.1550
+   version: v4.20260628.1650
 
    ЗМІСТ
    ─────────────────────────────────────────────────────────
@@ -113,7 +113,7 @@
 
 /* ── Анімації рамки ── */
 .login-child-card[data-border-animation="pulse"] {
-    animation: bPulse 2s ease-in-out infinite;
+    animation: bPulse 1.4s ease-in-out infinite;
 }
 .login-child-card[data-border-animation="glow"] {
     animation: bGlow 2s ease-in-out infinite;
@@ -250,16 +250,17 @@
 
 /* ── Анімації ────────────────────────────────────────────── */
 
-/* pulse — рамка пульсує прозорістю */
+/* pulse — сяйво пульсує через box-shadow (нічого не рухається) */
 @keyframes bPulse {
-    0%, 100% { border-color: var(--profile-color); }
-    50%       { border-color: color-mix(in srgb, var(--profile-color) 20%, transparent); }
+    0%, 100% { box-shadow: 0 0 4px 1px color-mix(in srgb, var(--profile-color) 40%, transparent); }
+    50%       { box-shadow: 0 0 16px 4px color-mix(in srgb, var(--profile-color) 90%, transparent),
+                            0 0 30px 8px color-mix(in srgb, var(--profile-color) 40%, transparent); }
 }
 [data-border-animation="pulse"] .header,
 [data-border-animation="pulse"] #parentChildBar,
 [data-border-animation="pulse"] .border-style-btn.active,
 [data-border-animation="pulse"] .profile-color-btn.active {
-    animation: bPulse 2s ease-in-out infinite;
+    animation: bPulse 1.4s ease-in-out infinite;
 }
 
 /* glow — зовнішнє сяйво через box-shadow */

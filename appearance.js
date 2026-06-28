@@ -12,7 +12,7 @@
 //       3. Додай CSS vars у style.css (опційно)
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260628.0954';
+export const VERSION = 'v4.20260628.1650';
 
 import { state } from './state.js';
 import { saveAppearance, saveParentAppearance, saveRecords, saveBorder, saveChildMeta } from './firebase.js';
@@ -394,7 +394,7 @@ export const BORDER_ANIMATIONS = [
     { id: 'none',    name: '— Без анімації', free: true },
     { id: 'pulse',   name: '💫 Пульсація',   stars: 80  },
     { id: 'glow',    name: '✨ Сяйво',       stars: 80  },
-    { id: 'bounce',  name: '🏀 Пульс',       stars: 80  },
+    { id: 'bounce',  name: '💓 Пульс',       stars: 80  },
     { id: 'shimmer', name: '🐍 Змійка',      stars: 80, },
     { id: 'rainbow', name: '🌈 Веселка',     stars: 80, },
 ];
