@@ -1,6 +1,6 @@
 /* ════════════════════════════════════════════════════════════
    borders.css — Рамки та анімації профілів дітей
-   version: v4.20260628.2134
+   version: v4.20260628.2209
 
    ЗМІСТ
    ─────────────────────────────────────────────────────────
@@ -8,7 +8,7 @@
                │         .login-child-card  .login-child-card-inner
                │         .border-dev-tabs   .border-dev-tab
                │         data-border-line   (стиль лінії на картці)
-               │         data-border-animation (pulse/glow/bounce/shimmer/rainbow)
+               │         data-border-animation (breath/glow/pulse/shimmer/rainbow)
                │         data-font          (шрифт профілю)
    Рядок 194  │ 4в/4г ПІДПИС ДИТИНИ НА КАРТКАХ (батьківський вигляд)
                │         .tk-card--child    .fb-card--child
@@ -16,9 +16,9 @@
    Рядок 215  │ 6в/6г РАМКА ПРОФІЛЮ — хедер + nav + кнопки
                │         [data-border-line]       базова рамка
                │         [data-border-line="*"]   стилі лінії
-               │         [data-border-animation="pulse"]    @keyframes bPulse
+               │         [data-border-animation="breath"]    @keyframes bBreath
                │         [data-border-animation="glow"]     @keyframes bGlow
-               │         [data-border-animation="bounce"]   @keyframes bBounce
+               │         [data-border-animation="pulse"]   @keyframes bPulse
                │         [data-border-animation="shimmer"]  @keyframes bShimmer*
                │           .snake-border  (4 span-и по сторонах)
                │         [data-border-animation="rainbow"]  @keyframes bRainbow
@@ -112,17 +112,17 @@
 .login-child-card[data-border-line="double"] { border-style: double; border-width: 4px; }
 
 /* ── Анімації рамки ── */
-.login-child-card[data-border-animation="pulse"] {
-    animation: bPulse 2s ease-in-out infinite;
+.login-child-card[data-border-animation="breath"] {
+    animation: bBreath 2s ease-in-out infinite;
 }
 .login-child-card[data-border-animation="glow"] {
     animation: bGlow 2s ease-in-out infinite;
 }
-.login-child-card[data-border-animation="bounce"] {
+.login-child-card[data-border-animation="pulse"] {
     border-color: transparent;
     outline: 0px solid transparent;
     outline-offset: 0px;
-    animation: bBounce 1.2s ease-in-out infinite;
+    animation: bPulse 1.2s ease-in-out infinite;
 }
 /* shimmer — змійки через span (додаються в JS) */
 .login-child-card[data-border-animation="shimmer"] {
@@ -217,7 +217,7 @@
 /* ════════════════════════════════════════════════════════════
    6в/6г  РАМКА ПРОФІЛЮ
    data-border-line      — стиль лінії (solid/dashed/dotted/double)
-   data-border-animation — анімація (none/pulse/glow/bounce/shimmer/rainbow)
+   data-border-animation — анімація (none/breath/glow/pulse/shimmer/rainbow)
    --profile-color       — колір рамки
    Рамка на всіх 4 сторонях через border. Анімації тільки border-color
    та box-shadow — контент не рухається, розмітка не зміщується.
@@ -253,16 +253,16 @@
 
 /* ── Анімації ────────────────────────────────────────────── */
 
-/* pulse — рамка пульсує прозорістю */
-@keyframes bPulse {
+/* breath — рамка пульсує прозорістю */
+@keyframes bBreath {
     0%, 100% { border-color: var(--profile-color); }
     50%       { border-color: color-mix(in srgb, var(--profile-color) 20%, transparent); }
 }
-[data-border-animation="pulse"] .header,
-[data-border-animation="pulse"] #parentChildBar,
-[data-border-animation="pulse"] .border-style-btn.active,
-[data-border-animation="pulse"] .profile-color-btn.active {
-    animation: bPulse 2s ease-in-out infinite;
+[data-border-animation="breath"] .header,
+[data-border-animation="breath"] #parentChildBar,
+[data-border-animation="breath"] .border-style-btn.active,
+[data-border-animation="breath"] .profile-color-btn.active {
+    animation: bBreath 2s ease-in-out infinite;
 }
 
 /* glow — зовнішнє сяйво через box-shadow */
@@ -278,20 +278,20 @@
     animation: bGlow 2s ease-in-out infinite;
 }
 
-/* bounce — рамка пульсує через outline (не впливає на layout) */
-@keyframes bBounce {
+/* pulse — рамка пульсує через outline (не впливає на layout) */
+@keyframes bPulse {
     0%, 100% { outline-width: 0px; outline-color: transparent;    outline-offset: 0px; }
     40%       { outline-width: 3px; outline-color: var(--profile-color); outline-offset: 0px; }
     70%       { outline-width: 0px; outline-color: transparent;    outline-offset: 0px; }
 }
-[data-border-animation="bounce"] .header,
-[data-border-animation="bounce"] #parentChildBar,
-[data-border-animation="bounce"] .border-style-btn.active,
-[data-border-animation="bounce"] .profile-color-btn.active {
+[data-border-animation="pulse"] .header,
+[data-border-animation="pulse"] #parentChildBar,
+[data-border-animation="pulse"] .border-style-btn.active,
+[data-border-animation="pulse"] .profile-color-btn.active {
     border-color: transparent;
     outline: 0px solid transparent;
     outline-offset: 0px;
-    animation: bBounce 1.2s ease-in-out infinite;
+    animation: bPulse 1.2s ease-in-out infinite;
 }
 
 /* shimmer — змійки (за прикладом CodePen) */
