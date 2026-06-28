@@ -395,8 +395,8 @@ export const BORDER_ANIMATIONS = [
     { id: 'pulse',   name: '💫 Пульсація',   stars: 80  },
     { id: 'glow',    name: '✨ Сяйво',       stars: 80  },
     { id: 'bounce',  name: '🏀 Пульс',       stars: 80  },
-    { id: 'shimmer', name: '🐍 Змійка',      stars: 80, free: true  },
-    { id: 'rainbow', name: '🌈 Веселка',     stars: 80, free: true  },
+    { id: 'shimmer', name: '🐍 Змійка',      stars: 80, },
+    { id: 'rainbow', name: '🌈 Веселка',     stars: 80, },
 ];
 
 // Залишаємо BORDER_STYLES як alias для зворотної сумісності
