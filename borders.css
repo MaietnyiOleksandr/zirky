@@ -1,6 +1,6 @@
 /* ════════════════════════════════════════════════════════════
    borders.css — Рамки та анімації профілів дітей
-   version: v4.20260628.1701
+   version: v4.20260628.1712
 
    ЗМІСТ
    ─────────────────────────────────────────────────────────
@@ -119,9 +119,9 @@
     animation: bGlow 2s ease-in-out infinite;
 }
 .login-child-card[data-border-animation="bounce"] {
-    outline: 3px solid var(--profile-color, var(--accent));
+    outline: 0px solid transparent;
     outline-offset: 0px;
-    animation: bBounce 1s ease-in-out infinite;
+    animation: bBounce 1.2s ease-in-out infinite;
 }
 /* shimmer — змійки через span (додаються в JS) */
 .login-child-card[data-border-animation="shimmer"] {
@@ -277,19 +277,19 @@
     animation: bGlow 2s ease-in-out infinite;
 }
 
-/* bounce — рамка пульсує товщиною через outline (не впливає на layout) */
+/* bounce — рамка пульсує через outline (не впливає на layout) */
 @keyframes bBounce {
-    0%, 100% { outline-width: 2px;  outline-offset: 0px; }
-    40%       { outline-width: 5px;  outline-offset: 1px; }
-    70%       { outline-width: 1px;  outline-offset: 0px; }
+    0%, 100% { outline-width: 0px; outline-color: transparent;    outline-offset: 0px; }
+    40%       { outline-width: 3px; outline-color: var(--profile-color); outline-offset: 0px; }
+    70%       { outline-width: 0px; outline-color: transparent;    outline-offset: 0px; }
 }
 [data-border-animation="bounce"] .header,
 [data-border-animation="bounce"] #parentChildBar,
 [data-border-animation="bounce"] .border-style-btn.active,
 [data-border-animation="bounce"] .profile-color-btn.active {
-    outline: 2px solid var(--profile-color, var(--accent));
+    outline: 0px solid transparent;
     outline-offset: 0px;
-    animation: bBounce 1s ease-in-out infinite;
+    animation: bBounce 1.2s ease-in-out infinite;
 }
 
 /* shimmer — змійки (за прикладом CodePen) */
