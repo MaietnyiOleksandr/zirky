@@ -1,6 +1,6 @@
 /* ════════════════════════════════════════════════════════════
    borders.css — Рамки та анімації профілів дітей
-   version: v4.20260628.1650
+   version: v4.20260628.1701
 
    ЗМІСТ
    ─────────────────────────────────────────────────────────
@@ -113,13 +113,15 @@
 
 /* ── Анімації рамки ── */
 .login-child-card[data-border-animation="pulse"] {
-    animation: bPulse 1.4s ease-in-out infinite;
+    animation: bPulse 2s ease-in-out infinite;
 }
 .login-child-card[data-border-animation="glow"] {
     animation: bGlow 2s ease-in-out infinite;
 }
 .login-child-card[data-border-animation="bounce"] {
-    animation: bBounce 1.4s ease-in-out infinite;
+    outline: 3px solid var(--profile-color, var(--accent));
+    outline-offset: 0px;
+    animation: bBounce 1s ease-in-out infinite;
 }
 /* shimmer — змійки через span (додаються в JS) */
 .login-child-card[data-border-animation="shimmer"] {
@@ -250,17 +252,16 @@
 
 /* ── Анімації ────────────────────────────────────────────── */
 
-/* pulse — сяйво пульсує через box-shadow (нічого не рухається) */
+/* pulse — рамка пульсує прозорістю */
 @keyframes bPulse {
-    0%, 100% { box-shadow: 0 0 4px 1px color-mix(in srgb, var(--profile-color) 40%, transparent); }
-    50%       { box-shadow: 0 0 16px 4px color-mix(in srgb, var(--profile-color) 90%, transparent),
-                            0 0 30px 8px color-mix(in srgb, var(--profile-color) 40%, transparent); }
+    0%, 100% { border-color: var(--profile-color); }
+    50%       { border-color: color-mix(in srgb, var(--profile-color) 20%, transparent); }
 }
 [data-border-animation="pulse"] .header,
 [data-border-animation="pulse"] #parentChildBar,
 [data-border-animation="pulse"] .border-style-btn.active,
 [data-border-animation="pulse"] .profile-color-btn.active {
-    animation: bPulse 1.4s ease-in-out infinite;
+    animation: bPulse 2s ease-in-out infinite;
 }
 
 /* glow — зовнішнє сяйво через box-shadow */
@@ -276,16 +277,18 @@
     animation: bGlow 2s ease-in-out infinite;
 }
 
-/* bounce — рамка пульсує товщиною */
+/* bounce — рамка пульсує товщиною через outline (не впливає на layout) */
 @keyframes bBounce {
-    0%, 100% { border-width: 3px; }
-    40%       { border-width: 6px; }
-    70%       { border-width: 2px; }
+    0%, 100% { outline-width: 2px;  outline-offset: 0px; }
+    40%       { outline-width: 5px;  outline-offset: 1px; }
+    70%       { outline-width: 1px;  outline-offset: 0px; }
 }
 [data-border-animation="bounce"] .header,
 [data-border-animation="bounce"] #parentChildBar,
 [data-border-animation="bounce"] .border-style-btn.active,
 [data-border-animation="bounce"] .profile-color-btn.active {
+    outline: 2px solid var(--profile-color, var(--accent));
+    outline-offset: 0px;
     animation: bBounce 1s ease-in-out infinite;
 }
 
