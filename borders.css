@@ -1,6 +1,6 @@
 /* ════════════════════════════════════════════════════════════
    borders.css — Рамки та анімації профілів дітей
-   version: v4.20260628.2209
+   version: v4.20260628.2220
 
    ЗМІСТ
    ─────────────────────────────────────────────────────────
@@ -281,7 +281,7 @@
 /* pulse — рамка пульсує через outline (не впливає на layout) */
 @keyframes bPulse {
     0%, 100% { outline-width: 0px; outline-color: transparent;    outline-offset: 0px; }
-    40%       { outline-width: 3px; outline-color: var(--profile-color); outline-offset: 0px; }
+    40%       { outline-width: 5px; outline-color: var(--profile-color); outline-offset: 0px; }
     70%       { outline-width: 0px; outline-color: transparent;    outline-offset: 0px; }
 }
 [data-border-animation="pulse"] .header,
