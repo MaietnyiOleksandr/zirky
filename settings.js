@@ -2,7 +2,7 @@
 // ⚙️   settings.js — Налаштування / Експорт / Імпорт
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260629.0001';
+export const VERSION = 'v4.20260629.0920';
 
 // ════════════════════════════════════════════════════════════
 
@@ -983,7 +983,7 @@ function _renderChildProfile(container) {
     `;
 
     // Активуємо першу вкладку пікера
-    const firstCat = document.querySelector(\`#avatarPicker_\${childId} .avatar-tab-btn\`);
+    const firstCat = document.querySelector(`#avatarPicker_${childId} .avatar-tab-btn`);
     if (firstCat) firstCat.click();
 }
 
