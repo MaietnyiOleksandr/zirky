@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⭐</text></svg>">
-    <!-- version: v4.20260629.0001 -->
+    <!-- version: v4.20260629.1413 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>⭐ Зірки Успіху</title>
     <link rel="stylesheet" href="style.css">
@@ -874,8 +874,8 @@
 
                     <!-- ══ 👤 Профілі ══ -->
                     <div class="settings-accordion-wrap">
-                        <button class="settings-menu-item" onclick="toggleSettingsBlock('profiles'); renderProfilesAccordion();">
-                            <span class="settings-menu-icon">👤</span>
+                        <button class="settings-menu-item" onclick="toggleSettingsBlock('profiles'); renderProfilesAccordion(); updateProfileAccordionIcon();">
+                            <span class="settings-menu-icon" data-profile-icon>👤</span>
                             <span class="settings-menu-label" id="profilesAccordionLabel">Мій профіль</span>
                             <span class="settings-menu-arrow" id="settingsArrow_profiles">›</span>
                         </button>
@@ -1422,6 +1422,14 @@
         window.refreshActivityModal = refreshActivityModal;
         window.switchActivityTab    = switchActivityTab;
         window.renderProfilesAccordion = renderProfilesAccordion;
+        window.updateProfileAccordionIcon = function() {
+            const iconEl = document.querySelector('[data-profile-icon]');
+            if (!iconEl) return;
+            const childId = state.activeChildId;
+            const meta    = state.parent?.children?.[childId];
+            const avatar  = meta?.avatar?.value || '👤';
+            iconEl.textContent = avatar;
+        };
         window.saveChildProfile    = saveChildProfile;
         window.setChildColor       = setChildColor;
         window.unblockChild        = unblockChild;

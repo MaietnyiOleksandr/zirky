@@ -12,7 +12,7 @@
 //       3. Додай CSS vars у style.css (опційно)
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260629.0930';
+export const VERSION = 'v4.20260629.1413';
 
 import { state } from './state.js';
 import { saveAppearance, saveParentAppearance, saveRecords, saveBorder, saveChildMeta } from './firebase.js';
@@ -790,6 +790,7 @@ export function previewBorderColor(hex, childId) {
     if (!_pendingBorder) return;
     _pendingBorder.color = hex;
     document.documentElement.style.setProperty('--profile-color', hex);
+    _refreshAvatarPreview(cid);
 }
 
 // Встановлює pending line (стиль лінії) — тільки DOM
@@ -799,6 +800,7 @@ export function previewBorderLine(line, childId) {
     if (!_pendingBorder) return;
     _pendingBorder.line = line;
     document.documentElement.setAttribute('data-border-line', line);
+    _refreshAvatarPreview(cid);
 }
 
 // Встановлює pending animation — тільки DOM
@@ -811,6 +813,7 @@ export function previewBorder(animation, childId) {
     if (animation === 'rainbow') { _wrapHeaderForRainbow(); _removeSnakeBorders(); }
     else if (animation === 'shimmer') { _unwrapHeader(); _addSnakeBorders(); }
     else { _unwrapHeader(); _removeSnakeBorders(); }
+    _refreshAvatarPreview(cid);
 }
 
 // Скидає pending до оригіналу і повертає DOM
@@ -1214,15 +1217,32 @@ export const AVATAR_CATEGORIES = [
 // 😊  АВАТАР ПРОФІЛЮ — пікер та логіка
 // ════════════════════════════════════════════════════
 
+
+// Оновлює превью-картку аватара якщо вона відображається
+function _refreshAvatarPreview(childId) {
+    const outer = document.querySelector('.avatar-preview-wrap-outer');
+    if (!outer) return;
+    outer.innerHTML = _renderAvatarPreview(childId);
+    // Відновлюємо snake-border якщо shimmer
+    const pending = (_pendingBorderChildId === childId && _pendingBorder) ? _pendingBorder : null;
+    const anim = pending?.animation ?? state.parent.children?.[childId]?.border?.animation;
+    if (anim === 'shimmer') {
+        const card = outer.querySelector('.avatar-preview-card');
+        if (card) _addSnakeBordersTo(card);
+    }
+}
+
 // Генерує HTML превью-картки (аналог login-child-card, але без кліку)
 export function renderAvatarPreview(childId) { return _renderAvatarPreview(childId); }
 export function renderAvatarPicker(childId)  { return _renderAvatarPicker(childId);  }
 function _renderAvatarPreview(childId) {
     const meta      = state.parent.children?.[childId] || {};
     const border    = meta.border || {};
-    const color     = meta.color  || '#4dabf7';
-    const line      = border.line      || 'solid';
-    const animation = border.animation || 'none';
+    // Враховуємо pending рамки якщо є (дитина примірює рамку)
+    const pending   = (_pendingBorderChildId === childId && _pendingBorder) ? _pendingBorder : null;
+    const color     = pending?.color     ?? meta.color          ?? '#4dabf7';
+    const line      = pending?.line      ?? border.line         ?? 'solid';
+    const animation = pending?.animation ?? border.animation    ?? 'none';
     const fontKey   = meta.fontKey     || 'default';
     const name      = meta.name        || '';
     // Показуємо pending аватар якщо є, інакше збережений
@@ -1390,6 +1410,9 @@ export function commitAvatar(childId) {
     saveChildMeta(cid);
     if (window.updateParentChildBar) window.updateParentChildBar();
     if (window.renderLoginChildren)  window.renderLoginChildren();
+
+    // Оновлюємо іконку акордеону "Мій профіль"
+    if (window.updateProfileAccordionIcon) window.updateProfileAccordionIcon();
 
     _pendingAvatar = null;
 
