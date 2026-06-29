@@ -1,6 +1,6 @@
 /* ════════════════════════════════════════════════════════════
    borders.css — Рамки та анімації профілів дітей
-   version: v4.20260629.0001
+   version: v4.20260629.1422
 
    ЗМІСТ
    ─────────────────────────────────────────────────────────
@@ -762,22 +762,65 @@
     animation: bPulse 1.2s ease-in-out infinite;
 }
 
-/* Веселка для превью */
-.avatar-preview-wrap .avatar-preview-card { border: 0; }
-.avatar-preview-wrap::after {
+/* shimmer (змійка) — аналогічно login-child-card */
+.avatar-preview-card[data-border-animation="shimmer"] {
+    position: relative;
+    overflow: hidden;
+    border: 0;
+    isolation: isolate;
+}
+.avatar-preview-card[data-border-animation="shimmer"]::before {
     content: '';
     position: absolute;
-    inset: -3px;
-    border-radius: 20px;
-    background: linear-gradient(135deg,
-        var(--profile-color) 0%, #f97316 20%, #eab308 40%,
-        #22c55e 60%, #3b82f6 80%, #a855f7 100%);
-    z-index: 0;
-    animation: bRainbow 3s linear infinite;
+    inset: 6px;
+    z-index: 1;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--secondary), #4A90E2);
+    pointer-events: none;
 }
+.avatar-preview-card[data-border-animation="shimmer"] .login-child-card-inner {
+    position: relative;
+    z-index: 2;
+}
+
+/* rainbow (веселка) — аналогічно login-child-card */
+.avatar-preview-card[data-border-animation="rainbow"] {
+    border: 0;
+    position: relative;
+    isolation: isolate;
+}
+.avatar-preview-card[data-border-animation="rainbow"]::after {
+    content: '';
+    position: absolute;
+    top: -2px; left: -2px;
+    z-index: 1;
+    width: calc(100% + 4px);
+    height: calc(100% + 4px);
+    border-radius: 20px;
+    pointer-events: none;
+    background: linear-gradient(
+        60deg,
+        hsl(224, 85%, 66%),
+        hsl(269, 85%, 66%),
+        hsl(314, 85%, 66%),
+        hsl(359, 85%, 66%),
+        hsl(44,  85%, 66%),
+        hsl(89,  85%, 66%),
+        hsl(134, 85%, 66%),
+        hsl(179, 85%, 66%)
+    );
+    background-size: 300% 300%;
+    background-position: 0 50%;
+    animation: bRainbow 4s alternate infinite;
+}
+
+/* Обгортка для rainbow (аналог .login-child-card-wrap.rainbow-wrap) */
 .avatar-preview-wrap {
     position: relative;
     border-radius: 20px;
+    display: inline-block;
+}
+.avatar-preview-wrap.rainbow-wrap {
     display: inline-block;
 }
 

@@ -12,7 +12,7 @@
 //       3. Додай CSS vars у style.css (опційно)
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260629.1413';
+export const VERSION = 'v4.20260629.1422';
 
 import { state } from './state.js';
 import { saveAppearance, saveParentAppearance, saveRecords, saveBorder, saveChildMeta } from './firebase.js';
@@ -1222,14 +1222,8 @@ export const AVATAR_CATEGORIES = [
 function _refreshAvatarPreview(childId) {
     const outer = document.querySelector('.avatar-preview-wrap-outer');
     if (!outer) return;
+    // snakeSpans вже включені в HTML через _renderAvatarPreview
     outer.innerHTML = _renderAvatarPreview(childId);
-    // Відновлюємо snake-border якщо shimmer
-    const pending = (_pendingBorderChildId === childId && _pendingBorder) ? _pendingBorder : null;
-    const anim = pending?.animation ?? state.parent.children?.[childId]?.border?.animation;
-    if (anim === 'shimmer') {
-        const card = outer.querySelector('.avatar-preview-card');
-        if (card) _addSnakeBordersTo(card);
-    }
 }
 
 // Генерує HTML превью-картки (аналог login-child-card, але без кліку)
@@ -1266,8 +1260,8 @@ function _renderAvatarPreview(childId) {
         </div>`;
 
     return animation === 'rainbow'
-        ? `<div class="rainbow-wrap avatar-preview-wrap">${inner}</div>`
-        : inner;
+        ? `<div class="avatar-preview-wrap">${inner}</div>`
+        : `<div class="avatar-preview-wrap">${inner}</div>`;
 }
 
 // Генерує HTML пікера аватарів
