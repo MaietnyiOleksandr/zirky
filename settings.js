@@ -2,7 +2,7 @@
 // ⚙️   settings.js — Налаштування / Експорт / Імпорт
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260618.1703';
+export const VERSION = 'v4.20260629.0001';
 
 // ════════════════════════════════════════════════════════════
 
@@ -946,8 +946,23 @@ function _renderChildProfile(container) {
     const childId = state.activeChildId || 'child_1';
     const meta    = state.parent.children?.[childId] || {};
 
+    // Превью картки та пікер аватара через appearance.js
+    const previewHTML = window._renderAvatarPreviewPublic
+        ? window._renderAvatarPreviewPublic(childId)
+        : '';
+    const pickerHTML  = window._renderAvatarPickerPublic
+        ? window._renderAvatarPickerPublic(childId)
+        : '';
+
     container.innerHTML = `
         <div class="card-bg" style="display:grid;gap:12px;">
+
+            <label class="card-label">👁 Попередній перегляд</label>
+            <div class="avatar-preview-wrap-outer">${previewHTML}</div>
+
+            <label class="card-label">😊 Аватар</label>
+            ${pickerHTML}
+
             <div class="form-group">
                 <label class="card-label">Ім'я</label>
                 <input type="text" id="profileName_${childId}"
@@ -966,6 +981,10 @@ function _renderChildProfile(container) {
 
         </div>
     `;
+
+    // Активуємо першу вкладку пікера
+    const firstCat = document.querySelector(\`#avatarPicker_\${childId} .avatar-tab-btn\`);
+    if (firstCat) firstCat.click();
 }
 
 function _renderParentProfiles(container) {
@@ -1002,9 +1021,11 @@ function _renderParentProfiles(container) {
         return `
             <div class="profile-card card-bg">
                 <div class="profile-card-header">
-                    <span class="profile-card-avatar">${meta.avatar?.value || '👤'}</span>
                     <strong class="profile-card-name">${meta.name || childId}</strong>
                     ${isBlocked ? '<span class="badge-warning">🔒 Заблоковано</span>' : ''}
+                </div>
+                <div class="avatar-preview-wrap-outer parent-preview">
+                    ${window._renderAvatarPreviewPublic ? window._renderAvatarPreviewPublic(childId) : (meta.avatar?.value || '👤')}
                 </div>
 
                 <div class="form-group">

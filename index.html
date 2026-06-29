@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⭐</text></svg>">
-    <!-- version: v4.20260628.1550 -->
+    <!-- version: v4.20260629.0001 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>⭐ Зірки Успіху</title>
     <link rel="stylesheet" href="style.css">
@@ -1283,7 +1283,10 @@
                  resetBorderToNone, setProfileColor,
                  BORDER_COLORS_FREE, BORDER_LINES, BORDER_ANIMATIONS,
                  renderBorderBlock, commitAndSaveBorder, cancelBorder,
-                 renderBorderSection } from './appearance.js';
+                 renderBorderSection,
+                 switchAvatarTab, previewAvatar, commitAvatar, cancelAvatar,
+                 renderAvatarPreview, renderAvatarPicker,
+                 AVATAR_CATEGORIES } from './appearance.js';
 
         // ── Глобальні функції для onclick ─────────────────────
         window.showProfileSelect = showProfileSelect;
@@ -1474,6 +1477,13 @@
         };
         // appearance.js
         window.applyAppearance    = applyAppearance;
+        window.switchAvatarTab    = switchAvatarTab;
+        window._renderAvatarPreviewPublic = renderAvatarPreview;
+        window._renderAvatarPickerPublic  = renderAvatarPicker;
+        window.previewAvatar      = previewAvatar;
+        window.commitAvatar       = commitAvatar;
+        window.cancelAvatar       = cancelAvatar;
+        window.AVATAR_CATEGORIES  = AVATAR_CATEGORIES;
         window.stopAllPreviews    = stopAllPreviews;
         window.applyActiveBorder  = applyActiveBorder;
         window.previewBorder      = previewBorder;

@@ -12,7 +12,7 @@
 //       3. Додай CSS vars у style.css (опційно)
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260628.2201';
+export const VERSION = 'v4.20260629.0001';
 
 import { state } from './state.js';
 import { saveAppearance, saveParentAppearance, saveRecords, saveBorder, saveChildMeta } from './firebase.js';
@@ -1167,6 +1167,249 @@ export function refundTheme(themeId) {
         alert(`✅ Тему "${theme.name}" повернуто.\n+${theme.price}⭐ повернуто на рахунок.`);
     });
 }
+
+
+// ── Категорії аватарів ────────────────────────────
+// free: true — безкоштовні; stars — ціна одного емоджі.
+// Щоб додати нову категорію — лише новий запис тут.
+export const AVATAR_CATEGORIES = [
+    {
+        id:    'people',
+        name:  '👤 Люди',
+        free:  true,
+        emojis: [
+            '👦','👧','🧒','👶','🧑','👱','👨','🧔','👩','👩‍🦰',
+            '👩‍🦱','👩‍🦳','👩‍🦲','👨‍🦰','👨‍🦱','👨‍🦳','👨‍🦲',
+            '🧓','👴','👵','🧑‍🦱','🧑‍🦰','🧑‍🦳','🧑‍🦲',
+        ],
+    },
+    {
+        id:    'professions',
+        name:  '👨‍⚕️ Професії',
+        free:  false,
+        stars: 10,
+        emojis: [
+            '👨‍⚕️','👩‍⚕️','👨‍🏫','👩‍🏫','👨‍🍳','👩‍🍳',
+            '👨‍🚒','👩‍🚒','👨‍✈️','👩‍✈️','👨‍🚀','👩‍🚀',
+            '👨‍🎨','👩‍🎨','👨‍🔬','👩‍🔬','👨‍💻','👩‍💻',
+            '👨‍🎤','👩‍🎤','👨‍🏭','👩‍🏭','👨‍⚖️','👩‍⚖️',
+        ],
+    },
+    {
+        id:    'animals',
+        name:  '🐾 Тварини',
+        free:  false,
+        stars: 20,
+        emojis: [
+            '🐶','🐱','🐭','🐹','🐰','🦊','🐻','🐼','🐨','🐯',
+            '🦁','🐮','🐷','🐸','🐵','🐔','🐧','🐦','🦆','🦉',
+            '🦋','🐢','🦎','🐍','🐳','🐬','🦈','🐙','🦑','🦀',
+        ],
+    },
+];
+
+
+// ════════════════════════════════════════════════════
+// 😊  АВАТАР ПРОФІЛЮ — пікер та логіка
+// ════════════════════════════════════════════════════
+
+// Генерує HTML превью-картки (аналог login-child-card, але без кліку)
+export function renderAvatarPreview(childId) { return _renderAvatarPreview(childId); }
+export function renderAvatarPicker(childId)  { return _renderAvatarPicker(childId);  }
+function _renderAvatarPreview(childId) {
+    const meta      = state.parent.children?.[childId] || {};
+    const border    = meta.border || {};
+    const color     = meta.color  || '#4dabf7';
+    const line      = border.line      || 'solid';
+    const animation = border.animation || 'none';
+    const fontKey   = meta.fontKey     || 'default';
+    const name      = meta.name        || '';
+    // Показуємо pending аватар якщо є, інакше збережений
+    const avatar    = _pendingAvatar?.emoji ?? meta.avatar?.value ?? '👤';
+
+    const snakeSpans = animation === 'shimmer'
+        ? '<span class="snake-border"></span>'.repeat(4)
+        : '';
+
+    const inner = `
+        <div class="avatar-preview-card"
+             style="--profile-color:${color}"
+             data-border-line="${line}"
+             data-border-animation="${animation}"
+             data-font="${fontKey}">
+            ${snakeSpans}
+            <span class="login-child-card-inner">
+                <span class="login-child-avatar">${avatar}</span>
+                <span class="login-child-name">${name}</span>
+            </span>
+        </div>`;
+
+    return animation === 'rainbow'
+        ? `<div class="rainbow-wrap avatar-preview-wrap">${inner}</div>`
+        : inner;
+}
+
+// Генерує HTML пікера аватарів
+function _renderAvatarPicker(childId) {
+    const meta          = state.parent.children?.[childId] || {};
+    const currentValue  = _pendingAvatar?.emoji ?? meta.avatar?.value ?? '👤';
+    const unlockedArr   = meta.avatar?.unlocked ?? [];
+
+    const tabs = AVATAR_CATEGORIES.map(cat => `
+        <button class="avatar-tab-btn" data-cat="${cat.id}"
+            onclick="switchAvatarTab('${childId}','${cat.id}')">
+            ${cat.name}
+        </button>`).join('');
+
+    const grids = AVATAR_CATEGORIES.map(cat => {
+        const cells = cat.emojis.map(emoji => {
+            const isOwned   = cat.free || unlockedArr.includes(emoji);
+            const isActive  = emoji === currentValue;
+            return `
+                <button class="avatar-emoji-btn${isActive ? ' active' : ''}${!isOwned ? ' locked' : ''}"
+                    title="${isOwned ? emoji : `🔒 ${cat.stars}⭐`}"
+                    onclick="previewAvatar('${childId}','${emoji}','${cat.id}')">
+                    ${emoji}
+                    ${!isOwned ? '<span class="avatar-lock">🔒</span>' : ''}
+                </button>`;
+        }).join('');
+        return `
+            <div class="avatar-grid" data-cat="${cat.id}" style="display:none">
+                ${cells}
+            </div>`;
+    }).join('');
+
+    // Визначаємо активну категорію за поточним аватаром
+    const activeCat = AVATAR_CATEGORIES.find(cat =>
+        cat.emojis.includes(currentValue)
+    )?.id || AVATAR_CATEGORIES[0].id;
+
+    return `
+        <div class="avatar-picker" id="avatarPicker_${childId}">
+            <div class="avatar-tab-bar">${tabs}</div>
+            ${grids}
+            <div class="border-actions">
+                <button class="btn btn-primary btn-compact"
+                    onclick="commitAvatar('${childId}')">
+                    💾 Зберегти
+                </button>
+                <button class="btn btn-compact"
+                    onclick="cancelAvatar('${childId}')">
+                    ✖ Скасувати
+                </button>
+            </div>
+        </div>`;
+}
+
+// Активує вкладку категорії в пікері
+export function switchAvatarTab(childId, catId) {
+    const picker = document.getElementById(`avatarPicker_${childId}`);
+    if (!picker) return;
+    picker.querySelectorAll('.avatar-tab-btn').forEach(b =>
+        b.classList.toggle('active', b.dataset.cat === catId));
+    picker.querySelectorAll('.avatar-grid').forEach(g =>
+        g.style.display = g.dataset.cat === catId ? '' : 'none');
+}
+
+// Примірює аватар (pending, без збереження)
+export function previewAvatar(childId, emoji, catId) {
+    _pendingAvatar = { emoji, categoryId: catId };
+    // Оновлюємо превью картку і пікер
+    const previewEl = document.querySelector('.avatar-preview-wrap, .avatar-preview-card');
+    if (previewEl) {
+        const parent = previewEl.parentElement;
+        if (parent) parent.innerHTML = _renderAvatarPreview(childId);
+        // Відновлюємо анімацію якщо shimmer/rainbow
+        const anim = state.parent.children?.[childId]?.border?.animation;
+        if (anim === 'shimmer') {
+            const card = parent?.querySelector('.avatar-preview-card');
+            if (card) _addSnakeBordersTo(card);
+        }
+    }
+    // Оновлюємо active-стан кнопок у пікері
+    const picker = document.getElementById(`avatarPicker_${childId}`);
+    if (picker) {
+        picker.querySelectorAll('.avatar-emoji-btn').forEach(b =>
+            b.classList.toggle('active', b.textContent.trim().startsWith(emoji)));
+    }
+}
+
+// Допоміжна — додає snake-border spans до конкретного елемента
+function _addSnakeBordersTo(el) {
+    el.querySelectorAll('.snake-border').forEach(s => s.remove());
+    for (let i = 0; i < 4; i++) {
+        const span = document.createElement('span');
+        span.className = 'snake-border';
+        el.prepend(span);
+    }
+}
+
+// Зберігає аватар (з покупкою якщо платний)
+export function commitAvatar(childId) {
+    if (!_pendingAvatar) return;
+    const cid  = childId || state.activeChildId;
+    const meta = state.parent.children?.[cid];
+    if (!meta) return;
+
+    const { emoji, categoryId } = _pendingAvatar;
+    const cat = AVATAR_CATEGORIES.find(c => c.id === categoryId);
+    if (!cat) return;
+
+    const unlockedArr = meta.avatar?.unlocked ?? [];
+    const isOwned     = cat.free || unlockedArr.includes(emoji);
+
+    if (!isOwned) {
+        // Перевірка балансу
+        const balance = Number(state.data.achievements?.counters?._runningBalance ?? state.data.balance);
+        if (balance < cat.stars) {
+            const missing = cat.stars - balance;
+            alert(`⭐ Не вистачає ${missing} зірок для цього аватара!`);
+            return;
+        }
+        // Підтвердження покупки
+        const confirmed = confirm(
+            `💫 Придбати аватар ${emoji}?\n\nЦіна: ${cat.stars}⭐\nБаланс: ${balance}⭐`
+        );
+        if (!confirmed) return;
+
+        // Списуємо зірки
+        const spent = spendStars(cat.stars, {
+            category:    'appearance',
+            description: `Аватар «${emoji}» (${cat.name})`,
+        });
+        if (!spent) return;
+
+        // Додаємо до розблокованих
+        unlockedArr.push(emoji);
+        if (!meta.avatar) meta.avatar = { type: 'emoji', value: emoji, id: categoryId, unlocked: [] };
+        meta.avatar.unlocked = unlockedArr;
+    }
+
+    // Зберігаємо вибраний аватар
+    if (!meta.avatar) meta.avatar = { type: 'emoji', value: emoji, id: categoryId, unlocked: [] };
+    meta.avatar.value = emoji;
+    meta.avatar.id    = categoryId;
+
+    saveChildMeta(cid);
+    if (window.updateParentChildBar) window.updateParentChildBar();
+    if (window.renderLoginChildren)  window.renderLoginChildren();
+
+    _pendingAvatar = null;
+
+    // Оновлюємо акордеон
+    renderProfilesAccordion();
+
+    // Стандартна анімація підтвердження
+    if (window.showFeedback) window.showFeedback('✅ Аватар збережено!');
+    else alert('✅ Аватар збережено!');
+}
+
+// Скасовує pending аватар
+export function cancelAvatar(childId) {
+    _pendingAvatar = null;
+    renderProfilesAccordion();
+}
+
 
 // ════════════════════════════════════════════════════
 // 🖼️  РАМКА ПРОФІЛЮ — рендер блоку налаштувань

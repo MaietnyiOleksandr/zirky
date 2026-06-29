@@ -1,6 +1,6 @@
 /* ════════════════════════════════════════════════════════════
    borders.css — Рамки та анімації профілів дітей
-   version: v4.20260628.2220
+   version: v4.20260629.0001
 
    ЗМІСТ
    ─────────────────────────────────────────────────────────
@@ -710,4 +710,152 @@
     border: none;
     border-top: 1px solid var(--border-light);
     margin: 4px 0;
+}
+/* ════════════════════════════════════════════════════════════
+   АВАТАР ПРОФІЛЮ — превью-картка та пікер
+   ════════════════════════════════════════════════════════════ */
+
+/* ── Превью-картка (аналог login-child-card без кліку) ───── */
+.avatar-preview-wrap-outer {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 4px;
+}
+
+.avatar-preview-card {
+    display: flex;
+    padding: 3px;
+    border: 3px solid var(--profile-color, var(--accent));
+    border-radius: 18px;
+    font-family: var(--font-main);
+    font-weight: 900;
+    box-shadow: 0 4px 12px color-mix(in srgb, var(--profile-color, var(--secondary)) 30%, transparent);
+    background: transparent;
+    color: white;
+    position: relative;
+    cursor: default;
+    pointer-events: none;
+    min-width: 100px;
+}
+
+/* Ховер лише на десктопі — тільки box-shadow, без трансформацій */
+@media (hover: hover) {
+    .avatar-preview-card {
+        pointer-events: auto;
+    }
+    .avatar-preview-card:hover {
+        box-shadow: 0 6px 20px color-mix(in srgb, var(--profile-color, var(--accent)) 40%, transparent);
+    }
+}
+
+/* Спадковість стилів рамки на превью-картку */
+.avatar-preview-card[data-border-line="solid"]  { border-style: solid;  }
+.avatar-preview-card[data-border-line="dashed"] { border-style: dashed; }
+.avatar-preview-card[data-border-line="dotted"] { border-style: dotted; }
+.avatar-preview-card[data-border-line="double"] { border-style: double; border-width: 4px; }
+
+.avatar-preview-card[data-border-animation="breath"] { animation: bBreath 2s ease-in-out infinite; }
+.avatar-preview-card[data-border-animation="glow"]   { animation: bGlow   2s ease-in-out infinite; }
+.avatar-preview-card[data-border-animation="pulse"] {
+    border-color: transparent;
+    outline: 0px solid transparent;
+    animation: bPulse 1.2s ease-in-out infinite;
+}
+
+/* Веселка для превью */
+.avatar-preview-wrap .avatar-preview-card { border: 0; }
+.avatar-preview-wrap::after {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 20px;
+    background: linear-gradient(135deg,
+        var(--profile-color) 0%, #f97316 20%, #eab308 40%,
+        #22c55e 60%, #3b82f6 80%, #a855f7 100%);
+    z-index: 0;
+    animation: bRainbow 3s linear infinite;
+}
+.avatar-preview-wrap {
+    position: relative;
+    border-radius: 20px;
+    display: inline-block;
+}
+
+/* ── Пікер аватарів ──────────────────────────────────────── */
+.avatar-picker {
+    display: grid;
+    gap: 8px;
+}
+
+.avatar-tab-bar {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.avatar-tab-btn {
+    padding: 5px 10px;
+    border-radius: 10px;
+    border: 2px solid var(--border);
+    background: var(--card);
+    color: var(--text);
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+}
+
+.avatar-tab-btn.active,
+.avatar-tab-btn:hover {
+    border-color: var(--profile-color, var(--accent));
+    background: color-mix(in srgb, var(--profile-color, var(--accent)) 15%, var(--card));
+}
+
+.avatar-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(44px, 1fr));
+    gap: 6px;
+}
+
+.avatar-emoji-btn {
+    position: relative;
+    width: 44px;
+    height: 44px;
+    font-size: 1.5rem;
+    border-radius: 10px;
+    border: 2px solid var(--border);
+    background: var(--card);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.2s, transform 0.15s;
+}
+
+.avatar-emoji-btn:hover {
+    border-color: var(--profile-color, var(--accent));
+    transform: scale(1.1);
+}
+
+.avatar-emoji-btn.active {
+    border-color: var(--profile-color, var(--accent));
+    background: color-mix(in srgb, var(--profile-color, var(--accent)) 20%, var(--card));
+    box-shadow: 0 0 0 2px var(--profile-color, var(--accent));
+}
+
+.avatar-emoji-btn.locked {
+    opacity: 0.6;
+    cursor: default;
+}
+
+.avatar-lock {
+    position: absolute;
+    bottom: 1px;
+    right: 2px;
+    font-size: 0.6rem;
+    line-height: 1;
+}
+
+/* Превью у батьківських профілях */
+.parent-preview {
+    margin-bottom: 8px;
 }
