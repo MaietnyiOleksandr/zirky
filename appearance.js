@@ -12,7 +12,7 @@
 //       3. Додай CSS vars у style.css (опційно)
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260629.0001';
+export const VERSION = 'v4.20260629.0930';
 
 import { state } from './state.js';
 import { saveAppearance, saveParentAppearance, saveRecords, saveBorder, saveChildMeta } from './firebase.js';
@@ -762,6 +762,7 @@ function _removeSnakeBorders() {
 // { color: '#hex', style: 'solid' } або null
 let _pendingBorder       = null;
 let _pendingBorderChildId = null;
+let _pendingAvatar        = null; // { emoji, categoryId } або null
 // Оригінал до preview (для скидання)
 let _originalBorder      = null;
 
@@ -1267,6 +1268,7 @@ function _renderAvatarPicker(childId) {
             const isActive  = emoji === currentValue;
             return `
                 <button class="avatar-emoji-btn${isActive ? ' active' : ''}${!isOwned ? ' locked' : ''}"
+                    data-emoji="${emoji}"
                     title="${isOwned ? emoji : `🔒 ${cat.stars}⭐`}"
                     onclick="previewAvatar('${childId}','${emoji}','${cat.id}')">
                     ${emoji}
@@ -1278,11 +1280,6 @@ function _renderAvatarPicker(childId) {
                 ${cells}
             </div>`;
     }).join('');
-
-    // Визначаємо активну категорію за поточним аватаром
-    const activeCat = AVATAR_CATEGORIES.find(cat =>
-        cat.emojis.includes(currentValue)
-    )?.id || AVATAR_CATEGORIES[0].id;
 
     return `
         <div class="avatar-picker" id="avatarPicker_${childId}">
@@ -1330,7 +1327,7 @@ export function previewAvatar(childId, emoji, catId) {
     const picker = document.getElementById(`avatarPicker_${childId}`);
     if (picker) {
         picker.querySelectorAll('.avatar-emoji-btn').forEach(b =>
-            b.classList.toggle('active', b.textContent.trim().startsWith(emoji)));
+            b.classList.toggle('active', b.dataset.emoji === emoji));
     }
 }
 
@@ -1355,7 +1352,7 @@ export function commitAvatar(childId) {
     const cat = AVATAR_CATEGORIES.find(c => c.id === categoryId);
     if (!cat) return;
 
-    const unlockedArr = meta.avatar?.unlocked ?? [];
+    const unlockedArr = [...(meta.avatar?.unlocked ?? [])];
     const isOwned     = cat.free || unlockedArr.includes(emoji);
 
     if (!isOwned) {
@@ -1397,7 +1394,7 @@ export function commitAvatar(childId) {
     _pendingAvatar = null;
 
     // Оновлюємо акордеон
-    renderProfilesAccordion();
+    if (window.renderProfilesAccordion) window.renderProfilesAccordion();
 
     // Стандартна анімація підтвердження
     if (window.showFeedback) window.showFeedback('✅ Аватар збережено!');
@@ -1407,7 +1404,7 @@ export function commitAvatar(childId) {
 // Скасовує pending аватар
 export function cancelAvatar(childId) {
     _pendingAvatar = null;
-    renderProfilesAccordion();
+    if (window.renderProfilesAccordion) window.renderProfilesAccordion();
 }
 
 
