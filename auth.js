@@ -7,7 +7,7 @@ function _shortAgent() {
     return navigator?.userAgent?.slice(0, 200) || '';
 }
 
-export const VERSION = 'v4.20260630.1235';
+export const VERSION = 'v4.20260630.1559';
 
 import { state, resetUIState, defaultChildData } from './state.js';
 import { savePin, saveParentLoginData, saveChildLoginHistory, saveChildBlockData, initChildListener,
@@ -88,6 +88,13 @@ export function _doEnterAsChild(childId) {
     applyAppearance();
     updateParentChildBar();
     if (window.updateBadges) window.updateBadges();
+
+    // Пре-рендеримо довідник зірок одразу при вході (щоб не було порожньо
+    // якщо дитина одразу перейде на вкладку "Довідник") — ДО updateUI(),
+    // щоб opt-girl/opt-boy та гендерні мітки обробились коректно
+    const guideEl = document.getElementById('childInstructions');
+    if (guideEl) guideEl.innerHTML = renderStarsGuide(childId);
+
     updateUI();
 
     const meta     = state.parent.children?.[childId];
@@ -96,11 +103,6 @@ export function _doEnterAsChild(childId) {
 
     // Оновлюємо іконку акордеону "Мій профіль" збереженим аватаром
     if (window.updateProfileAccordionIcon) window.updateProfileAccordionIcon();
-
-    // Пре-рендеримо довідник зірок одразу при вході (щоб не було порожньо
-    // якщо дитина одразу перейде на вкладку "Довідник")
-    const guideEl = document.getElementById('childInstructions');
-    if (guideEl) guideEl.innerHTML = renderStarsGuide(childId);
 }
 
 // ════════════════════════════════════════════════════════════
