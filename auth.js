@@ -7,7 +7,7 @@ function _shortAgent() {
     return navigator?.userAgent?.slice(0, 200) || '';
 }
 
-export const VERSION = 'v4.20260627.0841';
+export const VERSION = 'v4.20260630.0902';
 
 import { state, resetUIState, defaultChildData } from './state.js';
 import { savePin, saveParentLoginData, saveChildLoginHistory, saveChildBlockData, initChildListener,
@@ -92,6 +92,9 @@ export function _doEnterAsChild(childId) {
     const meta     = state.parent.children?.[childId];
     const startTab = meta?.startTab || 'schedule';
     switchTab(startTab);
+
+    // Оновлюємо іконку акордеону "Мій профіль" збереженим аватаром
+    if (window.updateProfileAccordionIcon) window.updateProfileAccordionIcon();
 }
 
 // ════════════════════════════════════════════════════════════
