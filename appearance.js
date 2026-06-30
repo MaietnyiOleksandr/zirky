@@ -12,7 +12,7 @@
 //       3. Додай CSS vars у style.css (опційно)
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260629.1422';
+export const VERSION = 'v4.20260630.1153';
 
 import { state } from './state.js';
 import { saveAppearance, saveParentAppearance, saveRecords, saveBorder, saveChildMeta } from './firebase.js';
@@ -1273,7 +1273,7 @@ function _renderAvatarPicker(childId) {
     const tabs = AVATAR_CATEGORIES.map(cat => `
         <button class="avatar-tab-btn" data-cat="${cat.id}"
             onclick="switchAvatarTab('${childId}','${cat.id}')">
-            ${cat.name}
+            ${cat.name}${cat.free ? '' : ` · ${cat.stars}⭐`}
         </button>`).join('');
 
     const grids = AVATAR_CATEGORIES.map(cat => {
