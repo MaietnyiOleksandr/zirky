@@ -17,7 +17,7 @@
 //     Live-таймер дедлайну з паузою при прихованій вкладці.
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260624.1200';
+export const VERSION = 'v4.20260630.0902';
 
 import { state, tasksFilter } from './state.js';
 import { isDoubleSubject } from './subjects.js';
@@ -1401,7 +1401,7 @@ function _renderParentRequestCard(task) {
                 </div>
             </div>
             <div class="tk-card-title">${_esc(task.title)}</div>
-            <div class="tk-card-stars">⭐ ${task.stars} зірок · 📅 ${_esc((task.date || '').slice(0,10))}</div>
+            <div class="tk-card-stars">⭐ ${task.stars} зірок · 📅 ${_esc((task.date || '').slice(0,10))}${task.pages ? ` · 📄 ${task.pages} стор.` : ''}</div>
 
             <div class="tk-actions">
                 <button class="tk-action-btn tk-action-btn--primary"
@@ -1667,7 +1667,7 @@ function _renderChildRequestCard(task) {
                 </div>
             </div>
             <div class="tk-card-title">${_esc(task.title)}</div>
-            <div class="tk-card-stars">⭐ ${task.stars} зірок · 📅 ${_esc((task.date || '').slice(0,10))}</div>
+            <div class="tk-card-stars">⭐ ${task.stars} зірок · 📅 ${_esc((task.date || '').slice(0,10))}${task.pages ? ` · 📄 ${task.pages} стор.` : ''}</div>
             <div class="tk-info-hint">⏳ Очікую перевірки батьками</div>
             <div class="tk-actions">
                 <button class="tk-action-btn tk-action-btn--cancel"
