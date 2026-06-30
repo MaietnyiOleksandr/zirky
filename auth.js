@@ -7,7 +7,7 @@ function _shortAgent() {
     return navigator?.userAgent?.slice(0, 200) || '';
 }
 
-export const VERSION = 'v4.20260630.0902';
+export const VERSION = 'v4.20260630.1235';
 
 import { state, resetUIState, defaultChildData } from './state.js';
 import { savePin, saveParentLoginData, saveChildLoginHistory, saveChildBlockData, initChildListener,
@@ -18,6 +18,7 @@ import { switchTab } from './navigation.js';
 import { applyAppearance, applyActiveBorder } from './appearance.js';
 import { initNotificationsListener, generateLoginFailedNotif } from './notifications.js';
 import { initCompare } from './compare.js';
+import { renderStarsGuide } from './help.js';
 
 // ════════════════════════════════════════════════════════════
 // 🔐  ЕКРАН ВИБОРУ ПРОФІЛЮ
@@ -95,6 +96,11 @@ export function _doEnterAsChild(childId) {
 
     // Оновлюємо іконку акордеону "Мій профіль" збереженим аватаром
     if (window.updateProfileAccordionIcon) window.updateProfileAccordionIcon();
+
+    // Пре-рендеримо довідник зірок одразу при вході (щоб не було порожньо
+    // якщо дитина одразу перейде на вкладку "Довідник")
+    const guideEl = document.getElementById('childInstructions');
+    if (guideEl) guideEl.innerHTML = renderStarsGuide(childId);
 }
 
 // ════════════════════════════════════════════════════════════

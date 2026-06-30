@@ -2,7 +2,7 @@
 // ❓  help.js — Інструкції по розділах
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260630.1153';
+export const VERSION = 'v4.20260630.1235';
 
 import { state } from './state.js';
 import { CHANGELOG } from './changelog.js';
@@ -24,6 +24,236 @@ const TITLES = {
     about:               'ℹ️ Про програму',
     changelog:           '📝 Історія змін',
 };
+
+
+// ════════════════════════════════════════════════════
+// ⭐ ДИТЯЧИЙ ДОВІДНИК ЗІРОК — вкладка "Довідник" (instructions)
+// Не модалка showHelp — рендериться напряму в #childInstructions
+// при switchTab('instructions') та при вході дитини (auth.js)
+// ════════════════════════════════════════════════════
+export function renderStarsGuide(childId) {
+    const G = (boy, girl) => g(childId, boy, girl);
+    return `
+        <div class="stars-guide-header">
+            <div class="stars-guide-title">⭐ Як заробити зірки?</div>
+            <div class="stars-guide-subtitle">Тут все про твої зірки — читай і заробляй!</div>
+        </div>
+
+        <!-- Як працює система -->
+        <div class="stars-guide-card">
+            <div class="stars-guide-card-title">💙 Як це працює</div>
+            <div class="stars-guide-rows">
+                <div class="stars-guide-row">
+                    <span class="stars-guide-label">➕ <b>Розділ "Додати"</b></span>
+                    <span class="stars-guide-badge stars-badge--blue">📨</span>
+                </div>
+                <div class="stars-guide-tip" style="margin-top:6px">${G('Сам обирай','Сама обирай')} оцінку чи бонус → надішли на перевірку батькам</div>
+                <div class="stars-guide-row" style="margin-top:8px">
+                    <span class="stars-guide-label">✅ <b>Розділ "Завдання"</b></span>
+                    <span class="stars-guide-badge stars-badge--blue">⏳</span>
+                </div>
+                <div class="stars-guide-tip" style="margin-top:6px">Тут видно твої запити та завдання від батьків — статус оновлюється коли батьки підтвердять чи відхилять</div>
+                <div class="stars-guide-row" style="margin-top:8px">
+                    <span class="stars-guide-label">📋 <b>Завдання від батьків</b></span>
+                    <span class="stars-guide-badge stars-badge--green">✔️</span>
+                </div>
+                <div class="stars-guide-tip" style="margin-top:6px">Виконуй завдання які тобі задали — після підтвердження отримаєш зірки</div>
+                <div class="stars-guide-row" style="margin-top:8px">
+                    <span class="stars-guide-label">↩️ <b>Помилився/лась?</b></span>
+                    <span class="stars-guide-badge stars-badge--gray">скасувати</span>
+                </div>
+                <div class="stars-guide-tip" style="margin-top:6px">Якщо ${G('натиснув','натиснула')} «Виконала» помилково — натисни «Помилився/лась» поки батьки не підтвердили</div>
+            </div>
+        </div>
+
+        <!-- Оцінки -->
+        <div class="stars-guide-card">
+            <div class="stars-guide-card-title">🎓 За оцінки в школі</div>
+            <div class="stars-guide-rows">
+                <div class="stars-guide-row">
+                    <span class="stars-guide-label">12 балів</span>
+                    <span class="stars-guide-badge stars-badge--gold">5⭐</span>
+                </div>
+                <div class="stars-guide-row">
+                    <span class="stars-guide-label">11 балів</span>
+                    <span class="stars-guide-badge stars-badge--gold">4⭐</span>
+                </div>
+                <div class="stars-guide-row">
+                    <span class="stars-guide-label">10 балів</span>
+                    <span class="stars-guide-badge stars-badge--silver">3⭐</span>
+                </div>
+                <div class="stars-guide-row">
+                    <span class="stars-guide-label">9 балів</span>
+                    <span class="stars-guide-badge stars-badge--silver">2⭐</span>
+                </div>
+                <div class="stars-guide-row">
+                    <span class="stars-guide-label">8 балів</span>
+                    <span class="stars-guide-badge stars-badge--bronze">1⭐</span>
+                </div>
+            </div>
+            <div class="stars-guide-tip">📐 Математика — подвійні зірки! &nbsp;|&nbsp; 📝 Діагностувальна — потрійні!</div>
+            <div class="stars-guide-tip">ℹ️ За оцінки нижче 8 балів зірки не нараховуються</div>
+        </div>
+
+        <!-- Навчання -->
+        <div class="stars-guide-card">
+            <div class="stars-guide-card-title">📚 Навчання</div>
+            <div class="stars-guide-rows">
+                <div class="stars-guide-row">
+                    <span class="stars-guide-label">📝 Виконано Д/З</span>
+                    <span class="stars-guide-badge stars-badge--blue">+2⭐</span>
+                </div>
+                <div class="stars-guide-row">
+                    <span class="stars-guide-label">🎯 Важке завдання</span>
+                    <span class="stars-guide-badge stars-badge--blue">+5⭐</span>
+                </div>
+                <div class="stars-guide-row">
+                    <span class="stars-guide-label">${G('📖 Прочитав книгу','📖 Прочитала книгу')}</span>
+                    <span class="stars-guide-badge stars-badge--blue">+10⭐</span>
+                </div>
+            </div>
+            <div class="stars-guide-tip">📖 Книголюб рахує кількість книг &nbsp;|&nbsp; 📄 ${G('Читач','Читачка')} рахує сторінки (+30⭐ за кожен рівень)</div>
+        </div>
+
+        <!-- Допомога -->
+        <div class="stars-guide-card">
+            <div class="stars-guide-card-title">🤝 Допомога батькам</div>
+            <div class="stars-guide-rows">
+                <div class="stars-guide-row">
+                    <span class="stars-guide-label">🤝 Проста допомога</span>
+                    <span class="stars-guide-badge stars-badge--green">+3⭐</span>
+                </div>
+                <div class="stars-guide-row">
+                    <span class="stars-guide-label">💪 Серйозна допомога</span>
+                    <span class="stars-guide-badge stars-badge--green">+5⭐</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- По дому -->
+        <div class="stars-guide-card">
+            <div class="stars-guide-card-title">🏠 Домашні справи</div>
+            <div class="stars-guide-rows">
+                <div class="stars-guide-row">
+                    <span class="stars-guide-label">${G('🧹 Прибрав кімнату','🧹 Прибрала кімнату')}</span>
+                    <span class="stars-guide-badge stars-badge--green">+3⭐</span>
+                </div>
+                <div class="stars-guide-row">
+                    <span class="stars-guide-label">${G('👕 Поскладав одяг','👕 Поскладала одяг')}</span>
+                    <span class="stars-guide-badge stars-badge--green">+3⭐</span>
+                </div>
+                <div class="stars-guide-row">
+                    <span class="stars-guide-label">${G('🛏️ Застелив ліжко','🛏️ Застелила ліжко')}</span>
+                    <span class="stars-guide-badge stars-badge--green">+2⭐</span>
+                </div>
+                <div class="stars-guide-row">
+                    <span class="stars-guide-label">${G('🫧 Помив посуд','🫧 Помила посуд')}</span>
+                    <span class="stars-guide-badge stars-badge--green">+3⭐</span>
+                </div>
+                <div class="stars-guide-row">
+                    <span class="stars-guide-label">${G('🔧 Допоміг ремонтувати','🍳 Допомогла готувати')}</span>
+                    <span class="stars-guide-badge stars-badge--green">+5⭐</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Активність -->
+        <div class="stars-guide-card">
+            <div class="stars-guide-card-title">🏸 Активність</div>
+            <div class="stars-guide-rows">
+                <div class="stars-guide-row">
+                    <span class="stars-guide-label">🚶 Прогулянка 30+ хв / 6000+ кроків</span>
+                    <span class="stars-guide-badge stars-badge--purple">+3⭐</span>
+                </div>
+                <div class="stars-guide-row">
+                    <span class="stars-guide-label">🏃 Тренування 60+ хв / 10000+ кроків</span>
+                    <span class="stars-guide-badge stars-badge--purple">+5⭐</span>
+                </div>
+                <div class="stars-guide-row">
+                    <span class="stars-guide-label">🏋️ Зробити зарядку</span>
+                    <span class="stars-guide-badge stars-badge--purple">+5⭐</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Гігієна -->
+        <div class="stars-guide-card">
+            <div class="stars-guide-card-title">🧼 Гігієна</div>
+            <div class="stars-guide-rows">
+                <div class="stars-guide-row opt-girl">
+                    <span class="stars-guide-label">💇 Причесатись</span>
+                    <span class="stars-guide-badge stars-badge--pink">+5⭐</span>
+                </div>
+                <div class="stars-guide-row">
+                    <span class="stars-guide-label">🪥 Почистити зуби (без нагадувань)</span>
+                    <span class="stars-guide-badge stars-badge--pink">+2⭐</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Витрати -->
+        <div class="stars-guide-card stars-guide-card--spend">
+            <div class="stars-guide-card-title">🎁 На що витрачати зірки?</div>
+            <div class="stars-guide-rows">
+                <div class="stars-guide-row">
+                    <span class="stars-guide-label">🎮 Час на смартфоні</span>
+                    <span class="stars-guide-badge stars-badge--gray">⭐ = хвилини</span>
+                </div>
+                <div class="stars-guide-row">
+                    <span class="stars-guide-label">💵 Гроші</span>
+                    <span class="stars-guide-badge stars-badge--gray">⭐ = гривні</span>
+                </div>
+                <div class="stars-guide-row">
+                    <span class="stars-guide-label">✨ Особлива нагорода</span>
+                    <span class="stars-guide-badge stars-badge--gray">з батьками</span>
+                </div>
+                <div class="stars-guide-row">
+                    <span class="stars-guide-label">🎨 Кастомізація програми</span>
+                    <span class="stars-guide-badge stars-badge--gray">теми, рамки, аватари</span>
+                </div>
+            </div>
+            <div class="stars-guide-tip">🖼️ Анімація рамки профілю та емоджі-аватари (Професії, Тварини) — у розділі «⚙️ Опції» → «👤 Мій профіль»</div>
+        </div>
+
+        <div class="stars-guide-card">
+            <div class="stars-guide-card-title">❄️ Канікули та серія 🔥</div>
+            <div class="stars-guide-rows">
+                <div class="stars-guide-row">
+                    <span class="stars-guide-label">🔥 Серія — скільки днів поспіль ${G('ти активний','ти активна')}</span>
+                </div>
+                <div class="stars-guide-tip" style="margin-top:4px;margin-bottom:8px">Дивись серію на вкладці «Графіки» → теплова карта активності</div>
+                <div class="stars-guide-row">
+                    <span class="stars-guide-label">📅 Під час канікул</span>
+                    <span class="stars-guide-badge stars-badge--blue">особливі правила</span>
+                </div>
+                <div class="stars-guide-row">
+                    <span class="stars-guide-label">✅ Пропустив 1 день — серія не скидається</span>
+                </div>
+                <div class="stars-guide-row">
+                    <span class="stars-guide-label">❌ Пропустив 2 дні поспіль — серія скидається</span>
+                </div>
+                <div class="stars-guide-row">
+                    <span class="stars-guide-label">📌 Вихідні під час канікул теж рахуються</span>
+                </div>
+                <div class="stars-guide-row">
+                    <span class="stars-guide-label">🏫 Поза канікулами</span>
+                    <span class="stars-guide-badge stars-badge--gray">звичайні правила</span>
+                </div>
+                <div class="stars-guide-row">
+                    <span class="stars-guide-label">✅ Пропустив суботу або неділю — серія не скидається</span>
+                </div>
+                <div class="stars-guide-row">
+                    <span class="stars-guide-label">❌ Пропустив будній день — серія скидається</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="motivation-block">
+            🌟 Зірки ніколи не зникають самі — тільки накопичуються!
+            <span class="motivation-subtitle">${G('Ти сам вирішуєш','Ти сама вирішуєш')}, як швидко досягнеш своєї мети ✨</span>
+        </div>
+    `;
+}
 
 // ── Таблиця досягнень — генерується динамічно з ACHIEVEMENTS ──
 function _renderAchTable(childId) {
@@ -260,9 +490,10 @@ function helpChild(childId) {
         <p>Тут декілька блоків-акордеонів — натискай на заголовок, щоб розгорнути або згорнути.</p>
         ${HR}
         <p>👤 <b>Мій профіль</b><br>
-        😊 <b>Аватар</b> — обери емоджі: вкладка «Люди» безкоштовна, «Професії» та «Тварини» — за зірки.<br>
+        😊 <b>Аватар</b> — обери емоджі: вкладка «Люди» безкоштовна, «Професії» (10⭐) та «Тварини» (20⭐) — платні.<br>
         Натисни на емоджі щоб приміряти, потім «💾 Зберегти» — якщо емоджі платний, попросить підтвердити покупку.<br>
-        🖼️ <b>Рамка профілю</b> — колір, стиль лінії та анімація картки входу.</p>
+        🖼️ <b>Рамка профілю</b> — колір і стиль лінії безкоштовні.<br>
+        ✨ <b>Анімація рамки</b> (Дихання, Сяйво, Пульс, Змійка, Веселка) — кожна коштує ⭐, відкривається назавжди.</p>
         ${HR}
         <p>🎨 <b>Теми оформлення</b><br>
         Тут можна купити тему та змінити вигляд застосунку.<br>
@@ -495,7 +726,8 @@ function helpParent(childId) {
         ${HR}
         <p>👶 <b>Профілі дітей</b><br>
         Ім'я, стать, PIN (показується поточний у дужках), стартова вкладка, власні курси конвертації<br>
-        Кольорова рамка профілю, розблокування при невдалих спробах PIN<br>
+        Колір і стиль лінії рамки — безкоштовні, анімація рамки та платні аватари — дитина купує за ⭐<br>
+        Розблокування при невдалих спробах PIN<br>
         😊 Аватар дитини — попередній перегляд картки входу з обраним емоджі та рамкою</p>
         ${HR}
         <p>ℹ️ <b>Про програму</b><br>
