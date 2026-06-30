@@ -2,7 +2,7 @@
 // ❓  help.js — Інструкції по розділах
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260630.1235';
+export const VERSION = 'v4.20260630.1600';
 
 import { state } from './state.js';
 import { CHANGELOG } from './changelog.js';
@@ -212,7 +212,6 @@ export function renderStarsGuide(childId) {
                     <span class="stars-guide-badge stars-badge--gray">теми, рамки, аватари</span>
                 </div>
             </div>
-            <div class="stars-guide-tip">🖼️ Анімація рамки профілю та емоджі-аватари (Професії, Тварини) — у розділі «⚙️ Опції» → «👤 Мій профіль»</div>
         </div>
 
         <div class="stars-guide-card">
