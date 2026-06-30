@@ -2,7 +2,7 @@
 // ⚙️   settings.js — Налаштування / Експорт / Імпорт
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260629.0930';
+export const VERSION = 'v4.20260629.0010';
 
 // ════════════════════════════════════════════════════════════
 
@@ -1051,7 +1051,7 @@ function _renderParentProfiles(container) {
                 </div>
 
                 <div class="form-group">
-                    <label class="card-label">PIN дитини</label>
+                    <label class="card-label">PIN дитини${meta.pin ? ` (${meta.pin})` : ''}</label>
                     <input type="password" id="profilePin_${childId}"
                         placeholder="Новий PIN (залиш порожнім щоб не змінювати)"
                         maxlength="4" pattern="[0-9]{4}">
