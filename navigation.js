@@ -6,7 +6,7 @@
 //     showForm/switchTab, а ui.js потребував їх модулів
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260630.1235';
+export const VERSION = 'v4.20260630.2235';
 
 import { state } from './state.js';
 import { getTodayDate } from './utils.js';
@@ -23,6 +23,7 @@ import { applyAppearance, renderThemeShop, stopPreview, resetPendingBorder, rese
 import { dismissByAction, generateNotifications } from './notifications.js';
 import { initCompare } from './compare.js';
 import { renderStarsGuide } from './help.js';
+import { updateUI } from './ui.js';
 
 document.addEventListener('zirky:dataLoaded', generateNotifications);
 
@@ -165,7 +166,8 @@ export function switchTab(tab, fromClick = false) {
         // Рендеримо дитячий довідник зірок з help.js (гендерні форми вже підставлені)
         const container = document.getElementById('childInstructions');
         if (container) container.innerHTML = renderStarsGuide(state.activeChildId);
-        if (window.updateUI) window.updateUI();
+        // Пряма функція (не window.*) — обробляє opt-girl/opt-boy для нового HTML
+        updateUI();
     }
     else if (tab === 'history') renderHistory();
     else if (tab === 'rewards') {
