@@ -1,4 +1,4 @@
-/* version: v4.20260628.1550 */
+/* version: v4.20260701.1056 */
 
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;900&family=Comfortaa:wght@400;700&family=Balsamiq+Sans:wght@400;700&family=Ubuntu:wght@400;700&family=Playfair+Display:wght@400;700&family=Rubik:wght@400;500;700&display=swap');
 
@@ -1344,6 +1344,7 @@ select:focus, input:focus {
    УТИЛІТИ
    ════════════════════════════════════════════════════ */
 .hidden      { display: none !important; }
+[hidden]     { display: none !important; }
 .mt-sm       { margin-top: 10px; }
 .mt-md       { margin-top: 15px; }
 .mt-lg       { margin-top: 25px; }
