@@ -2,7 +2,7 @@
 // ⚙️   settings.js — Налаштування / Експорт / Імпорт
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260629.0010';
+export const VERSION = 'v4.20260701.1427';
 
 // ════════════════════════════════════════════════════════════
 
@@ -37,6 +37,16 @@ async function _loadVersionsTable(containerId = 'versionsTableBody') {
         }
     } catch(e) {}
 
+    let bordersCssVer = '—';
+    try {
+        const bordersSheet = Array.from(document.styleSheets).find(s => s.href?.includes('borders.css'));
+        if (bordersSheet) {
+            const resp = await fetch(bordersSheet.href);
+            const text = await resp.text();
+            bordersCssVer = text.match(/version:\s*(v\d+\.\d+\.\d+)/)?.[1] || '—';
+        }
+    } catch(e) {}
+
     const jsFiles = [
         'achievements.js','appearance.js','auth.js',
         'changelog.js','compare.js','config.js','feedback.js','firebase.js',
@@ -60,6 +70,7 @@ async function _loadVersionsTable(containerId = 'versionsTableBody') {
     let rows = [
         makeRow('🌐 index.html', htmlVer),
         makeRow('🎨 style.css', cssVer),
+        makeRow('🎨 borders.css', bordersCssVer),
         `<div style="height:4px;"></div>`,
     ];
 
