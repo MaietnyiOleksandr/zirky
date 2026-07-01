@@ -17,7 +17,7 @@
 //     Live-таймер дедлайну з паузою при прихованій вкладці.
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260630.0902';
+export const VERSION = 'v4.20260701.2247';
 
 import { state, tasksFilter } from './state.js';
 import { isDoubleSubject } from './subjects.js';
@@ -1378,6 +1378,27 @@ function _renderParentTaskFormBlock() {
     `;
 }
 
+
+// ── Блок часових міток для картки завдання ──────────────────
+function _renderTimestampsBlock(task) {
+    const rows = [
+        `<div class="tk-ts-row">📅 Створено: ${_fmtDateTime(task.createdAt)}</div>`,
+        task.updatedAt   ? `<div class="tk-ts-row">✏️ Відредаговано: ${_fmtDateTime(task.updatedAt)}</div>`         : '',
+        task.doneAt      ? `<div class="tk-ts-row">✔️ Дитина виконала: ${_fmtDateTime(task.doneAt)}</div>`          : '',
+        task.declinedAt  ? `<div class="tk-ts-row">✖️ Дитина відмовилась: ${_fmtDateTime(task.declinedAt)}</div>`   : '',
+        task.confirmedAt ? `<div class="tk-ts-row">✅ Підтверджено: ${_fmtDateTime(task.confirmedAt)}</div>`        : '',
+        task.rejectedAt  ? `<div class="tk-ts-row">❌ Відхилено: ${_fmtDateTime(task.rejectedAt)}</div>`            : '',
+        task.overdueAt   ? `<div class="tk-ts-row">⏰ Прострочено: ${_fmtDateTime(task.overdueAt)}</div>`           : '',
+    ].filter(Boolean).join('');
+    return `<div id="tkTs_${task.id}" class="tk-timestamps" style="display:none">${rows}</div>`;
+}
+
+window.tkToggleTimestamps = function(taskId, event) {
+    event.stopPropagation();
+    const el = document.getElementById('tkTs_' + taskId);
+    if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
+};
+
 // Карточка дитячого запиту (батьківський вигляд)
 function _renderParentRequestCard(task) {
     const cfg      = STATUS_CONFIG.pending;
@@ -1397,11 +1418,13 @@ function _renderParentRequestCard(task) {
                 <span class="tk-card-origin">📨 Запит від дитини${childLabel ? ' · ' : ''}${childLabel}</span>
                 <div class="tk-card-meta">
                     <span class="tk-card-date">${dateStr}</span>
+                    <button class="tk-ts-btn" onclick="tkToggleTimestamps('${task.id}', event)">🕒</button>
                     <span class="tk-status-badge ${cfg.cls}">${cfg.label}</span>
                 </div>
             </div>
             <div class="tk-card-title">${_esc(task.title)}</div>
             <div class="tk-card-stars">⭐ ${task.stars} зірок · 📅 ${_esc((task.date || '').slice(0,10))}${task.pages ? ` · 📄 ${task.pages} стор.` : ''}</div>
+            ${_renderTimestampsBlock(task)}
 
             <div class="tk-actions">
                 <button class="tk-action-btn tk-action-btn--primary"
@@ -1456,11 +1479,13 @@ function _renderParentTaskCard(task) {
                 <span class="tk-card-origin">📋 ${state.data.isParent ? 'Завдання батьків' + (childLabel ? ' · ' + childLabel : '') : 'Моє завдання'}</span>
                 <div class="tk-card-meta">
                     <span class="tk-card-date">${dateStr}</span>
+                    <button class="tk-ts-btn" onclick="tkToggleTimestamps('${task.id}', event)">🕒</button>
                     <span class="tk-status-badge ${cfg.cls}">${cfg.label}</span>
                 </div>
             </div>
             <div class="tk-card-title">${_esc(task.title)}</div>
             <div class="tk-card-stars">⭐ ${task.stars} зірок ${deadlineHtml} ${rewardHtml}</div>
+            ${_renderTimestampsBlock(task)}
 
             ${childDeclined ? `
                 <div class="tk-child-comment">
@@ -1597,11 +1622,13 @@ function _renderChildTaskCard(task) {
                 <span class="tk-card-origin">📋 Завдання від батьків</span>
                 <div class="tk-card-meta">
                     <span class="tk-card-date">${dateStr}</span>
+                    <button class="tk-ts-btn" onclick="tkToggleTimestamps('${task.id}', event)">🕒</button>
                     <span class="tk-status-badge ${cfg.cls}">${cfg.label}</span>
                 </div>
             </div>
             <div class="tk-card-title">${_esc(task.title)}</div>
             <div class="tk-card-stars">⭐ ${task.stars} зірок ${deadlineHtml} ${rewardHtml}</div>
+            ${_renderTimestampsBlock(task)}
 
             ${task.lastEditNote ? `
                 <div class="tk-edit-note">
@@ -1663,11 +1690,13 @@ function _renderChildRequestCard(task) {
                 <span class="tk-card-origin">📨 Мій запит</span>
                 <div class="tk-card-meta">
                     <span class="tk-card-date">${dateStr}</span>
+                    <button class="tk-ts-btn" onclick="tkToggleTimestamps('${task.id}', event)">🕒</button>
                     <span class="tk-status-badge ${cfg.cls}">${cfg.label}</span>
                 </div>
             </div>
             <div class="tk-card-title">${_esc(task.title)}</div>
             <div class="tk-card-stars">⭐ ${task.stars} зірок · 📅 ${_esc((task.date || '').slice(0,10))}${task.pages ? ` · 📄 ${task.pages} стор.` : ''}</div>
+            ${_renderTimestampsBlock(task)}
             <div class="tk-info-hint">⏳ Очікую перевірки батьками</div>
             <div class="tk-actions">
                 <button class="tk-action-btn tk-action-btn--cancel"
@@ -1680,7 +1709,7 @@ function _renderChildRequestCard(task) {
 function _renderChildCompletedCard(task) {
     const cfg = STATUS_CONFIG[task.status];
     const isConfirmed = task.status === 'confirmed';
-    const dateStr = _fmtDateTime(task.confirmedAt || task.rejectedAt);
+    const dateStr = _fmtDateTime(task.confirmedAt || task.rejectedAt || task.overdueAt);
 
     const originLabel = task.origin === 'child_request' ? '📨 Мій запит' : '📋 Завдання від батьків';
 
@@ -1702,11 +1731,13 @@ function _renderChildCompletedCard(task) {
                 <span class="tk-card-origin">${originLabel}</span>
                 <div class="tk-card-meta">
                     <span class="tk-card-date">${dateStr}</span>
+                    <button class="tk-ts-btn" onclick="tkToggleTimestamps('${task.id}', event)">🕒</button>
                     <span class="tk-status-badge ${cfg.cls}">${cfg.label}</span>
                 </div>
             </div>
             <div class="tk-card-title">${_esc(task.title)}</div>
             <div class="tk-card-stars">${starsLine}</div>
+            ${_renderTimestampsBlock(task)}
             ${task.deadline ? `
                 <div class="tk-info-hint">⏰ Треба було виконати до ${_fmtDateTime(task.deadline)}</div>
             ` : ''}
@@ -1728,7 +1759,7 @@ function _renderChildCompletedCard(task) {
 function _renderCompletedCard(task) {
     const cfg = STATUS_CONFIG[task.status];
     const isConfirmed = task.status === 'confirmed';
-    const dateStr = _fmtDateTime(task.confirmedAt || task.rejectedAt);
+    const dateStr = _fmtDateTime(task.confirmedAt || task.rejectedAt || task.overdueAt);
 
     const originLabel = task.origin === 'child_request' ? '📨 Запит дитини' : '📋 Моє завдання';
 
@@ -1757,11 +1788,13 @@ function _renderCompletedCard(task) {
                 <span class="tk-card-origin">${originLabel}${childLabel ? ' · ' + childLabel : ''}</span>
                 <div class="tk-card-meta">
                     <span class="tk-card-date">${dateStr}</span>
+                    <button class="tk-ts-btn" onclick="tkToggleTimestamps('${task.id}', event)">🕒</button>
                     <span class="tk-status-badge ${cfg.cls}">${cfg.label}</span>
                 </div>
             </div>
             <div class="tk-card-title">${_esc(task.title)}</div>
             <div class="tk-card-stars">${starsLine}</div>
+            ${_renderTimestampsBlock(task)}
             ${task.deadline ? `
                 <div class="tk-info-hint">⏰ Треба було виконати до ${_fmtDateTime(task.deadline)}</div>
             ` : ''}
