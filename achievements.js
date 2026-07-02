@@ -2,7 +2,7 @@
 // 🏆  achievements.js — Система досягнень
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260625.0849';
+export const VERSION = 'v4.20260701.2300';
 
 // ════════════════════════════════════════════════════════════
 
@@ -621,10 +621,12 @@ export function removeRewardsForLostAchievements(levelsBefore) {
     
     // Оновлюємо показ
     renderAchievementsHome();
+    return rewardGiven;
 }
 
 // Нараховуємо бонуси за нові рівні досягнень
 export function giveRewardsForNewAchievements(levelsBefore) {
+    let rewardGiven = false;
     const levelsAfter = state.data.achievements.levels || {};
     
     // Перевіряємо кожне досягнення
@@ -677,6 +679,7 @@ export function giveRewardsForNewAchievements(levelsBefore) {
                         type:        'earn',
                         category:    'achievement'
                     });
+                    rewardGiven = true;
                     
                     // Показуємо popup
                     setTimeout(() => {
@@ -713,6 +716,7 @@ ${_levelDesc(level, state.activeChildId)}
                         type:        'earn',
                         category:    'achievement'
                     });
+                    rewardGiven = true;
                     
                     setTimeout(() => {
                         alert(`🎉 Нове досягнення!

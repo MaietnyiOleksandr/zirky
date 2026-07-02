@@ -2,13 +2,13 @@
 // 🔥  firebase.js — Firebase
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260618.1703';
+export const VERSION = 'v4.20260701.2300';
 
 import { state, defaultChildData } from './state.js';
 import { firebaseConfig } from './config.js';
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
 import { getDatabase, ref, set, update, remove, onValue, get, runTransaction } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
-import { recalculateAchievements, migrateAchievementIds } from './achievements.js';
+import { recalculateAchievements, migrateAchievementIds, giveRewardsForNewAchievements } from './achievements.js';
 import { migrateAppearance } from './utils.js';
 import { checkStreakWarning } from './stats.js';
 import { updateUI } from './ui.js';
@@ -99,7 +99,16 @@ export function initChildListener(childId) {
         }
 
         migrateAchievementIds();    // одноразова міграція achId у старих записах
+        // Фіксуємо рівні ДО перерахунку (для визначення нових нагород)
+        const levelsBefore = { ...(state.data.achievements?.levels || {}) };
         recalculateAchievements();
+        // Нараховуємо нагороди якщо досягнення відкрились поза commitRecord
+        // (наприклад, завдання підтверджено поки ця дитина не була активною)
+        const rewardGiven = giveRewardsForNewAchievements(levelsBefore);
+        if (rewardGiven) {
+            recalculateAchievements(); // оновлюємо _runningBalance з новим achievement-записом
+            saveRecords();
+        }
         // Баланс завжди береться з _runningBalance — не з Firebase
         state.data.balance = state.data.achievements.counters._runningBalance || 0;
         updateUI();
