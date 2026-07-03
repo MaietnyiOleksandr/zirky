@@ -2,12 +2,12 @@
 // ⚙️   settings.js — Налаштування / Експорт / Імпорт
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260701.1427';
+export const VERSION = 'v4.20260703.0600';
 
 // ════════════════════════════════════════════════════════════
 
 import { state, defaultChildData, resetUIState } from './state.js';
-import { recalculateAchievements, giveRewardsForNewAchievements } from './achievements.js';
+import { recalculateAchievements, giveRewardsForNewAchievements, findMissingAchievementRewards } from './achievements.js';
 import { db, saveAll, savePin, saveRecords, saveRates, saveBackupDate, saveAllFeedback, saveAllTasks, saveChildMeta, initNewChildData, unsubscribeAllListeners, deleteChild } from './firebase.js';
 import { getFeedbackItems } from './feedback.js';
 import { THEMES, stopAllPreviews, applyAppearance, BORDER_COLORS_FREE } from './appearance.js';
@@ -675,6 +675,49 @@ export function adjustBalance() {
     alert(`✅ Корекцію додано!
 
 Новий баланс: ${state.data.balance}⭐`);
+}
+
+
+// ════════════════════════════════════════════════════
+// 🔍  Аудит пропущених нарахувань досягнень
+// ════════════════════════════════════════════════════
+export function auditAchievements() {
+    if (!state.data) { alert('❌ Дані дитини не завантажені'); return; }
+
+    const missing = findMissingAchievementRewards();
+
+    if (missing.length === 0) {
+        alert('✅ Усі нарахування досягнень в порядку!\n\nПропущених записів не знайдено.');
+        return;
+    }
+
+    const totalStars = missing.reduce((s, r) => s + r.reward, 0);
+    const list = missing.map(r => `• ${r.fullName}: +${r.reward}⭐`).join('\n');
+
+    if (!confirm(
+        `🔍 Знайдено ${missing.length} пропущених нарахувань:\n\n${list}\n\nЗагалом: +${totalStars}⭐\n\nДодати пропущені записи та нарахувати зірки?`
+    )) return;
+
+    missing.forEach(r => {
+        state.data.records.push({
+            id:          Date.now() + Math.random(),
+            date:        new Date().toISOString(),
+            description: r.fullName,
+            achId:       r.achId,
+            achLevel:    r.levelIndex,
+            stars:       r.reward,
+            type:        'earn',
+            category:    'achievement',
+        });
+        state.data.balance = (Number(state.data.balance) || 0) + r.reward;
+    });
+
+    recalculateAchievements();
+    saveRecords();
+    if (window.updateUI) window.updateUI();
+    if (window.renderHistory) window.renderHistory();
+
+    alert(`✅ Додано ${missing.length} записів!\n\nНараховано: +${totalStars}⭐\nНовий баланс: ${state.data.balance}⭐`);
 }
 
 export function saveConversionRates() {

@@ -2,7 +2,7 @@
 // 🏆  achievements.js — Система досягнень
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260701.2300';
+export const VERSION = 'v4.20260703.0600';
 
 // ════════════════════════════════════════════════════════════
 
@@ -1093,6 +1093,46 @@ export function shouldSkipDayForStreak(date, streakType) {
     
     // Для інших серій (teeth, hair) - канікули не діють
     return false;
+}
+
+
+// ════════════════════════════════════════════════════
+// 🔍  Аудит пропущених нарахувань досягнень
+// ════════════════════════════════════════════════════
+// Повертає масив {achId, levelIndex, levelNum, fullName, reward}
+// для кожного рівня що зараховано але не має запису в history.
+export function findMissingAchievementRewards() {
+    recalculateAchievements();
+    const missing = [];
+
+    Object.entries(ACHIEVEMENTS).forEach(([achId, ach]) => {
+        // goal_counter і weekly обробляються окремо
+        if (ach.type === 'goal_counter' || ach.type === 'weekly') return;
+
+        const currentLevel = state.data.achievements.levels?.[achId] || 0;
+        if (currentLevel === 0) return;
+
+        for (let i = 0; i < currentLevel; i++) {
+            const level = ach.levels[i];
+            if (!level) continue;
+
+            const alreadyRewarded = state.data.records.some(r =>
+                r.category === 'achievement' && r.achId === achId && r.achLevel === i
+            );
+            if (alreadyRewarded) continue;
+
+            const tierName  = ['I','II','III','IV','V','VI','VII','VIII','IX','X'][i] ?? String(i + 1);
+            const icon      = typeof ach.icon === 'object' ? g(state.activeChildId, ach.icon) : ach.icon;
+            const name      = achText(ach, state.activeChildId);
+            const fullName  = ach.levels.length > 1
+                ? `${icon} ${name} ${tierName}`
+                : `${icon} ${name}`;
+
+            missing.push({ achId, levelIndex: i, levelNum: i + 1, fullName, reward: level.reward });
+        }
+    });
+
+    return missing;
 }
 
 // ════════════════════════════════════════════════════

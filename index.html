@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⭐</text></svg>">
-    <!-- version: v4.20260630.1235 -->
+    <!-- version: v4.20260703.0600 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>⭐ Зірки Успіху</title>
     <link rel="stylesheet" href="style.css">
@@ -858,6 +858,17 @@
                                         <button class="btn btn-primary" onclick="addManualRecord()">🛠️ Додати запис</button>
                                     </div>
 
+
+                                    <!-- Аудит нарахувань досягнень -->
+                                    <div id="achievementAuditBlock" class="card-warning">
+                                        <h3 class="card-title">🏆 Аудит нарахувань досягнень</h3>
+                                        <p class="card-note card-note--warning">
+                                            Перевіряє чи нараховані зірки за всі відкриті рівні досягнень.
+                                            Допоможе відновити пропущені нарахування якщо завдання підтверджувались поки дитина не була активною.
+                                        </p>
+                                        <button class="btn btn-primary" onclick="auditAchievements()">🔍 Перевірити нарахування</button>
+                                    </div>
+
                                     <!-- Курси конвертації -->
                                     <div id="conversionRatesBlock" class="card-success">
                                         <h3 class="card-title">⭐ Курси конвертації</h3>
@@ -1040,7 +1051,8 @@
                  switchProfile, showActivityModal, closeActivityModal,
                  refreshActivityModal, switchActivityTab,
                  renderProfilesAccordion, saveChildProfile, setChildColor, unblockChild, addChildProfile,
-                 deleteChildProfile, toggleOwnRatesUI } from './settings.js';
+                 deleteChildProfile, toggleOwnRatesUI,
+                 auditAchievements } from './settings.js';
         import { openNotifications, closeNotifications, updateNotificationBadge,
                  updateChangelogBadge, markChangelogRead, dismissNotification,
                  dismissByAction, getUnreadItems, generateNotifications,
@@ -1208,6 +1220,7 @@
         window.addChildProfile     = addChildProfile;
         window.deleteChildProfile  = deleteChildProfile;
         window.toggleOwnRatesUI    = toggleOwnRatesUI;
+        window.auditAchievements   = auditAchievements;
         window.commitAndSaveBorder = commitAndSaveBorder;
         window.cancelBorder        = cancelBorder;
         window.renderBorderBlock   = renderBorderBlock;
