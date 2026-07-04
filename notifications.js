@@ -1,9 +1,8 @@
 // ════════════════════════════════════════════════════
 // 🔔  notifications.js — Система сповіщень
-//     Етап 1: Фундамент — структура + Firebase
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260618.2335';
+export const VERSION = 'v4.20260704.1605';
 
 import { state }    from './state.js';
 import { nowKyiv }  from './utils.js';
@@ -150,6 +149,8 @@ export const NOTIF_TYPES = {
 let _db    = null;   // встановлюється з firebase.js через initNotificationsListener(childId, db)
 let _subscribedChildId = null;  // childId на який слухає listener — для _saveItem/_removeItem
 let _items = {};   // поточний стан: { id: NotifItem }
+let _generating = false; // захист від рекурсивного виклику generateNotifications
+let _compacting  = false; // захист від рекурсивного виклику _compactReadItems
 
 // 🐛 DEBUG — доступ до _items з консолі браузера
 if (typeof window !== 'undefined') window.__notifItems = () => _items;
@@ -212,6 +213,8 @@ function _isFullyRead(item) {
 const CYCLIC_TYPES = new Set(['streak_risk','good_dynamics','changelog']);
 
 function _compactReadItems() {
+    if (_compacting) return;
+    _compacting = true;
     const SLIM_FIELDS = new Set(['id','type','role','createdAt','readBy']);
     const updates  = {};   // для slim-записів
     const toDelete = [];   // для видалення старих циклічних
@@ -252,6 +255,7 @@ function _compactReadItems() {
     if (Object.keys(updates).length > 0) {
         update(ref(_db, '/'), updates);
     }
+    _compacting = false;
 }
 
 // Ініціалізація слухача Firebase.
@@ -377,6 +381,8 @@ function _isUnread(item, role) {
 // ════════════════════════════════════════════════════
 
 export function generateNotifications() {
+    if (_generating) return;
+    _generating = true;
     const today    = _kyivToday();
     const records  = state.data.records || [];
     const earnRecs = records.filter(r => r.type === 'earn' && r.category !== 'achievement');
@@ -769,6 +775,7 @@ export function generateNotifications() {
 
     // Оновлюємо бейджі
     if (window.updateBadges) window.updateBadges();
+    _generating = false;
 }
 
 // Видаляє всі повністю прочитані записи типу type,
@@ -789,6 +796,9 @@ function _pruneFullyReadByType(type, keepId) {
 
 // Upsert без зайвих перезаписів
 function _upsertItem(item) {
+    const existing = _items[item.id];
+    // Якщо вміст не змінився — не пишемо (захист від slim↔full циклу)
+    if (existing && JSON.stringify(existing) === JSON.stringify(item)) return;
     _items[item.id] = item;
     _saveItem(item);
 }
@@ -1159,27 +1169,4 @@ export function closeNotifications() {
     const modal = document.getElementById('notifModal');
     if (modal) modal.style.display = 'none';
     document.body.style.overflow = '';
-}
-
-// ════════════════════════════════════════════════════
-// 📌  API (заглушки для Етапу 2-3)
-// ════════════════════════════════════════════════════
-
-export function updateNotificationBadge() {
-    // Замінюється у Етапі 2 на updateBadges()
-    if (window.updateBadges) window.updateBadges();
-}
-
-export function updateChangelogBadge() {
-    if (window.updateBadges) window.updateBadges();
-}
-
-export function markChangelogRead() {
-    dismissByAction('changelog', 'modal');
-    if (window.updateBadges) window.updateBadges();
-}
-
-export function notifyFeedbackChanged() {
-    generateNotifications();
-    if (window.updateBadges) window.updateBadges();
 }
