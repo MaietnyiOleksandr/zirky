@@ -1170,3 +1170,26 @@ export function closeNotifications() {
     if (modal) modal.style.display = 'none';
     document.body.style.overflow = '';
 }
+
+// ════════════════════════════════════════════════════
+// 📌  API (заглушки для Етапу 2-3)
+// ════════════════════════════════════════════════════
+
+export function updateNotificationBadge() {
+    // Замінюється у Етапі 2 на updateBadges()
+    if (window.updateBadges) window.updateBadges();
+}
+
+export function updateChangelogBadge() {
+    if (window.updateBadges) window.updateBadges();
+}
+
+export function markChangelogRead() {
+    dismissByAction('changelog', 'modal');
+    if (window.updateBadges) window.updateBadges();
+}
+
+export function notifyFeedbackChanged() {
+    generateNotifications();
+    if (window.updateBadges) window.updateBadges();
+}
