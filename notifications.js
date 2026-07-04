@@ -2,7 +2,7 @@
 // 🔔  notifications.js — Система сповіщень
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260704.1605';
+export const VERSION = 'v4.20260704.1731';
 
 import { state }    from './state.js';
 import { nowKyiv }  from './utils.js';
