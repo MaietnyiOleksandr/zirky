@@ -3,7 +3,7 @@
 //     Етап 1: Фундамент — структура + Firebase
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260705.0745';
+export const VERSION = 'v4.20260705.1257';
 
 import { state }    from './state.js';
 import { nowKyiv }  from './utils.js';
