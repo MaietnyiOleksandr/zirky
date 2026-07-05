@@ -1,8 +1,9 @@
 // ════════════════════════════════════════════════════
 // 🔔  notifications.js — Система сповіщень
+//     Етап 1: Фундамент — структура + Firebase
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260705.0722';
+export const VERSION = 'v4.20260705.0745';
 
 import { state }    from './state.js';
 import { nowKyiv }  from './utils.js';
@@ -385,6 +386,13 @@ export function generateNotifications() {
     if (_generating) return;
     _generating = true;
     try {
+    // Якщо notifications listener ще не спрацював (firebase.js onValue може
+    // спрацювати раніше) — беремо поточний стан нотифікацій з state.data
+    if (Object.keys(_items).length === 0 && state.data?.notifications_feed) {
+        Object.values(state.data.notifications_feed).forEach(item => {
+            if (item?.id) _items[item.id] = item;
+        });
+    }
     const today    = _kyivToday();
     const records  = Array.isArray(state.data.records)
         ? state.data.records
@@ -683,7 +691,7 @@ export function generateNotifications() {
         // daysDiff=0 → сьогодні, 1 → вчора, >=2 → позавчора і давніше
         const daysDiff = lastEarnDay
             ? Math.round((new Date(today) - new Date(lastEarnDay)) / 86_400_000)
-            : 9999;
+            : 0; // earnRecs порожній → дані ще не завантажені, пропускаємо
         if (daysDiff >= 2) {
             const days    = Math.min(daysDiff, 99);
             const daysStr = days >= 9999 ? 'багато' : String(days);
