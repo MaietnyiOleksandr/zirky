@@ -558,11 +558,19 @@ Firebase: zirky/children/${childId}/notifications_feed/[id]
 
 **Захист:** `_generating = true/false` + `try/finally` — запобігає рекурсивному виклику якщо Firebase тригерить `onValue` синхронно під час запису.
 
+**Fallback `_items`:** `firebase.js onValue` (ширший шлях) може спрацювати раніше ніж `notifications.js onValue` (вужчий шлях `notifications_feed`). Якщо `_items` ще порожній — функція заповнює його з `state.data.notifications_feed`, яке вже доступне після `Object.assign` у `firebase.js onValue`. Без цього всі `!_items[id]` повертали `true` і нотифікації перестворювалися з нуля (без `readBy`).
+
 ```js
 export function generateNotifications() {
     if (_generating) return;   // guard від рекурсії
     _generating = true;
     try {
+        // Fallback якщо notifications.js onValue ще не спрацював
+        if (Object.keys(_items).length === 0 && state.data?.notifications_feed) {
+            Object.values(state.data.notifications_feed).forEach(item => {
+                if (item?.id) _items[item.id] = item;
+            });
+        }
         // ... генерація ...
     } finally {
         _generating = false;   // скидається навіть при винятку
@@ -611,14 +619,10 @@ function _upsertItem(item) {
 ```js
 const daysDiff = lastEarnDay
     ? Math.round((new Date(today) - new Date(lastEarnDay)) / 86_400_000)
-    : 9999;
-
-// daysDiff = 9999 якщо earnRecs пустий (наприклад Firebase повернув
-// масив як об'єкт і .filter() не знайшов нічого)
-// → Math.min(9999, 99) = 99 → «99 діб без нових зірок!»
-
-const days = Math.min(daysDiff, 99);
+    : 0; // earnRecs порожній → дані ще не завантажені → не генеруємо
 ```
+
+`daysDiff = 0` якщо `earnRecs` порожній — умова `>= 2` не спрацьовує → нотифікація не з'явиться. Раніше тут було `9999` → `Math.min(9999, 99) = 99` → «99 діб без нових зірок!» при кожному вході до завантаження даних.
 
 **Захист від зайвих write:** якщо `daysDiff` не змінився порівняно з `existing.daysDiff`, зберігаємо `existing.createdAt` → `JSON.stringify` рівний → `_upsertItem` не пише → Firebase не тригерить.
 
@@ -687,6 +691,29 @@ const records = Array.isArray(state.data.records)
 `firebase.js onValue` слухає весь `zirky/children/${childId}/`. Будь-який запис до `notifications_feed/` (дочірній шлях) тригерить його. Це означає що будь-який `_saveItem` → `firebase.js onValue` → `dispatchEvent` → `generateNotifications`.
 
 Без захисних guards це призводить до нескінченного циклу навіть при єдиному `_upsertItem` виклику зі зміненим вмістом.
+
+#### Пастка 4: `firebase.js onValue` спрацьовує раніше `notifications.js onValue`
+
+**Симптом:** при вході нотифікації що були прочитані раніше (slim у Firebase) повторно з'являються як нові (без `readBy`). Зокрема всі нотифікації починаючи з певної дати.
+
+**Причина:** підписки реєструються у порядку: спочатку `initNotificationsListener` (на вужчий шлях `notifications_feed`), потім `initChildListener` (на ширший шлях `zirky/children/${childId}/`). Firebase SDK може викликати callback для ширшого шляху раніше — тому `firebase.js onValue` → `dispatchEvent` → `generateNotifications()` спрацьовує **до** того як `notifications.js onValue` заповнив `_items`. Всі `!_items[id]` = `true` → функція перестворює нотифікації з нуля без `readBy`.
+
+**Рішення:** fallback на початку `generateNotifications()`:
+```js
+if (Object.keys(_items).length === 0 && state.data?.notifications_feed) {
+    Object.values(state.data.notifications_feed).forEach(item => {
+        if (item?.id) _items[item.id] = item;
+    });
+}
+```
+
+#### Пастка 5: `no_stars_recurring` показує «99 діб» при вході
+
+**Симптом:** при кожному вході спочатку з'являється «99 діб без нових зірок», після закриття модалки — правильна цифра (наприклад «3»).
+
+**Причина:** при першому виклику `generateNotifications()` (до завантаження даних дитини), `earnRecs` порожній → `lastEarn = null` → `daysDiff = 9999` (старе значення) → `Math.min(9999, 99) = 99` → записує нотифікацію з `daysDiff=9999` у Firebase. Другий виклик (після завантаження) генерує правильне значення.
+
+**Рішення:** `daysDiff = 0` коли `lastEarnDay = null` → умова `>= 2` не спрацьовує → нотифікація не генерується до завантаження реальних даних.
 
 
 ## ⚠️ Відомі архітектурні нюанси
