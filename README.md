@@ -262,38 +262,6 @@ window.__zSwitchTab('stats');   // з сповіщень — закриває п
 
 ---
 
-## 🔔 Система сповіщень (notifications.js)
-
-`generateNotifications()` — головна функція, викликається після кожної мутації даних. Повністю перегенеровує список з нуля.
-
-**Стабільні ключі (без дати):**
-
-| id | Тип | Тригер |
-|---|---|---|
-| `backup_recurring` | `backup` | `days >= 7` від останнього бекапу |
-| `no_stars_recurring` | `no_stars` | `daysDiff >= 2` без нових зірок |
-
-Ці два сповіщення перезаписують себе при кожному запуску — в Firebase завжди лише один запис кожного типу. `readBy` скидається лише якщо числовий лічильник (`days` / `daysDiff`) збільшився.
-
-**Щоденні/циклічні (з датою в ключі):**
-
-| id-шаблон | Тип | Тригер |
-|---|---|---|
-| `streak_risk_YYYY-MM-DD` | `streak_risk` | серія під загрозою |
-| `good_dynamics_YYYY-MM-DD` | `good_dynamics` | +20% зірок відносно минулого тижня |
-| `task_*_${taskId}` | різні | дії з завданнями |
-| `login_failed_*` | `login_failed` | невірний PIN |
-
-**Навігація по кліку:**
-- `good_dynamics` → `__zSwitchTab('stats')`
-- `backup` → `__zSwitchTab('settings')`
-- `task_*` → `__zSwitchTab('tasks'/'feedback')`
-
-**Міграція старих ключів:**
-При завантаженні `initNotificationsListener` автоматично видаляє з Firebase старі `backup_YYYY-MM-DD` і `no_stars_YYYY-MM-DD` записи.
-
----
-
 ## 📋 Система завдань (tasks.js)
 
 ### Два потоки
@@ -488,6 +456,238 @@ _allTasksCache = {
 > Видалення `profile-color-btn.active` з блоків `[data-border-animation="rainbow"]` ламає анімацію `.rainbow-wrap::after` (веселка на хедері зупиняється). Перевірено тричі. CSS синтаксис після видалення правильний, порядок блоків не змінюється, JS не залежить від цього селектора. Причина невідома — можливо баг рушія браузера з перерахунком стилів при зміні stacking context. **Не видаляти ці рядки.**
 
 ---
+
+---
+
+## 🔔 Система сповіщень (notifications.js)
+
+### Загальна схема
+
+```
+Firebase: zirky/children/${childId}/notifications_feed/[id]
+                    ▲ onValue слухач                   │ _saveItem / _removeItem
+                    │                                   │
+     notifications.js                                  │
+       ┌─────────────────────────────────────────┐     │
+       │  _items = {}  (кеш у пам'яті)           │◄────┘
+       │    ↑ onValue → _items заповнюється       │
+       │    ↓ _saveItem → Firebase write          │
+       │                                          │
+       │  generateNotifications()                 │
+       │    → _upsertItem()   → _saveItem()       │
+       │    → _removeItem()   → Firebase remove   │
+       │                                          │
+       │  _compactReadItems()                     │
+       │    → update(ref(db, '/'), slimUpdates)   │
+       └─────────────────────────────────────────┘
+               ▲ dispatchEvent('zirky:dataLoaded')
+               │
+         firebase.js onValue
+           → recalculateAchievements()
+           → updateUI()
+           → checkStreakWarning()
+           → dispatchEvent(...)
+```
+
+> ⚠️ `notifications_feed` є **дочірньою гілкою** `zirky/children/${childId}/`.  
+> Будь-який запис до неї тригерить `firebase.js onValue` (батьківський слухач).  
+> Це коренева причина рекурсивних циклів у цій підсистемі.
+
+---
+
+### Структура нотифікацій
+
+**Повний формат (Full)** — те що генерує `generateNotifications()`:
+```js
+{
+  id:        'task_confirmed_task_123_abc',  // стабільний ключ
+  type:      'task_confirmed',
+  role:      'child',                        // 'parent' | 'child' | 'both'
+  title:     'Завдання підтверджено!',
+  body:      'Батьки підтвердили «Математика»',
+  createdAt: '2026-07-04T22:20:00+03:00',
+  dismissBy: ['checkmark'],                  // кнопки закриття
+  badges:    ['star', 'task'],              // іконки у бейджі
+  readBy:    { child: '2026-07-04T22:21:00' } | undefined,
+  // додаткові поля залежно від типу: daysDiff, days, repeatDays, ...
+}
+```
+
+**Slim формат** — після компактизації прочитаних нотифікацій:
+```js
+{
+  id, type, role, createdAt, readBy    // тільки 5 полів (SLIM_FIELDS)
+}
+```
+
+`_toSlim(item)` виконує компактизацію; `_isFullyRead(item)` визначає чи всі ролі прочитали.
+
+---
+
+### Типи нотифікацій
+
+| type | Хто бачить | Коли генерується |
+|---|---|---|
+| `changelog` | `'both'` | Нова версія changelog |
+| `task_request` | `'parent'` | Дитина надіслала бонус на перевірку |
+| `task_confirmed` | `'child'` | Батько підтвердив запит |
+| `task_rejected` | `'child'` | Батько відхилив запит |
+| `login_failed` | `'parent'` | Невдала спроба входу дитини |
+| `feedback_new` | `'parent'` | Новий фідбек від дитини |
+| `feedback_reply` | `'child'` | Батько відповів на фідбек |
+| `feedback_status` | `'child'` | Батько змінив статус фідбеку |
+| `feedback_comment` | `'child'` | Батько прокоментував фідбек |
+| `achievement` | `'both'` | Дитина досягла нового рівня |
+| `backup` | `'parent'` | Давно не було резервної копії (`backup_recurring`) |
+| `no_stars` | `'parent'` | Зірки не додавались N діб (`no_stars_recurring`) |
+| `streak_risk` | `'both'` | Ризик переривання серії |
+| `good_dynamics` | `'both'` | Позитивна динаміка зароблених зірок |
+| `goal_close` | `'child'` | Дитина близька до досягнення мети |
+
+**Стабільні (recurring) типи** — мають фіксований ID без дати:
+- `backup_recurring` — один запис, перезаписується щодня якщо днів ≥ 7
+- `no_stars_recurring` — один запис, перезаписується якщо daysDiff ≥ 2
+
+---
+
+### Ключові функції
+
+#### `generateNotifications()`
+
+Викликається через `document.addEventListener('zirky:dataLoaded', ...)` після кожного `firebase.js onValue`. Читає поточний `state.data` і `_items`, вирішує які нотифікації створити/видалити.
+
+**Захист:** `_generating = true/false` + `try/finally` — запобігає рекурсивному виклику якщо Firebase тригерить `onValue` синхронно під час запису.
+
+```js
+export function generateNotifications() {
+    if (_generating) return;   // guard від рекурсії
+    _generating = true;
+    try {
+        // ... генерація ...
+    } finally {
+        _generating = false;   // скидається навіть при винятку
+    }
+}
+```
+
+#### `_upsertItem(item)`
+
+Оновлює кеш і пише нотифікацію у Firebase.
+
+```js
+function _upsertItem(item) {
+    const existing = _items[item.id];
+    // Якщо вміст не змінився — не пишемо (захист від slim↔full циклу)
+    if (existing && JSON.stringify(existing) === JSON.stringify(item)) return;
+    _items[item.id] = item;
+    _saveItem(item);
+}
+```
+
+> ⚠️ `JSON.stringify` чутливий до порядку ключів. Однакові об'єкти з різним порядком вважатимуться різними. Це безпечна сторона помилки (зайвий write), не небезпечна (пропущений write).
+
+#### `_compactReadItems()`
+
+Викликається з `notifications.js onValue` після кожного оновлення. Конвертує повністю прочитані нотифікації у slim-формат і видаляє застарілі recurring-записи.
+
+```
+Умови для компактизації:
+  1. Нотифікація НЕ вже slim (є поля поза SLIM_FIELDS)
+  2. _isFullyRead(item) === true (всі ролі прочитали)
+
+Умова для видалення (CYCLIC_TYPES):
+  - Тип є циклічним (backup, no_stars, streak_risk, ...)
+  - Існує новіший anchor-запис того самого типу
+```
+
+**Захист:** `_compacting = true/false` + `try/finally` — запобігає рекурсії якщо `update(ref(db, '/'), slim)` тригерить `onValue` синхронно.
+
+---
+
+### Логіка `no_stars_recurring`
+
+Нотифікація «Зірки не додавались» потребує особливої уваги:
+
+```js
+const daysDiff = lastEarnDay
+    ? Math.round((new Date(today) - new Date(lastEarnDay)) / 86_400_000)
+    : 9999;
+
+// daysDiff = 9999 якщо earnRecs пустий (наприклад Firebase повернув
+// масив як об'єкт і .filter() не знайшов нічого)
+// → Math.min(9999, 99) = 99 → «99 діб без нових зірок!»
+
+const days = Math.min(daysDiff, 99);
+```
+
+**Захист від зайвих write:** якщо `daysDiff` не змінився порівняно з `existing.daysDiff`, зберігаємо `existing.createdAt` → `JSON.stringify` рівний → `_upsertItem` не пише → Firebase не тригерить.
+
+```js
+const prevDiff = existing?.daysDiff ?? existing?.days ?? null;
+const sameDiff = prevDiff !== null && prevDiff === daysDiff;
+if (existing?.readBy && (prevDiff === null || sameDiff)) {
+    item.readBy = existing.readBy;   // зберігаємо «прочитано»
+}
+if (sameDiff && existing?.createdAt) {
+    item.createdAt = existing.createdAt;   // ключ до відсутності зайвого write!
+}
+```
+
+---
+
+
+#### Навігація по кліку на сповіщення
+
+| Тип | Перехід |
+|---|---|
+| `good_dynamics` | `__zSwitchTab('stats')` |
+| `backup` | `__zSwitchTab('settings')` |
+| `task_*`, `feedback_*` | `__zSwitchTab('tasks')` або `'feedback'` |
+
+#### Міграція старих ключів
+
+При завантаженні `initNotificationsListener` автоматично видаляє з Firebase застарілі записи старого формату: `backup_YYYY-MM-DD` і `no_stars_YYYY-MM-DD` → замінені стабільними ключами `backup_recurring` / `no_stars_recurring`.
+
+### Відомі пастки та рішення
+
+#### Пастка 1: slim↔full нескінченний цикл
+
+**Симптом:** 45+ помилок у консолі одразу після входу до профілю; у батьківському режимі — 81+ помилка.
+
+**Причина:**
+```
+generateNotifications() → _upsertItem(FULL) → _saveItem → Firebase write
+    → (sync) notifications.js onValue → _compactReadItems → FULL + fully_read → slim write
+    → (sync) firebase.js onValue → dispatchEvent → generateNotifications() → знову FULL
+    → (sync) ...  ← нескінченно → Maximum call stack size exceeded
+```
+
+Виникає лише для **профілів з нотифікаціями у застарілому форматі** (slim у Firebase, але `generateNotifications` генерує full): `_upsertItem` без JSON-перевірки завжди писав у Firebase незалежно від змін.
+
+**Рішення:** три захисти одночасно:
+1. `_generating` guard → блокує повторний вхід у `generateNotifications`
+2. `_compacting` guard → блокує повторний вхід у `_compactReadItems`
+3. JSON-check в `_upsertItem` → не пише якщо вміст не змінився
+
+#### Пастка 2: `records` як об'єкт Firebase
+
+**Симптом:** `no_stars_recurring` показує «99 діб» хоча дитина заробляла зірки нещодавно.
+
+**Причина:** Firebase Realtime Database може повернути `records` як об'єкт `{0:{...}, 1:{...}}` замість масиву (якщо є дірки в індексах після видалення записів). `Array.prototype.filter()` на об'єкті або не спрацьовує або кидає TypeError → `earnRecs = []` → `lastEarn = null` → `daysDiff = 9999`.
+
+**Рішення:**
+```js
+const records = Array.isArray(state.data.records)
+    ? state.data.records
+    : Object.values(state.data.records || {});
+```
+
+#### Пастка 3: `notifications_feed` тригерить батьківський `onValue`
+
+`firebase.js onValue` слухає весь `zirky/children/${childId}/`. Будь-який запис до `notifications_feed/` (дочірній шлях) тригерить його. Це означає що будь-який `_saveItem` → `firebase.js onValue` → `dispatchEvent` → `generateNotifications`.
+
+Без захисних guards це призводить до нескінченного циклу навіть при єдиному `_upsertItem` виклику зі зміненим вмістом.
+
 
 ## ⚠️ Відомі архітектурні нюанси
 
