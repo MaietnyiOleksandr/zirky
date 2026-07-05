@@ -2,7 +2,7 @@
 // 🔔  notifications.js — Система сповіщень
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260704.1731';
+export const VERSION = 'v4.20260705.0722';
 
 import { state }    from './state.js';
 import { nowKyiv }  from './utils.js';
@@ -215,6 +215,7 @@ const CYCLIC_TYPES = new Set(['streak_risk','good_dynamics','changelog']);
 function _compactReadItems() {
     if (_compacting) return;
     _compacting = true;
+    try {
     const SLIM_FIELDS = new Set(['id','type','role','createdAt','readBy']);
     const updates  = {};   // для slim-записів
     const toDelete = [];   // для видалення старих циклічних
@@ -255,7 +256,7 @@ function _compactReadItems() {
     if (Object.keys(updates).length > 0) {
         update(ref(_db, '/'), updates);
     }
-    _compacting = false;
+    } finally { _compacting = false; }
 }
 
 // Ініціалізація слухача Firebase.
@@ -383,8 +384,11 @@ function _isUnread(item, role) {
 export function generateNotifications() {
     if (_generating) return;
     _generating = true;
+    try {
     const today    = _kyivToday();
-    const records  = state.data.records || [];
+    const records  = Array.isArray(state.data.records)
+        ? state.data.records
+        : Object.values(state.data.records || {});
     const earnRecs = records.filter(r => r.type === 'earn' && r.category !== 'achievement');
     const balance  = state.data.balance || 0;
 
@@ -691,17 +695,18 @@ export function generateNotifications() {
             const existing  = _items[NO_STARS_ID];
             const item      = _makeItem(NO_STARS_ID, 'no_stars', 'Зірки не додавались', body,
                                         { daysDiff });
-            // Логіка readBy:
-            //   - daysDiff не змінився → зберігаємо readBy (той самий стан, нічого нового)
-            //   - daysDiff збільшився  → скидаємо readBy (нова інформація — +1 день)
-            // Slim-записи не мають поля daysDiff, але мають readBy — тому перевіряємо
-            // окремо: якщо existing прочитаний і daysDiff не змінився → зберігаємо.
-            if (existing?.readBy) {
-                const prevDiff = existing.daysDiff ?? existing.days ?? null;
-                if (prevDiff === null || prevDiff === daysDiff) {
-                    item.readBy = existing.readBy;
-                }
-                // якщо prevDiff !== daysDiff — readBy скидається (нова кількість діб)
+            // Логіка readBy і createdAt:
+            //   daysDiff не змінився → зберігаємо readBy і createdAt (нічого нового)
+            //   daysDiff збільшився  → скидаємо readBy (нова інформація — +1 день)
+            const prevDiff = existing?.daysDiff ?? existing?.days ?? null;
+            const sameDiff = prevDiff !== null && prevDiff === daysDiff;
+            if (existing?.readBy && (prevDiff === null || sameDiff)) {
+                item.readBy = existing.readBy;
+            }
+            // Зберігаємо createdAt якщо daysDiff не змінився — тоді JSON.stringify
+            // буде однаковим і _upsertItem не зробить зайвий Firebase write
+            if (sameDiff && existing?.createdAt) {
+                item.createdAt = existing.createdAt;
             }
             _upsertItem(item);
         } else {
@@ -775,7 +780,7 @@ export function generateNotifications() {
 
     // Оновлюємо бейджі
     if (window.updateBadges) window.updateBadges();
-    _generating = false;
+    } finally { _generating = false; }
 }
 
 // Видаляє всі повністю прочитані записи типу type,
