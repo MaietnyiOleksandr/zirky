@@ -2,7 +2,7 @@
 // 🏆  achievements.js — Система досягнень
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260722.0745';
+export const VERSION = 'v4.20260722.1030';
 
 // ════════════════════════════════════════════════════════════
 
@@ -626,7 +626,6 @@ export function removeRewardsForLostAchievements(levelsBefore) {
     
     // Оновлюємо показ
     renderAchievementsHome();
-    return rewardGiven;
 }
 
 // Нараховуємо бонуси за нові рівні досягнень

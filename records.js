@@ -8,7 +8,7 @@
 //   та з tasks.js при підтвердженні запиту/завдання.
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260605.2208';
+export const VERSION = 'v4.20260722.1030';
 
 import { state } from './state.js';
 import { isDoubleSubject } from './subjects.js';
@@ -237,6 +237,7 @@ export function deleteRecord(id) {
 
     saveRecords();
     updateUI();
+    if (window.renderHistory) window.renderHistory();
 }
 
 // Відображення
