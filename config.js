@@ -2,7 +2,7 @@
 // ⚙️  config.js — Конфігурація та константи
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260629.0001';
+export const VERSION = 'v4.20260722.0745';
 
 // ════════════════════════════════════════════════════════════
 
@@ -96,6 +96,41 @@ export const BONUS_OPTIONS = [
         options: [
             { value: '💇 Причесати волосся|5|hygiene|hair', label: '💇 Причесатись (+5⭐)', gender: 'girl' },
             { value: '🪥 Почистити зуби|2|hygiene|teeth',   label: '🪥 Почистити зуби (+2⭐)' },
+        ],
+    },
+    {
+        group: '🐈‍⬛ Догляд за котом',
+        options: [
+            {
+                boy: '🍽️ Погодував кота|1|pet_care|pet_care',
+                girl: '🍽️ Погодувала кота|1|pet_care|pet_care',
+                boyLabel: '🍽️ Погодував кота (+1⭐)',
+                label: '🍽️ Погодувала кота (+1⭐)',
+            },
+            {
+                boy: '🚽 Прибрав котячий туалет|3|pet_care|pet_care',
+                girl: '🚽 Прибрала котячий туалет|3|pet_care|pet_care',
+                boyLabel: '🚽 Прибрав котячий туалет (+3⭐)',
+                label: '🚽 Прибрала котячий туалет (+3⭐)',
+            },
+            {
+                boy: '🪮 Вичесав шерсть|2|pet_care|pet_care',
+                girl: '🪮 Вичесала шерсть|2|pet_care|pet_care',
+                boyLabel: '🪮 Вичесав шерсть (+2⭐)',
+                label: '🪮 Вичесала шерсть (+2⭐)',
+            },
+            {
+                boy: '✂️ Підстриг кігті|3|pet_care|pet_care',
+                girl: '✂️ Підстригла кігті|3|pet_care|pet_care',
+                boyLabel: '✂️ Підстриг кігті (+3⭐)',
+                label: '✂️ Підстригла кігті (+3⭐)',
+            },
+            {
+                boy: '💊 Дав ліки/вітаміни|2|pet_care|pet_care',
+                girl: '💊 Дала ліки/вітаміни|2|pet_care|pet_care',
+                boyLabel: '💊 Дав ліки/вітаміни (+2⭐)',
+                label: '💊 Дала ліки/вітаміни (+2⭐)',
+            },
         ],
     },
 ];
@@ -304,6 +339,21 @@ export const ACHIEVEMENTS = {
         ],
         type: "repeatable_streak",
         streak: "teeth"
+    },
+
+    "котячий_бог": {
+        id: "котячий_бог",
+        gender: null,
+        name: { boy: "Котячий бог", girl: "Котяча богиня" },
+        icon: "🐈‍⬛",
+        desc: "Дбай про кота, та отримуй бонуси за догляд за котом",
+        levels: [
+            { tier: "bronze", target: 20,  reward: 30,  desc: "20 дій з догляду" },
+            { tier: "silver", target: 60,  reward: 70,  desc: "60 дій з догляду" },
+            { tier: "gold",   target: 120, reward: 150, desc: "120 дій з догляду" }
+        ],
+        type: "cumulative",
+        counter: "pet_care"
     },
 
     // ── Особливі ──────────────────────────────────

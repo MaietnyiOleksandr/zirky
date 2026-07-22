@@ -2,7 +2,7 @@
 // 🏆  achievements.js — Система досягнень
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260703.0600';
+export const VERSION = 'v4.20260722.0745';
 
 // ════════════════════════════════════════════════════════════
 
@@ -160,6 +160,11 @@ export function recalculateAchievements() {
             if (sub === 'activity') {
                 state.data.achievements.counters.activity =
                     (state.data.achievements.counters.activity || 0) + 1;
+            }
+            // pet_care (Котячий бог/богиня)
+            if (sub === 'pet_care') {
+                state.data.achievements.counters.pet_care =
+                    (state.data.achievements.counters.pet_care || 0) + 1;
             }
         }
         

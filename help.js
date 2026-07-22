@@ -2,7 +2,7 @@
 // ❓  help.js — Інструкції по розділах
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260630.1600';
+export const VERSION = 'v4.20260722.0745';
 
 import { state } from './state.js';
 import { CHANGELOG } from './changelog.js';
@@ -191,6 +191,34 @@ export function renderStarsGuide(childId) {
             </div>
         </div>
 
+        <!-- Догляд за котом -->
+        <div class="stars-guide-card">
+            <div class="stars-guide-card-title">🐈‍⬛ Догляд за котом</div>
+            <div class="stars-guide-rows">
+                <div class="stars-guide-row">
+                    <span class="stars-guide-label">${G('🍽️ Погодував кота','🍽️ Погодувала кота')}</span>
+                    <span class="stars-guide-badge stars-badge--pink">+1⭐</span>
+                </div>
+                <div class="stars-guide-row">
+                    <span class="stars-guide-label">${G('🚽 Прибрав котячий туалет','🚽 Прибрала котячий туалет')}</span>
+                    <span class="stars-guide-badge stars-badge--pink">+3⭐</span>
+                </div>
+                <div class="stars-guide-row">
+                    <span class="stars-guide-label">${G('🪮 Вичесав шерсть','🪮 Вичесала шерсть')}</span>
+                    <span class="stars-guide-badge stars-badge--pink">+2⭐</span>
+                </div>
+                <div class="stars-guide-row">
+                    <span class="stars-guide-label">${G('✂️ Підстриг кігті','✂️ Підстригла кігті')}</span>
+                    <span class="stars-guide-badge stars-badge--pink">+3⭐</span>
+                </div>
+                <div class="stars-guide-row">
+                    <span class="stars-guide-label">${G('💊 Дав ліки/вітаміни','💊 Дала ліки/вітаміни')}</span>
+                    <span class="stars-guide-badge stars-badge--pink">+2⭐</span>
+                </div>
+            </div>
+            <div class="stars-guide-tip">🐈‍⬛ Досягнення «${G('Котячий бог','Котяча богиня')}» рахує всі дії з догляду за котом разом</div>
+        </div>
+
         <!-- Витрати -->
         <div class="stars-guide-card stars-guide-card--spend">
             <div class="stars-guide-card-title">🎁 На що витрачати зірки?</div>
@@ -262,6 +290,7 @@ function _renderAchTable(childId) {
         { label: '📊 За оцінки',  ids: ['відмінник', 'зіркова', 'тверда_десятка'] },
         { label: '📚 Навчання',   ids: ['старанна', 'мегамозок', 'книголюб', 'читачка'] },
         { label: '🏠 Вдома',      ids: ['помічниця', 'господиня'] },
+        { label: '🐈‍⬛ Тваринки',  ids: ['котячий_бог'] },
         { label: '🏸 Активність', ids: ['активна', 'спортсмен'] },
         { label: '🧼 Гігієна',    ids: gender === 'girl' ? ['чистюля', 'красуня'] : ['чистюля'] },
         { label: '🌟 Особливі',   ids: ['fire_streak', 'ощадливий', 'транжира', 'швидкий_старт', 'цілеспрямована'] },
@@ -326,7 +355,7 @@ function helpChild(childId) {
         📐 Математика — шестикратний бонус (×6)</p>
         ${HR}
         <p>🌟 <b>Надіслати бонус</b> — обирай зі списку категорій:<br>
-        📚 Навчання · 🤝 Допомога · 🏠 По дому · 🏸 Активність · 🧼 Гігієна<br>
+        📚 Навчання · 🤝 Допомога · 🏠 По дому · 🏸 Активність · 🧼 Гігієна · 🐈‍⬛ Кіт<br>
         <span style="font-size:12px;color:var(--text-muted);">При виборі книги — обов'язково вкажи кількість сторінок</span></p>
         ${HR}
         <p>📨 <b>Що відбувається після надсилання?</b><br>
@@ -584,6 +613,7 @@ function helpParent(childId) {
         🏠 <b>Домашні справи:</b> кімната +3⭐ · одяг +3⭐ · ліжко +2⭐ · посуд +3⭐ · готування +5⭐<br>
         🏸 <b>Активність:</b> прогулянка 30+ хв +3⭐ · тренування 60+ хв +5⭐${G(' · зарядка +5⭐', '')}<br>
         🧼 <b>Гігієна:</b>${G('', ' причесатись +5⭐ ·')} зуби +2⭐<br>
+        🐈‍⬛ <b>Кіт:</b> годування +1⭐ · туалет +3⭐ · вичісування +2⭐ · кігті +3⭐ · ліки +2⭐<br>
         <b>⚠️ Для "Чистюля" — 2 записи "зуби" на один день!</b></p>
         ${HR}
         <p>✨ <b>Особливе нарахування</b> — довільний опис і кількість зірок</p>
