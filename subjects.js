@@ -2,7 +2,7 @@
 // 📚  subjects.js — Єдине джерело правди для предметів
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260605.2208';
+export const VERSION = 'v4.20260909.2211';
 
 import { state } from './state.js';
 import { saveSubjects } from './firebase.js';
@@ -31,6 +31,12 @@ export function getSubjects() {
         state.data.subjects = JSON.parse(JSON.stringify(DEFAULT_SUBJECTS));
     }
     return state.data.subjects;
+}
+
+// Архівні предмети лишаються у даних для історії та емодзі,
+// але не пропонуються для нових оцінок чи в редакторі розкладу.
+export function getActiveSubjects() {
+    return getSubjects().filter(subject => !subject.archived);
 }
 
 export function getClubs() {
@@ -68,7 +74,7 @@ export function isDoubleSubject(subjectName) {
 
 // ── Побудова всіх select-ів предметів ────────────────
 export function buildSubjectSelects() {
-    const subjects = getSubjects();
+    const subjects = getActiveSubjects();
 
     // 1. Форма оцінки (Додати+)
     _fillSelect('subject', subjects, true, false);
@@ -149,7 +155,7 @@ function _renderSubjectsEditor() {
         let html = '';
         subjects.forEach((s, i) => {
             html += `
-            <div class="sched-editor-row subj-row" data-idx="${i}">
+            <div class="sched-editor-row subj-row${s.archived ? ' subj-row--archived' : ''}" data-idx="${i}">
                 <input class="sched-input sched-emoji-input" type="text" maxlength="4"
                     value="${s.emoji}" placeholder="📐"
                     onchange="subjUpdateField(${i},'emoji',this.value)">
@@ -160,6 +166,10 @@ function _renderSubjectsEditor() {
                     <input type="checkbox" ${s.isDouble ? 'checked' : ''}
                         onchange="subjUpdateField(${i},'isDouble',this.checked)">×2
                 </label>
+                <button class="subj-archive-btn${s.archived ? ' is-archived' : ''}"
+                    title="${s.archived ? 'Повернути предмет до списків' : 'Архівувати предмет'}"
+                    aria-label="${s.archived ? 'Повернути предмет до списків' : 'Архівувати предмет'}"
+                    onclick="subjArchive(${i})">${s.archived ? '↩' : '🗄'}</button>
                 <button class="sched-del-btn" onclick="subjDelete(${i},'subject')">✕</button>
             </div>`;
         });
@@ -200,10 +210,18 @@ export function subjUpdateClub(idx, field, value) {
 
 export function subjAddNew(type) {
     if (type === 'subject') {
-        getSubjects().push({ name: '', emoji: '📝', isDouble: false });
+        getSubjects().push({ name: '', emoji: '📝', isDouble: false, archived: false });
     } else {
         getClubs().push({ name: '', emoji: '🎭' });
     }
+    _renderSubjectsEditor();
+}
+
+export function subjArchive(idx) {
+    _syncSubjectsFromEditor();
+    const subject = getSubjects()[idx];
+    if (!subject) return;
+    subject.archived = !subject.archived;
     _renderSubjectsEditor();
 }
 
@@ -217,7 +235,24 @@ export function subjDelete(idx, type) {
 }
 
 export function saveSubjectsEditor() {
-    // Зчитуємо всі поточні значення з DOM перед збереженням
+    _syncSubjectsFromEditor();
+
+    const subjects = getSubjects();
+    const clubs = getClubs();
+
+    // Фільтруємо порожні, гарантуємо об'єктний формат
+    state.data.subjects = subjects.filter(s => s.name.trim() !== '');
+    state.data.clubs    = clubs
+        .map(c => typeof c === 'string' ? { name: c, emoji: '🎭' } : c)
+        .filter(c => c.name.trim() !== '');
+
+    saveSubjects();
+    buildSubjectSelects();
+    closeSubjectsEditor();
+}
+
+function _syncSubjectsFromEditor() {
+    // Зчитуємо всі поточні значення з DOM перед збереженням або перерендером.
     const subjects = getSubjects();
     document.querySelectorAll('#subjectsEditorList .subj-row').forEach(row => {
         const idx = Number(row.dataset.idx);
@@ -239,13 +274,4 @@ export function saveSubjectsEditor() {
         if (inputs[1]) clubs[idx].name  = inputs[1].value.trim();
     });
 
-    // Фільтруємо порожні, гарантуємо об'єктний формат
-    state.data.subjects = subjects.filter(s => s.name.trim() !== '');
-    state.data.clubs    = clubs
-        .map(c => typeof c === 'string' ? { name: c, emoji: '🎭' } : c)
-        .filter(c => c.name.trim() !== '');
-
-    saveSubjects();
-    buildSubjectSelects();
-    closeSubjectsEditor();
 }

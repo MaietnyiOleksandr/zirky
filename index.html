@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⭐</text></svg>">
-    <!-- version: v4.20260703.0600 -->
+    <!-- version: v4.20260909.2211 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>⭐ Зірки Успіху</title>
     <link rel="stylesheet" href="style.css">
@@ -1036,7 +1036,7 @@
                  renderSourceDonut, changeDonutPeriod, changeDonutOffset, drillDonut } from './stats.js';
         import { initCompare, renderCompare, resetCompareCache } from './compare.js';
         import { buildSubjectSelects, openSubjectsEditor, closeSubjectsEditor,
-                 subjAddNew, subjDelete, subjUpdateField, subjUpdateClub,
+                 subjAddNew, subjDelete, subjArchive, subjUpdateField, subjUpdateClub,
                  saveSubjectsEditor } from './subjects.js';
         import { initSchedule, renderSchedule, scheduleNavDay,
                  scheduleShowTeacher, openScheduleEditor, closeScheduleEditor,
@@ -1176,6 +1176,7 @@
         window.closeSubjectsEditor   = closeSubjectsEditor;
         window.subjAddNew            = subjAddNew;
         window.subjDelete            = subjDelete;
+        window.subjArchive           = subjArchive;
         window.subjUpdateField       = subjUpdateField;
         window.subjUpdateClub        = subjUpdateClub;
         window.saveSubjectsEditor    = saveSubjectsEditor;
