@@ -2,11 +2,11 @@
 // 📋  schedule.js — Розклад уроків
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260605.2208';
+export const VERSION = 'v4.20260909.2244';
 
 import { state } from './state.js';
 import { saveSchedule } from './firebase.js';
-import { getSubjects, getClubs } from './subjects.js';
+import { getActiveSubjects, getClubs } from './subjects.js';
 
 // ── Константи ────────────────────────────────────────
 const DAY_NAMES   = ['', 'Понеділок', 'Вівторок', 'Середа', 'Четвер', "П'ятниця"];
@@ -272,7 +272,7 @@ function _renderEditorWeek(week) {
 
 // ── Хелпер: select предметів ─────────────────────────
 function _subjectSelect(dayKey, idx, currentName) {
-    const subjects = getSubjects();
+    const subjects = getActiveSubjects();
     const opts = subjects.map(s =>
         `<option value="${s.name}" ${s.name === currentName ? 'selected' : ''}>${s.emoji} ${s.name}</option>`
     ).join('');
