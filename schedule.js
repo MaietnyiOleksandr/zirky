@@ -2,7 +2,7 @@
 // 📋  schedule.js — Розклад уроків
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260915.1721';
+export const VERSION = 'v4.20260915.1728';
 
 import { state } from './state.js';
 import { saveSchedule } from './firebase.js';
@@ -342,7 +342,7 @@ function _editorRow(dayKey, idx, lesson) {
         ${nameInput}
         ${lesson.isClub ? `
         <input class="sched-input sched-time" type="time" value="${lesson.timeStart||''}"
-            onchange="schedUpdateLesson(${dayKey},${idx},'timeStart',this.value)">
+            onblur="schedUpdateLesson(${dayKey},${idx},'timeStart',this.value)">
         <input class="sched-input sched-time" type="time" value="${lesson.timeEnd||''}"
             onchange="schedUpdateLesson(${dayKey},${idx},'timeEnd',this.value)">` : ''}
         <button class="sched-del-btn" onclick="schedDelLesson(${dayKey},${idx})">✕</button>
@@ -448,7 +448,7 @@ function _renderClubEditor() {
                 html += `<div class="sched-editor-row">
                     ${_clubSelect(key, realIdx, club.name)}
                     <input class="sched-input sched-time" type="time" value="${club.timeStart||''}"
-                        onchange="schedUpdateLesson(${key},${realIdx},'timeStart',this.value)">
+                        onblur="schedUpdateLesson(${key},${realIdx},'timeStart',this.value)">
                     <input class="sched-input sched-time" type="time" value="${club.timeEnd||''}"
                         onchange="schedUpdateLesson(${key},${realIdx},'timeEnd',this.value)">
                     <button class="sched-del-btn" onclick="schedDelLesson(${key},${realIdx})">✕</button>
