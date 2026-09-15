@@ -32,6 +32,38 @@ function _sched() {
     return s;
 }
 
+// Гуртки завжди показуємо після уроків і впорядковуємо за початком.
+// Гурток без коректного часу початку йде в кінець; за однакового часу
+// зберігаємо попередній порядок, щоб не переставляти записи довільно.
+function _sortClubsInDay(dayData) {
+    if (!dayData?.lessons) return;
+
+    const lessons = dayData.lessons;
+    const regularLessons = lessons.filter(lesson => !lesson.isClub);
+    const clubs = lessons
+        .map((lesson, index) => ({ lesson, index }))
+        .filter(({ lesson }) => lesson.isClub)
+        .sort((a, b) => {
+            const timeValue = club => /^\d{2}:\d{2}$/.test(club.lesson.timeStart || '')
+                ? club.lesson.timeStart
+                : null;
+            const timeA = timeValue(a);
+            const timeB = timeValue(b);
+            if (timeA === null && timeB === null) return a.index - b.index;
+            if (timeA === null) return 1;
+            if (timeB === null) return -1;
+            return timeA.localeCompare(timeB) || a.index - b.index;
+        })
+        .map(({ lesson }) => lesson);
+
+    dayData.lessons = [...regularLessons, ...clubs];
+}
+
+function _sortAllClubs() {
+    const s = _sched();
+    Object.values(s.days).forEach(_sortClubsInDay);
+}
+
 // Ключ дня: для однотижневого - 1..5, для двотижневого - 11..15 (тиждень А) / 21..25 (тиждень Б)
 // Але зберігаємо спрощено: для 1 тижня - ключі 1..5
 // Для 2 тижні: ключі 1..5 = тиждень А, 11..15 = тиждень Б
@@ -116,6 +148,7 @@ export function renderSchedule() {
     );
     const dayKey = _dayKey(dow, weekNum);
     const dayData = s.days[dayKey] || {};
+    _sortClubsInDay(dayData);
     const lessons = dayData.lessons || [];
     const date = _formatDate(dow, _viewWeek);
 
@@ -328,6 +361,19 @@ export function schedUpdateLesson(dayKey, idx, field, value) {
     const s = _sched();
     if (!s.days[dayKey]?.lessons[idx]) return;
     s.days[dayKey].lessons[idx][field] = value;
+
+    if (field !== 'timeStart') return;
+
+    _sortClubsInDay(s.days[dayKey]);
+    // Після зміни часу індекси рядків змінюються, тому перемальовуємо
+    // редактор, який відкритий зараз.
+    const clubModal = document.getElementById('clubEditorModal');
+    if (clubModal && clubModal.style.display !== 'none') {
+        _renderClubEditor();
+    } else {
+        const scheduleModal = document.getElementById('scheduleEditorModal');
+        if (scheduleModal && scheduleModal.style.display !== 'none') _renderEditorWeek(_editorWeek);
+    }
 }
 
 export function schedDelLesson(dayKey, idx) {
@@ -359,6 +405,7 @@ export function saveScheduleEditor() {
         const val = sel ? sel.value : (inp ? inp.value.trim() : '');
         if (val) s.days[dayKey].lessons[idx].name = val;
     });
+    _sortAllClubs();
     saveSchedule();
     closeScheduleEditor();
     renderSchedule();
@@ -419,10 +466,12 @@ export function clubAddDay(dayKey) {
     if (!s.days[dayKey]) s.days[dayKey] = {};
     if (!s.days[dayKey].lessons) s.days[dayKey].lessons = [];
     s.days[dayKey].lessons.push({ name: '', isClub: true, timeStart: '', timeEnd: '' });
+    _sortClubsInDay(s.days[dayKey]);
     _renderClubEditor();
 }
 
 export function saveClubEditor() {
+    _sortAllClubs();
     saveSchedule();
     closeClubEditor();
     renderSchedule();
