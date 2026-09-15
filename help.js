@@ -2,11 +2,11 @@
 // ❓  help.js — Інструкції по розділах
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260915.2220';
+export const VERSION = 'v4.20260915.2244';
 
 import { state } from './state.js';
 import { CHANGELOG } from './changelog.js';
-import { ACHIEVEMENTS } from './config.js';
+import { ACHIEVEMENTS, BONUS_OPTIONS } from './config.js';
 import { g, achText } from './utils.js';
 
 const HR = '<hr style="border:none;border-top:1px solid #eee;margin:12px 0">';
@@ -31,6 +31,68 @@ const TITLES = {
 // Не модалка showHelp — рендериться напряму в #childInstructions
 // при switchTab('instructions') та при вході дитини (auth.js)
 // ════════════════════════════════════════════════════
+
+// Кольори бейджів для категорій бонусів
+const GROUP_BADGE_COLORS = {
+    '📚 Навчання':         'blue',
+    '🤝 Допомога батькам': 'green',
+    '🏠 По дому':          'green',
+    '🏸 Активність':       'purple',
+    '🧼 Гігієна':          'pink',
+    '🐈‍⬛ Догляд за котом':  'pink',
+};
+
+// Підказки до окремих категорій
+const GROUP_TIPS = {
+    '📚 Навчання': G => `📖 Книголюб рахує кількість книг &nbsp;|&nbsp; 📄 ${G('Читач','Читачка')} рахує сторінки (+30⭐ за кожен рівень)`,
+    '🐈‍⬛ Догляд за котом': G => `🐈‍⬛ Досягнення «${G('Котячий бог','Котяча богиня')}» рахує всі дії з догляду за котом разом`,
+};
+
+function _renderBonusCards(childId) {
+    const G = (boy, girl) => g(childId, boy, girl);
+    const gender = state.parent?.children?.[childId]?.gender
+        || state.data?.gender
+        || 'girl';
+    const isBoy = gender === 'boy';
+
+    return BONUS_OPTIONS.map(group => {
+        const badgeColor = GROUP_BADGE_COLORS[group.group] || 'blue';
+        const tipFn = GROUP_TIPS[group.group];
+        const tipHtml = tipFn ? `<div class="stars-guide-tip">${tipFn(G)}</div>` : '';
+
+        const rowsHtml = group.options.map(opt => {
+            const optGenderClass = opt.gender ? ` opt-${opt.gender}` : '';
+            const isHidden = opt.gender && opt.gender !== gender;
+            const hiddenAttr = isHidden ? ' hidden' : '';
+
+            const hasGender = Boolean(opt.boy && opt.girl);
+            const rawLabel = hasGender
+                ? (isBoy ? (opt.boyLabel || opt.boy) : (opt.label || opt.girl))
+                : opt.label;
+
+            const starsMatch = rawLabel.match(/\(\+(\d+)⭐\)/);
+            const rawVal = hasGender ? (isBoy ? opt.boy : opt.girl) : opt.value;
+            const stars = starsMatch ? starsMatch[1] : (rawVal?.split('|')[1] || '0');
+            const labelText = rawLabel.replace(/\s*\(\+\d+⭐\)/, '').trim();
+
+            return `
+                <div class="stars-guide-row${optGenderClass}"${hiddenAttr}>
+                    <span class="stars-guide-label">${labelText}</span>
+                    <span class="stars-guide-badge stars-badge--${badgeColor}">+${stars}⭐</span>
+                </div>`;
+        }).join('');
+
+        return `
+        <div class="stars-guide-card">
+            <div class="stars-guide-card-title">${group.group}</div>
+            <div class="stars-guide-rows">
+                ${rowsHtml}
+            </div>
+            ${tipHtml}
+        </div>`;
+    }).join('');
+}
+
 export function renderStarsGuide(childId) {
     const G = (boy, girl) => g(childId, boy, girl);
     return `
@@ -95,129 +157,8 @@ export function renderStarsGuide(childId) {
             <div class="stars-guide-tip">ℹ️ За оцінки нижче 8 балів зірки не нараховуються</div>
         </div>
 
-        <!-- Навчання -->
-        <div class="stars-guide-card">
-            <div class="stars-guide-card-title">📚 Навчання</div>
-            <div class="stars-guide-rows">
-                <div class="stars-guide-row">
-                    <span class="stars-guide-label">📝 Виконано Д/З</span>
-                    <span class="stars-guide-badge stars-badge--blue">+2⭐</span>
-                </div>
-                <div class="stars-guide-row">
-                    <span class="stars-guide-label">🎯 Важке завдання</span>
-                    <span class="stars-guide-badge stars-badge--blue">+5⭐</span>
-                </div>
-                <div class="stars-guide-row">
-                    <span class="stars-guide-label">${G('📖 Прочитав книгу','📖 Прочитала книгу')}</span>
-                    <span class="stars-guide-badge stars-badge--blue">+10⭐</span>
-                </div>
-            </div>
-            <div class="stars-guide-tip">📖 Книголюб рахує кількість книг &nbsp;|&nbsp; 📄 ${G('Читач','Читачка')} рахує сторінки (+30⭐ за кожен рівень)</div>
-        </div>
-
-        <!-- Допомога -->
-        <div class="stars-guide-card">
-            <div class="stars-guide-card-title">🤝 Допомога батькам</div>
-            <div class="stars-guide-rows">
-                <div class="stars-guide-row">
-                    <span class="stars-guide-label">🤝 Проста допомога</span>
-                    <span class="stars-guide-badge stars-badge--green">+3⭐</span>
-                </div>
-                <div class="stars-guide-row">
-                    <span class="stars-guide-label">💪 Серйозна допомога</span>
-                    <span class="stars-guide-badge stars-badge--green">+5⭐</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- По дому -->
-        <div class="stars-guide-card">
-            <div class="stars-guide-card-title">🏠 Домашні справи</div>
-            <div class="stars-guide-rows">
-                <div class="stars-guide-row">
-                    <span class="stars-guide-label">${G('🧹 Прибрав кімнату','🧹 Прибрала кімнату')}</span>
-                    <span class="stars-guide-badge stars-badge--green">+3⭐</span>
-                </div>
-                <div class="stars-guide-row">
-                    <span class="stars-guide-label">${G('👕 Поскладав одяг','👕 Поскладала одяг')}</span>
-                    <span class="stars-guide-badge stars-badge--green">+3⭐</span>
-                </div>
-                <div class="stars-guide-row">
-                    <span class="stars-guide-label">${G('🛏️ Застелив ліжко','🛏️ Застелила ліжко')}</span>
-                    <span class="stars-guide-badge stars-badge--green">+2⭐</span>
-                </div>
-                <div class="stars-guide-row">
-                    <span class="stars-guide-label">${G('🫧 Помив посуд','🫧 Помила посуд')}</span>
-                    <span class="stars-guide-badge stars-badge--green">+3⭐</span>
-                </div>
-                <div class="stars-guide-row">
-                    <span class="stars-guide-label">${G('🔧 Допоміг ремонтувати','🍳 Допомогла готувати')}</span>
-                    <span class="stars-guide-badge stars-badge--green">+5⭐</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Активність -->
-        <div class="stars-guide-card">
-            <div class="stars-guide-card-title">🏸 Активність</div>
-            <div class="stars-guide-rows">
-                <div class="stars-guide-row">
-                    <span class="stars-guide-label">🚶 Прогулянка 30+ хв / 6000+ кроків</span>
-                    <span class="stars-guide-badge stars-badge--purple">+3⭐</span>
-                </div>
-                <div class="stars-guide-row">
-                    <span class="stars-guide-label">🏃 Тренування 60+ хв / 10000+ кроків</span>
-                    <span class="stars-guide-badge stars-badge--purple">+5⭐</span>
-                </div>
-                <div class="stars-guide-row">
-                    <span class="stars-guide-label">🏋️ Зробити зарядку</span>
-                    <span class="stars-guide-badge stars-badge--purple">+5⭐</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Гігієна -->
-        <div class="stars-guide-card">
-            <div class="stars-guide-card-title">🧼 Гігієна</div>
-            <div class="stars-guide-rows">
-                <div class="stars-guide-row opt-girl">
-                    <span class="stars-guide-label">💇 Причесатись</span>
-                    <span class="stars-guide-badge stars-badge--pink">+5⭐</span>
-                </div>
-                <div class="stars-guide-row">
-                    <span class="stars-guide-label">🪥 Почистити зуби (без нагадувань)</span>
-                    <span class="stars-guide-badge stars-badge--pink">+2⭐</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Догляд за котом -->
-        <div class="stars-guide-card">
-            <div class="stars-guide-card-title">🐈‍⬛ Догляд за котом</div>
-            <div class="stars-guide-rows">
-                <div class="stars-guide-row">
-                    <span class="stars-guide-label">${G('🍽️ Погодував кота','🍽️ Погодувала кота')}</span>
-                    <span class="stars-guide-badge stars-badge--pink">+1⭐</span>
-                </div>
-                <div class="stars-guide-row">
-                    <span class="stars-guide-label">${G('🚽 Прибрав котячий туалет','🚽 Прибрала котячий туалет')}</span>
-                    <span class="stars-guide-badge stars-badge--pink">+3⭐</span>
-                </div>
-                <div class="stars-guide-row">
-                    <span class="stars-guide-label">${G('🪮 Вичесав шерсть','🪮 Вичесала шерсть')}</span>
-                    <span class="stars-guide-badge stars-badge--pink">+2⭐</span>
-                </div>
-                <div class="stars-guide-row">
-                    <span class="stars-guide-label">${G('✂️ Підстриг кігті','✂️ Підстригла кігті')}</span>
-                    <span class="stars-guide-badge stars-badge--pink">+3⭐</span>
-                </div>
-                <div class="stars-guide-row">
-                    <span class="stars-guide-label">${G('💊 Дав ліки/вітаміни','💊 Дала ліки/вітаміни')}</span>
-                    <span class="stars-guide-badge stars-badge--pink">+2⭐</span>
-                </div>
-            </div>
-            <div class="stars-guide-tip">🐈‍⬛ Досягнення «${G('Котячий бог','Котяча богиня')}» рахує всі дії з догляду за котом разом</div>
-        </div>
+        <!-- Бонуси (динамічно з BONUS_OPTIONS) -->
+        ${_renderBonusCards(childId)}
 
         <!-- Витрати -->
         <div class="stars-guide-card stars-guide-card--spend">
@@ -711,7 +652,7 @@ function helpParent(childId) {
         🔵 Зароблені / 🔴 Витрачені<br>
         ⏱️ Тиждень / Місяць / Рік / Увесь час</p>
         ${HR}
-        <p>📊 <b>Порівняння дітей</b> — статистика по всіх профілях одночасно</p>
+        <p>📊 <b>Порівняння досягнень дітей</b> — статистика по всіх профілях одночасно</p>
     `,
 
     scheduleSection: `
