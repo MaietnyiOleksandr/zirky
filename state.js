@@ -6,7 +6,7 @@
 //     Зміни в будь-якому модулі видні всюди.
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260606.0746';
+export const VERSION = 'v4.20260915.1837';
 
 // ════════════════════════════════════════════════════════════
 
@@ -148,6 +148,7 @@ export const state = {
     donutPeriod:       'month',   // 'week' | 'month' | 'year' | 'all'
     donutOffset:       0,
     donutDrilldown:    null,      // null | { category: string }
+    schoolYearIds:     {},        // { childId: ID навчального року } для аналітики оцінок
 
     // ── Тимчасові дані ────────────────────────────────────────
     pendingCustomReward: null,

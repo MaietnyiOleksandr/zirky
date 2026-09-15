@@ -2,7 +2,7 @@
 // ⚙️   settings.js — Налаштування / Експорт / Імпорт
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260703.0600';
+export const VERSION = 'v4.20260915.1837';
 
 // ════════════════════════════════════════════════════════════
 
@@ -928,6 +928,30 @@ export function renderProfilesAccordion() {
     }
 }
 
+// Повертає один редагований рядок навчального року для картки профілю.
+// ID потрібен статистиці, щоб не втрачати вибраний період після редагування назви.
+function _schoolYearRow(childId, schoolYear = {}) {
+    const id = schoolYear.id || `school_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+    return `
+        <div class="school-year-row" data-school-year-id="${id}">
+            <div><label class="card-label">Назва</label><input type="text" class="school-year-name" value="${schoolYear.name || ''}" maxlength="35" placeholder="5 клас"></div>
+            <div><label class="card-label">Початок</label><input type="date" class="school-year-start" value="${schoolYear.start || ''}"></div>
+            <div><label class="card-label">Кінець</label><input type="date" class="school-year-end" value="${schoolYear.end || ''}"></div>
+            <button type="button" class="sched-del-btn" title="Видалити навчальний рік" onclick="removeSchoolYearRow(this)">✕</button>
+        </div>`;
+}
+
+// Додає порожній рядок без збереження: зміни потрапляють у Firebase лише після «Зберегти».
+export function addSchoolYearRow(childId) {
+    const container = document.getElementById(`schoolYears_${childId}`);
+    if (container) container.insertAdjacentHTML('beforeend', _schoolYearRow(childId));
+}
+
+// Прибирає рядок з форми; самі оцінки при цьому не видаляються.
+export function removeSchoolYearRow(button) {
+    button.closest('.school-year-row')?.remove();
+}
+
 // Зберігає мета-дані профілю дитини (name, pin, startTab, useOwnRates, conversionRates)
 export function saveChildProfile(childId) {
     const nameEl          = document.getElementById(`profileName_${childId}`);
@@ -962,6 +986,43 @@ export function saveChildProfile(childId) {
 
     if (startTabEl) {
         meta.startTab = startTabEl.value;
+    }
+
+    // Навчальні роки редагуються лише в батьківській картці профілю.
+    // Перевіряємо повноту даних і забороняємо перетини, щоб оцінка належала
+    // рівно одному навчальному року.
+    const schoolYearsEl = document.getElementById(`schoolYears_${childId}`);
+    if (schoolYearsEl) {
+        const schoolYears = [];
+        const names = new Set();
+        for (const row of schoolYearsEl.querySelectorAll('.school-year-row')) {
+            const name  = row.querySelector('.school-year-name')?.value.trim() || '';
+            const start = row.querySelector('.school-year-start')?.value || '';
+            const end   = row.querySelector('.school-year-end')?.value || '';
+            if (!name && !start && !end) continue;
+            if (!name || !start || !end) {
+                alert('❌ Для навчального року вкажіть назву, початок і кінець');
+                return;
+            }
+            if (start > end) {
+                alert(`❌ У періоді «${name}» початок не може бути пізніше завершення`);
+                return;
+            }
+            if (names.has(name.toLowerCase())) {
+                alert(`❌ Назва навчального року «${name}» повторюється`);
+                return;
+            }
+            names.add(name.toLowerCase());
+            schoolYears.push({ id: row.dataset.schoolYearId, name, start, end });
+        }
+        schoolYears.sort((a, b) => a.start.localeCompare(b.start));
+        for (let i = 1; i < schoolYears.length; i++) {
+            if (schoolYears[i].start <= schoolYears[i - 1].end) {
+                alert(`❌ Навчальні роки «${schoolYears[i - 1].name}» та «${schoolYears[i].name}» перетинаються`);
+                return;
+            }
+        }
+        meta.schoolYears = schoolYears;
     }
 
     if (useOwnRatesEl) {
@@ -1071,6 +1132,7 @@ function _renderParentProfiles(container) {
         // Параметри власних ставок
         const useOwn  = !!meta.useOwnRates;
         const ownRates = meta.conversionRates || state.parent.conversionRates || { minutesPerStar: 2, moneyPerStar: 1 };
+        const schoolYears = Array.isArray(meta.schoolYears) ? meta.schoolYears : [];
 
         return `
             <div class="profile-card card-bg">
@@ -1116,6 +1178,14 @@ function _renderParentProfiles(container) {
                     <select id="profileStartTab_${childId}">
                         ${tabOptions}
                     </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="card-label">🎓 Навчальні роки</label>
+                    <div id="schoolYears_${childId}" style="display:grid;gap:8px;">
+                        ${schoolYears.map(year => _schoolYearRow(childId, year)).join('')}
+                    </div>
+                    <button type="button" class="btn btn-sm btn-ghost" style="margin-top:8px" onclick="addSchoolYearRow('${childId}')">+ Додати навчальний рік</button>
                 </div>
 
                 <div class="form-group">
@@ -1310,4 +1380,3 @@ function _promptGender() {
         el.querySelector('.gender-cancel').addEventListener('click', () => { el.remove(); resolve(null); });
     });
 }
-

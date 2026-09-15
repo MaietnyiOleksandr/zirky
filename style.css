@@ -1,4 +1,4 @@
-/* version: v4.20260909.2211 */
+/* version: v4.20260915.1837 */
 
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;900&family=Comfortaa:wght@400;700&family=Balsamiq+Sans:wght@400;700&family=Ubuntu:wght@400;700&family=Playfair+Display:wght@400;700&family=Rubik:wght@400;500;700&display=swap');
 
@@ -573,6 +573,21 @@ body::after {
    ФОРМИ
    ════════════════════════════════════════════════════ */
 .form-group { margin-bottom: 20px; }
+
+.school-year-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 1fr 1fr auto;
+    gap: 8px;
+    align-items: end;
+}
+
+.school-year-row .card-label { font-size: 12px; margin-bottom: 4px; }
+.school-year-row .sched-del-btn { margin-bottom: 10px; }
+
+@media (max-width: 600px) {
+    .school-year-row { grid-template-columns: 1fr 1fr auto; }
+    .school-year-row > :first-child { grid-column: 1 / -1; }
+}
 
 label {
     display: block;

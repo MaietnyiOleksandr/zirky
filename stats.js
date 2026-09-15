@@ -2,7 +2,7 @@
 // 📊  stats.js — Статистика та графіки
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260608.0802';
+export const VERSION = 'v4.20260915.1837';
 
 import { state } from './state.js';
 import { getSubjectEmoji } from './subjects.js';
@@ -17,11 +17,84 @@ function cssVar(name, fallback = '') {
 // ════════════════════════════════════════════════════
 // 📚  АНАЛІТИКА ПО ПРЕДМЕТАХ
 // ════════════════════════════════════════════════════
+// Стабільний ключ вибраного року: працює і для старих записів без власного ID.
+function _schoolYearKey(year) {
+    return year.id || `${year.name}|${year.start}|${year.end}`;
+}
+
+// Повертає лише коректно налаштовані роки активної дитини у хронологічному порядку.
+function _configuredSchoolYears() {
+    const years = state.parent.children?.[state.activeChildId]?.schoolYears;
+    if (!Array.isArray(years)) return [];
+    return years
+        .filter(year => year?.name && /^\d{4}-\d{2}-\d{2}$/.test(year.start || '')
+            && /^\d{4}-\d{2}-\d{2}$/.test(year.end || '') && year.start <= year.end)
+        .sort((a, b) => a.start.localeCompare(b.start));
+}
+
+// Відновлює обраний для профілю рік; якщо його ще не було обрано —
+// використовує поточний за датою, а поза навчальним періодом — останній.
+function _activeSchoolYear() {
+    const years = _configuredSchoolYears();
+    if (!years.length) return { years, active: null, index: -1 };
+
+    const childId = state.activeChildId;
+    if (!state.schoolYearIds) state.schoolYearIds = {};
+    let index = years.findIndex(year => _schoolYearKey(year) === state.schoolYearIds[childId]);
+    if (index < 0) {
+        const today = new Date();
+        const todayKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+        index = years.findIndex(year => year.start <= todayKey && todayKey <= year.end);
+        if (index < 0) index = years.length - 1;
+        state.schoolYearIds[childId] = _schoolYearKey(years[index]);
+    }
+    return { years, active: years[index], index };
+}
+
+// Межі дня включно, щоб оцінки в останній день року не відфільтровувалися.
+function _schoolYearBounds(year) {
+    return {
+        start: new Date(`${year.start}T00:00:00`),
+        end:   new Date(`${year.end}T23:59:59.999`),
+    };
+}
+
+// Єдиний навігатор для середньої оцінки та графіка її динаміки.
+function _schoolYearNav(years, index, active) {
+    return `
+        <div class="month-selector mt-md" aria-label="Навчальний рік">
+            <button class="month-btn" onclick="changeSchoolYear(-1)" ${index <= 0 ? 'disabled' : ''}>◀</button>
+            <div class="month-display month-display--sm">${active.name} · ${active.start.slice(0, 4)}–${active.end.slice(0, 4)}</div>
+            <button class="month-btn" onclick="changeSchoolYear(1)" ${index >= years.length - 1 ? 'disabled' : ''}>▶</button>
+        </div>`;
+}
+
+// Перемикає навчальний рік для активного профілю та перемальовує лише аналітику оцінок.
+export function changeSchoolYear(delta) {
+    const { years, index } = _activeSchoolYear();
+    const target = years[index + delta];
+    if (!target) return;
+    state.schoolYearIds[state.activeChildId] = _schoolYearKey(target);
+    renderSubjectAnalytics();
+}
+
 export function renderSubjectAnalytics() {
     const container = document.getElementById('subjectAnalytics');
     if (!container) return;
 
-    const records = state.data.records || [];
+    const { years, active, index } = _activeSchoolYear();
+    if (!active) {
+        container.innerHTML = '<div class="text-hint font-sm text-center">Додайте навчальний рік у налаштуваннях профілю, щоб переглянути оцінки.</div>';
+        return;
+    }
+
+    // Обидві частини аналітики нижче використовують той самий відфільтрований
+    // набір записів, тож середній бал і динаміка завжди відповідають одному року.
+    const { start, end } = _schoolYearBounds(active);
+    const records = (state.data.records || []).filter(record => {
+        const date = new Date(record.date);
+        return !Number.isNaN(date.getTime()) && date >= start && date <= end;
+    });
     const subjectData = {};
 
     records.forEach(r => {
@@ -44,7 +117,7 @@ export function renderSubjectAnalytics() {
     });
 
     if (Object.keys(subjectData).length === 0) {
-        container.innerHTML = '<div class="text-hint font-sm text-center">Ще немає оцінок для аналізу</div>';
+        container.innerHTML = `${_schoolYearNav(years, index, active)}<div class="text-hint font-sm text-center">Ще немає оцінок за цей навчальний рік</div>`;
         return;
     }
 
@@ -77,7 +150,7 @@ export function renderSubjectAnalytics() {
     // Колір бару залежно від оцінки — через CSS класи
     const barClass = avg => avg >= 10 ? 'subject-bar--good' : avg >= 7 ? 'subject-bar--mid' : 'subject-bar--bad';
 
-    let html = `<div style="display:grid;gap:10px;">`;
+    let html = `${_schoolYearNav(years, index, active)}<div style="display:grid;gap:10px;">`;
 
     subjects.forEach(s => {
         const emojiRaw = getSubjectEmoji(s.name);

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⭐</text></svg>">
-    <!-- version: v4.20260909.2211 -->
+    <!-- version: v4.20260915.1837 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>⭐ Зірки Успіху</title>
     <link rel="stylesheet" href="style.css">
@@ -1033,7 +1033,8 @@
         import { renderStats, updateChart, changeChartPeriod, changeChartOffset,
                  updateBalanceChart, changeBalancePeriod, changeBalanceOffset,
                  updateHeatmap, changeHeatmapMode, changeHeatmapOffset,
-                 renderSourceDonut, changeDonutPeriod, changeDonutOffset, drillDonut } from './stats.js';
+                 renderSourceDonut, changeDonutPeriod, changeDonutOffset, drillDonut,
+                 changeSchoolYear } from './stats.js';
         import { initCompare, renderCompare, resetCompareCache } from './compare.js';
         import { buildSubjectSelects, openSubjectsEditor, closeSubjectsEditor,
                  subjAddNew, subjDelete, subjArchive, subjUpdateField, subjUpdateClub,
@@ -1051,7 +1052,7 @@
                  switchProfile, showActivityModal, closeActivityModal,
                  refreshActivityModal, switchActivityTab,
                  renderProfilesAccordion, saveChildProfile, setChildColor, unblockChild, addChildProfile,
-                 deleteChildProfile, toggleOwnRatesUI,
+                 deleteChildProfile, toggleOwnRatesUI, addSchoolYearRow, removeSchoolYearRow,
                  auditAchievements } from './settings.js';
         import { openNotifications, closeNotifications, updateNotificationBadge,
                  updateChangelogBadge, markChangelogRead, dismissNotification,
@@ -1191,6 +1192,7 @@
         window.changeDonutPeriod    = changeDonutPeriod;
         window.changeDonutOffset    = changeDonutOffset;
         window.drillDonut           = drillDonut;
+        window.changeSchoolYear     = changeSchoolYear;
         window.exportData = exportData;
         window.importData = importData;
         window.resetAllData = resetAllData;
@@ -1221,6 +1223,8 @@
         window.addChildProfile     = addChildProfile;
         window.deleteChildProfile  = deleteChildProfile;
         window.toggleOwnRatesUI    = toggleOwnRatesUI;
+        window.addSchoolYearRow    = addSchoolYearRow;
+        window.removeSchoolYearRow = removeSchoolYearRow;
         window.auditAchievements   = auditAchievements;
         window.commitAndSaveBorder = commitAndSaveBorder;
         window.cancelBorder        = cancelBorder;
