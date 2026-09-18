@@ -2,7 +2,7 @@
 // ⚙️   settings.js — Налаштування / Експорт / Імпорт
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260918.0936';
+export const VERSION = 'v4.20260918.0956';
 
 // ════════════════════════════════════════════════════════════
 
@@ -1060,6 +1060,7 @@ export function toggleOwnRatesUI(childId) {
 function _renderChildProfile(container) {
     const childId = state.activeChildId || 'child_1';
     const meta    = state.parent.children?.[childId] || {};
+    const schoolYears = Array.isArray(meta.schoolYears) ? meta.schoolYears.filter(Boolean) : [];
 
     // Превью картки та пікер аватара через appearance.js
     const previewHTML = window._renderAvatarPreviewPublic
@@ -1094,8 +1095,39 @@ function _renderChildProfile(container) {
                 💾 Зберегти
             </button>
 
+            <section aria-label="Навчальні роки">
+                <h3 class="card-label">🎓 Навчальні роки</h3>
+                <p class="text-hint font-sm">Навчальні роки додають і редагують батьки.</p>
+                <div class="child-school-years" style="display:grid;gap:8px;"></div>
+            </section>
+
         </div>
     `;
+
+    const yearsContainer = container.querySelector('.child-school-years');
+    const formatDate = value => {
+        const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value || '');
+        return match ? `${match[3]}.${match[2]}.${match[1]}` : '—';
+    };
+    if (!schoolYears.length) {
+        const empty = document.createElement('p');
+        empty.className = 'text-hint font-sm';
+        empty.textContent = 'Батьки ще не додали навчальних років.';
+        yearsContainer.append(empty);
+    } else {
+        schoolYears.slice().sort((a, b) => (a.start || '').localeCompare(b.start || '')).forEach(year => {
+            const row = document.createElement('div');
+            row.className = 'card-bg';
+            const name = document.createElement('strong');
+            name.style.overflowWrap = 'anywhere';
+            name.textContent = year.name || 'Навчальний рік';
+            const dates = document.createElement('div');
+            dates.className = 'text-hint font-sm';
+            dates.textContent = `${formatDate(year.start)} — ${formatDate(year.end)}`;
+            row.append(name, dates);
+            yearsContainer.append(row);
+        });
+    }
 
     // Активуємо першу вкладку пікера після рендеру
     const firstCat = container.querySelector(`#avatarPicker_${childId} .avatar-tab-btn`);
