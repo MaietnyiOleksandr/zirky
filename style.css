@@ -1,4 +1,4 @@
-/* version: v4.20260915.1837 */
+/* version: v4.20261001.2207 */
 
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Nunito:wght@400;700;900&family=Comfortaa:wght@400;700&family=Balsamiq+Sans:wght@400;700&family=Ubuntu:wght@400;700&family=Playfair+Display:wght@400;700&family=Rubik:wght@400;500;700&display=swap');
 
@@ -4182,6 +4182,18 @@ button.tk-deadline--overdue:hover {
    📊  compare.js — Порівняльна статистика
    ════════════════════════════════════════════════════════════ */
 
+.compare-controls { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; }
+.compare-controls label { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.compare-controls select, .compare-period-nav button { font: inherit; color: var(--text); background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 8px; }
+.compare-period-nav { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.compare-period-nav span { text-align: center; }
+.compare-period-nav button { min-width: 40px; min-height: 40px; cursor: pointer; }
+.compare-period-nav button:disabled { opacity: .4; cursor: default; }
+@media (max-width: 480px) {
+    .compare-period-nav { width: 100%; }
+    .compare-card .compare-card-stats { grid-template-columns: 1fr; }
+}
+
 .compare-cards {
     display: grid;
     gap: 12px;
@@ -4233,6 +4245,7 @@ button.tk-deadline--overdue:hover {
 }
 
 .compare-stat {
+    gap: 8px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -4244,7 +4257,7 @@ button.tk-deadline--overdue:hover {
 .compare-stat:nth-last-child(-n+2) { border-bottom: none; }
 
 .compare-stat-label { color: var(--text-hint); }
-.compare-stat-value { font-weight: bold; }
+.compare-stat-value { font-weight: bold; white-space: nowrap; }
 
 .compare-chart-wrap {
     background: var(--card);
