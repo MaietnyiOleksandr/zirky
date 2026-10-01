@@ -6,7 +6,7 @@
 //     showForm/switchTab, а ui.js потребував їх модулів
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260630.2235';
+export const VERSION = 'v4.20261001.2138';
 
 import { state } from './state.js';
 import { getTodayDate } from './utils.js';
@@ -119,7 +119,67 @@ export function showForm(type) {
 const TAB_ORDER = ['add','schedule','tasks','rewards','achievements','history','stats','feedback','guide','instructions','settings'];
 let _lastTab = null;   // запам'ятовуємо попередній таб для визначення напрямку
 
+// Свайпи лише по вмісту вкладки; панель вкладок прокручується як раніше.
+let tabSwipe = null;
+const SWIPE_IGNORE = 'input, textarea, select, button, a, [contenteditable]:not([contenteditable="false"]), [role="slider"], canvas, .help-modal, [role="dialog"], [data-no-tab-swipe]';
+
+document.addEventListener('touchstart', (event) => {
+    tabSwipe = null;
+    if (event.touches.length !== 1 || !(event.target instanceof Element)) return;
+    const section = event.target.closest('.section.active');
+    if (!section || event.target.closest(SWIPE_IGNORE)) return;
+
+    // Горизонтальні таблиці та каруселі мають власний жест прокручування.
+    for (let node = event.target; node; node = node.parentElement) {
+        const style = getComputedStyle(node);
+        if (node.scrollWidth > node.clientWidth + 1 && /auto|scroll/.test(style.overflowX)) return;
+        if (node === section) break;
+    }
+    const touch = event.touches[0];
+    // Залишаємо краї екрана для системних жестів браузера.
+    if (touch.clientX < 24 || touch.clientX > window.innerWidth - 24) return;
+    tabSwipe = { x: touch.clientX, y: touch.clientY, id: touch.identifier, section, time: performance.now() };
+}, { passive: true });
+
+document.addEventListener('touchmove', (event) => {
+    if (!tabSwipe) return;
+    const touch = Array.from(event.touches).find(t => t.identifier === tabSwipe.id);
+    if (event.touches.length !== 1 || !touch || Math.abs(touch.clientY - tabSwipe.y) > 32) {
+        tabSwipe = null;
+    }
+}, { passive: true });
+
+document.addEventListener('touchcancel', () => { tabSwipe = null; }, { passive: true });
+document.addEventListener('touchend', (event) => {
+    const swipe = tabSwipe;
+    tabSwipe = null;
+    if (!swipe || event.touches.length || !swipe.section.classList.contains('active')) return;
+    const touch = Array.from(event.changedTouches).find(t => t.identifier === swipe.id);
+    if (!touch || performance.now() - swipe.time > 800) return;
+    const dx = touch.clientX - swipe.x;
+    const dy = touch.clientY - swipe.y;
+    if (Math.abs(dx) < 60 || Math.abs(dy) > 32 || Math.abs(dx) < Math.abs(dy) * 2) return;
+
+    const tabs = Array.from(document.querySelectorAll('.tabs .tab[data-tab]')).filter(btn =>
+        !btn.disabled && btn.getClientRects().length && getComputedStyle(btn).visibility !== 'hidden'
+    );
+    const current = tabs.findIndex(btn => btn.classList.contains('active') ||
+        (btn.dataset.tab === 'guide' ? 'instructions' : btn.dataset.tab) + 'Section' === swipe.section.id);
+    const next = current >= 0 ? tabs[current + (dx < 0 ? 1 : -1)] : null;
+    if (!next) return;
+    switchTab(next.dataset.tab, true);
+    // Показуємо активну кнопку без зміни вертикальної позиції сторінки.
+    const strip = next.closest('.tabs-scroll');
+    if (strip) {
+        const buttonRect = next.getBoundingClientRect();
+        const stripRect = strip.getBoundingClientRect();
+        if (buttonRect.left < stripRect.left) strip.scrollLeft += buttonRect.left - stripRect.left;
+        else if (buttonRect.right > stripRect.right) strip.scrollLeft += buttonRect.right - stripRect.right;
+    }
+}, { passive: true });
+
 export function switchTab(tab, fromClick = false) {
+    tabSwipe = null;
     // Зупиняємо preview теми якщо активний
     stopPreview(false);
     resetPendingBorder();   // скидаємо pending рамку при зміні табу
