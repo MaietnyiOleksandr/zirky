@@ -2,7 +2,7 @@
 // 🔥  firebase.js — Firebase
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260703.2337';
+export const VERSION = 'v4.20261001.2223';
 
 import { state, defaultChildData } from './state.js';
 import { firebaseConfig } from './config.js';

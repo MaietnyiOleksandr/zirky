@@ -2,7 +2,7 @@
 // ⚙️   settings.js — Налаштування / Експорт / Імпорт
 // ════════════════════════════════════════════════════
 
-export const VERSION = 'v4.20260918.0956';
+export const VERSION = 'v4.20261002.1200';
 
 // ════════════════════════════════════════════════════════════
 
@@ -49,7 +49,7 @@ async function _loadVersionsTable(containerId = 'versionsTableBody') {
 
     const jsFiles = [
         'achievements.js','appearance.js','auth.js',
-        'changelog.js','compare.js','config.js','feedback.js','firebase.js',
+        'changelog.js','compare.js','config.js','family-access.js','feedback.js','firebase.js',
         'freeze.js','goals.js','help.js','help-child.js','help-parent.js','help-shared.js','history.js',
         'navigation.js','notifications.js','records.js',
         'rewards.js','schedule.js','settings.js',

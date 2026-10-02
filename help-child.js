@@ -1,11 +1,11 @@
 // Дитячі довідки, довідник зірок і пояснення серії
 
-export const VERSION = 'v4.20260918.0946';
+export const VERSION = 'v4.20261002.1200';
 
 import { state } from './state.js';
 import { BONUS_OPTIONS } from './config.js';
 import { g } from './utils.js';
-import { HR, _renderAchTable } from './help-shared.js';
+import { HR, _renderAchTable, ACCESS_HELP, SWIPE_HELP } from './help-shared.js';
 
 // ════════════════════════════════════════════════════
 // ⭐ ДИТЯЧИЙ ДОВІДНИК ЗІРОК — вкладка "Довідник" (instructions)
@@ -83,6 +83,12 @@ export function renderStarsGuide(childId) {
         </div>
 
         <!-- Як працює система -->
+        <div class="stars-guide-card">
+            <div class="stars-guide-card-title">🔐 Вхід і навігація</div>
+            ${ACCESS_HELP}
+            ${SWIPE_HELP}
+        </div>
+
         <div class="stars-guide-card">
             <div class="stars-guide-card-title">💙 Як це працює</div>
             <div class="stars-guide-rows">
@@ -390,6 +396,8 @@ export function helpChild(childId) {
     `,
 
     settingsSection: `
+        ${ACCESS_HELP}
+        ${HR}
         <p>Цей розділ в основному для батьків 👨‍👩‍👧</p>
         <p>Тут декілька блоків-акордеонів — натискай на заголовок, щоб розгорнути або згорнути.</p>
         ${HR}
@@ -424,6 +432,10 @@ export function helpChild(childId) {
     `,
 
     about: `
+        ${ACCESS_HELP}
+        ${HR}
+        ${SWIPE_HELP}
+        ${HR}
         <p>⭐ <b>Зірки Успіху</b> — твоя особиста гра досягнень!</p>
         <p>Старайся в школі й вдома — заробляй зірки ⭐<br>
         Витрачай їх на нагороди, які <b>ти сам${G('','а')} обираєш</b> 🎁</p>
