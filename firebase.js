@@ -15,7 +15,7 @@ import { updateUI } from './ui.js';
 
 // ════════════════════════════════════════════════════════════
 
-const app = initializeApp(firebaseConfig);
+export const app = initializeApp(firebaseConfig);
 export const db = getDatabase(app);
 
 // ── Функція відписки від попереднього дитячого listener-а ───
@@ -47,7 +47,7 @@ export function setNotifUnsub(unsub) {
 // Завантажує parent/ один раз при старті.
 // Повертає Promise що резолвиться після першого читання.
 export function initParentData() {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
         onValue(ref(db, 'zirky/parent'), (snapshot) => {
             const saved = snapshot.val();
             if (saved) {
@@ -61,7 +61,7 @@ export function initParentData() {
                 if (state.parent.failedAttempts === undefined) state.parent.failedAttempts = 0;
             }
             resolve();
-        }, { onlyOnce: true });
+        }, reject, { onlyOnce: true });
     });
 }
 
