@@ -1,11 +1,41 @@
-/* version: v4.20261016.2344 */
+/* version: v4.20261017.0015 */
 
 .login-help-actions {
+    position: absolute;
+    top: 10px;
+    right: 10px;
     display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 8px;
-    margin-bottom: 16px;
+    gap: 4px;
+}
+
+.login-help-actions .login-info-btn {
+    position: static;
+    width: 32px;
+    height: 32px;
+    padding: 4px;
+}
+
+.login-account-link {
+    display: inline-block;
+    margin-top: 18px;
+    padding: 6px 4px;
+    border: 0;
+    background: none;
+    color: var(--modal-text-muted);
+    font: inherit;
+    font-size: 13px;
+    line-height: 1.4;
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.login-account-link:hover { color: var(--secondary); }
+.login-info-btn:focus-visible,
+.login-account-link:focus-visible {
+    outline: 2px solid var(--secondary);
+    outline-offset: 2px;
+    opacity: 1;
 }
 
 /* Довідка має відкриватися також поверх екрана Google-входу. */
@@ -821,6 +851,8 @@ select:focus, input:focus {
     display: flex;
     justify-content: center;
     align-items: center;
+    padding: 16px 0;
+    overflow-y: auto;
     z-index: 1000;
     animation: fadeIn 0.3s;
 }
@@ -835,6 +867,8 @@ select:focus, input:focus {
     animation: scaleIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     color: var(--modal-text);
     position: relative;
+    flex-shrink: 0;
+    margin-block: auto;
 }
 
 .login-info-btn {
