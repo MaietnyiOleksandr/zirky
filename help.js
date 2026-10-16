@@ -1,11 +1,12 @@
 // Довідка: заголовки, вибір ролі та керування модальним вікном
 
-export const VERSION = 'v4.20260918.0946';
+export const VERSION = 'v4.20261016.2344';
 
 import { state } from './state.js';
 import { CHANGELOG } from './changelog.js';
 import { helpChild } from './help-child.js';
 import { helpParent } from './help-parent.js';
+import { ACCESS_HELP } from './help-shared.js';
 
 // Зберігаємо публічні імпорти для auth.js, navigation.js та index.html.
 export { renderStarsGuide, getStreakModalContent } from './help-child.js';
@@ -21,6 +22,7 @@ const TITLES = {
     feedbackSection:     '💬 Зворотній зв`язок',
     settingsSection:     '⚙️ Налаштування',
     about:               'ℹ️ Про програму',
+    access:              '🔐 Вхід і доступ',
     changelog:           '📝 Історія змін',
 };
 
@@ -51,7 +53,9 @@ export function showHelp(sectionId) {
     // (зокрема для декоративних зображень у темах з decorated: true)
     modal.dataset.section = sectionId;
 
-    if (sectionId === 'changelog') {
+    if (sectionId === 'access') {
+        content.innerHTML = ACCESS_HELP;
+    } else if (sectionId === 'changelog') {
         content.innerHTML = renderChangelogHTML();
         // Позначаємо changelog прочитаним через notifications.js
         if (window.markChangelogRead) window.markChangelogRead();

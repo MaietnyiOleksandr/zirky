@@ -1,9 +1,9 @@
 // Батьківські довідки по розділах
 
-export const VERSION = 'v4.20261002.1200';
+export const VERSION = 'v4.20261016.2344';
 
 import { g } from './utils.js';
-import { HR, _renderAchTable, ACCESS_HELP, SWIPE_HELP } from './help-shared.js';
+import { HR, _renderAchTable, SWIPE_HELP } from './help-shared.js';
 
 // ════════════════════════════════════════════════════
 // 👨‍👩‍👧 БАТЬКИ
@@ -162,7 +162,7 @@ export function helpParent(childId) {
     `,
 
     settingsSection: `
-        ${ACCESS_HELP}
+        ${SWIPE_HELP}
         ${HR}
         <p>Повне керування застосунком ⚙️</p>
         ${HR}
@@ -199,10 +199,6 @@ export function helpParent(childId) {
     `,
 
     about: `
-        ${ACCESS_HELP}
-        ${HR}
-        ${SWIPE_HELP}
-        ${HR}
         <p>⭐ <b>Зірки Успіху</b> — гейміфікована система нагород для дітей</p>
         ${HR}
         <p>🎓 <b>Записи</b> — оцінки, бонуси, діагностувальні, особливі нарахування</p>
